@@ -59,3 +59,18 @@ export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 
 			return 'outline';
 	}
 };
+
+// Define Authenticated User Data Structure (from login response)
+// Matches the structure within the `data.user` field of the API response
+export interface AuthenticatedUser {
+	id: string;
+	name: string;
+	email: string;
+	profilePictureUrl: string | null; // Allow null
+	roles: Role[]; // Array of roles
+	registrationDate: string; // Assuming string representation of date
+	investmentCount: number;
+	totalInvested: number;
+	status: UserStatus | null; // Allow null
+	country: string | null; // Allow null
+}

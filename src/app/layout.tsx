@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
 import appSettings from '@/config/app'; // Import app settings
 import { ProgressBar } from '@/components/layout/ProgressBar'; // Import ProgressBar
 import { Toaster } from '@/components/ui/sonner'; // Import Toaster
@@ -40,9 +41,11 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<ProgressBar /> {/* Add ProgressBar here */}
-					{children}
-					<Toaster richColors /> {/* Add Toaster here */}
+					<AuthProvider>
+						<ProgressBar /> {/* ProgressBar might need to be inside or outside depending on if it needs auth state */}
+						{children}
+						<Toaster richColors /> {/* Toaster likely doesn't need auth state */}
+					</AuthProvider>
 				</ThemeProvider>
 			</body>
 		</html>

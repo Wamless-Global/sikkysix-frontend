@@ -317,7 +317,7 @@ export default function UserManagementPage() {
 						</Button>
 						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading} className="cursor-pointer">
 							Next
-							{isLoading && loadingButton === 'next' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 ml-1" />}
+							{isLoading && loadingButton === 'next' ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 ml-1" />}
 						</Button>
 					</div>
 				</div>

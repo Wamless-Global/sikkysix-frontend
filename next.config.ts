@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
 			},
 		],
 	},
+	async rewrites() {
+		return [
+			{
+				// Proxy requests from /api/... on the frontend to http://localhost:5002/api/... on the backend
+				source: '/api/:path*',
+				// Ensure destination includes the /v1 path consistent with API_BASE_URL
+				destination: 'http://localhost:5002/api/v1/:path*',
+			},
+		];
+	},
 };
 
 export default nextConfig;

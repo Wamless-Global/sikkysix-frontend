@@ -1,10 +1,13 @@
 'use client'; // Required for state
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from '@/context/AuthContext'; // Import AuthContext hook
 import Sidebar from './Sidebar';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, Loader2 } from 'lucide-react';
+import { toast } from 'sonner'; // Re-add toast import
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -13,6 +16,33 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+	const [isLogoutLoading, setIsLogoutLoading] = useState(false); // Specific loading state for logout
+	const [error, setError] = useState<string | null>(null); // Keep error state if needed locally
+	const router = useRouter();
+	// Get auth state and functions from context
+	const { logout, currentUser, isLoading: isAuthLoading } = useAuthContext();
+
+	const handleLogout = async () => {
+		setIsLogoutLoading(true); // Start loading the button
+		setError(null); // Clear local error state
+
+		try {
+			await logout(); // Call the context logout function
+			toast.success('Logged out successfully!');
+			router.push('/auth/login'); // Redirect after successful logout (context already cleared user)
+		} catch (err) {
+			// Error handling: The context's logout function throws an error on failure.
+			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during logout.';
+			console.error('Logout error in AdminLayout:', err);
+			setError(errorMessage); // Set local error state if needed for UI feedback
+			// Show the error message from the context's thrown error
+			toast.error(errorMessage);
+		} finally {
+			setIsLogoutLoading(false); // Stop loading the button
+		}
+	};
+
+	console.log('AdminLayout: Current User:', currentUser); // Debugging line to check current user state
 
 	return (
 		<div className="flex h-screen bg-background">
@@ -70,8 +100,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 					</Button>
 					{/* App Name - Applied original Admin Panel styles */}
 					<h1 className="text-xl font-semibold text-foreground flex-1">SikkySix Admin</h1>
-					{/* Theme Toggle */}
-					<ThemeToggle />
+					<div className="flex items-center">
+						{/* Greeting - Show only when auth is loaded and user exists */}
+						{!isAuthLoading && currentUser && <span className="text-sm text-muted-foreground hidden sm:inline-block mr-4">Hello, {currentUser.name}</span>}
+						{/* Spacer to push ThemeToggle and Logout to the right */}
+						<div className="flex-1 mr-2.5"></div>
+						{/* Theme Toggle */}
+						<ThemeToggle />
+						{/* Logout Button - Disable while loading */}
+						<Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2 cursor-pointer" disabled={isLogoutLoading}>
+							{isLogoutLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />} {/* Use isLogoutLoading */}
+							<span className="sr-only">Log out</span>
+						</Button>
+					</div>
 				</header>
 
 				{/* Scrollable Main Content */}
