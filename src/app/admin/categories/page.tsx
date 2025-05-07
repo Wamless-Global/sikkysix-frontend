@@ -1,6 +1,6 @@
 'use client'; // Required for state management (dialog open/close)
 
-import React, { useState } from 'react'; // Import useState
+import { useState } from 'react'; // Import useState
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,12 +53,12 @@ export default function CategoryManagementPage() {
 
 	// TODO: Implement actual category creation logic (API call)
 	const handleCreateCategory = () => {
-		console.log('Creating category:', { name: newCategoryName, description: newCategoryDescription });
+		logger.info('Creating category:', { name: newCategoryName, description: newCategoryDescription });
 		// Reset form and close dialog after submission (replace with actual logic)
 		setNewCategoryName('');
 		setNewCategoryDescription('');
 		setIsCreateDialogOpen(false);
-		alert('Category created (placeholder)! Check console.'); // Placeholder feedback
+		alert('Category created (placeholder)! Check logger.'); // Placeholder feedback
 	};
 
 	return (
@@ -66,7 +66,6 @@ export default function CategoryManagementPage() {
 			{/* Add Breadcrumbs and remove the old h1 */}
 			<Breadcrumbs />
 			<div className="flex justify-between items-center mt-2">
-				{' '}
 				{/* Added mt-2 */}
 				<h1 className="text-2xl font-semibold">Investment Category Management</h1> {/* Restore Title */}
 				<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -101,7 +100,6 @@ export default function CategoryManagementPage() {
 								</Button>
 							</DialogClose>
 							<Button type="submit" onClick={handleCreateCategory} disabled={!newCategoryName || !newCategoryDescription}>
-								{' '}
 								{/* Basic validation */}
 								Create Category
 							</Button>

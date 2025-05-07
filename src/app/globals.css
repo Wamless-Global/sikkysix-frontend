@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -77,11 +78,57 @@
 	--sidebar-accent-foreground: oklch(0.12 0.021 283.11);
 	--sidebar-border: oklch(0.929 0.011 283.11);
 	--sidebar-ring: oklch(0.769 0.188 303.9);
+
+	/* Landing Page Specific Colors (Light Mode Fallback) */
+	--lp-green-primary: oklch(0.69 0.21 145); /* ~ #22C55E */
+	--lp-green-secondary: oklch(0.3 0.08 145); /* ~ #064E3B */
+	--lp-green-muted: oklch(0.4 0.1 145); /* ~ #115E59 */
+	--lp-dark-bg: oklch(0.95 0.01 280); /* Light fallback for dark bg */
+	--lp-dark-card: oklch(0.98 0.01 280); /* Light fallback for dark card */
+	--lp-border: oklch(0.9 0.01 280); /* Light fallback for border */
+
+	/* Auth & Static Page Specific Colors (Light Mode Fallback) */
+	--auth-bg: oklch(1 0 0); /* White */
+	--auth-foreground: oklch(0.12 0.021 283.11); /* Default foreground */
+	--auth-card-bg: oklch(1 0 0); /* White */
+	--auth-input-bg: oklch(0.98 0.01 280); /* Very light gray */
+	--auth-input-border: oklch(0.9 0.01 280); /* Light gray */
+	--link-success: oklch(0.6 0.18 145); /* Slightly darker green for light bg */
+	--static-card-bg: oklch(0.98 0.01 280); /* Very light gray for terms/privacy card */
+
+	/* Custom Sikkysix Dashboard Colors (Light Mode) */
+	--dashboard-background-dark: 226 30% 9%;
+	--dashboard-sidebar-bg: 190 45% 74%;
+	--dashboard-sidebar-active-bg: 170 13% 54%;
+	--dashboard-card-bg: 210 22% 22%;
+	--dashboard-button-bg: 210 15% 35%;
+	--dashboard-button-hover: 210 15% 45%;
+	--dashboard-text-primary: oklch(0.19 0.028 258.6);
+	--dashboard-text-secondary: 210 16% 70%;
+
+	--dashboard-accent-red: 0 80% 67%;
+	--dashboard-accent-red-hover: 0 80% 67%;
+	--dashboard-accent-red-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-accent: #75da84;
+	--dashboard-accent-muted: rgba(224, 254, 241, 0.12);
+	--dashboard-accent-hover: #64b971;
+	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-secondary: #d8fcec;
+	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-subtext: #6a6a6a; /* Muted text color */
+	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
+	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 }
 
 .dark {
+	/* Ensure dark background applies globally */
+	color-scheme: dark;
+
 	/* Darker background, closer to reference */
-	--background: oklch(0.08 0.015 280); /* Darker Violet/Blue */
+	--background: oklch(0.19 0.028 258.6); /* Updated to #0F1825 (accurate conversion) */
 	--foreground: oklch(0.988 0.008 303.9); /* Keep foreground light */
 
 	/* Card slightly lighter than background, less prominent border */
@@ -125,6 +172,72 @@
 	--sidebar-accent-foreground: oklch(0.988 0.008 303.9);
 	--sidebar-border: oklch(0.15 0.022 280 / 0.3); /* Subtle sidebar border */
 	--sidebar-ring: oklch(0.627 0.265 303.9 / 0.8);
+
+	/* Landing Page Specific Colors (Dark Mode) */
+	--lp-green-primary: oklch(0.69 0.21 145); /* ~ #22C55E */
+	--lp-green-secondary: oklch(0.3 0.08 145); /* ~ #064E3B */
+	--lp-green-muted: oklch(0.4 0.1 145); /* ~ #115E59 */
+	--lp-dark-bg: oklch(0.09 0.016 280); /* ~ #0D1117 */
+	--lp-dark-card: oklch(0.12 0.019 280); /* ~ #161B22 */
+
+	/* Auth & Static Page Specific Colors (Dark Mode) */
+	--auth-bg: oklch(0.09 0.016 280); /* Match --lp-dark-bg */
+	--auth-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
+	--auth-card-bg: oklch(0.09 0.016 280); /* Match --auth-bg (no distinct card bg) */
+	--auth-input-bg: oklch(0.15 0.022 280); /* Match --secondary/--muted */
+	--auth-input-border: oklch(0.25 0.022 280); /* Match --border */
+	--link-success: oklch(0.69 0.21 145); /* Match --lp-green-primary (bright green) */
+	--static-card-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
+	--lp-border: oklch(0.25 0.022 280); /* Match existing dark border */
+
+	/* Custom Sikkysix Dashboard Colors (Dark Mode - Same as Light for now based on design) */
+	--dashboard-background-dark: 226 30% 9%;
+	--dashboard-sidebar-bg: 190 45% 74%;
+	--dashboard-sidebar-active-bg: 170 13% 54%;
+	--dashboard-card-bg: 210 22% 22%;
+	--dashboard-button-bg: 210 15% 35%;
+	--dashboard-button-hover: 210 15% 45%;
+	--dashboard-text-primary: oklch(0.19 0.028 258.6);
+	--dashboard-text-secondary: 210 16% 70%;
+
+	--dashboard-accent-red: 0 80% 67%;
+	--dashboard-accent-red-hover: 0 80% 67%;
+	--dashboard-accent-red-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-accent: #75da84;
+	--dashboard-accent-muted: oklch(linear-gradient(0deg, rgba(224, 254, 241, 0.12) -2.43%, rgba(224, 254, 241, 0.12) 100%));
+	--dashboard-accent-hover: #64b971;
+	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-secondary: #d8fcec;
+	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
+
+	--dashboard-subtext: #6a6a6a; /* Muted text color */
+	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
+	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
+}
+
+@layer components {
+	.auth-page {
+		@apply bg-background text-[oklch(var(--auth-foreground))];
+	}
+	.auth-card {
+		@apply border-none !bg-[oklch(var(--dashboard-muted-bg))] text-[oklch(var(--dashboard-muted-foreground))];
+	}
+	.auth-input {
+		@apply bg-[oklch(var(--auth-input-bg))] border-[oklch(var(--auth-input-border))] placeholder:text-muted-foreground focus:ring-offset-[oklch(var(--link-success))];
+		/* Apply specific input bg/border and use success color for focus offset */
+		/* Note: Base input styles handle text color, focus ring etc. */
+	}
+	.link-success {
+		@apply text-[oklch(var(--link-success))] hover:underline;
+	}
+	.static-page {
+		@apply bg-background text-[oklch(var(--auth-foreground))]; /* Can reuse auth page bg/fg */
+	}
+	.static-card {
+		@apply bg-[oklch(var(---dashboard-muted-bg))] text-[oklch(var(--auth-foreground))] rounded-lg shadow-md;
+	}
 }
 
 @layer base {
@@ -132,7 +245,87 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground font-sans;
+		/* Apply background using the CSS variable directly in base */
+		@apply bg-[oklch(var(--background))] text-foreground font-sans;
+	}
+	.category-card-account {
+		@apply flex flex-col items-center p-5 gap-[15px] rounded-[20px]; /* p-5 is approx 20px */
+		/* Light mode background */
+		@apply bg-[oklch(var(--dashboard-muted-bg))] lg:bg-[oklch(var(--dashboard-secondary))]; /* Very light gray */
+	}
+	.dark .category-card-account {
+		/* Dark mode gradient background */
+		background: linear-gradient(0deg, rgba(224, 254, 241, 0.12) -2.43%, rgba(224, 254, 241, 0.12) 100%);
+		@apply lg:bg-[var(--dashboard-secondary)]; /* Very light gray */
+	}
+
+	/* Apply custom dashboard colors using CSS variables */
+	.bg-background-dark {
+		@apply bg-[oklch(var(--dashboard-background-dark))];
+	}
+	.bg-sidebar-bg {
+		@apply bg-[oklch(var(--dashboard-sidebar-bg))];
+	}
+	.bg-sidebar-active-bg {
+		@apply bg-[oklch(var(--dashboard-sidebar-active-bg))];
+	}
+	.bg-card-bg {
+		@apply bg-[oklch(var(--dashboard-card-bg))];
+	}
+	.bg-button-bg {
+		@apply bg-[oklch(var(--dashboard-button-bg))];
+	}
+	.hover\:bg-button-hover:hover {
+		@apply bg-[oklch(var(--dashboard-button-hover))];
+	} /* Correct hover application */
+	.text-text-primary {
+		@apply text-[oklch(var(--dashboard-text-primary))];
+	}
+	.text-text-secondary {
+		@apply text-[oklch(var(--dashboard-text-secondary))] font-normal;
+	}
+	.bg-accent-red {
+		@apply bg-[oklch(var(--dashboard-accent-red))];
+	}
+	.text-accent-green {
+		@apply text-[oklch(var(--dashboard-accent-green))];
+	}
+
+	/* Specific overrides if needed */
+	.rounded-2xl {
+		@apply rounded-2xl;
+	} /* Ensure this utility exists or adjust */
+
+	/* Ensure layout component takes full height */
+	html,
+	body,
+	#__next {
+		height: 100%;
+	}
+
+	.subtext {
+		@apply text-xs text-[var(--dashboard-subtext)];
+	}
+
+	.account-page-title {
+		@apply text-lg md:text-xl font-semibold text-[var(--dashboard-accent-muted)] mt-10;
+	}
+
+	.account-input {
+		@apply bg-[oklch(var(--dashboard-muted-bg))] lg:bg-[oklch(var(--dashboard-secondary))];
+	}
+
+	.dark .account-input {
+		background: linear-gradient(0deg, rgba(224, 254, 241, 0.12) -2.43%, rgba(224, 254, 241, 0.12) 100%);
+		@apply lg:bg-[var(--dashboard-secondary)]; /* Very light gray */
+	}
+
+	.sub-page-heading {
+		@apply text-xl sm:text-2xl font-semibold text-foreground text-center sm:text-left;
+	}
+
+	.sub-page-heading-sub-text {
+		@apply text-sm md:text-base text-muted-foreground pt-1 text-center sm:text-left;
 	}
 }
 
@@ -145,4 +338,25 @@
 
 #nprogress .peg {
 	box-shadow: 0 0 10px #29d, 0 0 5px #29d !important; /* Matching glow */
+}
+
+/* Landing Page Animations */
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-in-up {
+	animation: fade-in-up 0.6s ease-out forwards;
+	opacity: 0; /* Start hidden */
+}
+
+.animation-delay-200 {
+	animation-delay: 0.2s;
 }

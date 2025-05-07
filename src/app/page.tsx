@@ -1,50 +1,513 @@
-import Image from 'next/image';
+'use client'; // This is a client component
 
-export default function Home() {
+import { useState } from 'react'; // Import useState
+import { Button } from '@/components/ui/button'; // Assuming Button component exists
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Assuming Accordion component exists
+import Image from 'next/image'; // Using Next.js Image component
+import Link from 'next/link'; // Import Link
+
+// Placeholder SVG for Logo - Using CSS Vars
+const LogoPlaceholder = () => (
+	<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<rect width="40" height="40" rx="8" fill="var(--lp-green-primary)" />
+		<text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="var(--primary-foreground)" fontSize="14" fontWeight="bold">
+			SS
+		</text>
+	</svg>
+);
+
+// Placeholder SVG for Icons/Images - Using muted color
+const IconPlaceholder = ({ className = 'w-10 h-10' }: { className?: string }) => (
+	<svg className={className} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<rect width="40" height="40" rx="4" fill="var(--muted)" />
+	</svg>
+);
+
+// Image Placeholder - Using card/muted colors
+const ImagePlaceholder = ({ className = 'w-full h-48' }: { className?: string }) => (
+	<div className={`bg-muted rounded-lg flex items-center justify-center ${className}`}>
+		<span className="text-muted-foreground text-sm">Placeholder Image</span>
+	</div>
+);
+
+export default function LandingPage() {
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+	const toggleMobileMenu = () => {
+		setIsMobileMenuOpen(!isMobileMenuOpen);
+	};
+
 	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-				<Image className="dark:invert" src="/next.svg" alt="Next.js logo" width={180} height={38} priority />
-				<ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-					<li className="mb-2 tracking-[-.01em]">
-						Get started by editing <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">src/app/page.tsx</code>.
-					</li>
-					<li className="tracking-[-.01em]">Save and see your changes instantly.</li>
-				</ol>
-
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-						href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Image className="dark:invert" src="/vercel.svg" alt="Vercel logomark" width={20} height={20} />
-						Deploy now
-					</a>
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
+		// Use CSS variables for background and default text color
+		<div className="bg-background text-foreground min-h-screen font-sans">
+			{/* Header */}
+			<header className="container mx-auto px-4 py-4 flex justify-between items-center">
+				<div className="flex items-center space-x-2">
+					<LogoPlaceholder />
+					<span className="text-xl font-bold">Sikky Six</span>
 				</div>
-			</main>
-			<footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-				<a className="flex items-center gap-2 hover:underline hover:underline-offset-4" href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
-					<Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-					Learn
-				</a>
-				<a className="flex items-center gap-2 hover:underline hover:underline-offset-4" href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
-					<Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
-					Examples
-				</a>
-				<a className="flex items-center gap-2 hover:underline hover:underline-offset-4" href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app" target="_blank" rel="noopener noreferrer">
-					<Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-					Go to nextjs.org →
-				</a>
+				<nav className="hidden md:flex items-center space-x-6">
+					{/* Use CSS variable for hover color */}
+					<a href="#" className="hover:text-[var(--lp-green-primary)]">
+						Home
+					</a>
+					<a href="#" className="hover:text-[var(--lp-green-primary)]">
+						Service
+					</a>
+					<a href="#" className="hover:text-[var(--lp-green-primary)]">
+						Features
+					</a>
+					<a href="#" className="hover:text-[var(--lp-green-primary)]">
+						Payment
+					</a>
+				</nav>
+				{/* Updated Header Button */}
+				<Link href="/auth/login" passHref>
+					<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-6 hidden md:block">Login / Signup</Button>
+				</Link>
+				{/* Mobile Menu Button */}
+				<button className="md:hidden text-foreground z-50" onClick={toggleMobileMenu}>
+					{/* Use foreground color */}
+					{isMobileMenuOpen ? (
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> {/* Close Icon */}
+						</svg>
+					) : (
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /> {/* Hamburger Icon */}
+						</svg>
+					)}
+				</button>
+			</header>
+			{/* Mobile Menu */}
+			{isMobileMenuOpen && (
+				// Use CSS variable for background
+				<div className="md:hidden fixed inset-0 w-full h-screen bg-[var(--lp-dark-bg)] z-40 flex flex-col items-center justify-center space-y-6">
+					{/* Use CSS variable for hover color */}
+					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
+						Home
+					</a>
+					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
+						Service
+					</a>
+					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
+						Features
+					</a>
+					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
+						Payment
+					</a>
+					{/* Updated Mobile Menu Button */}
+					<Link href="/auth/login" passHref>
+						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg mt-8" onClick={toggleMobileMenu}>
+							Login / Signup
+						</Button>
+					</Link>
+				</div>
+			)}
+			{/* Hero Section */}
+			<section className="container mx-auto px-4 py-16 md:py-24 text-center relative overflow-hidden">
+				{/* Background decorative elements (simplified) - Use CSS vars */}
+				<div className="absolute top-10 left-10 w-16 h-16 border-2 border-[var(--lp-border)] rounded-full opacity-30 animate-pulse"></div>
+				<div className="absolute bottom-20 right-10 w-10 h-10 border border-[var(--lp-green-primary)] opacity-30 transform rotate-45"></div>
+				<h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight text-foreground">
+					{/* Use foreground */}
+					We make it easy for <br className="hidden md:block" /> everyone to invest
+				</h1>
+				<p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Investment is a term with several meanings related to finance and economics. The term relates to the accumulation of an asset in the expectation of the future profits.</p> {/* Use muted-foreground */}
+				<div className="flex justify-center space-x-4 mb-16">
+					{/* Updated Get Started Button */}
+					<Link href="/auth/login" passHref>
+						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg">Get Started</Button>
+					</Link>
+					{/* Commented out Watch Demo Button */}
+					{/*
+					<Button variant="outline" className="border-muted-foreground hover:bg-muted text-foreground rounded-full px-8 py-3 text-lg flex items-center space-x-2">
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--lp-green-primary)]" viewBox="0 0 20 20" fill="currentColor">
+							<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+						</svg>
+						<span>Watch Demo</span>
+					</Button>
+          */}
+				</div>
+				{/* Placeholder Dashboard Cards - Use CSS Vars */}
+				<div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+					{/* Card 1 */}
+					<div className="bg-[var(--lp-dark-card)] p-6 rounded-lg shadow-lg border border-[var(--lp-border)] transform md:-translate-y-8 md:-translate-x-4 md:rotate-[-3deg]">
+						<div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
+							<span>April 2022 - Week 1</span>
+							<div className="flex space-x-1">
+								<button>&lt;</button>
+								<button>&gt;</button>
+							</div>
+						</div>
+						<div className="flex items-center justify-center space-x-4 mb-4">
+							{/* Placeholder Donut Chart */}
+							<div className="relative w-24 h-24">
+								<svg viewBox="0 0 36 36" className="w-full h-full">
+									<path className="text-muted" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3"></path>
+									<path className="text-[var(--lp-green-primary)]" strokeDasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3" strokeLinecap="round"></path>
+								</svg>
+								<div className="absolute inset-0 flex flex-col items-center justify-center">
+									<span className="text-xs text-muted-foreground">Your Spending</span>
+									<span className="text-xl font-bold text-foreground">$238,098</span>
+								</div>
+							</div>
+						</div>
+						<div className="text-sm text-muted-foreground">Currency</div>
+						<div className="text-lg font-semibold text-foreground">USD/US Dollar</div>
+					</div>
+					{/* Card 2 - Main Chart */}
+					<div className="bg-[var(--lp-dark-card)] p-6 rounded-lg shadow-lg border border-[var(--lp-border)] z-10 col-span-1 md:col-span-2">
+						<div className="flex justify-between items-center mb-4">
+							<span className="font-semibold text-foreground">Total Saving</span>
+							<span className="text-2xl font-bold text-foreground">
+								$498,098<span className="text-base">.00</span>
+							</span>
+							<button className="text-[var(--lp-green-primary)]">→</button>
+						</div>
+						<div className="text-sm text-muted-foreground mb-2">Statistics</div>
+						{/* Placeholder Line Chart */}
+						<ImagePlaceholder className="w-full h-32" />
+					</div>
+					{/* Card 3 - Small Stat */}
+					<div className="bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] md:absolute md:bottom-[-40px] md:left-[20%] z-20 flex items-center space-x-3">
+						<IconPlaceholder className="w-8 h-8" />
+						<div>
+							<span className="text-sm text-muted-foreground">12.8%</span>
+							{/* Placeholder small graph */}
+							<div className="w-16 h-4 bg-[var(--lp-green-secondary)] rounded"></div>
+						</div>
+					</div>
+					{/* Card 4 - Small Stat */}
+					<div className="bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] md:absolute md:bottom-[-60px] md:left-[45%] z-20 flex items-center space-x-3">
+						<IconPlaceholder className="w-8 h-8" />
+						<div>
+							<span className="text-sm text-muted-foreground">Your Balance</span>
+							<span className="text-lg font-semibold text-foreground">$298,098</span>
+						</div>
+					</div>
+				</div>
+			</section>
+			{/* Best Services Section */}
+			<section className="container mx-auto px-4 py-16 md:py-24">
+				<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Our Best Services</h2>
+				<p className="text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">For Your Convinience. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+					{/* Service 1 */}
+					<div className="text-center">
+						{/* Use CSS variable for background with opacity */}
+						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
+							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" /> {/* Use CSS variable for icon color */}
+						</div>
+						<h3 className="text-xl font-semibold mb-2 text-foreground">Guarantee Safety</h3>
+						<p className="text-muted-foreground">Lorem ipsum dolor sit amet, etetcetera ut consectetur adipiscing elit, sed do terru eiusmod tempor incididunt ut labore et dolore magna.</p>
+					</div>
+					{/* Service 2 */}
+					<div className="text-center">
+						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
+							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" />
+						</div>
+						<h3 className="text-xl font-semibold mb-2 text-foreground">All in One App</h3>
+						<p className="text-muted-foreground">Lorem ipsum dolor sit amet, etetcetera ut consectetur adipiscing elit, sed do terru eiusmod tempor incididunt ut labore et dolore magna.</p>
+					</div>
+					{/* Service 3 */}
+					<div className="text-center">
+						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
+							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" />
+						</div>
+						<h3 className="text-xl font-semibold mb-2 text-foreground">Easy to Use</h3>
+						<p className="text-muted-foreground">Lorem ipsum dolor sit amet, etetcetera ut consectetur adipiscing elit, sed do terru eiusmod tempor incididunt ut labore et dolore magna.</p>
+					</div>
+				</div>
+			</section>
+			{/* Why Use Section */}
+			<section className="py-16 px-4 md:px-20">
+				<div className="max-w-7xl mx-auto">
+					{/* Use foreground and lp-green-primary */}
+					<h2 className="text-foreground text-3xl md:text-4xl font-bold mb-12 text-center">
+						These are why you should use <span className="text-[var(--lp-green-primary)]">Sikky Six</span>
+					</h2>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+						{[
+							{
+								title: 'Zero Commission',
+								desc: 'Enjoy full returns on your investments without any hidden fees or commissions.',
+								icon: '💸',
+							},
+							{
+								title: 'Real-Time Insights',
+								desc: 'Get up-to-date market data and AI-powered predictions to guide your choices.',
+								icon: '📊',
+							},
+							{
+								title: 'Secure & Encrypted',
+								desc: 'Your data and transactions are protected with top-tier encryption.',
+								icon: '🔒',
+							},
+							{
+								title: 'User-Friendly Interface',
+								desc: 'Simple, intuitive design built for both beginners and pros.',
+								icon: '🖥️',
+							},
+							{
+								title: '24/7 Customer Support',
+								desc: 'Get help whenever you need it, day or night.',
+								icon: '📞',
+							},
+							{
+								title: 'Start With As Low As ₦500',
+								desc: 'Begin your investment journey with a small, manageable amount.',
+								icon: '💼',
+							},
+						].map((item, index) => (
+							// Use CSS variables for card background and text colors
+							<div key={index} className="bg-[var(--lp-dark-card)] rounded-2xl p-6 hover:shadow-lg transition-shadow border border-[var(--lp-border)]">
+								<div className="text-4xl mb-4">{item.icon}</div>
+								<h3 className="text-foreground text-xl font-semibold mb-2">{item.title}</h3>
+								<p className="text-muted-foreground">{item.desc}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+			{/* 3 Main Reasons Section */}
+			<section className="container mx-auto px-4 py-16 md:py-24">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+					<div>
+						{/* Use CSS variables */}
+						<p className="text-[var(--lp-green-primary)] uppercase text-sm font-semibold mb-2">Get Started in Minutes</p>
+						<h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">3 Main Reasons to Choose us.</h2>
+						<div className="w-16 h-1 bg-[var(--lp-green-primary)] mb-8"></div>
+
+						{/* Reason Accordion/List - Use CSS variables */}
+						<div className="space-y-6">
+							<div className="pb-4 border-b border-[var(--lp-border)]">
+								<h3 className="text-xl font-semibold mb-2 flex justify-between items-center text-foreground">
+									Register and create your first support portal
+									<span className="text-[var(--lp-green-primary)]">^</span>
+								</h3>
+								<p className="text-muted-foreground">It only takes 5 minutes. Set-up is smooth & simple, with fully customisable page design to reflect your brand lorem dummy.</p>
+							</div>
+							<div className="pb-4 border-b border-[var(--lp-border)]">
+								<h3 className="text-xl font-semibold text-muted-foreground flex justify-between items-center">
+									Manage your dashbaord easily
+									<span className="text-muted-foreground">v</span>
+								</h3>
+							</div>
+							<div className="pb-4 border-b border-[var(--lp-border)]">
+								<h3 className="text-xl font-semibold text-muted-foreground flex justify-between items-center">
+									Start Investing
+									<span className="text-muted-foreground">v</span>
+								</h3>
+							</div>
+						</div>
+					</div>
+					{/* Image/Preview Side - Use CSS variables */}
+					<div className="relative">
+						<ImagePlaceholder className="w-full h-80 rounded-lg shadow-xl border border-[var(--lp-border)]" />
+						<div className="absolute -bottom-8 -left-8 bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] w-48">
+							<span className="text-sm text-muted-foreground">Small Graph 1</span>
+							<ImagePlaceholder className="w-full h-16" />
+						</div>
+						<div className="absolute -top-8 -right-8 bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] w-48">
+							<span className="text-sm text-muted-foreground">Small Graph 2</span>
+							<ImagePlaceholder className="w-full h-16" />
+						</div>
+					</div>
+				</div>
+			</section>
+			{/* FAQ Section */}
+			<section className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
+				{/* Use CSS variables */}
+				<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Frequently Asked Question</h2>
+				<div className="w-16 h-1 bg-[var(--lp-green-primary)] mb-12 mx-auto"></div>
+				<Accordion type="single" collapsible className="w-full">
+					{/* Use CSS variables for border and text */}
+					<AccordionItem value="item-1" className="border-b border-[var(--lp-border)]">
+						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>
+						<AccordionContent className="text-muted-foreground text-base pb-6">
+							Web hosting is a data storage service so that a website can be accessed online. This website data is stored in a storage space called a web hosting server which is always active 24 hours a day. The quality of web hosting services can determine the success of your business
+							as well as all your website activities. Without a quality web hosting service, a website may not be accessed properly. Therefore, always use...
+						</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="item-2" className="border-b border-[var(--lp-border)]">
+						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>
+						<AccordionContent className="text-muted-foreground text-base pb-6">Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="item-3" className="border-b border-[var(--lp-border)]">
+						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>
+						<AccordionContent className="text-muted-foreground text-base pb-6">Yes. It's animated by default, but you can disable it if you prefer.</AccordionContent>
+					</AccordionItem>
+					<AccordionItem value="item-4" className="border-b-0 border-[var(--lp-border)]">
+						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>
+						<AccordionContent className="text-muted-foreground text-base pb-6">Yes. Use the `collapsible` prop.</AccordionContent>
+					</AccordionItem>
+				</Accordion>
+			</section>
+			{/* Testimonial Section */}
+			{/* Use CSS variables for gradient */}
+			<section className="bg-gradient-to-b from-[var(--lp-dark-bg)] to-[var(--lp-green-secondary)] py-16 md:py-24 relative overflow-hidden">
+				{/* Background decorative elements from image - Use foreground/primary */}
+				<div className="absolute top-1/4 left-[5%] w-20 h-1 border-t-2 border-dashed border-foreground opacity-20 transform -rotate-45"></div>
+				<div className="absolute bottom-1/4 right-[5%] w-3 h-3 bg-foreground rounded-full opacity-20"></div>
+				<div className="absolute top-1/3 right-[10%] w-2 h-2 bg-[var(--lp-green-primary)] rounded-full opacity-30"></div>
+				<div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+					<div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto md:ml-auto md:mr-0">
+						{/* Placeholder Image */}
+						<div className="absolute inset-0 rounded-full bg-[var(--lp-green-primary)]/10 blur-3xl"></div> {/* Adjusted glow color */}
+						{/* Use CSS variable for border */}
+						<Image src="/placeholder-person.jpg" alt="Testimonial Person" width={288} height={288} className="rounded-full object-cover relative z-10 border-4 border-[var(--lp-dark-bg)]" />
+					</div>
+					<div className="text-center md:text-left md:mr-auto md:ml-0">
+						{/* Use CSS variables for text */}
+						<span className="text-7xl font-serif text-[var(--lp-green-primary)] block mb-[-1rem] ml-[-0.5rem]">“</span>
+						<blockquote className="text-2xl md:text-3xl italic mb-6 text-foreground">Deski combines excellent live chat, ticketing and automation that allow us provide quality.</blockquote>
+						<p className="font-semibold text-xl text-foreground mb-1">Mike Lucas.</p>
+						<p className="text-[var(--lp-green-primary)] text-base mb-6">CEO & Founder</p>
+						{/* Use CSS variables for button */}
+						<Button variant="outline" className="border-foreground hover:bg-foreground hover:text-[var(--lp-dark-bg)] text-foreground rounded-full px-8 py-2">
+							Learn More
+						</Button>
+					</div>
+				</div>
+			</section>
+			{/* Call to Action Section */}
+			{/* Use CSS variables for background */}
+			<section className="bg-[var(--lp-green-muted)] py-16 md:py-20 relative">
+				{/* Background decorative elements - Use foreground */}
+				<div className="absolute top-4 left-1/4 w-16 h-1 border-t border-dashed border-foreground opacity-30"></div>
+				<div className="absolute bottom-4 right-1/4 w-8 h-8 border border-foreground rounded-full opacity-30"></div>
+				{/* Use CSS variables for inner box background and text */}
+				<div className="container mx-auto px-4 text-center md:flex md:justify-between md:items-center bg-[var(--lp-green-secondary)] p-8 md:p-12 rounded-lg shadow-xl relative z-10">
+					<div>
+						<p className="text-[var(--lp-green-primary)] uppercase text-sm font-semibold mb-1">Start your free trial.</p>
+						<h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0 text-foreground">New user? Start your free trial now.</h2>
+					</div>
+					<div className="mt-6 md:mt-0 flex flex-col items-center md:items-end">
+						{/* Style form elements with theme variables */}
+						<form className="flex w-full max-w-sm bg-background rounded-full p-1 focus-within:ring-2 focus-within:ring-[var(--lp-green-primary)] mb-2">
+							<input type="email" placeholder="Email address" className="flex-grow px-4 py-2 rounded-full text-foreground bg-transparent focus:outline-none placeholder:text-muted-foreground" />
+							<Button type="submit" className="bg-foreground hover:bg-foreground/90 text-background rounded-full px-6 py-2 flex-shrink-0">
+								Start Trial
+							</Button>
+						</form>
+						<p className="text-sm text-muted-foreground">
+							Already a member?
+							<a href="#" className="text-foreground underline hover:text-[var(--lp-green-primary)]">
+								Sign in.
+							</a>
+						</p>
+					</div>
+				</div>
+			</section>
+			{/* Footer */}
+			<footer className=" text-muted-foreground py-16">
+				<div className="container mx-auto px-4">
+					<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
+						{/* Logo & Description */}
+						<div className="md:col-span-2">
+							<div className="flex items-center space-x-2 mb-4">
+								<LogoPlaceholder />
+								<span className="text-xl font-bold text-foreground">Sikky Six</span>
+							</div>
+							<p className="text-sm max-w-xs">A marketplace that sells various types of work by professional designers and is paid with NFT tokens.</p>
+						</div>
+						{/* Links - About Us */}
+						<div>
+							<h4 className="font-semibold text-foreground mb-4">About Us</h4>
+							<ul className="space-y-3 text-sm">
+								<li>
+									<a href="#" className="hover:text-foreground">
+										About Us
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Our Services
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										How It Works
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Become a Partner
+									</a>
+								</li>
+							</ul>
+						</div>
+						{/* Links - Community */}
+						<div>
+							<h4 className="font-semibold text-foreground mb-4">Community</h4>
+							<ul className="space-y-3 text-sm">
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Token
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Discussion
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Voting
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Blog
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Help Center
+									</a>
+								</li>
+							</ul>
+						</div>
+						{/* Links - Social Media */}
+						<div>
+							<h4 className="font-semibold text-foreground mb-4">Social Media</h4>
+							<ul className="space-y-3 text-sm">
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Instagram
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Facebook
+									</a>
+								</li>
+								<li>
+									<a href="#" className="hover:text-foreground">
+										Twitter
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					{/* Bottom Footer */}
+					<div className="border-t border-[var(--lp-border)] pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+						<p>Copyright @2023 Asra</p>
+						<div className="flex space-x-6 mt-4 md:mt-0">
+							<a href="#" className="hover:text-foreground">
+								Privacy
+							</a>
+							<a href="#" className="hover:text-foreground">
+								Security
+							</a>
+							<a href="#" className="hover:text-foreground">
+								Terms
+							</a>
+						</div>
+					</div>
+				</div>
 			</footer>
 		</div>
 	);

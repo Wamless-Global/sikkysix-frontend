@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 // Import chart components if specific ones are reused or create new ones
 // import InvestmentTrendChart from '@/components/charts/InvestmentTrendChart';
@@ -15,7 +14,6 @@ export default function ReportingPage() {
 			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{/* Investment Trends Card */}
 				<Card className="lg:col-span-2">
-					{' '}
 					{/* Make this one wider */}
 					<CardHeader>
 						<CardTitle>Investment Trends</CardTitle>
@@ -41,7 +39,6 @@ export default function ReportingPage() {
 
 				{/* Revenue Reports Card */}
 				<Card className="lg:col-span-3">
-					{' '}
 					{/* Full width on larger screens */}
 					<CardHeader>
 						<CardTitle>Revenue Reports</CardTitle>

@@ -1,119 +1,196 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-interface NewRequest extends NextRequest {
-	// Add export here
-	request?: {
-		cookies?: {
-			auth_token?: string;
-		};
-	};
+interface UserDetails {
+	roles: string[];
+	// Add other user details if needed from the verify-me endpoint
 }
 
-// This function can be marked `async` if using `await` inside
-export async function middleware(request: NewRequest) {
-	// Marked async
-	const authToken = request.cookies?.get('auth_token')?.value;
+interface VerificationResult {
+	user?: UserDetails;
+	error?: string;
+	status?: number;
+}
 
+// Helper function to verify token and get user details
+async function verifyTokenAndGetUserDetails(request: NextRequest, authToken?: string): Promise<VerificationResult> {
+	const apiUrl = process.env.API_BASE_URL;
+	if (!apiUrl) {
+		console.error('Server-side API base URL (API_BASE_URL) is not configured.');
+		return { error: 'API_BASE_URL not configured', status: 500 };
+	}
+
+	if (!authToken) {
+		return { error: 'No auth token provided', status: 401 };
+	}
+
+	const headers = new Headers();
+	headers.append('Cookie', `auth_token=${authToken}`);
+
+	try {
+		const response = await fetch(`${apiUrl}/auth/verify-me`, {
+			headers: headers,
+			credentials: 'include', // Important for sending cookies to a different origin
+		});
+
+		if (!response.ok) {
+			// Log more details for failed verification
+			const errorText = await response.text().catch(() => 'Could not read error response text');
+			console.error(`Token verification failed: Status ${response.status}, Response: ${errorText}`);
+			return { error: 'Token verification failed', status: response.status };
+		}
+
+		const verificationData = await response.json();
+		if (!verificationData?.data?.user?.roles) {
+			console.error('Token verification successful, but user data or roles are missing in the response.', verificationData);
+			return { error: 'Invalid user data structure', status: 500 };
+		}
+		return { user: verificationData.data.user };
+	} catch (error) {
+		console.error('Error during token verification request:', error);
+		return { error: 'Network or parsing error during token verification', status: 500 };
+	}
+}
+
+// Helper function to handle protected route logic
+async function handleProtectedRoute(request: NextRequest, authToken: string | undefined, requiredRoles: string[], loginUrl: URL, unauthorizedUrl: URL, currentPathname: string): Promise<NextResponse | null> {
+	const verificationResult = await verifyTokenAndGetUserDetails(request, authToken);
+
+	if (!authToken || verificationResult.error || !verificationResult.user) {
+		// Add the original path as redirect_to query parameter
+		const loginUrlWithRedirect = new URL(loginUrl.toString()); // Clone to avoid modifying the original
+		loginUrlWithRedirect.searchParams.set('redirect_to', currentPathname);
+
+		const redirectResponse = NextResponse.redirect(loginUrlWithRedirect);
+		if (authToken) {
+			// Clear token if verification failed or user data is missing
+			redirectResponse.cookies.delete('auth_token');
+		}
+		console.log(`Middleware: Auth token missing, invalid, or user data error for path "${currentPathname}". Redirecting to login with redirect_to. Error: ${verificationResult.error}, Status: ${verificationResult.status}`);
+		return redirectResponse;
+	}
+
+	const userRoles = verificationResult.user.roles;
+	const isAuthorized = requiredRoles.some((role) => userRoles.includes(role));
+
+	if (!isAuthorized) {
+		console.log(`Middleware: User not authorized for path "${currentPathname}". User roles: ${userRoles.join(', ')}, Required: ${requiredRoles.join(', ')}. Redirecting to unauthorized.`);
+		unauthorizedUrl.searchParams.set('path', currentPathname);
+		return NextResponse.redirect(unauthorizedUrl);
+	}
+
+	return null; // User is authenticated and authorized
+}
+
+export async function middleware(request: NextRequest) {
+	const authToken = request.cookies.get('auth_token')?.value;
 	const { pathname } = request.nextUrl;
 
-	const isAdminPath = pathname.startsWith('/admin');
-	const isAuthPath = pathname === '/auth/login';
-	const isUnauthorizedPath = pathname === '/unauthorized'; // Added check
-
 	const loginUrl = new URL('/auth/login', request.url);
-	const adminUrl = new URL('/admin', request.url);
-	const unauthorizedUrl = new URL('/unauthorized', request.url); // Define unauthorizedUrl
+	const unauthorizedUrl = new URL('/unauthorized', request.url);
+	const accountUrl = new URL('/account', request.url);
+	const adminDashboardUrl = new URL('/admin', request.url); // For redirecting from login if already authed
+	const walletUrl = new URL('/account/wallet', request.url);
 
-	// --- New Check for /unauthorized ---
-	// If accessing /unauthorized without a token, redirect to login
-	if (isUnauthorizedPath && !authToken) {
+	// Path checks
+	const isAdminPath = pathname.startsWith('/admin');
+	const isAccountPath = pathname.startsWith('/account') && !pathname.startsWith('/account/category') && !pathname.startsWith('/account/wallet/transactions'); // Protect general /account routes
+	const isAuthLoginPath = pathname === '/auth/login';
+	const isUnauthorizedPagePath = pathname === '/unauthorized';
+	const isCategoryLandingPath = pathname === '/account/category';
+	const isTransactionLandingPath = pathname === '/account/wallet/transactions';
+
+	// --- Redirect direct access to specific sub-pages if needed ---
+	if (isCategoryLandingPath) {
+		console.log('Middleware: Accessing /account/category directly. Redirecting to /account.');
+		return NextResponse.redirect(accountUrl);
+	}
+	if (isTransactionLandingPath) {
+		console.log('Middleware: Accessing /account/wallet/transactions directly. Redirecting to /account/wallet.');
+		return NextResponse.redirect(walletUrl);
+	}
+
+	// --- Handle /unauthorized page access ---
+	// If accessing /unauthorized without a token, redirect to login (they shouldn't be here)
+	if (isUnauthorizedPagePath && !authToken) {
 		console.log('Middleware: Accessing /unauthorized without token. Redirecting to login.');
 		return NextResponse.redirect(loginUrl);
 	}
-	// If accessing /unauthorized *with* a token, allow it (they were likely redirected here)
-	// No explicit 'else' needed here, it will fall through to NextResponse.next() if not admin/auth path
+	// If accessing /unauthorized with a token, allow it (they were likely redirected here by protected route logic)
+	// This also means if they manually navigate here with a token, they'll see it.
 
-	// Redirect to login if trying to access admin pages without a token OR with an invalid token
+	// --- Protected Routes ---
 	if (isAdminPath) {
-		// Always attempt to verify the token with the backend if accessing an admin path.
-		// The backend endpoint will handle missing/invalid cookies when called with credentials: 'include'.
-		try {
-			// Verify token by calling the backend endpoint.
-			// Use the API base URL from environment variables since the API is on a different origin.
-			const apiUrl = process.env.API_BASE_URL; // Use server-side env var
-			if (!apiUrl) throw new Error('Server-side API base URL (API_BASE_URL) is not configured.'); // Updated error message
+		const response = await handleProtectedRoute(request, authToken, ['admin'], loginUrl, unauthorizedUrl, pathname);
+		if (response) return response;
+	} else if (isAccountPath) {
+		const response = await handleProtectedRoute(
+			request,
+			authToken,
+			['user', 'admin'], // Allow users with 'user' or 'admin' role
+			loginUrl,
+			unauthorizedUrl,
+			pathname
+		);
+		if (response) return response;
+	}
 
-			// Manually forward the cookie in the headers for the verification request
-			const headers = new Headers();
-			if (authToken) {
-				headers.append('Cookie', `auth_token=${authToken}`);
-			} else {
-				// If no token, definitely redirect to login
-				console.log('Middleware: No token found for admin path. Redirecting to login.');
-				return NextResponse.redirect(loginUrl);
-			}
+	// --- Redirect from login page if already authenticated ---
+	// This check should ideally happen *after* protected route checks,
+	// or ensure it doesn't interfere with unauthorized redirects.
+	if (isAuthLoginPath && authToken) {
+		// Before redirecting from login, quickly verify if the token is still valid and get roles
+		// This prevents redirecting to a protected area if the token just expired or roles changed.
+		const verificationResult = await verifyTokenAndGetUserDetails(request, authToken);
+		if (verificationResult.user) {
+			const redirectToParam = request.nextUrl.searchParams.get('redirect_to');
+			let targetPath: string | null = null;
 
-			const response = await fetch(`${apiUrl}/auth/verify-token`, {
-				headers: headers,
-				// credentials: 'include', // Keep or remove? Explicit header might be sufficient. Let's keep for now.
-				credentials: 'include',
-			});
+			if (redirectToParam) {
+				try {
+					// Attempt to parse redirectToParam.
+					// If relative (e.g., "/foo"), it resolves against request.nextUrl.origin.
+					// If absolute (e.g., "http://.../foo"), it's parsed directly.
+					const potentialTargetUrl = new URL(redirectToParam, request.nextUrl.origin);
 
-			if (!response.ok) {
-				// Token is invalid, redirect to login and clear cookie
-				// Avoid reading response.text() here if status indicates failure, as it might consume the body needed later if logic changes
-				console.error('Token verification failed (status):', response.status);
-				const redirectResponse = NextResponse.redirect(loginUrl);
-				redirectResponse.cookies.delete('auth_token');
-				return redirectResponse;
-			}
-
-			// Token is valid, now check authorization (role)
-			try {
-				const verificationData = await response.json();
-				// Check if the user has the 'admin' role in the roles array
-				const isAdmin = verificationData?.data?.user?.roles?.includes('admin');
-
-				if (!isAdmin) {
-					// User is authenticated but not authorized for admin routes
-					console.log('User is not authorized for admin routes. Redirecting to /unauthorized.');
-					// Redirect to unauthorized page, keep the auth token
-					// Add the original path as a query parameter
-					unauthorizedUrl.searchParams.set('path', pathname);
-					return NextResponse.redirect(unauthorizedUrl);
+					// Security: Ensure the target URL is for the same origin.
+					if (potentialTargetUrl.origin === request.nextUrl.origin) {
+						targetPath = potentialTargetUrl.pathname; // Extract the path.
+						// Ensure the extracted pathname is valid (starts with '/', not empty)
+						if (!(targetPath && targetPath.startsWith('/'))) {
+							console.warn(`[MiddlewareAuthRedirect] Parsed pathname "${targetPath}" from redirectToParam "${redirectToParam}" is invalid. Clearing targetPath.`);
+							targetPath = null; // Invalidate if path is not well-formed
+						}
+					} else {
+						console.warn(`[MiddlewareAuthRedirect] redirectToParam ("${redirectToParam}") resolved to a different origin ("${potentialTargetUrl.origin}"). Invalidating.`);
+						// targetPath remains null
+					}
+				} catch (e) {
+					console.warn(`[MiddlewareAuthRedirect] Error parsing redirectToParam ("${redirectToParam}"): ${(e as Error).message}. Invalidating.`);
+					// targetPath remains null
 				}
-				// User is authenticated and authorized, allow access
-				return NextResponse.next(); // Allow access to the admin route
-			} catch (jsonError) {
-				// Handle cases where response.ok is true, but body is not valid JSON or structure is wrong
-				console.error('Error parsing verification response JSON:', jsonError);
-				const redirectResponse = NextResponse.redirect(loginUrl);
-				redirectResponse.cookies.delete('auth_token'); // Clear token as we can't confirm authorization
-				return redirectResponse;
 			}
-		} catch (error) {
-			// Network error or backend issue, redirect to login and clear cookie
-			console.error('Error verifying token:', error);
-			const redirectResponse = NextResponse.redirect(loginUrl);
-			redirectResponse.cookies.delete('auth_token');
-			return redirectResponse;
+
+			if (targetPath) {
+				console.log(`[MiddlewareAuthRedirect] Valid targetPath ("${targetPath}") derived from redirectToParam ("${redirectToParam}"). Redirecting.`);
+				const destination = new URL(targetPath, request.nextUrl.origin);
+				return NextResponse.redirect(destination);
+			} else {
+				console.log(`[MiddlewareAuthRedirect] Invalid or no redirectToParam ("${redirectToParam}"). Defaulting. targetPath: "${targetPath}"`);
+				const defaultDestinationUrl = verificationResult.user.roles.includes('admin') ? adminDashboardUrl : accountUrl;
+				return NextResponse.redirect(defaultDestinationUrl);
+			}
 		}
+		// If token is present but invalid, let them stay on login, maybe clear the bad cookie
+		console.log('Middleware: User on login page with an invalid/expired token. Clearing token.');
+		const response = NextResponse.next(); // Stay on login page
+		response.cookies.delete('auth_token');
+		return response;
 	}
 
-	// Redirect to admin dashboard if trying to access login page with a valid token
-	// Note: We don't strictly need to re-verify here if the goal is just redirection,
-	// but if you wanted to ensure only valid tokens redirect *from* login, verification could be added.
-	if (isAuthPath && authToken) {
-		// Simple redirect based on token presence. Verification happens when accessing /admin.
-		return NextResponse.redirect(adminUrl);
-	}
-
-	// Allow the request to proceed if none of the above conditions caused a redirect
-	return NextResponse.next();
+	return NextResponse.next(); // Allow other requests
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
 	matcher: [
 		/*
@@ -123,11 +200,13 @@ export const config = {
 		 * - _next/image (image optimization files)
 		 * - favicon.ico (favicon file)
 		 * - public files (like svgs, etc.)
-		 * We want the middleware to run on admin and auth routes.
+		 * We want the middleware to run on admin, account, auth, and utility routes.
 		 */
 		'/admin/:path*',
+		'/account/:path*', // Protect all account routes
 		'/auth/login',
-		'/unauthorized', // Add unauthorized path to matcher
-		// Add other paths that need protection or auth-related redirects
+		'/unauthorized',
+		// No longer need to explicitly list /account/category and /account/wallet/transactions here
+		// as they are covered by /account/:path* and their specific landing page redirects are handled above.
 	],
 };

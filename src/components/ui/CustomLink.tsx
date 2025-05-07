@@ -2,7 +2,6 @@
 
 import Link, { LinkProps } from 'next/link';
 import NProgress from 'nprogress';
-import React from 'react';
 
 type CustomLinkProps = LinkProps & {
 	children: React.ReactNode;

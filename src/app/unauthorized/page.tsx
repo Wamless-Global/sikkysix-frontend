@@ -1,6 +1,6 @@
 'use client'; // Keep only one
 
-import React, { useState } from 'react'; // Import useState
+import { useState } from 'react'; // Import useState
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation'; // Import useRouter and useSearchParams
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const UnauthorizedPage: React.FC = () => {
 			// Redirect to login page on successful logout
 			router.push('/auth/login');
 		} catch (err) {
-			console.error('Logout failed:', err);
+			logger.error('Logout failed:', err);
 			// Use toast for error
 			toast.error(err instanceof Error ? err.message : 'An unexpected error occurred during logout.');
 			setIsLoggingOut(false); // Stop loading on error

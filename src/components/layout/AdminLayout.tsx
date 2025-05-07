@@ -1,6 +1,6 @@
 'use client'; // Required for state
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext'; // Import AuthContext hook
 import Sidebar from './Sidebar';
@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, LogOut, Loader2 } from 'lucide-react';
 import { toast } from 'sonner'; // Re-add toast import
 import { cn } from '@/lib/utils';
+import appSettings from '@/config/app';
+import Image from 'next/image';
+import nProgress from 'nprogress';
 
 interface AdminLayoutProps {
 	children: React.ReactNode;
@@ -29,11 +32,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 		try {
 			await logout(); // Call the context logout function
 			toast.success('Logged out successfully!');
+			nProgress.start();
 			router.push('/auth/login'); // Redirect after successful logout (context already cleared user)
 		} catch (err) {
 			// Error handling: The context's logout function throws an error on failure.
 			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during logout.';
-			console.error('Logout error in AdminLayout:', err);
 			setError(errorMessage); // Set local error state if needed for UI feedback
 			// Show the error message from the context's thrown error
 			toast.error(errorMessage);
@@ -42,14 +45,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 		}
 	};
 
-	console.log('AdminLayout: Current User:', currentUser); // Debugging line to check current user state
-
 	return (
 		<div className="flex h-screen bg-background">
 			{/* Static Sidebar for larger screens */}
 			<div className="hidden md:flex">
-				{' '}
-				{/* Removed bg and border */}
 				<Sidebar />
 			</div>
 
@@ -62,7 +61,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 			>
 				{/* Actual Sidebar Content */}
 				<div className="relative h-full z-10">
-					{' '}
 					{/* Removed bg and border */}
 					<Sidebar />
 				</div>
@@ -91,7 +89,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 			<div className="flex flex-col flex-1 overflow-hidden">
 				{/* Fixed Header - Added bottom border */}
 				<header className="sticky top-0 z-30 flex items-center gap-4 border-b bg-background px-4 sm:px-6 md:px-6 lg:px-8 py-6 shadow-md">
-					{' '}
 					{/* Removed h-16, increased py to py-6, changed shadow-sm to shadow-md */} {/* Added border-b back, adjusted padding */}
 					{/* Burger Menu Button for Mobile */}
 					<Button variant="outline" size="icon" className="md:hidden shrink-0" onClick={() => setIsMobileSidebarOpen(true)}>
@@ -99,10 +96,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 						<span className="sr-only">Open sidebar</span>
 					</Button>
 					{/* App Name - Applied original Admin Panel styles */}
-					<h1 className="text-xl font-semibold text-foreground flex-1">SikkySix Admin</h1>
+					<h1 className="text-xl font-semibold text-foreground flex-1">{appSettings.appName} Admin</h1>
 					<div className="flex items-center">
-						{/* Greeting - Show only when auth is loaded and user exists */}
-						{!isAuthLoading && currentUser && <span className="text-sm text-muted-foreground hidden sm:inline-block mr-4">Hello, {currentUser.name}</span>}
+						<div className="flex gap-2 items-center">
+							{currentUser?.profilePictureUrl && <Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}'s profile picture`} width={20} height={20} className="rounded-full" />}
+							{/* Greeting - Show only when auth is loaded and user exists */}
+							{currentUser && <span className="text-sm text-muted-foreground hidden sm:inline-block mr-4">Hello, {currentUser.name}</span>}
+						</div>
+
 						{/* Spacer to push ThemeToggle and Logout to the right */}
 						<div className="flex-1 mr-2.5"></div>
 						{/* Theme Toggle */}
@@ -117,7 +118,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
 				{/* Scrollable Main Content */}
 				<main className="flex-1 overflow-y-auto p-4 md:p-6">
-					{' '}
 					{/* Removed mb-6 from old header, added padding here */}
 					{children}
 				</main>

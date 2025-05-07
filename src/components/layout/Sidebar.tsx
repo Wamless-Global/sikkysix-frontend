@@ -1,6 +1,5 @@
 'use client'; // Required for using hooks like usePathname
 
-import React from 'react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -31,7 +30,6 @@ const Sidebar = () => {
 
 	return (
 		<aside className="w-72 bg-muted/40 border-r border-border p-4 flex flex-col">
-			{' '}
 			{/* Changed background */}
 			<div className="mb-6 flex items-center gap-2">
 				{/* Icon removed from heading */}

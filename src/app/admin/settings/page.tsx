@@ -1,6 +1,6 @@
 'use client'; // Required for form state management
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,27 +66,27 @@ export default function PlatformSettingsPage() {
 
 	// Placeholder Save Handlers
 	const handleSaveGeneralSettings = () => {
-		console.log('Saving General Settings:', { platformName, baseCurrency });
+		logger.info('Saving General Settings:', { platformName, baseCurrency });
 		alert('General Settings Saved (Placeholder)!');
 	};
 	const handleSaveFeeSettings = () => {
-		console.log('Saving Fee Settings:', { depositFeePercent, withdrawalFeePercent });
+		logger.info('Saving Fee Settings:', { depositFeePercent, withdrawalFeePercent });
 		alert('Fee Settings Saved (Placeholder)!');
 	};
 	const handleSaveWithdrawalSettings = () => {
-		console.log('Saving Withdrawal Settings:', { globalMaxMultiplier, promoMaxMultiplier, penaltyType, penaltyFeeValue });
+		logger.info('Saving Withdrawal Settings:', { globalMaxMultiplier, promoMaxMultiplier, penaltyType, penaltyFeeValue });
 		alert('Withdrawal Settings Saved (Placeholder)!');
 	};
 	const handleSaveReferralSettings = () => {
-		console.log('Saving Referral Settings:', { referralBonusPercent, bonusFromDeposit, bonusFromWithdrawal, referralThreshold, higherEarningsMultiplier });
+		logger.info('Saving Referral Settings:', { referralBonusPercent, bonusFromDeposit, bonusFromWithdrawal, referralThreshold, higherEarningsMultiplier });
 		alert('Referral Settings Saved (Placeholder)!');
 	};
 	const handleSaveBankingSettings = () => {
-		console.log('Saving Banking Settings:', { enabledBankCountries: Array.from(enabledBankCountries) });
+		logger.info('Saving Banking Settings:', { enabledBankCountries: Array.from(enabledBankCountries) });
 		alert('Banking Availability Saved (Placeholder)!');
 	};
 	const handleSaveCryptoSettings = () => {
-		console.log('Saving Crypto Settings:', { cryptoMinDeposit, cryptoAllowedCategories: Array.from(cryptoAllowedCategories) });
+		logger.info('Saving Crypto Settings:', { cryptoMinDeposit, cryptoAllowedCategories: Array.from(cryptoAllowedCategories) });
 		alert('Crypto Settings Saved (Placeholder)!');
 	};
 
@@ -246,7 +246,6 @@ export default function PlatformSettingsPage() {
 				</CardHeader>
 				<CardContent>
 					<ScrollArea className="h-48 rounded-md border p-4">
-						{' '}
 						{/* Using ScrollArea now */}
 						<div className="space-y-3">
 							{availableCountries.map((country) => (

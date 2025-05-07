@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -50,7 +49,6 @@ export default function AdminDashboardPage() {
 						>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 								<CardTitle className="text-sm font-medium text-white/90">
-									{' '}
 									{/* Lighter title text */}
 									{kpi.title}
 								</CardTitle>
@@ -59,7 +57,6 @@ export default function AdminDashboardPage() {
 							<CardContent>
 								<div className="text-2xl font-bold">{kpi.value}</div>
 								<p className="text-xs text-white/70">
-									{' '}
 									{/* Lighter description */}
 									{kpi.description}
 								</p>

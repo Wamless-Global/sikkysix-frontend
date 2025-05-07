@@ -1,6 +1,6 @@
 'use client'; // Make it a client component for state management
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useUserContext, UserFilters } from '@/context/UserContext'; // Import context hook and UserFilters type
 import { useRouter } from 'next/navigation'; // Import useRouter
 import NProgress from 'nprogress'; // Import NProgress
@@ -36,30 +36,25 @@ export default function UserManagementPage() {
 	// --- Server-Side Pagination Logic ---
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE); // Calculate total pages based on totalCount from context
 
-	// Effect to fetch users when filters or page change
+	// Refactored Effect to fetch users and handle filter changes
 	useEffect(() => {
 		const filters: UserFilters = {
-			searchTerm: searchTerm || undefined, // Pass undefined if empty
-			role: filterRole,
-			status: filterStatus,
-			country: filterCountry,
+			searchTerm: searchTerm || undefined,
+			role: filterRole === 'all' ? undefined : filterRole, // Send undefined if 'all'
+			status: filterStatus === 'all' ? undefined : filterStatus, // Send undefined if 'all'
+			country: filterCountry === 'all' ? undefined : filterCountry, // Send undefined if 'all'
 			startDate: filterStartDate || undefined,
 			endDate: filterEndDate || undefined,
 		};
-		// Debounce fetching slightly to avoid rapid calls while typing
+
+		// Debounce fetching
 		const timer = setTimeout(() => {
-			fetchUsers(filters, currentPage); // Remove ITEMS_PER_PAGE argument
+			// console.log('Fetching with filters:', filters, 'Page:', currentPage);
+			fetchUsers(filters, currentPage);
 		}, 300); // 300ms debounce
 
-		return () => clearTimeout(timer); // Cleanup timer on unmount or dependency change
+		return () => clearTimeout(timer);
 	}, [searchTerm, filterRole, filterStatus, filterCountry, filterStartDate, filterEndDate, currentPage, fetchUsers]);
-
-	// Effect to reset page to 1 when filters change (but not on initial load or page change)
-	useEffect(() => {
-		// We only want to reset to page 1 if a filter *other than* currentPage changes
-		// This prevents resetting page 1 when clicking next/prev
-		setCurrentPage(1);
-	}, [searchTerm, filterRole, filterStatus, filterCountry, filterStartDate, filterEndDate]);
 
 	// Effect to clear loading button state when main loading finishes
 	useEffect(() => {
@@ -111,7 +106,7 @@ export default function UserManagementPage() {
 					value={searchTerm}
 					onChange={(e) => {
 						setSearchTerm(e.target.value);
-						// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+						setCurrentPage(1); // Reset page when search term changes
 					}}
 					className="max-w-lg w-full md:w-auto flex-grow" // Adjusted width
 				/>
@@ -123,7 +118,6 @@ export default function UserManagementPage() {
 
 			{/* Filter Row */}
 			<div className="flex flex-wrap gap-2 items-end mt-8">
-				{' '}
 				{/* Use items-end to align labels and inputs */}
 				{/* Role Filter */}
 				<div className="flex flex-col gap-1.5">
@@ -132,11 +126,10 @@ export default function UserManagementPage() {
 						value={filterRole}
 						onValueChange={(value) => {
 							setFilterRole(value as Role | 'all');
-							// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+							setCurrentPage(1); // Reset page when filter changes
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="role-filter">
-							{' '}
 							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Role" />
 						</SelectTrigger>
@@ -157,11 +150,10 @@ export default function UserManagementPage() {
 						value={filterStatus}
 						onValueChange={(value) => {
 							setFilterStatus(value as UserStatus | 'all');
-							// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+							setCurrentPage(1); // Reset page when filter changes
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="status-filter">
-							{' '}
 							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Status" />
 						</SelectTrigger>
@@ -182,11 +174,10 @@ export default function UserManagementPage() {
 						value={filterCountry}
 						onValueChange={(value) => {
 							setFilterCountry(value);
-							// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+							setCurrentPage(1); // Reset page when filter changes
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="country-filter">
-							{' '}
 							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Country" />
 						</SelectTrigger>
@@ -195,7 +186,6 @@ export default function UserManagementPage() {
 							{/* Use COUNTRIES from src/lib/countries.ts */}
 							{COUNTRIES.map((country) => (
 								<SelectItem key={country.code} value={country.code}>
-									{' '}
 									{/* Assuming user.country stores the code */}
 									{country.name}
 								</SelectItem>
@@ -212,7 +202,7 @@ export default function UserManagementPage() {
 						value={filterStartDate}
 						onChange={(e) => {
 							setFilterStartDate(e.target.value);
-							// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+							setCurrentPage(1); // Reset page when filter changes
 						}}
 						className="w-full sm:w-[160px]"
 					/>
@@ -225,7 +215,7 @@ export default function UserManagementPage() {
 						value={filterEndDate}
 						onChange={(e) => {
 							setFilterEndDate(e.target.value);
-							// No need to setCurrentPage(1) here, the useEffect dependency change handles it
+							setCurrentPage(1); // Reset page when filter changes
 						}}
 						className="w-full sm:w-[160px]"
 						min={filterStartDate} // Prevent end date before start date
@@ -233,7 +223,6 @@ export default function UserManagementPage() {
 				</div>
 				{/* Reset Filters Button */}
 				<Button variant="outline" onClick={handleResetFilters} className="self-end">
-					{' '}
 					{/* Align button with inputs */}
 					Reset Filters
 				</Button>
@@ -247,7 +236,7 @@ export default function UserManagementPage() {
 						<TableRow>
 							<TableHead>Name</TableHead>
 							<TableHead>Email</TableHead>
-							<TableHead>Role</TableHead>
+							<TableHead>Roles</TableHead>
 							<TableHead>Registered</TableHead>
 							<TableHead>Investments</TableHead>
 							<TableHead>Total Invested</TableHead>
@@ -272,24 +261,24 @@ export default function UserManagementPage() {
 										className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
 										onClick={() => {
 											NProgress.start();
-											router.push(`/admin/users/${user.id}`);
+											router.push(`/admin/users/${user.username}`); // Use username for navigation
 										}}
 									>
 										<TableCell className="font-medium">
 											<div className="flex items-center gap-3">
-												{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={32} height={32} className="rounded-full" />}
+												{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={40} height={40} className="rounded-full" />}
 												<span>{user.name}</span>
 											</div>
 										</TableCell>
 										<TableCell>{user.email}</TableCell>
-										<TableCell>{user.roles.charAt(0).toUpperCase() + user.roles.slice(1)}</TableCell>
-										<TableCell>{user.registrationDate}</TableCell>
+										<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
+										<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
 										<TableCell>{user.investmentCount}</TableCell>
 										<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
 										<TableCell>
 											<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
 										</TableCell>
-										<TableCell>{user.country}</TableCell>
+										<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
 									</TableRow>
 								)
 							)

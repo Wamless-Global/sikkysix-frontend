@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from 'next-themes';
 
@@ -25,7 +25,7 @@ const getResolvedCssVariable = (variableName: string): string => {
 		if (!document.documentElement) return '';
 		return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
 	} catch (error) {
-		console.error(`Error getting CSS variable ${cssVar}:`, error);
+		logger.error(`Error getting CSS variable ${cssVar}:`, error);
 		return ''; // Return empty string on error
 	}
 };

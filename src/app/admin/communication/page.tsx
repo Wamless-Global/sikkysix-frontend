@@ -1,6 +1,6 @@
 'use client'; // Required for form state
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,11 +19,11 @@ export default function CommunicationCenterPage() {
 			alert('Message content cannot be empty.');
 			return;
 		}
-		console.log('Sending Broadcast:', { title: messageTitle, content: messageContent });
+		logger.info('Sending Broadcast:', { title: messageTitle, content: messageContent });
 		// Reset form after sending
 		setMessageTitle('');
 		setMessageContent('');
-		alert('Broadcast Sent (Placeholder)! Check console.'); // Placeholder feedback
+		alert('Broadcast Sent (Placeholder)! Check logger.'); // Placeholder feedback
 	};
 
 	return (
