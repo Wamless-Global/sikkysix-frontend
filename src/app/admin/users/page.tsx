@@ -77,7 +77,6 @@ export default function UserManagementPage() {
 			setCurrentPage((prev) => prev + 1);
 		}
 	};
-	// --- End Server-Side Pagination Logic ---
 
 	// Function to reset all filters
 	const handleResetFilters = () => {
@@ -174,19 +173,16 @@ export default function UserManagementPage() {
 						value={filterCountry}
 						onValueChange={(value) => {
 							setFilterCountry(value);
-							setCurrentPage(1); // Reset page when filter changes
+							setCurrentPage(1);
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="country-filter">
-							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Country" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">All Countries</SelectItem>
-							{/* Use COUNTRIES from src/lib/countries.ts */}
 							{COUNTRIES.map((country) => (
 								<SelectItem key={country.code} value={country.code}>
-									{/* Assuming user.country stores the code */}
 									{country.name}
 								</SelectItem>
 							))}
@@ -202,7 +198,7 @@ export default function UserManagementPage() {
 						value={filterStartDate}
 						onChange={(e) => {
 							setFilterStartDate(e.target.value);
-							setCurrentPage(1); // Reset page when filter changes
+							setCurrentPage(1);
 						}}
 						className="w-full sm:w-[160px]"
 					/>
@@ -215,10 +211,10 @@ export default function UserManagementPage() {
 						value={filterEndDate}
 						onChange={(e) => {
 							setFilterEndDate(e.target.value);
-							setCurrentPage(1); // Reset page when filter changes
+							setCurrentPage(1);
 						}}
 						className="w-full sm:w-[160px]"
-						min={filterStartDate} // Prevent end date before start date
+						min={filterStartDate}
 					/>
 				</div>
 				{/* Reset Filters Button */}
@@ -245,43 +241,39 @@ export default function UserManagementPage() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{isLoading && currentPage === 1 ? ( // Show initial loading state only on first load
+						{isLoading && currentPage === 1 ? (
 							<TableRow>
 								<TableCell colSpan={8} className="h-24 text-center">
 									<Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
 								</TableCell>
 							</TableRow>
-						) : users.length > 0 ? ( // Use users from context
-							users.map(
-								(
-									user: User // Map over users from context
-								) => (
-									<TableRow
-										key={user.id}
-										className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-										onClick={() => {
-											NProgress.start();
-											router.push(`/admin/users/${user.username}`); // Use username for navigation
-										}}
-									>
-										<TableCell className="font-medium">
-											<div className="flex items-center gap-3">
-												{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={40} height={40} className="rounded-full" />}
-												<span>{user.name}</span>
-											</div>
-										</TableCell>
-										<TableCell>{user.email}</TableCell>
-										<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
-										<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
-										<TableCell>{user.investmentCount}</TableCell>
-										<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
-										<TableCell>
-											<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
-										</TableCell>
-										<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
-									</TableRow>
-								)
-							)
+						) : users.length > 0 ? (
+							users.map((user: User) => (
+								<TableRow
+									key={user.id}
+									className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+									onClick={() => {
+										NProgress.start();
+										router.push(`/admin/users/${user.username}`); // Use username for navigation
+									}}
+								>
+									<TableCell className="font-medium">
+										<div className="flex items-center gap-3">
+											{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={40} height={40} className="rounded-full" />}
+											<span>{user.name}</span>
+										</div>
+									</TableCell>
+									<TableCell>{user.email}</TableCell>
+									<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
+									<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
+									<TableCell>{user.investmentCount}</TableCell>
+									<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
+									<TableCell>
+										<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+									</TableCell>
+									<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
+								</TableRow>
+							))
 						) : (
 							<TableRow>
 								<TableCell colSpan={8} className="h-24 text-center">

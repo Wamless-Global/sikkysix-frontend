@@ -90,7 +90,6 @@ export async function middleware(request: NextRequest) {
 	const unauthorizedUrl = new URL('/unauthorized', request.url);
 	const accountUrl = new URL('/account', request.url);
 	const adminDashboardUrl = new URL('/admin', request.url); // For redirecting from login if already authed
-	const walletUrl = new URL('/account/wallet', request.url);
 
 	// Path checks
 	const isAdminPath = pathname.startsWith('/admin');
@@ -98,16 +97,11 @@ export async function middleware(request: NextRequest) {
 	const isAuthLoginPath = pathname === '/auth/login';
 	const isUnauthorizedPagePath = pathname === '/unauthorized';
 	const isCategoryLandingPath = pathname === '/account/category';
-	const isTransactionLandingPath = pathname === '/account/wallet/transactions';
 
 	// --- Redirect direct access to specific sub-pages if needed ---
 	if (isCategoryLandingPath) {
 		console.log('Middleware: Accessing /account/category directly. Redirecting to /account.');
 		return NextResponse.redirect(accountUrl);
-	}
-	if (isTransactionLandingPath) {
-		console.log('Middleware: Accessing /account/wallet/transactions directly. Redirecting to /account/wallet.');
-		return NextResponse.redirect(walletUrl);
 	}
 
 	// --- Handle /unauthorized page access ---
@@ -206,7 +200,5 @@ export const config = {
 		'/account/:path*', // Protect all account routes
 		'/auth/login',
 		'/unauthorized',
-		// No longer need to explicitly list /account/category and /account/wallet/transactions here
-		// as they are covered by /account/:path* and their specific landing page redirects are handled above.
 	],
 };

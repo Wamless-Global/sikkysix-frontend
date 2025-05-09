@@ -21,9 +21,9 @@ const categoryDataMock = {
 };
 
 const activityData = [
-	{ id: 1, type: 'buy', hash: 'dnwhw82o20wmo29', amount: '20,000.00 NGN', time: '15m ago', icon: ArrowUp, color: 'text-red-500', bg: 'bg-red-500/10' },
-	{ id: 2, type: 'sell', hash: 'ks9Qksjws9jkhHw2n', amount: '10,000.00 NGN', time: '10h ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10' },
-	{ id: 3, type: 'sell', hash: 'QxhsuHiu92j2njniNn', amount: '10,000.00 NGN', time: '20s ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10' },
+	{ id: 1, type: 'buy', hash: 'dnwhw82o20wmo29', amount: '20,000.00 NGN', time: '15m ago', icon: ArrowUp, color: 'text-red-500', bg: 'bg-red-500/10', isCredit: true },
+	{ id: 2, type: 'sell', hash: 'ks9Qksjws9jkhHw2n', amount: '10,000.00 NGN', time: '10h ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10', isCredit: false },
+	{ id: 3, type: 'sell', hash: 'QxhsuHiu92j2njniNn', amount: '10,000.00 NGN', time: '20s ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10', isCredit: true },
 ];
 
 type CategoryPageParams = {
@@ -125,7 +125,7 @@ export default function SingleCategoryPage({ params }: CategoryPageParams) {
 				<CardContent className="px-2 flex justify-between items-center">
 					<div>
 						<p className="subtext">Investable Amount</p>
-						<p className="text-xl md:text-2xl font-bold">{categoryData.investableAmount}</p>
+						<p className="amount-heading">{categoryData.investableAmount}</p>
 					</div>
 					<Button onClick={handleBuyNow} size={'lg'} variant={'fixed-cta'} disabled={isLoadingPurchase}>
 						{isLoadingPurchase ? (
@@ -157,15 +157,21 @@ export default function SingleCategoryPage({ params }: CategoryPageParams) {
 						activityData.map((item) => (
 							<div key={item.id} className="flex items-center justify-between pl-0 p-3 rounded-lg hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
 								<div className="flex items-center gap-3">
-									<div className={`rounded-full p-2 ${item.bg}`}>
-										<item.icon className={`h-5 w-5 ${item.color}`} />
-									</div>
+									{item.isCredit ? (
+										<div className="bg-[var(--success)] rounded-full p-3">
+											<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+										</div>
+									) : (
+										<div className="bg-[var(--danger)] rounded-full p-3">
+											<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+										</div>
+									)}
 									<div>
-										<p className="text-sm font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{item.hash}</p>
-										<p className="text-xs text-muted-foreground">{item.time}</p>
+										<p className="font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{item.hash}</p>
+										<p className="text-sm text-muted-foreground">{item.time}</p>
 									</div>
 								</div>
-								<span className="text-sm font-semibold text-foreground">{item.amount}</span>
+								<span className={`font-semibold ${item.isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{item.amount}</span>
 							</div>
 						))
 					) : (

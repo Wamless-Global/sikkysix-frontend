@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight } from 'lucide-react'; // Removed ArrowLeft as it's not used
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,10 +10,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import nProgress from 'nprogress';
 
-export default function QuickDepositPage() {
+export default function DepositPage() {
 	const router = useRouter();
-	const [amount, setAmount] = useState('10000'); // Default to 10,000 as in image
-	const [depositMethod, setDepositMethod] = useState('p2p'); // 'p2p' or 'onchain'
+	const [amount, setAmount] = useState('10000');
+	const [depositMethod, setDepositMethod] = useState('p2p');
 
 	const handleProceed = () => {
 		nProgress.start();
@@ -53,13 +53,7 @@ export default function QuickDepositPage() {
 						</RadioGroup>
 					</div>
 
-					<Button
-						onClick={handleProceed}
-						size="lg"
-						variant="success" // Assuming 'success' variant is green as in image, can be changed to match profile button if needed
-						className="w-full flex items-center justify-center group"
-						disabled={!amount || parseFloat(amount) <= 0}
-					>
+					<Button onClick={handleProceed} size="lg" variant="success" className="w-full flex items-center justify-center group" disabled={!amount || parseFloat(amount) <= 0}>
 						Proceed
 						<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
 					</Button>

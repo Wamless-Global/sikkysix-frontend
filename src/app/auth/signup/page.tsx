@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
+import nprogress from 'nprogress'; // Import nprogress for loading bar
 
 export default function SignupPage() {
 	const [name, setName] = useState('');
@@ -53,10 +54,11 @@ export default function SignupPage() {
 			// Call the signup function from the context
 			await signup(name, email, password, confirmPassword);
 
+			nprogress.start(); // Start progress bar
 			toast.success('Signup successful! Please check your email for confirmation.');
-			router.push('/auth/login'); // Redirect to login page
+			router.push(`/auth/verify-email?email=${email}`); // Redirect to verify email page
 		} catch (err) {
-			// logger.error('Signup page error:', err); // Assuming logger might not be defined globally
+			// console.error('Signup page error:', err); // Assuming logger might not be defined globally
 			console.error('Signup page error:', err); // Use console.error instead
 			// Show error toast using the error message thrown by the context signup function
 			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during signup.';

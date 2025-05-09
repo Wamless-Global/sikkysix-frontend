@@ -26,7 +26,7 @@ const UnauthorizedPage: React.FC = () => {
 			// Redirect to login page on successful logout
 			router.push('/auth/login');
 		} catch (err) {
-			logger.error('Logout failed:', err);
+			console.error('Logout failed:', err);
 			// Use toast for error
 			toast.error(err instanceof Error ? err.message : 'An unexpected error occurred during logout.');
 			setIsLoggingOut(false); // Stop loading on error

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react'; // For loading state
+import { Loader2 } from 'lucide-react';
 
 interface ConfirmationModalProps {
 	isOpen: boolean;
@@ -12,26 +12,14 @@ interface ConfirmationModalProps {
 	title: string;
 	description: React.ReactNode;
 	confirmButtonText: string;
-	confirmButtonVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'success' | 'cta' | 'fixed-cta'; // Match your Button variants
+	confirmButtonVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'success' | 'cta' | 'fixed-cta';
 	showCancelButton?: boolean;
 	cancelButtonText?: string;
-	icon?: React.ElementType; // e.g., CheckCircle, AlertTriangle from lucide-react
+	icon?: React.ElementType;
 	isLoading?: boolean;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-	isOpen,
-	onClose,
-	onConfirm,
-	title,
-	description,
-	confirmButtonText,
-	confirmButtonVariant = 'fixed-cta', // Default to the variant used in InsufficientBalanceModal
-	showCancelButton = true,
-	cancelButtonText = 'Cancel',
-	icon: IconComponent,
-	isLoading = false,
-}) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, description, confirmButtonText, confirmButtonVariant = 'fixed-cta', showCancelButton = true, cancelButtonText = 'Cancel', icon: IconComponent, isLoading = false }) => {
 	if (!isOpen) {
 		return null;
 	}

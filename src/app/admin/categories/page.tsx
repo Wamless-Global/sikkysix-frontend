@@ -53,7 +53,7 @@ export default function CategoryManagementPage() {
 
 	// TODO: Implement actual category creation logic (API call)
 	const handleCreateCategory = () => {
-		logger.info('Creating category:', { name: newCategoryName, description: newCategoryDescription });
+		console.log('Creating category:', { name: newCategoryName, description: newCategoryDescription });
 		// Reset form and close dialog after submission (replace with actual logic)
 		setNewCategoryName('');
 		setNewCategoryDescription('');

@@ -1,10 +1,10 @@
-'use client'; // Needed for form handling state later
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default function BankDetailsPage() {
+export default async function BankDetailsPage() {
 	// Mock data - replace with actual user data and form state
 	const bankDetails = {
 		accountName: 'Denzel Washington',
@@ -28,14 +28,7 @@ export default function BankDetailsPage() {
 					<Label htmlFor="accountName" className="text-sm font-medium text-foreground">
 						Account Name
 					</Label>
-					<Input
-						id="accountName"
-						type="text"
-						defaultValue={bankDetails.accountName}
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add onChange handler
-						readOnly // Assuming this might be read-only based on the note
-					/>
+					<Input id="accountName" type="text" defaultValue={bankDetails.accountName} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" readOnly />
 				</div>
 
 				{/* Bank */}
@@ -44,13 +37,7 @@ export default function BankDetailsPage() {
 						Bank
 					</Label>
 					{/* Consider using a Select component here if banks are predefined */}
-					<Input
-						id="bank"
-						type="text"
-						defaultValue={bankDetails.bank}
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add onChange handler
-					/>
+					<Input id="bank" type="text" defaultValue={bankDetails.bank} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
 				{/* Account Number */}
@@ -62,8 +49,7 @@ export default function BankDetailsPage() {
 						id="accountNumber"
 						type="text" // Use text for potential leading zeros, or number if appropriate
 						defaultValue={bankDetails.accountNumber}
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add onChange handler
+						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input"
 					/>
 				</div>
 

@@ -25,7 +25,7 @@ const getResolvedCssVariable = (variableName: string): string => {
 		if (!document.documentElement) return '';
 		return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
 	} catch (error) {
-		logger.error(`Error getting CSS variable ${cssVar}:`, error);
+		console.error(`Error getting CSS variable ${cssVar}:`, error);
 		return ''; // Return empty string on error
 	}
 };

@@ -19,7 +19,7 @@ export default function CommunicationCenterPage() {
 			alert('Message content cannot be empty.');
 			return;
 		}
-		logger.info('Sending Broadcast:', { title: messageTitle, content: messageContent });
+		console.log('Sending Broadcast:', { title: messageTitle, content: messageContent });
 		// Reset form after sending
 		setMessageTitle('');
 		setMessageContent('');

@@ -47,11 +47,17 @@ export default function DashboardPage() {
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
-				{categories.map((category) => (
-					<CustomLink key={category.slug} href={`/account/category/${category.slug}`} className="block hover:opacity-90 transition-opacity">
-						<DashboardCard title={category.title} image={category.image} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
-					</CustomLink>
-				))}
+				{categories.map((category) =>
+					category.buttonEnabled ? (
+						<CustomLink key={category.slug} href={`/account/category/${category.slug}`} className="block hover:opacity-90 transition-opacity">
+							<DashboardCard title={category.title} image={category.image} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
+						</CustomLink>
+					) : (
+						<div>
+							<DashboardCard title={category.title} image={category.image} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
+						</div>
+					)
+				)}
 			</div>
 		</div>
 	);

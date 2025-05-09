@@ -66,27 +66,27 @@ export default function PlatformSettingsPage() {
 
 	// Placeholder Save Handlers
 	const handleSaveGeneralSettings = () => {
-		logger.info('Saving General Settings:', { platformName, baseCurrency });
+		console.log('Saving General Settings:', { platformName, baseCurrency });
 		alert('General Settings Saved (Placeholder)!');
 	};
 	const handleSaveFeeSettings = () => {
-		logger.info('Saving Fee Settings:', { depositFeePercent, withdrawalFeePercent });
+		console.log('Saving Fee Settings:', { depositFeePercent, withdrawalFeePercent });
 		alert('Fee Settings Saved (Placeholder)!');
 	};
 	const handleSaveWithdrawalSettings = () => {
-		logger.info('Saving Withdrawal Settings:', { globalMaxMultiplier, promoMaxMultiplier, penaltyType, penaltyFeeValue });
+		console.log('Saving Withdrawal Settings:', { globalMaxMultiplier, promoMaxMultiplier, penaltyType, penaltyFeeValue });
 		alert('Withdrawal Settings Saved (Placeholder)!');
 	};
 	const handleSaveReferralSettings = () => {
-		logger.info('Saving Referral Settings:', { referralBonusPercent, bonusFromDeposit, bonusFromWithdrawal, referralThreshold, higherEarningsMultiplier });
+		console.log('Saving Referral Settings:', { referralBonusPercent, bonusFromDeposit, bonusFromWithdrawal, referralThreshold, higherEarningsMultiplier });
 		alert('Referral Settings Saved (Placeholder)!');
 	};
 	const handleSaveBankingSettings = () => {
-		logger.info('Saving Banking Settings:', { enabledBankCountries: Array.from(enabledBankCountries) });
+		console.log('Saving Banking Settings:', { enabledBankCountries: Array.from(enabledBankCountries) });
 		alert('Banking Availability Saved (Placeholder)!');
 	};
 	const handleSaveCryptoSettings = () => {
-		logger.info('Saving Crypto Settings:', { cryptoMinDeposit, cryptoAllowedCategories: Array.from(cryptoAllowedCategories) });
+		console.log('Saving Crypto Settings:', { cryptoMinDeposit, cryptoAllowedCategories: Array.from(cryptoAllowedCategories) });
 		alert('Crypto Settings Saved (Placeholder)!');
 	};
 
