@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
-import { User, Mail, Lock } from 'lucide-react'; // Import icons
+import { User, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Removed CardDescription
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
-import nprogress from 'nprogress'; // Import nprogress for loading bar
+import nprogress from 'nprogress';
 
 export default function SignupPage() {
 	const [name, setName] = useState('');
@@ -18,19 +18,18 @@ export default function SignupPage() {
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(false); // Add loading state
+	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
-	const { signup } = useAuthContext(); // Get signup function from context
+	const { signup } = useAuthContext();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
-		setIsLoading(true); // Start loading
+		setIsLoading(true);
 
-		// Client-side validation
 		if (password !== confirmPassword) {
 			setError('Passwords do not match.');
-			setIsLoading(false); // Stop loading on validation error
+			setIsLoading(false);
 			return;
 		}
 		if (!name || !email || !password) {
@@ -51,18 +50,15 @@ export default function SignupPage() {
 		}
 
 		try {
-			// Call the signup function from the context
-			await signup(name, email, password, confirmPassword);
+			await signup(name, email, password, confirmPassword, ['user']);
 
-			nprogress.start(); // Start progress bar
+			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.');
-			router.push(`/auth/verify-email?email=${email}`); // Redirect to verify email page
+			router.push(`/auth/verify-email?email=${email}`);
 		} catch (err) {
-			// console.error('Signup page error:', err); // Assuming logger might not be defined globally
-			console.error('Signup page error:', err); // Use console.error instead
-			// Show error toast using the error message thrown by the context signup function
+			console.error('Signup page error:', err);
 			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during signup.';
-			setError(errorMessage); // Keep inline error for feedback
+			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {
 			setIsLoading(false);
@@ -71,24 +67,21 @@ export default function SignupPage() {
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			{/* Applied auth-page */}
 			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
 			<Card className="auth-card w-full max-w-md">
-				{/* Applied auth-card */}
 				<CardHeader className="space-y-1 text-left">
 					<CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleSubmit} className="space-y-6">
 						<div className="space-y-2">
-							<Label htmlFor="name">Full name</Label> {/* Changed label */}
-							{/* Added icon and updated input style */}
+							<Label htmlFor="name">Full name</Label>
 							<div className="relative flex items-center">
 								<User className="absolute left-3 h-5 w-5 text-gray-400" />
 								<Input
 									id="name"
 									type="text"
-									placeholder="Enter your full name" /* Changed placeholder */
+									placeholder="Enter your full name"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									required

@@ -10,7 +10,7 @@ interface AuthContextType {
 	isLoading: boolean; // To indicate if session check is in progress
 	login: (email: string, password: string) => Promise<AuthenticatedUser>; // Function to handle login
 	logout: () => Promise<void>;
-	signup: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>; // Added signup function
+	signup: (name: string, email: string, password: string, confirmPassword: string, roles: Array<string>) => Promise<void>; // Added signup function
 	checkEmailVerificationStatus: (email: string) => Promise<{ status: 'verified' | 'not_verified' | 'error' | 'not_found'; message: string | null }>; // To check email verification status
 	resendVerificationEmail: (email: string) => Promise<{ success: boolean; message: string | null }>; // To resend verification email
 }
@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	};
 
 	// Function to handle signup
-	const signup = async (name: string, email: string, password: string, confirmPassword: string): Promise<void> => {
+	const signup = async (name: string, email: string, password: string, confirmPassword: string, roles: Array<string>): Promise<void> => {
 		// Optional: Set a specific loading state for signup if needed globally
 		// setIsLoading(true); // Consider if signup should affect the global loading state
 

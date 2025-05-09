@@ -1,4 +1,5 @@
 'use client';
+import { useParams } from 'next/navigation';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -27,13 +28,15 @@ const activityData = [
 ];
 
 type CategoryPageParams = {
-	params: {
-		slug: string;
-	};
+	// This type might no longer be strictly needed if params prop is not used directly
+	// params: {
+	//	slug: string;
+	// };
 };
 
-export default function SingleCategoryPage({ params }: CategoryPageParams) {
-	const { slug } = params;
+export default function SingleCategoryPage(/* { params }: CategoryPageParams */) {
+	const paramsFromHook = useParams<{ slug: string }>();
+	const slug = paramsFromHook.slug;
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentUserBalance, setCurrentUserBalance] = useState<number | undefined>(undefined);
