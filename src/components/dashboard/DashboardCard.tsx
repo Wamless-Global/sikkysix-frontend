@@ -1,11 +1,10 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils'; // Assuming utility for class names
+import { cn } from '@/lib/utils';
 
 interface DashboardCardProps {
 	title: string;
 	image: string;
-	// category: string; // Removed as it's not displayed in the design
 	minimum: string;
 	buttonText: string;
 	buttonEnabled: boolean;
@@ -15,14 +14,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, image, minimum, bu
 	return (
 		<div className={`category-card-account ${buttonEnabled ? 'opacity-100' : 'opacity-40'}`}>
 			<div className="relative w-full aspect-[6/2]">
-				<Image
-					src={image}
-					alt={title}
-					fill // Use fill instead of layout="fill"
-					sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Provide sizes for optimization
-					className="object-cover" // Ensure image covers the area
-					priority={title === 'Food'} // Prioritize loading the first image potentially
-				/>
+				<Image src={image} alt={title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" priority={title === 'Food'} />
 			</div>
 			<div className="p-1 flex w-full flex-col">
 				<div className="flex justify-between items-center mb-4">
@@ -36,14 +28,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, image, minimum, bu
 					</div>
 				</div>
 				<div className="mt-auto pt">
-					<Button
-						size="lg"
-						className={cn(
-							'w-full rounded-lg py-3 text-sm font-bold transition-colors' // Increased py-2.5 to py-3
-						)}
-						disabled={!buttonEnabled}
-						variant="cta"
-					>
+					<Button size="lg" className={cn('w-full rounded-lg py-3 text-sm font-bold transition-colors')} disabled={!buttonEnabled} variant="cta">
 						{buttonText}
 					</Button>
 				</div>

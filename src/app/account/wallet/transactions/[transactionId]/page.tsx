@@ -1,29 +1,31 @@
 'use client';
 
-import React, { useState, useEffect } from 'react'; // Added React and useRef
+import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, MessageCircle } from 'lucide-react'; // Added Phone, Paperclip, Send
+import { Copy, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
 import MessageScreen from '@/components/p2p/MessageScreen';
-import AwaitingConfirmationView from '@/components/p2p/AwaitingConfirmationView'; // Import AwaitingConfirmationView
-import CompletedTransactionView from '@/components/p2p/CompletedTransactionView'; // Import CompletedTransactionView
+import AwaitingConfirmationView from '@/components/p2p/AwaitingConfirmationView';
+import CompletedTransactionView from '@/components/p2p/CompletedTransactionView';
 import copyToClipboard from '@/components/ui/copy-to-clipboard';
 
 const PAYMENT_COUNTDOWN_SECONDS = 14 * 60 + 50; // 14 minutes 50 seconds
-const AWAITING_CONFIRMATION_SECONDS = 30 * 60 + 41; // 30 minutes 41 seconds (example)
+const AWAITING_CONFIRMATION_SECONDS = 30 * 60 + 41;
 
 type TransactionFlowState = 'makePayment' | 'awaitingConfirmation' | 'completedTransaction';
 interface Message {
 	id: string;
 	text: string;
-	sender: 'user' | 'seller'; // 'user' is the current app user, 'seller' is the P2P counterparty
+	sender: 'user' | 'seller';
 	timestamp: Date;
 }
+
+// const PAYMENT_COUNTDOWN_SECONDS = 14 * 60 + 50; // Removed, timer logic handled in transactionId page
 
 export default function TransactionDetailsPage() {
 	const params = useParams();
@@ -33,13 +35,11 @@ export default function TransactionDetailsPage() {
 	const [transactionFlowState, setTransactionFlowState] = useState<TransactionFlowState>('makePayment');
 	const [isMadePaymentModalOpen, setIsMadePaymentModalOpen] = useState(false);
 	const [isProcessingPaymentConfirmation, setIsProcessingPaymentConfirmation] = useState(false);
-	const [showMessages, setShowMessages] = useState(false); // For toggling message screen
+	const [showMessages, setShowMessages] = useState(false);
 
 	const [messages, setMessages] = useState<Message[]>([]);
 
-	// Extract order details from query parameters (memoize to prevent re-renders)
 	const orderDetails = {
-		// In a real app, this would likely come from a state or context after fetching
 		amountNGN: parseFloat(searchParams.get('amountNGN') || '0'),
 		rateNGN: parseFloat(searchParams.get('rateNGN') || '0'),
 		quantityUSDT: parseFloat(searchParams.get('quantityUSDT') || '0'),
@@ -47,31 +47,26 @@ export default function TransactionDetailsPage() {
 	};
 
 	const sellerInfo = {
-		// Similar to orderDetails, fetch or get from context
 		name: searchParams.get('name') || 'N/A',
 		bankName: searchParams.get('bankName') || 'N/A',
 		accountNumber: searchParams.get('accountNumber') || 'N/A',
 	};
 
-	const [timeLeft, setTimeLeft] = useState(PAYMENT_COUNTDOWN_SECONDS); // General timer
+	const [timeLeft, setTimeLeft] = useState(PAYMENT_COUNTDOWN_SECONDS);
 
-	// Effect to initialize/reset timer when transactionFlowState changes
 	useEffect(() => {
 		if (transactionFlowState === 'makePayment') {
 			setTimeLeft(PAYMENT_COUNTDOWN_SECONDS);
-			if (!showMessages) window.scrollTo(0, 0); // Scroll to top if not showing messages
+			if (!showMessages) window.scrollTo(0, 0);
 		} else if (transactionFlowState === 'awaitingConfirmation') {
 			setTimeLeft(AWAITING_CONFIRMATION_SECONDS);
-			// AwaitingConfirmationView and CompletedTransactionView handle their own scroll
 		} else if (transactionFlowState === 'completedTransaction') {
-			setTimeLeft(0); // Stop timer or set to a non-counting state
+			setTimeLeft(0);
 		}
-	}, [transactionFlowState, showMessages]); // Add showMessages dependency
+	}, [transactionFlowState, showMessages]);
 
-	// Effect for the countdown logic itself
 	useEffect(() => {
 		if (timeLeft <= 0) {
-			// Handle timer expiration messages only once when timeLeft hits 0
 			if (timeLeft === 0) {
 				if (transactionFlowState === 'makePayment') {
 					toast.error('Payment time expired. Please contact support if you have made payment.');
@@ -79,10 +74,9 @@ export default function TransactionDetailsPage() {
 					toast.warning('Confirmation period ended. Please check transaction status or contact support.');
 				}
 			}
-			return; // Stop further interval creation if time is up or negative
+			return;
 		}
 
-		// Do not run interval if transaction is completed
 		if (transactionFlowState === 'completedTransaction') {
 			return;
 		}
@@ -92,7 +86,7 @@ export default function TransactionDetailsPage() {
 		}, 1000);
 
 		return () => clearInterval(intervalId);
-	}, [timeLeft, transactionFlowState]); // Depends on timeLeft to tick and transactionFlowState to stop if completed
+	}, [timeLeft, transactionFlowState]);
 
 	const formatTime = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60);
@@ -110,22 +104,19 @@ export default function TransactionDetailsPage() {
 		nProgress.start();
 		toast.info('Processing payment confirmation...');
 
-		// Simulate API call to mark payment as made by user
 		setTimeout(() => {
 			setTransactionFlowState('awaitingConfirmation');
-			setTimeLeft(AWAITING_CONFIRMATION_SECONDS); // Reset timer for awaiting confirmation phase
+			setTimeLeft(AWAITING_CONFIRMATION_SECONDS);
 			toast.success("Payment marked as made. Waiting for seller's confirmation.");
 			nProgress.done();
 			setIsProcessingPaymentConfirmation(false);
 
-			// Simulate seller confirming payment after a delay
 			setTimeout(() => {
 				setTransactionFlowState('completedTransaction');
 				toast.success('Transaction Confirmed! Your payment has been received.');
-				// Potentially clear timer or set to 0
 				setTimeLeft(0);
-			}, 15000); // Seller confirms after 15 seconds (example)
-		}, 2000); // User confirmation processing delay
+			}, 15000);
+		}, 2000);
 	};
 
 	const handleSendMessage = (currentMessage: string) => {
@@ -133,7 +124,7 @@ export default function TransactionDetailsPage() {
 		const newMessage: Message = {
 			id: `msg-${Date.now()}`,
 			text: currentMessage.trim(),
-			sender: 'user', // Assuming the current app user is sending
+			sender: 'user',
 			timestamp: new Date(),
 		};
 		setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -143,12 +134,10 @@ export default function TransactionDetailsPage() {
 		const currentlyShowingMessages = showMessages;
 		setShowMessages(!currentlyShowingMessages);
 		if (currentlyShowingMessages) {
-			// Means we are toggling from messages to order view
 			window.scrollTo(0, 0);
 		}
 	};
 
-	// Check if essential data is present
 	const isLoading = !orderDetails.amountNGN || !sellerInfo.name || sellerInfo.name === 'N/A';
 
 	if (isLoading) {
@@ -165,19 +154,9 @@ export default function TransactionDetailsPage() {
 			</div>
 		);
 	}
-	// MessageScreen component and OrderDetailItem are now imported
 
 	if (showMessages) {
-		return (
-			<MessageScreen
-				sellerName={sellerInfo.name}
-				initialMessages={messages}
-				currentTimeLeft={timeLeft}
-				formatTime={formatTime}
-				onSendMessage={handleSendMessage} // Pass the original handleSendMessage
-				onToggleScreen={toggleMessageScreen}
-			/>
-		);
+		return <MessageScreen sellerName={sellerInfo.name} initialMessages={messages} currentTimeLeft={timeLeft} formatTime={formatTime} onSendMessage={handleSendMessage} onToggleScreen={toggleMessageScreen} />;
 	}
 
 	return (
@@ -193,7 +172,6 @@ export default function TransactionDetailsPage() {
 						<br />
 						Send the exact sum to the agent to receive assets in your wallet. Ensure the seller's name matches and keep communication within the platform for dispute resolution.
 					</p>
-					{/* Order Details Card */}
 					<Card className="bg-background border-0 shadow-none">
 						<CardHeader className="px-0">
 							<CardTitle className="text-lg text-foreground">Order Details</CardTitle>
@@ -205,7 +183,6 @@ export default function TransactionDetailsPage() {
 							<OrderDetailItem label="Fees" value={orderDetails.transactionFeesNGN} unit="NGN" />
 						</CardContent>
 					</Card>
-					{/* Seller's Information Card */}
 					<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm px-0">
 						<CardHeader className="flex flex-row justify-between items-center px-4">
 							<CardTitle className="text-lg text-foreground">Seller's Information</CardTitle>
@@ -242,13 +219,7 @@ export default function TransactionDetailsPage() {
 
 			{transactionFlowState === 'awaitingConfirmation' && <AwaitingConfirmationView transactionId={transactionId} timeLeft={timeLeft} formatTime={formatTime} orderDetails={orderDetails} sellerInfo={sellerInfo} onToggleMessageScreen={toggleMessageScreen} />}
 
-			{transactionFlowState === 'completedTransaction' && (
-				<CompletedTransactionView
-					transactionId={transactionId}
-					orderDetails={orderDetails}
-					// transactionTimeDetails can be passed here if fetched/available
-				/>
-			)}
+			{transactionFlowState === 'completedTransaction' && <CompletedTransactionView transactionId={transactionId} orderDetails={orderDetails} />}
 
 			<ConfirmationModal
 				isOpen={isMadePaymentModalOpen}

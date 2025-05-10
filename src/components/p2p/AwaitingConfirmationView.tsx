@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, MessageCircle } from 'lucide-react';
-import OrderDetailItem from '@/components/p2p/OrderDetailItem'; // Assuming OrderDetailItem is in this path
+import OrderDetailItem from '@/components/p2p/OrderDetailItem';
 
 interface AwaitingConfirmationViewProps {
 	transactionId: string;

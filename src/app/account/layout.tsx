@@ -1,4 +1,4 @@
-'use client'; // Needed for useState
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -54,14 +54,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
 	return (
 		<div className="flex min-h-screen bg-background text-foreground relative">
-			{/* Desktop Sidebar (Matches design) */}
 			{/* Updated sidebar background to light mint green (light mode) and slightly darker for dark mode */}
 			{/* Design bg: #E6FFFA ~ oklch(0.98 0.02 165) */}
 			{/* Design active bg: #A0D2DB ~ oklch(0.85 0.05 190) */}
 			<aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
 				<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-[var(--dashboard-secondary)] px-0 pb-4 rounded-r-2xl">
 					<div className="flex h-16 shrink-0 items-center">
-						{/* Placeholder for Logo if needed */}
 						<span className="text-xl font-semibold text-[var(--dashboard-secondary-foreground)] pl-6">Menu</span>
 					</div>
 					<nav className="flex flex-1 flex-col">
@@ -119,32 +117,25 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 				</div>
 			</aside>
 
-			{/* Mobile Sidebar Component */}
 			<UserMobileSidebar isOpen={isMobileSidebarOpen} onClose={closeMobileSidebar} />
 
 			<div className="flex flex-1 flex-col lg:pl-72 lg:pr-8 relative">
-				{/* Mobile/Tablet Header */}
 				<UserHeader onMenuToggle={toggleMobileSidebar} />
 
-				{/* Desktop Header Section (Moved Outside Main Content) */}
 				<div className="sticky top-0 w-full right-0 z-10 backdrop-blur-sm">
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/80 rounded-full shadow mx-8 mt-6">
 						<div>
-							{/* Can add Breadcrumbs or Page Title here */}
 							<h1 className="text-2xl font-nico font-semibold text-[var(--dashboard-secondary-foreground)]">{appSettings.appName}</h1>
 						</div>
 						<div className="relative">
-							{/* Desktop Notification Icon */}
 							<button className="p-2 rounded-full hover:bg-muted">
 								<Bell className="h-6 w-6 text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100'" />
 							</button>
-							{/* Notification Badge */}
 							<span className="absolute -right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-destructive p-0 text-xs text-destructive-foreground">0 </span>
 						</div>
 					</div>
 				</div>
 
-				{/* Main Content Area */}
 				<main className="flex-1 overflow-y-auto p-5 pb-24 md:p-10 lg:p-16 gap-10">
 					<Breadcrumbs />
 					{children}

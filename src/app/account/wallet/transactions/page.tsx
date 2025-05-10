@@ -9,12 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge'; // For status display
+import { Badge } from '@/components/ui/badge';
 
-// --- Constants ---
 const ITEMS_PER_PAGE = 10;
 
-// --- Type Definitions ---
 type AccountTransactionStatus = 'Completed' | 'Pending';
 // Assuming types are dynamic strings from data, we can collect them or predefine common ones
 const ALL_TRANSACTION_TYPES = ['Referral Bonus', 'Withdrawal', 'Shares#01 Maturity', 'Deposit'] as const;
@@ -22,31 +20,29 @@ type AccountTransactionType = (typeof ALL_TRANSACTION_TYPES)[number];
 
 interface RawTransaction {
 	id: string;
-	type: string; // Original type string
-	timestamp: string; // e.g., "08:58:52 05/03/2025"
-	amount: string; // e.g., "500.00 NGN"
+	type: string;
+	timestamp: string;
+	amount: string;
 	isCredit: boolean;
 	completed: boolean;
 }
 
 export interface AccountTransaction {
 	id: string;
-	type: AccountTransactionType | string; // Allow other strings if not in predefined list
+	type: AccountTransactionType | string;
 	date: Date;
 	parsedAmount: number;
 	currency: string;
 	isCredit: boolean;
 	status: AccountTransactionStatus;
-	originalType: string; // Keep original type string for display if needed
+	originalType: string;
 }
 
 type SortableAccountTransactionKeys = 'date' | 'type' | 'parsedAmount' | 'status';
 
-// --- Helper Functions ---
 const parseTimestamp = (timestamp: string): Date => {
 	const parts = timestamp.match(/(\d{2}):(\d{2}):(\d{2})\s(\d{2})\/(\d{2})\/(\d{4})/);
-	if (!parts) return new Date(); // Fallback, should ideally handle errors
-	//                       Year      Month (0-indexed) Day      Hour      Minute    Second
+	if (!parts) return new Date();
 	return new Date(parseInt(parts[6]), parseInt(parts[5]) - 1, parseInt(parts[4]), parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3]));
 };
 
@@ -57,7 +53,7 @@ const parseAmountString = (amountStr: string): { amount: number; currency: strin
 		const currency = match[2];
 		return { amount, currency };
 	}
-	return { amount: 0, currency: 'N/A' }; // Fallback
+	return { amount: 0, currency: 'N/A' };
 };
 
 const getDayWithOrdinal = (day: number): string => {
@@ -102,7 +98,7 @@ const masterProcessedTransactions: AccountTransaction[] = mockRawTransactionsDat
 	const { amount, currency } = parseAmountString(t.amount);
 	return {
 		id: t.id,
-		type: t.type as AccountTransactionType | string, // Cast, or validate against ALL_TRANSACTION_TYPES
+		type: t.type as AccountTransactionType | string,
 		originalType: t.type,
 		date: parseTimestamp(t.timestamp),
 		parsedAmount: amount,
@@ -118,25 +114,21 @@ export default function AccountTransactionsPage() {
 	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
 	const [showFilters, setShowFilters] = useState(false);
 
-	// Filters
 	// const [searchTerm, setSearchTerm] = useState('');
 	const [filterStatus, setFilterStatus] = useState<AccountTransactionStatus | 'all'>('all');
-	const [filterType, setFilterType] = useState<AccountTransactionType | 'all' | string>('all'); // string for dynamic types
+	const [filterType, setFilterType] = useState<AccountTransactionType | 'all' | string>('all');
 	const [filterStartDate, setFilterStartDate] = useState<string>('');
 	const [filterEndDate, setFilterEndDate] = useState<string>('');
 	const [filterMinAmount, setFilterMinAmount] = useState<string>('');
 	const [filterMaxAmount, setFilterMaxAmount] = useState<string>('');
 
-	// Sorting
 	const [sortColumn, setSortColumn] = useState<SortableAccountTransactionKeys | null>('date');
 	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-	// Pagination
 	const [currentPage, setCurrentPage] = useState(1);
 
-	// Memoized and Processed Data
 	const filteredData = useMemo(() => {
-		setIsLoading(true); // Simulate loading start
+		setIsLoading(true);
 		let data = [...masterProcessedTransactions];
 
 		// if (searchTerm) {
@@ -240,7 +232,7 @@ export default function AccountTransactionsPage() {
 	const handlePageChange = (newPage: number) => {
 		if (newPage < 1 || newPage > totalPages) return;
 		setLoadingButton(newPage > currentPage ? 'next' : 'previous');
-		setIsLoading(true); // Indicate loading for page change
+		setIsLoading(true);
 		setCurrentPage(newPage);
 	};
 
@@ -252,7 +244,7 @@ export default function AccountTransactionsPage() {
 		setFilterEndDate('');
 		setFilterMinAmount('');
 		setFilterMaxAmount('');
-		setSortColumn('date'); // Reset sort to default
+		setSortColumn('date');
 		setSortDirection('desc');
 		setCurrentPage(1);
 	};
@@ -288,17 +280,14 @@ export default function AccountTransactionsPage() {
 				</Button>
 			</div>
 
-			{/* Filter Section */}
 			{showFilters && (
 				<div className="space-y-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg animate-in fade-in-0 slide-in-from-top-5 duration-300">
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
 						{/* Adjusted grid columns for responsiveness */}
-						{/* Search Input */}
 						{/* <div className="space-y-1">
 							<Label htmlFor="search-transactions">Search</Label>
 							<Input id="search-transactions" placeholder="Search by ID, type..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full" />
 						</div> */}
-						{/* Status Filter */}
 						<div className="space-y-1">
 							<Label htmlFor="filter-status">Status</Label>
 							<Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as AccountTransactionStatus | 'all')}>
@@ -312,7 +301,6 @@ export default function AccountTransactionsPage() {
 								</SelectContent>
 							</Select>
 						</div>
-						{/* Type Filter */}
 						<div className="space-y-1">
 							<Label htmlFor="filter-type">Type</Label>
 							<Select value={filterType} onValueChange={(value) => setFilterType(value as AccountTransactionType | 'all' | string)}>
@@ -329,7 +317,6 @@ export default function AccountTransactionsPage() {
 								</SelectContent>
 							</Select>
 						</div>
-						{/* Date Filters */}
 						<div className="space-y-1">
 							<Label htmlFor="filter-start-date">From Date</Label>
 							<Input id="filter-start-date" type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="w-full" />
@@ -338,7 +325,6 @@ export default function AccountTransactionsPage() {
 							<Label htmlFor="filter-end-date">To Date</Label>
 							<Input id="filter-end-date" type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} min={filterStartDate} className="w-full" />
 						</div>
-						{/* Amount Filters */}
 						<div className="space-y-1">
 							<Label htmlFor="filter-min-amount">Min Amount</Label>
 							<Input id="filter-min-amount" type="number" placeholder="e.g., 100" value={filterMinAmount} onChange={(e) => setFilterMinAmount(e.target.value)} className="w-full" />
@@ -355,7 +341,6 @@ export default function AccountTransactionsPage() {
 				</div>
 			)}
 
-			{/* Transactions Table */}
 			<div className="rounded-lg border border-slate-200 dark:border-slate-700">
 				<Table>
 					<TableHeader className="bg-slate-50 dark:bg-slate-800">
@@ -434,15 +419,12 @@ export default function AccountTransactionsPage() {
 				</Table>
 			</div>
 
-			{/* Pagination Controls */}
 			{totalPages > 0 && ( // Show even if only one page, but no transactions found message handles empty state
 				<div className="flex flex-col items-center sm:flex-row sm:justify-between space-y-2 sm:space-y-0 sm:space-x-2 py-4">
-					{/* Stack on xs, row on sm+ */}
 					<div className="text-sm text-muted-foreground flex-shrink-0">
-						{/* Removed mb-2 sm:mb-0 as parent handles spacing */} Page {currentPage} of {totalPages} ({totalCount} transactions)
+						Page {currentPage} of {totalPages} ({totalCount} transactions)
 					</div>
 					<div className="space-x-2 flex items-center flex-wrap justify-center sm:justify-end mt-2">
-						{/* Added flex-wrap and justify for small screens */}
 						<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || isLoading} className="cursor-pointer">
 							{isLoading && loadingButton === 'previous' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ChevronLeft className="h-4 w-4 mr-1" />}
 							Previous

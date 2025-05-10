@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import copyToClipboard from '@/components/ui/copy-to-clipboard';
 
-// Placeholder for QR code generation or a static QR code image
 const MOCK_QR_CODE_URL = '/images/mock-qr-code.png';
 const MOCK_WALLET_ADDRESS = 'XzwhwzfjZdDY6CtwK1kzg';
 const MOCK_NETWORK = 'SOL';
@@ -18,7 +17,7 @@ const MOCK_FEES = '2.5%';
 export default function OnChainDepositPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const amount = searchParams.get('amount'); // Get amount from query params
+	const amount = searchParams.get('amount');
 
 	return (
 		<div className="max-w-2xl space-y-8">

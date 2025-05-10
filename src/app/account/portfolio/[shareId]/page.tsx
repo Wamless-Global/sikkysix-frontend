@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react'; // Added useState
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import CircularProgressDisplay from '@/components/ui/circular-progress-display';
 import currencyFormatter from '@/components/ui/currency-formatter';
-import ConfirmationModal from '@/components/modals/ConfirmationModal'; // Added ConfirmationModal
-import { toast } from 'sonner'; // Added toast
+import ConfirmationModal from '@/components/modals/ConfirmationModal';
+import { toast } from 'sonner';
 
 // Re-using and extending PortfolioItem definition from the main portfolio page
 // In a real app, this might come from a shared types file or API response
@@ -18,17 +18,16 @@ interface PortfolioItem {
 	currency: string;
 	shareId: string;
 	startDate: string;
-	currentPrice: string; // For active items
+	currentPrice: string;
 	value: number;
 	progress: number;
 	cancelled: boolean;
 	completed: boolean;
-	// Fields for detailed view based on images
 	openPrice?: string;
-	endDate?: string; // For completed items
-	endPrice?: string; // For completed items
-	profit?: number; // For completed items
-	percentageChange?: number; // For the circle display, e.g., +92.25%
+	endDate?: string;
+	endPrice?: string;
+	profit?: number;
+	percentageChange?: number;
 }
 
 // Mock data - copied from portfolio/page.tsx for standalone use here
@@ -40,20 +39,20 @@ const mockAllInvestments: PortfolioItem[] = [
 		currency: 'NGN',
 		shareId: 'Share#01',
 		startDate: '24/02/25',
-		currentPrice: '₦0.0028321', // Added currency symbol for consistency
+		currentPrice: '₦0.0028321',
 		value: 19225.0,
 		progress: 70,
 		cancelled: false,
 		completed: false,
 		openPrice: '₦0.0021',
-		percentageChange: 92.25, // Example data
+		percentageChange: 92.25,
 	},
 	{
 		id: 'active2',
 		category: 'TRANSPORT',
 		currency: 'NGN',
 		shareId: 'Share#02',
-		startDate: '24/01/25', // Corrected from image interpretation
+		startDate: '24/01/25',
 		currentPrice: '₦0.0048321',
 		value: 74872.0,
 		progress: 40,
@@ -65,34 +64,34 @@ const mockAllInvestments: PortfolioItem[] = [
 		id: 'completed1',
 		category: 'REAL ESTATE',
 		currency: 'NGN',
-		shareId: 'Share#03', // Matches one of the images
+		shareId: 'Share#03',
 		startDate: '15/01/24',
-		currentPrice: 'N/A', // Or endPrice
-		value: 19225.0, // Value from image (₦19,225.00)
+		currentPrice: 'N/A',
+		value: 19225.0,
 		progress: 100,
 		cancelled: false,
 		completed: true,
 		openPrice: '₦0.0021',
 		endDate: '01/03/2025',
-		endPrice: '₦0.0023', // Example
-		profit: 0, // Example, image shows N/A for profit on this one
-		percentageChange: 92.25, // From image
+		endPrice: '₦0.0023',
+		profit: 0,
+		percentageChange: 92.25,
 	},
 	{
 		id: 'completed2',
 		category: 'TECH',
 		currency: 'NGN',
-		shareId: 'Share#04', // Matches one of the images
-		startDate: '24/02/2025', // From image
+		shareId: 'Share#04',
+		startDate: '24/02/2025',
 		currentPrice: 'N/A',
 		value: 20000.0,
 		progress: 100,
 		cancelled: false,
 		completed: true,
-		openPrice: '₦0.0021', // From image
-		endDate: '01/03/2025', // From image
-		endPrice: '₦0.0023', // From image
-		profit: 10000.0, // From image (₦10,000.00)
+		openPrice: '₦0.0021',
+		endDate: '01/03/2025',
+		endPrice: '₦0.0023',
+		profit: 10000.0,
 	},
 ];
 
@@ -131,7 +130,7 @@ export default function PortfolioItemDetailPage() {
 		const toastId = toast.loading('Processing withdrawal...');
 
 		setTimeout(() => {
-			setCurrentItem((prev) => (prev ? { ...prev, completed: true, progress: 100, endDate: new Date().toLocaleDateString('en-CA') } : undefined)); // en-CA for YYYY-MM-DD
+			setCurrentItem((prev) => (prev ? { ...prev, completed: true, progress: 100, endDate: new Date().toLocaleDateString('en-CA') } : undefined));
 			setIsWithdrawing(false);
 			toast.success('Withdrawal successful! Plan marked as completed.', { id: toastId });
 			// Optionally, could update mockAllInvestments if it were managed by context/global state
@@ -147,7 +146,6 @@ export default function PortfolioItemDetailPage() {
 				</h1>
 				<p className="sub-page-heading-sub-text">Detailed view of your investment in the {currentItem.category.toLowerCase()} category.</p>
 			</div>
-			{/* Circular Progress and Buttons */}
 			<div className="flex items-center justify-between gap-6 md:gap-20 w-full my-10">
 				<CircularProgressDisplay active={currentItem.completed} value={currencyFormatter(currentItem.value)} percentage={currentItem.percentageChange} size={220} />
 				<div className="flex flex-col sm:flex-col gap-3 mt-4">
@@ -164,7 +162,6 @@ export default function PortfolioItemDetailPage() {
 				</div>
 			</div>
 
-			{/* Details Grid */}
 			<div className="w-full space-y-5 mt-6">
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Start Date</span>
@@ -215,7 +212,7 @@ export default function PortfolioItemDetailPage() {
 				title="Are you sure?"
 				description="Ending the plan prematurely will lead to a forfeiture of all the profit made, do you wish to continue?"
 				confirmButtonText="Proceed"
-				isLoading={isWithdrawing} // Pass loading state to modal if it supports it
+				isLoading={isWithdrawing}
 			/>
 		</div>
 	);

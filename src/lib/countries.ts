@@ -13,5 +13,4 @@ export const COUNTRIES: Country[] = [
 	{ code: 'FR', name: 'France' },
 	{ code: 'JP', name: 'Japan' },
 	{ code: 'NG', name: 'Nigeria' },
-	// Add more countries as needed
 ];

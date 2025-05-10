@@ -6,9 +6,8 @@ import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import copyToClipboard from '@/components/ui/copy-to-clipboard'; // Assuming this utility exists
+import copyToClipboard from '@/components/ui/copy-to-clipboard';
 
-// Minimal mock data needed for asset symbol display
 interface Asset {
 	id: string;
 	symbol: string;
@@ -71,7 +70,6 @@ function SuccessStatusContent() {
 										</Button>
 									</div>
 								</div>
-								{/* Mock explorer link */}
 								<Button variant="outline" size="sm" className="w-full mt-3 border-border hover:border-[var(--dashboard-accent)]">
 									View on Explorer (Mock)
 									<ExternalLink className="ml-2 h-4 w-4" />

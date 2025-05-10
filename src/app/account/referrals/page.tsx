@@ -3,13 +3,11 @@
 import React from 'react';
 import { Copy, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Import table components
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import copyToClipboard from '@/components/ui/copy-to-clipboard';
 import Image from 'next/image';
 
-// Define interface for referral data structure
 interface Referral {
 	id: string;
 	name: string;
@@ -25,7 +23,7 @@ const referralsData: Referral[] = [
 		name: 'David Beckham',
 		joinedDate: '11/03/25',
 		amount: '1,500.00 NGN',
-		avatar: '/user-avatar-placeholder.png', // Placeholder, assuming an image in /public
+		avatar: '/user-avatar-placeholder.png',
 	},
 	{
 		id: '2',
@@ -90,10 +88,8 @@ export default function ReferralsPage() {
 				<p className="text-sm text-muted-foreground">Share this code with friends. When they sign up and invest, you earn!</p>
 			</div>
 
-			{/* Referrals List Title */}
 			{referralsData.length > 0 && <h2 className="text-lg font-semibold text-foreground pt-4">Your Referrals</h2>}
 
-			{/* Referrals List - Mobile (List View without individual card backgrounds) */}
 			<div className="space-y-4 md:hidden">
 				{referralsData.map((referral) => (
 					<div key={referral.id} className="flex items-center justify-between px-1 py-3 rounded-lg border border-border/20">
@@ -116,12 +112,10 @@ export default function ReferralsPage() {
 				)}
 			</div>
 
-			{/* Referrals Table - Desktop (Table View without card background) */}
 			<div className="hidden md:block mt-4">
 				{referralsData.length > 0 ? (
 					<Table>
 						<TableHeader>
-							{/* Removed background from TableRow, relying on page background */}
 							<TableRow className="border-b border-border/20">
 								<TableHead className="w-[80px] !bg-transparent p-5"></TableHead>
 								<TableHead className="!bg-transparent p-5">Name</TableHead>
@@ -131,7 +125,6 @@ export default function ReferralsPage() {
 						</TableHeader>
 						<TableBody>
 							{referralsData.map((referral) => (
-								// Ensuring row styling is consistent with mobile list items if possible, or clean table rows
 								<TableRow key={referral.id} className="border-b border-border/20 hover:bg-muted/10 dark:hover:bg-muted/5">
 									<TableCell className="p-5">
 										{referral.avatar && referral.avatar !== '/user-avatar-placeholder.png' ? <img src={referral.avatar} alt={referral.name} className="h-8 w-8 rounded-full object-cover" /> : <UserCircle className="h-8 w-8 text-muted-foreground" />}

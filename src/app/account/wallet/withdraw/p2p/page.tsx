@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo, Suspense, useEffect } from 'react'; // Added useEffect
+import { useState, useMemo, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Star, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card'; // Removed CardHeader, CardTitle as they weren't used in deposit list cards
+import { Card, CardContent } from '@/components/ui/card';
 import nProgress from 'nprogress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'sonner';
 
-// Mock Asset data (simplified)
 interface Asset {
 	id: string;
 	symbol: string;
@@ -23,14 +22,13 @@ const mockAssets: Asset[] = [
 	{ id: 'usdt', symbol: 'USDT' },
 ];
 
-// Mock Merchant data for P2P Withdrawal (Buying user's crypto)
 interface Merchant {
 	id: string;
 	name: string;
-	buyRateNGN: number; // NGN per Asset (e.g., NGN per USDT)
-	minAmountAsset: number; // Min amount of asset they buy
-	maxAmountAsset: number; // Max amount of asset they buy
-	paymentMethods: string[]; // e.g., ['Bank Transfer', 'Chipper Cash']
+	buyRateNGN: number;
+	minAmountAsset: number;
+	maxAmountAsset: number;
+	paymentMethods: string[];
 	completionRate: number;
 	trades: number;
 	rating: number;
@@ -42,9 +40,7 @@ const mockMerchants: Merchant[] = [
 	{ id: 'm3', name: 'CryptoQueen', buyRateNGN: 1649.8, minAmountAsset: 5, maxAmountAsset: 2000, paymentMethods: ['Bank Transfer'], completionRate: 99, trades: 85, rating: 4.9 },
 	{ id: 'm4', name: 'EasyExchange', buyRateNGN: 1650.0, minAmountAsset: 20, maxAmountAsset: 8000, paymentMethods: ['Bank Transfer', 'Mobile Top-up'], completionRate: 92, trades: 300, rating: 4.2 },
 ];
-// End Mock Data
 
-// Reusable StarRating component (same as in deposit p2p)
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
 	const emptyStars = maxStars - fullStars;
@@ -69,11 +65,9 @@ function P2PWithdrawalContent() {
 
 	const selectedAsset = mockAssets.find((a) => a.id === assetId);
 
-	// State for sorting
 	type SortByType = 'rate_desc' | 'completion_desc' | 'trades_desc' | 'rating_desc' | 'default';
 	const [sortBy, setSortBy] = useState<SortByType>('default');
 
-	// State for filtering
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [showSortOptions, setShowSortOptions] = useState(false);
 	const [tempMinRating, setTempMinRating] = useState('');
@@ -81,7 +75,6 @@ function P2PWithdrawalContent() {
 	const [appliedMinRating, setAppliedMinRating] = useState<number | null>(null);
 	const [appliedMinTrades, setAppliedMinTrades] = useState<number | null>(null);
 
-	// State for confirmation modal
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
@@ -108,9 +101,8 @@ function P2PWithdrawalContent() {
 	};
 
 	const displayMerchants = useMemo(() => {
-		let merchants = mockMerchants.filter((m) => m.minAmountAsset <= amount && m.maxAmountAsset >= amount); // Filter by amount first
+		let merchants = mockMerchants.filter((m) => m.minAmountAsset <= amount && m.maxAmountAsset >= amount);
 
-		// Apply user filters
 		if (appliedMinRating !== null) {
 			merchants = merchants.filter((m) => m.rating >= appliedMinRating!);
 		}
@@ -118,9 +110,8 @@ function P2PWithdrawalContent() {
 			merchants = merchants.filter((m) => m.trades >= appliedMinTrades!);
 		}
 
-		// Apply sorting
 		switch (sortBy) {
-			case 'rate_desc': // Best rate for user (highest buy rate)
+			case 'rate_desc':
 				merchants.sort((a, b) => b.buyRateNGN - a.buyRateNGN);
 				break;
 			case 'completion_desc':
@@ -134,8 +125,7 @@ function P2PWithdrawalContent() {
 				break;
 			case 'default':
 			default:
-				// Default sort could be rate or keep filtered order
-				merchants.sort((a, b) => b.buyRateNGN - a.buyRateNGN); // Default sort by best rate
+				merchants.sort((a, b) => b.buyRateNGN - a.buyRateNGN);
 				break;
 		}
 		return merchants;
@@ -152,21 +142,18 @@ function P2PWithdrawalContent() {
 		setIsRedirecting(true);
 		nProgress.start();
 
-		// Simulate initiating the trade
 		setTimeout(() => {
-			// Navigate to a hypothetical trade page (needs to be created)
-			// Passing merchant, asset, amount details
 			router.push(`/account/wallet/withdraw/p2p/trade?merchantId=${selectedMerchant.id}&assetId=${selectedAsset.id}&amount=${amount}`);
 			setIsConfirmModalOpen(false);
 			setIsRedirecting(false);
 			setSelectedMerchant(null);
-		}, 1500); // Shorter delay for confirmation
+		}, 1500);
 	};
 
 	if (!selectedAsset || isNaN(amount)) {
 		return (
 			<div className="max-w-2xl space-y-8 flex flex-col items-center justify-center py-10">
-				<p>Loading P2P details...</p> {/* Or a spinner */}
+				<p>Loading P2P details...</p>
 			</div>
 		);
 	}
@@ -177,7 +164,6 @@ function P2PWithdrawalContent() {
 				<h1 className="sub-page-heading">
 					P2P Withdrawal - Sell {amount} {selectedAsset.symbol}
 				</h1>
-				{/* Filter/Sort Controls - same as deposit */}
 				<div className="flex gap-2 items-center">
 					<Button variant="ghost" size="sm" onClick={() => setShowSortOptions(!showSortOptions)} className={`text-muted-foreground hover:text-foreground ${showSortOptions ? 'text-foreground font-bold' : ''}`}>
 						Sort By
@@ -224,7 +210,6 @@ function P2PWithdrawalContent() {
 				</div>
 			</div>
 
-			{/* Sort Options - same as deposit */}
 			<div className={`overflow-hidden transition-all duration-300 ease-in-out ${showSortOptions ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
 				<div className="pb-0">
 					<div className="flex flex-wrap gap-2">
@@ -244,7 +229,6 @@ function P2PWithdrawalContent() {
 				</div>
 			</div>
 
-			{/* Merchant List */}
 			{displayMerchants.length > 0 ? (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 					{displayMerchants.map((merchant) => (
@@ -284,7 +268,6 @@ function P2PWithdrawalContent() {
 				</Card>
 			)}
 
-			{/* Confirmation Modal */}
 			{selectedMerchant && (
 				<ConfirmationModal
 					isOpen={isConfirmModalOpen}
@@ -307,7 +290,6 @@ function P2PWithdrawalContent() {
 }
 
 export default function P2PWithdrawalPage() {
-	// Wrap with Suspense because useSearchParams() needs it
 	return (
 		<Suspense fallback={<div className="flex justify-center items-center h-screen">Loading P2P options...</div>}>
 			<P2PWithdrawalContent />

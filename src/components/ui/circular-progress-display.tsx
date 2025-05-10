@@ -7,15 +7,7 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 	return (
 		<div className={`relative flex flex-col items-center justify-center`} style={{ width: size, height: size }}>
 			<svg width={size} height={size} className="transform -rotate-90">
-				<circle
-					cx={size / 2}
-					cy={size / 2}
-					r={radius}
-					strokeWidth={strokeWidth}
-					stroke="currentColor"
-					className="text-gray-700" // Background track
-					fill="transparent"
-				/>
+				<circle cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} stroke="currentColor" className="text-gray-700" fill="transparent" />
 				{percentage !== undefined && (
 					<circle
 						cx={size / 2}

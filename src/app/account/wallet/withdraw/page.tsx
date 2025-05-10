@@ -11,25 +11,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import nProgress from 'nprogress';
-import { toast } from 'sonner'; // Added toast import
+import { toast } from 'sonner';
 
 interface Asset {
 	id: string;
-	name: string; // e.g., Bitcoin
-	symbol: string; // e.g., BTC
+	name: string;
+	symbol: string;
 	balance: number;
 	minWithdrawal: number;
 	maxWithdrawal: number;
 	networks: Network[];
-	iconUrl?: string; // Optional: for display
+	iconUrl?: string;
 }
 
 interface Network {
 	id: string;
-	name: string; // e.g., Bitcoin Network, Ethereum (ERC20)
-	fee: number; // Could be fixed or percentage
-	feeCurrency?: string; // e.g. BTC or USD
-	addressRegex?: string; // For basic validation
+	name: string;
+	fee: number;
+	feeCurrency?: string;
+	addressRegex?: string;
 }
 
 const mockAssets: Asset[] = [
@@ -40,7 +40,7 @@ const mockAssets: Asset[] = [
 		balance: 0.5,
 		minWithdrawal: 0.001,
 		maxWithdrawal: 2,
-		iconUrl: '/icons/btc.svg', // Placeholder
+		iconUrl: '/icons/btc.svg',
 		networks: [{ id: 'btc_mainnet', name: 'Bitcoin', fee: 0.0002, feeCurrency: 'BTC', addressRegex: '^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}$' }],
 	},
 	{
@@ -50,7 +50,7 @@ const mockAssets: Asset[] = [
 		balance: 10,
 		minWithdrawal: 0.01,
 		maxWithdrawal: 50,
-		iconUrl: '/icons/eth.svg', // Placeholder
+		iconUrl: '/icons/eth.svg',
 		networks: [{ id: 'eth_erc20', name: 'Ethereum (ERC20)', fee: 0.005, feeCurrency: 'ETH', addressRegex: '^0x[a-fA-F0-9]{40}$' }],
 	},
 	{
@@ -60,7 +60,7 @@ const mockAssets: Asset[] = [
 		balance: 5000,
 		minWithdrawal: 10,
 		maxWithdrawal: 100000,
-		iconUrl: '/icons/usdt.svg', // Placeholder
+		iconUrl: '/icons/usdt.svg',
 		networks: [
 			{ id: 'usdt_trc20', name: 'Tron (TRC20)', fee: 1, feeCurrency: 'USDT', addressRegex: '^T[A-Za-z1-9]{33}$' },
 			{ id: 'usdt_erc20', name: 'Ethereum (ERC20)', fee: 5, feeCurrency: 'USDT', addressRegex: '^0x[a-fA-F0-9]{40}$' },
@@ -70,7 +70,7 @@ const mockAssets: Asset[] = [
 
 export default function WithdrawPage() {
 	const router = useRouter();
-	const [withdrawalMethod, setWithdrawalMethod] = useState<'onchain' | 'p2p'>('onchain'); // Added method state
+	const [withdrawalMethod, setWithdrawalMethod] = useState<'onchain' | 'p2p'>('onchain');
 	const [selectedAssetId, setSelectedAssetId] = useState<string>('');
 	const [amount, setAmount] = useState('');
 	const [selectedNetworkId, setSelectedNetworkId] = useState<string>('');
@@ -78,21 +78,17 @@ export default function WithdrawPage() {
 
 	const selectedAsset = mockAssets.find((asset) => asset.id === selectedAssetId);
 
-	// Reset network/amount if method changes
 	useEffect(() => {
 		setSelectedNetworkId('');
-		// Optionally reset amount or asset if needed when switching methods
 		// setAmount('');
 		// setSelectedAssetId('');
 	}, [withdrawalMethod]);
 
 	useEffect(() => {
-		// Reset network if asset changes and selected network is no longer valid (only for onchain)
 		if (withdrawalMethod === 'onchain') {
 			if (selectedAsset && !selectedAsset.networks.find((net) => net.id === selectedNetworkId)) {
 				setSelectedNetworkId('');
 			}
-			// Reset network selector if no asset is selected
 			if (!selectedAssetId) {
 				setSelectedNetworkId('');
 			}
@@ -132,7 +128,6 @@ export default function WithdrawPage() {
 	const handleProceed = () => {
 		if (!validateAmount() || !selectedAssetId) {
 			if (!selectedAssetId) toast.error('Please select an asset.');
-			// Amount validation errors are shown below the input
 			return;
 		}
 
@@ -141,13 +136,11 @@ export default function WithdrawPage() {
 		if (withdrawalMethod === 'onchain') {
 			if (!selectedNetworkId) {
 				toast.error('Please select a network for on-chain withdrawal.');
-				nProgress.done(); // Stop progress if validation fails
+				nProgress.done();
 				return;
 			}
-			// Navigate to the on-chain details step
 			router.push(`/account/wallet/withdraw/details?assetId=${selectedAssetId}&amount=${amount}&networkId=${selectedNetworkId}`);
 		} else if (withdrawalMethod === 'p2p') {
-			// Navigate to the P2P withdrawal step
 			router.push(`/account/wallet/withdraw/p2p?assetId=${selectedAssetId}&amount=${amount}`);
 		}
 	};
@@ -160,7 +153,6 @@ export default function WithdrawPage() {
 					<p className="sub-page-heading-sub-text">Choose your withdrawal method, asset, and amount.</p>
 				</CardHeader>
 				<CardContent className="space-y-6 pt-6 px-0">
-					{/* Withdrawal Method Selection */}
 					<div className="space-y-3">
 						<Label className="text-sm font-medium">Select Withdrawal Method</Label>
 						<RadioGroup value={withdrawalMethod} onValueChange={(value) => setWithdrawalMethod(value as 'onchain' | 'p2p')} className="space-y-2">
@@ -175,7 +167,6 @@ export default function WithdrawPage() {
 						</RadioGroup>
 					</div>
 
-					{/* Asset Selection */}
 					<div className="space-y-2">
 						<Label htmlFor="asset" className="text-sm font-medium">
 							Select Asset
@@ -187,7 +178,6 @@ export default function WithdrawPage() {
 							<SelectContent>
 								{mockAssets.map((asset) => (
 									<SelectItem key={asset.id} value={asset.id}>
-										{/* Optional: Add asset icon here */}
 										{asset.name} ({asset.symbol}) - Bal: {asset.balance}
 									</SelectItem>
 								))}
@@ -195,7 +185,6 @@ export default function WithdrawPage() {
 						</Select>
 					</div>
 
-					{/* Network Selection (Radio Group - Only for On-Chain) */}
 					{withdrawalMethod === 'onchain' && selectedAsset && selectedAsset.networks.length > 0 && (
 						<div className="space-y-3">
 							<Label className="text-sm font-medium">Select Network</Label>
@@ -213,7 +202,6 @@ export default function WithdrawPage() {
 						</div>
 					)}
 
-					{/* Amount Input */}
 					<div className="space-y-2">
 						<Label htmlFor="amount" className="text-sm font-medium">
 							Enter Amount ({selectedAsset?.symbol || ''})
@@ -244,16 +232,9 @@ export default function WithdrawPage() {
 					<Button
 						onClick={handleProceed}
 						size="lg"
-						variant="success" // Assuming 'success' variant exists and is styled like in deposit flow
+						variant="success"
 						className="w-full flex items-center justify-center group"
-						disabled={
-							!selectedAssetId ||
-							!amount ||
-							parseFloat(amount) <= 0 ||
-							!!amountError ||
-							(withdrawalMethod === 'onchain' && !selectedNetworkId) || // Network required only for onchain
-							nProgress.isStarted()
-						}
+						disabled={!selectedAssetId || !amount || parseFloat(amount) <= 0 || !!amountError || (withdrawalMethod === 'onchain' && !selectedNetworkId) || nProgress.isStarted()}
 					>
 						Proceed
 						<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />

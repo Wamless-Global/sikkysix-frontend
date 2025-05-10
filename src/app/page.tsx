@@ -1,10 +1,10 @@
 'use client'; // This is a client component
 
-import { useState } from 'react'; // Import useState
-import { Button } from '@/components/ui/button'; // Assuming Button component exists
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Assuming Accordion component exists
-import Image from 'next/image'; // Using Next.js Image component
-import Link from 'next/link'; // Import Link
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import Image from 'next/image';
+import Link from 'next/link';
 
 // Placeholder SVG for Logo - Using CSS Vars
 const LogoPlaceholder = () => (
@@ -40,7 +40,6 @@ export default function LandingPage() {
 	return (
 		// Use CSS variables for background and default text color
 		<div className="bg-background text-foreground min-h-screen font-sans">
-			{/* Header */}
 			<header className="container mx-auto px-4 py-4 flex justify-between items-center">
 				<div className="flex items-center space-x-2">
 					<LogoPlaceholder />
@@ -61,11 +60,9 @@ export default function LandingPage() {
 						Payment
 					</a>
 				</nav>
-				{/* Updated Header Button */}
 				<Link href="/auth/login" passHref>
 					<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-6 hidden md:block">Login / Signup</Button>
 				</Link>
-				{/* Mobile Menu Button */}
 				<button className="md:hidden text-foreground z-50" onClick={toggleMobileMenu}>
 					{/* Use foreground color */}
 					{isMobileMenuOpen ? (
@@ -79,7 +76,6 @@ export default function LandingPage() {
 					)}
 				</button>
 			</header>
-			{/* Mobile Menu */}
 			{isMobileMenuOpen && (
 				// Use CSS variable for background
 				<div className="md:hidden fixed inset-0 w-full h-screen bg-[var(--lp-dark-bg)] z-40 flex flex-col items-center justify-center space-y-6">
@@ -96,7 +92,6 @@ export default function LandingPage() {
 					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
 						Payment
 					</a>
-					{/* Updated Mobile Menu Button */}
 					<Link href="/auth/login" passHref>
 						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg mt-8" onClick={toggleMobileMenu}>
 							Login / Signup
@@ -104,7 +99,6 @@ export default function LandingPage() {
 					</Link>
 				</div>
 			)}
-			{/* Hero Section */}
 			<section className="container mx-auto px-4 py-16 md:py-24 text-center relative overflow-hidden">
 				{/* Background decorative elements (simplified) - Use CSS vars */}
 				<div className="absolute top-10 left-10 w-16 h-16 border-2 border-[var(--lp-border)] rounded-full opacity-30 animate-pulse"></div>
@@ -115,7 +109,6 @@ export default function LandingPage() {
 				</h1>
 				<p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Investment is a term with several meanings related to finance and economics. The term relates to the accumulation of an asset in the expectation of the future profits.</p> {/* Use muted-foreground */}
 				<div className="flex justify-center space-x-4 mb-16">
-					{/* Updated Get Started Button */}
 					<Link href="/auth/login" passHref>
 						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg">Get Started</Button>
 					</Link>
@@ -131,7 +124,6 @@ export default function LandingPage() {
 				</div>
 				{/* Placeholder Dashboard Cards - Use CSS Vars */}
 				<div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-					{/* Card 1 */}
 					<div className="bg-[var(--lp-dark-card)] p-6 rounded-lg shadow-lg border border-[var(--lp-border)] transform md:-translate-y-8 md:-translate-x-4 md:rotate-[-3deg]">
 						<div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
 							<span>April 2022 - Week 1</span>
@@ -156,7 +148,6 @@ export default function LandingPage() {
 						<div className="text-sm text-muted-foreground">Currency</div>
 						<div className="text-lg font-semibold text-foreground">USD/US Dollar</div>
 					</div>
-					{/* Card 2 - Main Chart */}
 					<div className="bg-[var(--lp-dark-card)] p-6 rounded-lg shadow-lg border border-[var(--lp-border)] z-10 col-span-1 md:col-span-2">
 						<div className="flex justify-between items-center mb-4">
 							<span className="font-semibold text-foreground">Total Saving</span>
@@ -169,7 +160,6 @@ export default function LandingPage() {
 						{/* Placeholder Line Chart */}
 						<ImagePlaceholder className="w-full h-32" />
 					</div>
-					{/* Card 3 - Small Stat */}
 					<div className="bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] md:absolute md:bottom-[-40px] md:left-[20%] z-20 flex items-center space-x-3">
 						<IconPlaceholder className="w-8 h-8" />
 						<div>
@@ -178,7 +168,6 @@ export default function LandingPage() {
 							<div className="w-16 h-4 bg-[var(--lp-green-secondary)] rounded"></div>
 						</div>
 					</div>
-					{/* Card 4 - Small Stat */}
 					<div className="bg-[var(--lp-dark-card)] p-4 rounded-lg shadow-lg border border-[var(--lp-border)] md:absolute md:bottom-[-60px] md:left-[45%] z-20 flex items-center space-x-3">
 						<IconPlaceholder className="w-8 h-8" />
 						<div>
@@ -188,12 +177,10 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* Best Services Section */}
 			<section className="container mx-auto px-4 py-16 md:py-24">
 				<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Our Best Services</h2>
 				<p className="text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">For Your Convinience. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-					{/* Service 1 */}
 					<div className="text-center">
 						{/* Use CSS variable for background with opacity */}
 						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
@@ -202,7 +189,6 @@ export default function LandingPage() {
 						<h3 className="text-xl font-semibold mb-2 text-foreground">Guarantee Safety</h3>
 						<p className="text-muted-foreground">Lorem ipsum dolor sit amet, etetcetera ut consectetur adipiscing elit, sed do terru eiusmod tempor incididunt ut labore et dolore magna.</p>
 					</div>
-					{/* Service 2 */}
 					<div className="text-center">
 						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
 							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" />
@@ -210,7 +196,6 @@ export default function LandingPage() {
 						<h3 className="text-xl font-semibold mb-2 text-foreground">All in One App</h3>
 						<p className="text-muted-foreground">Lorem ipsum dolor sit amet, etetcetera ut consectetur adipiscing elit, sed do terru eiusmod tempor incididunt ut labore et dolore magna.</p>
 					</div>
-					{/* Service 3 */}
 					<div className="text-center">
 						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
 							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" />
@@ -220,7 +205,6 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* Why Use Section */}
 			<section className="py-16 px-4 md:px-20">
 				<div className="max-w-7xl mx-auto">
 					{/* Use foreground and lp-green-primary */}
@@ -270,7 +254,6 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* 3 Main Reasons Section */}
 			<section className="container mx-auto px-4 py-16 md:py-24">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 					<div>
@@ -316,7 +299,6 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* FAQ Section */}
 			<section className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
 				{/* Use CSS variables */}
 				<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Frequently Asked Question</h2>
@@ -344,7 +326,6 @@ export default function LandingPage() {
 					</AccordionItem>
 				</Accordion>
 			</section>
-			{/* Testimonial Section */}
 			{/* Use CSS variables for gradient */}
 			<section className="bg-gradient-to-b from-[var(--lp-dark-bg)] to-[var(--lp-green-secondary)] py-16 md:py-24 relative overflow-hidden">
 				{/* Background decorative elements from image - Use foreground/primary */}
@@ -354,7 +335,7 @@ export default function LandingPage() {
 				<div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 					<div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto md:ml-auto md:mr-0">
 						{/* Placeholder Image */}
-						<div className="absolute inset-0 rounded-full bg-[var(--lp-green-primary)]/10 blur-3xl"></div> {/* Adjusted glow color */}
+						<div className="absolute inset-0 rounded-full bg-[var(--lp-green-primary)]/10 blur-3xl"></div>
 						{/* Use CSS variable for border */}
 						<Image src="/placeholder-person.jpg" alt="Testimonial Person" width={288} height={288} className="rounded-full object-cover relative z-10 border-4 border-[var(--lp-dark-bg)]" />
 					</div>
@@ -371,7 +352,6 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* Call to Action Section */}
 			{/* Use CSS variables for background */}
 			<section className="bg-[var(--lp-green-muted)] py-16 md:py-20 relative">
 				{/* Background decorative elements - Use foreground */}
@@ -400,11 +380,9 @@ export default function LandingPage() {
 					</div>
 				</div>
 			</section>
-			{/* Footer */}
 			<footer className=" text-muted-foreground py-16">
 				<div className="container mx-auto px-4">
 					<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
-						{/* Logo & Description */}
 						<div className="md:col-span-2">
 							<div className="flex items-center space-x-2 mb-4">
 								<LogoPlaceholder />
@@ -412,7 +390,6 @@ export default function LandingPage() {
 							</div>
 							<p className="text-sm max-w-xs">A marketplace that sells various types of work by professional designers and is paid with NFT tokens.</p>
 						</div>
-						{/* Links - About Us */}
 						<div>
 							<h4 className="font-semibold text-foreground mb-4">About Us</h4>
 							<ul className="space-y-3 text-sm">
@@ -438,7 +415,6 @@ export default function LandingPage() {
 								</li>
 							</ul>
 						</div>
-						{/* Links - Community */}
 						<div>
 							<h4 className="font-semibold text-foreground mb-4">Community</h4>
 							<ul className="space-y-3 text-sm">
@@ -469,7 +445,6 @@ export default function LandingPage() {
 								</li>
 							</ul>
 						</div>
-						{/* Links - Social Media */}
 						<div>
 							<h4 className="font-semibold text-foreground mb-4">Social Media</h4>
 							<ul className="space-y-3 text-sm">
@@ -492,7 +467,6 @@ export default function LandingPage() {
 						</div>
 					</div>
 
-					{/* Bottom Footer */}
 					<div className="border-t border-[var(--lp-border)] pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
 						<p>Copyright @2023 Asra</p>
 						<div className="flex space-x-6 mt-4 md:mt-0">

@@ -26,11 +26,10 @@ export default function WalletPage() {
 
 	const calculateBalance = (transactions: Transaction[]): string => {
 		const total = transactions.reduce((acc, transaction) => {
-			// Remove " NGN" and commas, then parse to float
 			const amountValue = parseFloat(transaction.amount.replace(/ NGN|,/g, ''));
 			if (isNaN(amountValue)) {
 				console.warn(`Invalid amount found for transaction ID ${transaction.id}: ${transaction.amount}`);
-				return acc; // Skip if amount is not a valid number
+				return acc;
 			}
 			return transaction.isCredit ? acc + amountValue : acc - amountValue;
 		}, 0);
@@ -70,7 +69,6 @@ export default function WalletPage() {
 					<span className="text-sm font-medium text-foreground">Withdraw</span>
 				</CustomLink>
 			</div>
-			{/* Transaction History */}
 			<div className="sm:mt-20">
 				<h2 className="text-lg font-semibold text-foreground my-4 text-center">Transaction History</h2>
 				{hasTransactions ? (

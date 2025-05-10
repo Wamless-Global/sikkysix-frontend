@@ -10,15 +10,11 @@ export default function PortfolioStartButton() {
 
 	const handleClick = () => {
 		nProgress.start();
-		router.push('/account'); // Or any other desired path
+		router.push('/account');
 	};
 
 	return (
-		<Button
-			variant="success" // Assuming "success" is a defined variant, otherwise use "cta" or a suitable one
-			onClick={handleClick}
-			size="lg"
-		>
+		<Button variant="success" onClick={handleClick} size="lg">
 			Start Now <ArrowRight className="ml-2 h-5 w-5" />
 		</Button>
 	);

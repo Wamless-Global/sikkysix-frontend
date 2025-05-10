@@ -45,7 +45,7 @@
 }
 
 :root {
-	--radius: 0.625rem; /* Keep existing radius or adjust if needed */
+	--radius: 0.625rem;
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.12 0.021 283.11);
 	--card: oklch(1 0 0);
@@ -60,7 +60,7 @@
 	--muted-foreground: oklch(0.54 0.028 283.11);
 	--accent: oklch(0.968 0.006 283.11);
 	--accent-foreground: oklch(0.12 0.021 283.11);
-	--destructive: oklch(0.577 0.245 27.325); /* Keep destructive or use theme's red */
+	--destructive: oklch(0.577 0.245 27.325);
 	--border: oklch(0.929 0.011 283.11);
 	--input: oklch(0.929 0.011 283.11);
 	--ring: oklch(0.769 0.188 303.9);
@@ -69,7 +69,6 @@
 	--chart-3: oklch(0.398 0.07 227.392); /* Blue */
 	--chart-4: oklch(0.828 0.189 84.429); /* Lime */
 	--chart-5: oklch(0.646 0.222 41.116); /* Orange */
-	/* Sidebar colors - adjust if you want a different sidebar theme */
 	--sidebar: oklch(0.984 0.003 283.11);
 	--sidebar-foreground: oklch(0.12 0.021 283.11);
 	--sidebar-primary: oklch(0.627 0.265 303.9);
@@ -118,7 +117,7 @@
 	--dashboard-secondary: #d8fcec;
 	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
 
-	--dashboard-subtext: #6a6a6a; /* Muted text color */
+	--dashboard-subtext: #6a6a6a;
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
 	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 
@@ -218,7 +217,7 @@
 	--dashboard-secondary: #d8fcec;
 	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
 
-	--dashboard-subtext: #6a6a6a; /* Muted text color */
+	--dashboard-subtext: #6a6a6a;
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
 	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 

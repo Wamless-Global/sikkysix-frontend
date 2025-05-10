@@ -1,4 +1,4 @@
-'use client'; // Needed for form handling state later
+'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,16 +11,13 @@ export default function EditProfilePage() {
 	const user = {
 		name: 'Denzel Washington',
 		email: 'denzel.washington@gmail.com',
-		dob: '14-03-1991', // Consider date format/input type later
+		dob: '14-03-1991',
 		phone: '+23481929201',
-		avatarUrl: 'https://via.placeholder.com/100', // Simple placeholder
+		avatarUrl: 'https://via.placeholder.com/100',
 	};
-
-	// Add form handling logic (useState, onSubmit) later
 
 	return (
 		<div className="max-w-2xl mx-auto space-y-8">
-			{/* Avatar Section */}
 			<div className="relative w-24 h-24 mx-auto group  cursor-pointer">
 				<Avatar className="w-full h-full border-2 border-[var(--dashboard-accent)]">
 					<AvatarImage src={user.avatarUrl} alt={user.name} />
@@ -30,13 +27,10 @@ export default function EditProfilePage() {
 					<Camera className="w-6 h-6 text-muted-foreground" />
 					<span className="sr-only">Change photo</span>
 				</button>
-				{/* Hidden file input for actual upload */}
 				<input type="file" id="avatarUpload" className="sr-only" accept="image/*" />
 			</div>
 
-			{/* Form Section */}
 			<form className="space-y-6">
-				{/* Name */}
 				<div className="space-y-2">
 					<Label htmlFor="name" className="text-sm font-medium text-foreground">
 						Name
@@ -44,7 +38,6 @@ export default function EditProfilePage() {
 					<Input id="name" type="text" defaultValue={user.name} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Email */}
 				<div className="space-y-2">
 					<Label htmlFor="email" className="text-sm font-medium text-foreground">
 						Email
@@ -52,21 +45,13 @@ export default function EditProfilePage() {
 					<Input id="email" type="email" defaultValue={user.email} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Date of Birth */}
 				<div className="space-y-2">
 					<Label htmlFor="dob" className="text-sm font-medium text-foreground">
 						Date Of Birth
 					</Label>
-					<Input
-						id="dob"
-						type="date" // Consider using type="date" for better UX, might need format adjustment
-						defaultValue={user.dob}
-						placeholder="DD-MM-YYYY"
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input"
-					/>
+					<Input id="dob" type="date" defaultValue={user.dob} placeholder="DD-MM-YYYY" className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Phone Number */}
 				<div className="space-y-2">
 					<Label htmlFor="phone" className="text-sm font-medium text-foreground">
 						Phone Number
@@ -74,9 +59,7 @@ export default function EditProfilePage() {
 					<Input id="phone" type="tel" defaultValue={user.phone} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Save Button */}
 				<div className="pt-4">
-					{/* Use the accent color for the save button */}
 					<Button type="submit" className="w-full bg-[var(--dashboard-accent)] hover:bg-[var(--dashboard-accent)]/90 text-[var(--dashboard-accent-foreground)] rounded-lg py-3" size="lg">
 						Save
 					</Button>

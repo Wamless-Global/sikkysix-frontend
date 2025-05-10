@@ -6,32 +6,31 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { useTheme } from 'next-themes'; // Import useTheme
+import { useTheme } from 'next-themes';
 
 // Mock initial preferences - in a real app, this would come from user data/context
 const initialPreferences = {
-	theme: 'system', // 'light', 'dark', 'system'
+	theme: 'system',
 	emailNotifications: {
 		updates: true,
 		newsletter: false,
 		marketing: false,
 	},
-	language: 'en', // 'en', 'es', 'fr', etc.
+	language: 'en',
 };
 
 export default function PreferencesPage() {
-	const { theme, setTheme } = useTheme(); // Use the theme hook
+	const { theme, setTheme } = useTheme();
 	const [preferences, setPreferences] = useState({
 		...initialPreferences,
-		theme: theme || 'system', // Initialize with current theme or system default
+		theme: theme || 'system',
 	});
 
 	const handleThemeChange = (value: string) => {
-		setTheme(value); // Use setTheme from next-themes
+		setTheme(value);
 		setPreferences((prev) => ({ ...prev, theme: value }));
 	};
 
-	// Update useEffect to sync local state if theme changes externally
 	useEffect(() => {
 		setPreferences((prev) => ({ ...prev, theme: theme || 'system' }));
 	}, [theme]);
@@ -48,14 +47,11 @@ export default function PreferencesPage() {
 
 	const handleLanguageChange = (value: string) => {
 		setPreferences((prev) => ({ ...prev, language: value }));
-		// Add logic to change app language (e.g., using i18next)
 		console.log('Language changed to:', value);
 	};
 
 	const handleSaveChanges = () => {
-		// Logic to save preferences to backend
 		console.log('Saving preferences:', preferences);
-		// Show a toast notification or confirmation
 	};
 
 	return (
@@ -128,7 +124,6 @@ export default function PreferencesPage() {
 							<SelectItem value="en">English</SelectItem>
 							<SelectItem value="es">Español (Spanish)</SelectItem>
 							<SelectItem value="fr">Français (French)</SelectItem>
-							{/* Add more languages as needed */}
 						</SelectContent>
 					</Select>
 				</CardContent>

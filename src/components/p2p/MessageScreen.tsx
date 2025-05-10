@@ -14,9 +14,9 @@ interface Message {
 interface MessageScreenProps {
 	sellerName: string;
 	initialMessages: Message[];
-	currentTimeLeft: number; // To display the relevant countdown
+	currentTimeLeft: number;
 	formatTime: (seconds: number) => string;
-	onSendMessage: (messageText: string) => void; // Callback to parent to handle actual sending
+	onSendMessage: (messageText: string) => void;
 	onToggleScreen: () => void;
 }
 
@@ -39,9 +39,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 
 		setIsSending(true);
 		const messageToSend = currentMessage.trim();
-		setCurrentMessage(''); // Clear input immediately
+		setCurrentMessage('');
 
-		// Simulate network delay
 		setTimeout(() => {
 			onSendMessage(messageToSend);
 			setIsSending(false);
@@ -53,7 +52,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 			//   timestamp: new Date(),
 			// };
 			// setMessages(prev => [...prev, newMessage]);
-		}, 1000); // 1 second delay
+		}, 1000);
 	};
 
 	return (

@@ -1,5 +1,5 @@
-import AdminLayout from '@/components/layout/AdminLayout'; // Assuming default alias '@' points to src
-import { UserProvider } from '@/context/UserContext'; // Import the UserProvider
+import AdminLayout from '@/components/layout/AdminLayout';
+import { UserProvider } from '@/context/UserContext';
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
 	return (

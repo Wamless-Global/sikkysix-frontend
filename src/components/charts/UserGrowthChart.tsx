@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from 'next-themes';
 
-// Placeholder data
 const data = [
 	{ name: 'Wk 1', users: 50 },
 	{ name: 'Wk 2', users: 75 },
@@ -14,7 +13,6 @@ const data = [
 	{ name: 'Wk 6', users: 100 },
 ];
 
-// Helper to get computed style - returns the full computed value
 const getResolvedCssVariable = (variableName: string): string => {
 	if (typeof window === 'undefined') return '';
 	const cssVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
@@ -28,7 +26,7 @@ const getResolvedCssVariable = (variableName: string): string => {
 };
 
 const UserGrowthChart = () => {
-	const { resolvedTheme } = useTheme(); // Use resolvedTheme
+	const { resolvedTheme } = useTheme();
 	const [chartColors, setChartColors] = useState({
 		fillColor: '',
 		gridColor: '',
@@ -37,14 +35,12 @@ const UserGrowthChart = () => {
 		tooltipBorder: '',
 		cursorFill: '',
 	});
-	const [isClient, setIsClient] = useState(false); // State for client mount
+	const [isClient, setIsClient] = useState(false);
 
-	// Track client mount
 	useEffect(() => {
 		setIsClient(true);
 	}, []);
 
-	// Update colors when theme changes or on mount
 	useEffect(() => {
 		if (!isClient) return;
 
@@ -52,20 +48,17 @@ const UserGrowthChart = () => {
 		const borderColor = getResolvedCssVariable('--border');
 		const mutedFgColor = getResolvedCssVariable('--muted-foreground');
 		const bgColor = getResolvedCssVariable('--background');
-		const mutedColor = getResolvedCssVariable('--muted'); // Get muted color for cursor
+		const mutedColor = getResolvedCssVariable('--muted');
 
-		// Construct grid color with alpha
 		const gridAlpha = resolvedTheme === 'dark' ? 0.2 : 0.5;
 		const gridColorValue = borderColor.startsWith('oklch') ? `${borderColor} / ${gridAlpha}` : borderColor;
 
-		// Construct cursor fill color with alpha - Use different base for light/dark
 		let cursorFillValue = '';
 		if (resolvedTheme === 'dark') {
 			const cursorAlpha = 0.3;
 			cursorFillValue = mutedColor.startsWith('oklch') ? `${mutedColor} / ${cursorAlpha}` : mutedColor;
 		} else {
-			// Use a fixed light gray with alpha for light mode hover
-			cursorFillValue = 'rgba(203, 213, 225, 0.3)'; // Example: slate-300 with 30% opacity
+			cursorFillValue = 'rgba(203, 213, 225, 0.3)';
 		}
 
 		setChartColors({
@@ -78,12 +71,10 @@ const UserGrowthChart = () => {
 		});
 	}, [resolvedTheme, isClient]);
 
-	// Loading state
 	if (!isClient || !chartColors.fillColor) {
 		return <div className="h-full w-full flex items-center justify-center text-muted-foreground">Loading chart...</div>;
 	}
 
-	// Render chart
 	return (
 		<ResponsiveContainer width="100%" height="100%">
 			<BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }} barGap={6}>

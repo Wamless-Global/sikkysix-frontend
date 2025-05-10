@@ -42,13 +42,13 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 	const [currentUserBalance, setCurrentUserBalance] = useState<number | undefined>(undefined);
 	const [productPrice, setProductPrice] = useState<number | undefined>(undefined);
 	const [categoryData, setCategoryData] = useState(categoryDataMock);
-	const [isLoadingPurchase, setIsLoadingPurchase] = useState(false); // Added loading state
+	const [isLoadingPurchase, setIsLoadingPurchase] = useState(false);
 
 	useEffect(() => {
 		// In a real app, you would fetch categoryData based on slug
 		// For now, we parse the price from the mock data
-		const rawPrice = categoryData.price; // Use categoryData from state
-		const priceString = rawPrice.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+		const rawPrice = categoryData.price;
+		const priceString = rawPrice.replace(/[^0-9.]/g, '');
 		const parsedPrice = parseFloat(priceString);
 
 		if (!isNaN(parsedPrice)) {
@@ -59,14 +59,14 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 		}
 		// If categoryData were fetched, you'd set it here.
 		// setCategoryData(fetchedData);
-	}, [slug, categoryData.price]); // Depend on categoryData.price if it can change
+	}, [slug, categoryData.price]);
 
 	const handleBuyNow = async () => {
-		setIsLoadingPurchase(true); // Start loading
+		setIsLoadingPurchase(true);
 		if (productPrice === undefined) {
 			console.error('Product price is not available or invalid.');
 			toast.error('Product price is currently unavailable. Please try again later.');
-			setIsLoadingPurchase(false); // Stop loading
+			setIsLoadingPurchase(false);
 			return;
 		}
 
@@ -74,8 +74,8 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 
 		if (balance === null) {
 			// Error fetching balance is handled by toast within fetchCurrentUserBalance
-			setCurrentUserBalance(undefined); // Clear any stale balance
-			setIsLoadingPurchase(false); // Stop loading
+			setCurrentUserBalance(undefined);
+			setIsLoadingPurchase(false);
 			return;
 		}
 
@@ -84,12 +84,11 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 		if (balance < productPrice) {
 			setIsModalOpen(true);
 		} else {
-			// Proceed with purchase
 			console.log('Sufficient balance. Proceeding with purchase...');
 			// TODO: Add actual purchase logic here
 			toast.success('Purchase initiated! (Placeholder)');
 		}
-		setIsLoadingPurchase(false); // Stop loading
+		setIsLoadingPurchase(false);
 	};
 
 	return (
@@ -109,11 +108,8 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 				</div>
 			</div>
 
-			{/* Chart Placeholder and Time Range */}
 			<div>
-				{/* Placeholder for Chart */}
 				<div className="bg-muted/20 dark:bg-muted/10 h-64 md:h-80 rounded-lg flex items-center justify-center text-muted-foreground mb-4">Chart Placeholder</div>
-				{/* Time Range Selectors */}
 				<div className="flex justify-center space-x-2">
 					{['1H', '1D', '1W', '1M', '1Y'].map((range) => (
 						<Button key={range} variant="ghost" size="sm" className={`px-3 h-8 text-xs ${range === '1H' ? 'bg-muted/50 dark:bg-muted/20 text-foreground' : 'text-muted-foreground'}`}>
@@ -123,7 +119,6 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 				</div>
 			</div>
 
-			{/* Investable Amount Card */}
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-md rounded-2xl text-[var(--dashboard-secondary-foreground)] p-4 py-6">
 				<CardContent className="px-2 flex justify-between items-center">
 					<div>
@@ -143,7 +138,6 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 				</CardContent>
 			</Card>
 
-			{/* Activity/Positions Tabs */}
 			<Tabs defaultValue="activity" className="w-full">
 				<TabsList className="bg-transparent p-0 h-auto gap-4 pb-2 mb-4">
 					<TabsTrigger value="activity" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
@@ -154,7 +148,6 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 					</TabsTrigger>
 				</TabsList>
 
-				{/* Activity Tab Content */}
 				<TabsContent value="activity" className="mt-0 space-y-4">
 					{activityData.length > 0 ? (
 						activityData.map((item) => (
@@ -182,14 +175,11 @@ export default function SingleCategoryPage(/* { params }: CategoryPageParams */)
 					)}
 				</TabsContent>
 
-				{/* Open Positions Tab Content */}
 				<TabsContent value="positions" className="mt-0">
 					<div className="text-center py-10 text-muted-foreground">No open positions.</div>
-					{/* Placeholder for positions list */}
 				</TabsContent>
 			</Tabs>
 
-			{/* Insufficient Balance Modal */}
 			<InsufficientBalanceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentBalance={currentUserBalance} requiredAmount={productPrice} />
 		</div>
 	);

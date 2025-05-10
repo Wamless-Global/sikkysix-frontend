@@ -44,12 +44,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
 	return (
 		<div className="flex h-screen bg-background">
-			{/* Static Sidebar for larger screens */}
 			<div className="hidden md:flex">
 				<Sidebar />
 			</div>
 
-			{/* Mobile Sidebar Container */}
 			<div className={cn('fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden', isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full')}>
 				<div className="relative h-full z-10">
 					<Sidebar />

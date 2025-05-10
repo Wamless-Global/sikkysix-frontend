@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
-import appSettings from '@/config/app'; // Import app settings
-import { ProgressBar } from '@/components/layout/ProgressBar'; // Import ProgressBar
-import { Toaster } from '@/components/ui/sonner'; // Import Toaster
+import { AuthProvider } from '@/context/AuthContext';
+import appSettings from '@/config/app';
+import { ProgressBar } from '@/components/layout/ProgressBar';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 const geistSans = Geist({
@@ -35,16 +35,11 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning style={{ fontSize: appSettings.baseFontSize }}>
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system" // Use system preference as default
-					enableSystem
-					disableTransitionOnChange
-				>
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<AuthProvider>
-						<ProgressBar /> {/* ProgressBar might need to be inside or outside depending on if it needs auth state */}
+						<ProgressBar />
 						{children}
-						<Toaster richColors /> {/* Toaster likely doesn't need auth state */}
+						<Toaster richColors />
 					</AuthProvider>
 				</ThemeProvider>
 			</body>

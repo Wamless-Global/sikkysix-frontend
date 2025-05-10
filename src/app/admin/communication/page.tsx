@@ -1,4 +1,4 @@
-'use client'; // Required for form state
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send } from 'lucide-react'; // Icon
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
+import { Send } from 'lucide-react';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
 export default function CommunicationCenterPage() {
 	const [messageTitle, setMessageTitle] = useState('');
@@ -20,18 +20,16 @@ export default function CommunicationCenterPage() {
 			return;
 		}
 		console.log('Sending Broadcast:', { title: messageTitle, content: messageContent });
-		// Reset form after sending
 		setMessageTitle('');
 		setMessageContent('');
-		alert('Broadcast Sent (Placeholder)! Check logger.'); // Placeholder feedback
+		alert('Broadcast Sent (Placeholder)! Check logger.');
 	};
 
 	return (
 		<div className="space-y-6">
-			<Breadcrumbs /> {/* Add Breadcrumbs component */}
-			<h1 className="text-2xl font-semibold mt-2">Communication Center</h1> {/* Restore Title */}
+			<Breadcrumbs />
+			<h1 className="text-2xl font-semibold mt-2">Communication Center</h1>
 			<div className="grid gap-6 md:grid-cols-2">
-				{/* Broadcast Form Card */}
 				<Card>
 					<CardHeader>
 						<CardTitle>Send Broadcast Message</CardTitle>
@@ -44,14 +42,7 @@ export default function CommunicationCenterPage() {
 						</div>
 						<div className="space-y-1.5">
 							<Label htmlFor="messageContent">Message Content</Label>
-							<Textarea
-								id="messageContent"
-								placeholder="Type your message here..."
-								value={messageContent}
-								onChange={(e) => setMessageContent(e.target.value)}
-								rows={8} // Adjust rows as needed
-								required
-							/>
+							<Textarea id="messageContent" placeholder="Type your message here..." value={messageContent} onChange={(e) => setMessageContent(e.target.value)} rows={8} required />
 						</div>
 					</CardContent>
 					<CardFooter>
@@ -61,7 +52,6 @@ export default function CommunicationCenterPage() {
 					</CardFooter>
 				</Card>
 
-				{/* Preview Card (Placeholder) */}
 				<Card>
 					<CardHeader>
 						<CardTitle>Message Preview</CardTitle>

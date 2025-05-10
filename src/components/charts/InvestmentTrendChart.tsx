@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from 'next-themes';
 
-// Placeholder data
 const data = [
 	{ name: 'Jan', volume: 4000 },
 	{ name: 'Feb', volume: 3000 },
@@ -15,23 +14,20 @@ const data = [
 	{ name: 'Jul', volume: 3490 },
 ];
 
-// Helper to get computed style - returns the full computed value (e.g., "oklch(0.627 0.265 303.9)")
 const getResolvedCssVariable = (variableName: string): string => {
-	if (typeof window === 'undefined') return ''; // Avoid errors during SSR
-	// Ensure the variable name starts with --
+	if (typeof window === 'undefined') return '';
 	const cssVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
 	try {
-		// Ensure documentElement exists (it should client-side)
 		if (!document.documentElement) return '';
 		return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
 	} catch (error) {
 		console.error(`Error getting CSS variable ${cssVar}:`, error);
-		return ''; // Return empty string on error
+		return '';
 	}
 };
 
 const InvestmentTrendChart = () => {
-	const { resolvedTheme } = useTheme(); // Use resolvedTheme to ensure we know if it's light or dark
+	const { resolvedTheme } = useTheme();
 	const [chartColors, setChartColors] = useState({
 		strokeColor: '',
 		gridColor: '',
@@ -39,43 +35,36 @@ const InvestmentTrendChart = () => {
 		tooltipBg: '',
 		tooltipBorder: '',
 	});
-	const [isClient, setIsClient] = useState(false); // State to track client-side mount
+	const [isClient, setIsClient] = useState(false);
 
-	// Ensure this runs only on the client
 	useEffect(() => {
 		setIsClient(true);
 	}, []);
 
-	// Update colors when theme changes (and on initial client mount)
 	useEffect(() => {
-		if (!isClient) return; // Don't run on server or before mount
+		if (!isClient) return;
 
 		const primaryColor = getResolvedCssVariable('--primary');
 		const borderColor = getResolvedCssVariable('--border');
 		const mutedFgColor = getResolvedCssVariable('--muted-foreground');
 		const bgColor = getResolvedCssVariable('--background');
 
-		// Construct grid color with appropriate alpha based on theme
 		const gridAlpha = resolvedTheme === 'dark' ? 0.2 : 0.5;
-		// Basic check if borderColor is oklch to apply alpha correctly
-		const gridColorValue = borderColor.startsWith('oklch') ? `${borderColor} / ${gridAlpha}` : borderColor; // Fallback if not oklch (though it should be)
+		const gridColorValue = borderColor.startsWith('oklch') ? `${borderColor} / ${gridAlpha}` : borderColor;
 
 		setChartColors({
-			strokeColor: primaryColor, // Use the resolved value directly
+			strokeColor: primaryColor,
 			gridColor: gridColorValue,
 			textColor: mutedFgColor,
 			tooltipBg: bgColor,
 			tooltipBorder: borderColor,
 		});
-	}, [resolvedTheme, isClient]); // Rerun effect when theme or client status changes
+	}, [resolvedTheme, isClient]);
 
-	// Prevent rendering chart until colors are resolved client-side
 	if (!isClient || !chartColors.strokeColor) {
-		// Return loading state or null, ensuring valid JSX
 		return <div className="h-full w-full flex items-center justify-center text-muted-foreground">Loading chart...</div>;
 	}
 
-	// Render the chart only when client-side and colors are ready
 	return (
 		<ResponsiveContainer width="100%" height="100%">
 			<AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>

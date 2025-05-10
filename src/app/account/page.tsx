@@ -1,37 +1,36 @@
-import DashboardCard from '@/components/dashboard/DashboardCard'; // We'll create this next
-import { CustomLink } from '@/components/ui/CustomLink'; // Custom link component for navigation
+import DashboardCard from '@/components/dashboard/DashboardCard';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 // Mock data for cards - replace with actual data fetching
 const categories = [
 	{
 		title: 'Food',
-		slug: 'food', // Add slug
+		slug: 'food',
 		// Using loremflickr for random images. Dimensions match typical card image ratios.
 		image: '/Variety-fruits-vegetables.png',
-		category: 'Category', // This label seems unused in the final design, but keeping data structure
+		category: 'Category',
 		minimum: '₦10,000.00',
 		buttonText: 'Buy Now',
 		buttonEnabled: true,
 	},
 	{
 		title: 'Lifestyle',
-		slug: 'lifestyle', // Add slug
-		image: '/Variety-fruits-vegetables.png', // Using 'concert' for lifestyle
+		slug: 'lifestyle',
+		image: '/Variety-fruits-vegetables.png',
 		category: 'Category',
-		minimum: '₦50,000.00', // Updated based on mobile design
+		minimum: '₦50,000.00',
 		buttonText: 'Buy Now',
 		buttonEnabled: true,
 	},
 	{
 		title: 'Transport',
-		slug: 'transport', // Add slug
-		image: '/Variety-fruits-vegetables.png', // Using 'truck' for transport
+		slug: 'transport',
+		image: '/Variety-fruits-vegetables.png',
 		category: 'Category',
-		minimum: '₦100,000.00', // Updated based on mobile design
-		buttonText: 'Coming Soon', // Updated based on mobile design
-		buttonEnabled: false, // Disabled for 'Coming Soon'
+		minimum: '₦100,000.00',
+		buttonText: 'Coming Soon',
+		buttonEnabled: false,
 	},
-	// Add more categories if needed
 ];
 
 // Mock user data - replace with actual context/auth logic

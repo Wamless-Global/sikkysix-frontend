@@ -91,20 +91,17 @@ export async function middleware(request: NextRequest) {
 	const accountUrl = new URL('/account', request.url);
 	const adminDashboardUrl = new URL('/admin', request.url); // For redirecting from login if already authed
 
-	// Path checks
 	const isAdminPath = pathname.startsWith('/admin');
 	const isAccountPath = pathname.startsWith('/account') && !pathname.startsWith('/account/category') && !pathname.startsWith('/account/wallet/transactions'); // Protect general /account routes
 	const isAuthLoginPath = pathname === '/auth/login';
 	const isUnauthorizedPagePath = pathname === '/unauthorized';
 	const isCategoryLandingPath = pathname === '/account/category';
 
-	// --- Redirect direct access to specific sub-pages if needed ---
 	if (isCategoryLandingPath) {
 		console.log('Middleware: Accessing /account/category directly. Redirecting to /account.');
 		return NextResponse.redirect(accountUrl);
 	}
 
-	// --- Handle /unauthorized page access ---
 	// If accessing /unauthorized without a token, redirect to login (they shouldn't be here)
 	if (isUnauthorizedPagePath && !authToken) {
 		console.log('Middleware: Accessing /unauthorized without token. Redirecting to login.');
@@ -113,7 +110,6 @@ export async function middleware(request: NextRequest) {
 	// If accessing /unauthorized with a token, allow it (they were likely redirected here by protected route logic)
 	// This also means if they manually navigate here with a token, they'll see it.
 
-	// --- Protected Routes ---
 	if (isAdminPath) {
 		const response = await handleProtectedRoute(request, authToken, ['admin'], loginUrl, unauthorizedUrl, pathname);
 		if (response) return response;
@@ -129,7 +125,6 @@ export async function middleware(request: NextRequest) {
 		if (response) return response;
 	}
 
-	// --- Redirect from login page if already authenticated ---
 	// This check should ideally happen *after* protected route checks,
 	// or ensure it doesn't interfere with unauthorized redirects.
 	if (isAuthLoginPath && authToken) {

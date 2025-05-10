@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect } from 'react'; // Added useEffect
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ interface Asset {
 	name: string;
 	symbol: string;
 	networks: Network[];
-	// other fields if needed by other parts of the flow (balance, limits etc.)
 }
 
 interface Network {
@@ -23,7 +22,6 @@ interface Network {
 	name: string;
 	fee: number;
 	feeCurrency?: string;
-	// other fields (addressRegex etc.)
 }
 
 const mockAssets: Asset[] = [
@@ -49,7 +47,6 @@ const mockAssets: Asset[] = [
 		],
 	},
 ];
-// End of mock data
 
 function ReviewWithdrawalContent() {
 	const router = useRouter();
@@ -65,7 +62,6 @@ function ReviewWithdrawalContent() {
 	const amount = parseFloat(amountStr || '0');
 
 	if (!selectedAsset || !selectedNetwork || isNaN(amount) || !address) {
-		// This should ideally be caught earlier, but as a safeguard
 		useEffect(() => {
 			toast.error('Review details are incomplete. Redirecting...');
 			router.replace('/account/wallet/withdraw');
@@ -82,7 +78,6 @@ function ReviewWithdrawalContent() {
 		);
 	}
 
-	// Calculate total debit if fee is in the same currency as withdrawal amount
 	let totalDebit = amount;
 	let totalDebitCurrency = selectedAsset.symbol;
 	if (selectedNetwork.feeCurrency === selectedAsset.symbol) {
@@ -91,11 +86,9 @@ function ReviewWithdrawalContent() {
 
 	const handleProceedToVerification = () => {
 		nProgress.start();
-		// Navigate to the 2FA verification step
 		router.push(`/account/wallet/withdraw/verify?assetId=${assetId}&amount=${amountStr}&networkId=${networkId}&address=${encodeURIComponent(address)}`);
 	};
 
-	// Need to import useEffect for the redirect logic
 	useEffect(() => {
 		if (!selectedAsset || !selectedNetwork || isNaN(amount) || !address) {
 			toast.error('Review details are incomplete. Redirecting...');

@@ -1,69 +1,62 @@
-'use client'; // Make it a client component for state management
+'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useUserContext, UserFilters } from '@/context/UserContext'; // Import context hook and UserFilters type
-import { useRouter } from 'next/navigation'; // Import useRouter
-import NProgress from 'nprogress'; // Import NProgress
+import { useUserContext, UserFilters } from '@/context/UserContext';
+import { useRouter } from 'next/navigation';
+import NProgress from 'nprogress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Added Select
-import { MoreHorizontal, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'; // Added Loader2 back
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
-import Image from 'next/image'; // Import Next Image
-import { User, Role, UserStatus, getStatusVariant, ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils'; // Import from utils (removed ALL_COUNTRIES)
-import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
-import { Label } from '@/components/ui/label'; // Import Label for date inputs
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MoreHorizontal, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
+import Image from 'next/image';
+import { User, Role, UserStatus, getStatusVariant, ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
+import { COUNTRIES } from '@/lib/countries';
+import { Label } from '@/components/ui/label';
 
-const ITEMS_PER_PAGE = 10; // Define items per page constant
+const ITEMS_PER_PAGE = 10;
 
 export default function UserManagementPage() {
-	const router = useRouter(); // Get router instance
-	const { users, fetchUsers, isLoading, totalCount } = useUserContext(); // Get users, fetch function, loading state, and total count
+	const router = useRouter();
+	const { users, fetchUsers, isLoading, totalCount } = useUserContext();
 
-	// Local state for filters and current page
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterRole, setFilterRole] = useState<Role | 'all'>('all');
-	const [filterStatus, setFilterStatus] = useState<UserStatus | 'all'>('all'); // Use UserStatus type
+	const [filterStatus, setFilterStatus] = useState<UserStatus | 'all'>('all');
 	const [filterCountry, setFilterCountry] = useState<string | 'all'>('all');
-	const [filterStartDate, setFilterStartDate] = useState<string>(''); // State for start date
-	const [filterEndDate, setFilterEndDate] = useState<string>(''); // State for end date
-	const [currentPage, setCurrentPage] = useState(1); // Tracks the *current* page requested
-	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null); // Track which button is loading
+	const [filterStartDate, setFilterStartDate] = useState<string>('');
+	const [filterEndDate, setFilterEndDate] = useState<string>('');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
 
-	// --- Server-Side Pagination Logic ---
-	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE); // Calculate total pages based on totalCount from context
+	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-	// Refactored Effect to fetch users and handle filter changes
 	useEffect(() => {
 		const filters: UserFilters = {
 			searchTerm: searchTerm || undefined,
-			role: filterRole === 'all' ? undefined : filterRole, // Send undefined if 'all'
-			status: filterStatus === 'all' ? undefined : filterStatus, // Send undefined if 'all'
-			country: filterCountry === 'all' ? undefined : filterCountry, // Send undefined if 'all'
+			role: filterRole === 'all' ? undefined : filterRole,
+			status: filterStatus === 'all' ? undefined : filterStatus,
+			country: filterCountry === 'all' ? undefined : filterCountry,
 			startDate: filterStartDate || undefined,
 			endDate: filterEndDate || undefined,
 		};
 
-		// Debounce fetching
 		const timer = setTimeout(() => {
-			// console.log('Fetching with filters:', filters, 'Page:', currentPage);
 			fetchUsers(filters, currentPage);
-		}, 300); // 300ms debounce
+		}, 300);
 
 		return () => clearTimeout(timer);
 	}, [searchTerm, filterRole, filterStatus, filterCountry, filterStartDate, filterEndDate, currentPage, fetchUsers]);
 
-	// Effect to clear loading button state when main loading finishes
 	useEffect(() => {
 		if (!isLoading) {
 			setLoadingButton(null);
 		}
 	}, [isLoading]);
 
-	// Handlers for pagination - set loading state *before* changing page
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
 			setLoadingButton('previous');
@@ -78,15 +71,14 @@ export default function UserManagementPage() {
 		}
 	};
 
-	// Function to reset all filters
 	const handleResetFilters = () => {
 		setFilterRole('all');
 		setFilterStatus('all');
 		setFilterCountry('all');
-		setFilterStartDate(''); // Reset start date
-		setFilterEndDate(''); // Reset end date
+		setFilterStartDate('');
+		setFilterEndDate('');
 		setSearchTerm('');
-		setCurrentPage(1); // Reset page on filter reset
+		setCurrentPage(1);
 	};
 
 	return (
@@ -94,42 +86,34 @@ export default function UserManagementPage() {
 			<Breadcrumbs />
 			<h1 className="text-2xl font-semibold mt-2">User Management</h1>
 
-			{/* Filter Cue */}
 			<p className="text-sm text-muted-foreground">Use the filters below to refine the user list.</p>
 
-			{/* Search and Filter Controls Section */}
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-				{/* Search Input */}
 				<Input
 					placeholder="Search by name or email..."
 					value={searchTerm}
 					onChange={(e) => {
 						setSearchTerm(e.target.value);
-						setCurrentPage(1); // Reset page when search term changes
+						setCurrentPage(1);
 					}}
-					className="max-w-lg w-full md:w-auto flex-grow" // Adjusted width
+					className="max-w-lg w-full md:w-auto flex-grow"
 				/>
-				{/* Add New User Button (Moved for better layout on smaller screens) */}
 				<div className="w-full md:w-auto mt-4 md:mt-0">
 					<Button className="w-full md:w-auto">Add New User</Button>
 				</div>
 			</div>
 
-			{/* Filter Row */}
 			<div className="flex flex-wrap gap-2 items-end mt-8">
-				{/* Use items-end to align labels and inputs */}
-				{/* Role Filter */}
 				<div className="flex flex-col gap-1.5">
 					<Label htmlFor="role-filter">Role</Label>
 					<Select
 						value={filterRole}
 						onValueChange={(value) => {
 							setFilterRole(value as Role | 'all');
-							setCurrentPage(1); // Reset page when filter changes
+							setCurrentPage(1);
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="role-filter">
-							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Role" />
 						</SelectTrigger>
 						<SelectContent>
@@ -142,18 +126,16 @@ export default function UserManagementPage() {
 						</SelectContent>
 					</Select>
 				</div>
-				{/* Status Filter */}
 				<div className="flex flex-col gap-1.5">
 					<Label htmlFor="status-filter">Status</Label>
 					<Select
 						value={filterStatus}
 						onValueChange={(value) => {
 							setFilterStatus(value as UserStatus | 'all');
-							setCurrentPage(1); // Reset page when filter changes
+							setCurrentPage(1);
 						}}
 					>
 						<SelectTrigger className="w-full sm:w-[160px]" id="status-filter">
-							{/* Add id to trigger for label association */}
 							<SelectValue placeholder="Status" />
 						</SelectTrigger>
 						<SelectContent>
@@ -166,7 +148,6 @@ export default function UserManagementPage() {
 						</SelectContent>
 					</Select>
 				</div>
-				{/* Country Filter */}
 				<div className="flex flex-col gap-1.5">
 					<Label htmlFor="country-filter">Country</Label>
 					<Select
@@ -189,7 +170,6 @@ export default function UserManagementPage() {
 						</SelectContent>
 					</Select>
 				</div>
-				{/* Registered Date Filter */}
 				<div className="flex flex-col gap-1.5">
 					<Label htmlFor="start-date">Registered From</Label>
 					<Input
@@ -217,16 +197,12 @@ export default function UserManagementPage() {
 						min={filterStartDate}
 					/>
 				</div>
-				{/* Reset Filters Button */}
 				<Button variant="outline" onClick={handleResetFilters} className="self-end">
-					{/* Align button with inputs */}
 					Reset Filters
 				</Button>
 			</div>
 
-			{/* User Data Table */}
 			<div className="rounded-md border mt-4">
-				{/* Added margin top */}
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -254,7 +230,7 @@ export default function UserManagementPage() {
 									className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
 									onClick={() => {
 										NProgress.start();
-										router.push(`/admin/users/${user.username}`); // Use username for navigation
+										router.push(`/admin/users/${user.username}`);
 									}}
 								>
 									<TableCell className="font-medium">
@@ -285,11 +261,10 @@ export default function UserManagementPage() {
 				</Table>
 			</div>
 
-			{/* Pagination Controls */}
 			{totalPages > 1 && (
 				<div className="flex items-center justify-between space-x-2 py-4 px-2">
 					<div className="text-sm text-muted-foreground">
-						Showing page {currentPage} of {totalPages} ({totalCount} users total) {/* Use totalCount from context */}
+						Showing page {currentPage} of {totalPages} ({totalCount} users total)
 					</div>
 					<div className="space-x-2 flex items-center">
 						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading} className="cursor-pointer">

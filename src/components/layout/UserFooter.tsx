@@ -1,6 +1,6 @@
 import { Home, Briefcase, Wallet, Gamepad2, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils'; // Assuming you have a utility for class names
+import { cn } from '@/lib/utils';
 import { CustomLink } from '../ui/CustomLink';
 
 const UserFooter: React.FC = () => {
@@ -8,10 +8,10 @@ const UserFooter: React.FC = () => {
 
 	const navItems = [
 		{ href: '/account', label: 'Home', icon: Home },
-		{ href: '/account/portfolio', label: 'Portfolio', icon: Briefcase }, // Assuming '/portfolio' route
-		{ href: '/account/wallet', label: 'Wallet', icon: Wallet }, // Assuming '/wallet' route
-		{ href: '/account/games', label: 'Games', icon: Gamepad2 }, // Assuming '/games' route
-		{ href: '/account/profile', label: 'Profile', icon: User }, // Assuming '/profile' route
+		{ href: '/account/portfolio', label: 'Portfolio', icon: Briefcase },
+		{ href: '/account/wallet', label: 'Wallet', icon: Wallet },
+		{ href: '/account/games', label: 'Games', icon: Gamepad2 },
+		{ href: '/account/profile', label: 'Profile', icon: User },
 	];
 
 	return (

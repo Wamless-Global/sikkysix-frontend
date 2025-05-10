@@ -8,17 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'; // Component not found
+// import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import nProgress from 'nprogress';
 import { toast } from 'sonner';
 
-// Minimal mock data needed for this page, primarily for context display
 interface Asset {
 	id: string;
 	symbol: string;
 }
 const mockAssets: Asset[] = [
-	// Simplified for this page
 	{ id: 'btc', symbol: 'BTC' },
 	{ id: 'eth', symbol: 'ETH' },
 	{ id: 'usdt', symbol: 'USDT' },
@@ -30,7 +28,7 @@ function VerifyWithdrawalContent() {
 
 	const assetId = searchParams.get('assetId');
 	const amountStr = searchParams.get('amount');
-	const networkId = searchParams.get('networkId'); // Though not directly displayed, pass it on
+	const networkId = searchParams.get('networkId');
 	const address = searchParams.get('address');
 
 	const [otp, setOtp] = useState('');
@@ -56,33 +54,27 @@ function VerifyWithdrawalContent() {
 		nProgress.start();
 		toast.loading('Verifying and submitting withdrawal...');
 
-		// Simulate API call for 2FA verification and withdrawal submission
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		setIsLoading(false);
 		nProgress.done();
 
-		// Mocked outcome: randomly success, pending, or failure for demonstration
 		const outcome = Math.random();
 		const mockTxId = `mock_tx_${Date.now()}`;
 
 		if (outcome < 0.7) {
-			// 70% chance of success
 			toast.success('Withdrawal submitted successfully!');
 			router.push(`/account/wallet/withdraw/status/success?txId=${mockTxId}&asset=${assetId}&amount=${amountStr}&address=${address}`);
 		} else if (outcome < 0.9) {
-			// 20% chance of pending
 			toast.info('Withdrawal is pending confirmation.');
 			router.push(`/account/wallet/withdraw/status/pending?txId=${mockTxId}&asset=${assetId}&amount=${amountStr}&address=${address}`);
 		} else {
-			// 10% chance of failure
 			toast.error('Withdrawal failed. Please try again.');
 			router.push(`/account/wallet/withdraw/status/failure?error=mock_simulation_error&asset=${assetId}&amount=${amountStr}&address=${address}`);
 		}
 	};
 
 	if (!selectedAsset || !amountStr || !address) {
-		// Fallback for missing critical data, should be caught by useEffect
 		return (
 			<div className="max-w-md mx-auto space-y-8 flex flex-col items-center justify-center py-10">
 				<Alert variant="destructive">
@@ -114,10 +106,10 @@ function VerifyWithdrawalContent() {
 						</Label>
 						<Input
 							id="otp-input"
-							type="text" // Using text to allow for easier input and potential pasting
+							type="text"
 							value={otp}
 							onChange={(e) => {
-								const val = e.target.value.replace(/\D/g, ''); // Remove non-digits
+								const val = e.target.value.replace(/\D/g, '');
 								if (val.length <= 6) {
 									setOtp(val);
 								}

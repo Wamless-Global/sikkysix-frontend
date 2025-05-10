@@ -22,7 +22,7 @@ interface ActivityItem {
 
 interface PortfolioSummary {
 	totalValue: number;
-	change24h: number; // percentage
+	change24h: number;
 	topAsset: string;
 	currency: string;
 }
@@ -62,7 +62,7 @@ const mockUserReport: UserReportData = {
 const getStatusBadgeVariant = (status: AccountStatus) => {
 	switch (status) {
 		case 'active':
-			return 'success'; // Assuming you have a 'success' variant or will add one
+			return 'success';
 		case 'inactive':
 			return 'destructive';
 		case 'pending':
@@ -122,7 +122,6 @@ export default function UserReportPage() {
 					</CardContent>
 				</Card>
 
-				{/* Portfolio Summary Card */}
 				<Card className="lg:col-span-1">
 					<CardHeader>
 						<CardTitle>Portfolio Snapshot</CardTitle>
@@ -146,32 +145,25 @@ export default function UserReportPage() {
 							<span className="text-sm text-muted-foreground">Top Performing Asset:</span>
 							<span className="text-sm font-medium">{portfolioSummary.topAsset}</span>
 						</div>
-						{/* Add more portfolio details if needed */}
 					</CardContent>
 				</Card>
 
-				{/* Recent Activity Card */}
 				<Card className="lg:col-span-1 lg:row-span-2">
-					{/* Potentially taller if many activities */}
 					<CardHeader>
 						<CardTitle>Recent Activity</CardTitle>
 						<CardDescription>Latest interactions and events.</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<ul className="space-y-4">
-							{recentActivity.slice(0, 5).map(
-								(
-									activity // Displaying latest 5
-								) => (
-									<li key={activity.id} className="flex flex-col pb-2 border-b border-border last:border-b-0">
-										<div className="flex justify-between items-center mb-1">
-											<span className="text-sm font-semibold text-foreground">{activity.type}</span>
-											<span className="text-xs text-muted-foreground">{activity.date}</span>
-										</div>
-										<p className="text-sm text-muted-foreground">{activity.description}</p>
-									</li>
-								)
-							)}
+							{recentActivity.slice(0, 5).map((activity) => (
+								<li key={activity.id} className="flex flex-col pb-2 border-b border-border last:border-b-0">
+									<div className="flex justify-between items-center mb-1">
+										<span className="text-sm font-semibold text-foreground">{activity.type}</span>
+										<span className="text-xs text-muted-foreground">{activity.date}</span>
+									</div>
+									<p className="text-sm text-muted-foreground">{activity.description}</p>
+								</li>
+							))}
 						</ul>
 					</CardContent>
 				</Card>

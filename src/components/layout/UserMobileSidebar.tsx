@@ -44,10 +44,8 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 	};
 	return (
 		<div className={cn('fixed inset-0 z-50 flex lg:hidden', isOpen ? 'translate-x-0' : '-translate-x-full', 'transition-transform duration-300 ease-in-out')}>
-			{/* Overlay */}
 			<div className={cn('fixed inset-0 bg-black/60 backdrop-blur-sm', isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none', 'transition-opacity duration-300 ease-in-out')} onClick={onClose} aria-hidden="true" />
 
-			{/* Sidebar Content */}
 			<div className="relative flex h-full w-72 flex-col bg-[oklch(0.11_0.018_270)] text-text-primary shadow-xl">
 				<div className="flex items-center justify-between p-4 border-b border-border/40">
 					<span className="text-lg font-semibold">Menu</span>
@@ -58,12 +56,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 				</div>
 				<nav className="flex-1 space-y-2 p-4">
 					{navItems.map((item) => (
-						<CustomLink
-							key={item.href}
-							href={item.href}
-							className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-							onClick={onClose} // Close sidebar on navigation
-						>
+						<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
 							{item.label === 'Home' ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
 						</CustomLink>
 					))}

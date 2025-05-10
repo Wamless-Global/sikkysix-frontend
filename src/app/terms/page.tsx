@@ -1,12 +1,10 @@
-import Link from 'next/link';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 export default function TermsPage() {
 	return (
 		<div className="static-page flex min-h-screen flex-col items-center p-8">
-			{/* Applied static-page */}
 			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
 			<div className="static-card w-full max-w-4xl p-8">
-				{/* Applied static-card */}
 				<h2 className="mb-6 text-3xl font-semibold">Terms & Conditions</h2>
 				<p className="mb-4">Welcome to our service. Please read these terms and conditions carefully before using our application.</p>
 				<h3 className="mb-2 mt-6 text-xl font-semibold">1. Acceptance of Terms</h3>
@@ -17,13 +15,11 @@ export default function TermsPage() {
 				</p>
 				<h3 className="mb-2 mt-6 text-xl font-semibold">3. User Accounts</h3>
 				<p className="mb-4">When you create an account with us, you must provide us information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our service.</p>
-				{/* Add more sections as needed */}
 				<p className="mt-8 text-sm text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
 				<div className="mt-8 text-center">
-					<Link href="/auth/signup" className="link-success font-medium">
-						{/* Applied link-success */}
+					<CustomLink href="/auth/signup" className="link-success font-medium">
 						Back to Sign Up
-					</Link>
+					</CustomLink>
 				</div>
 			</div>
 		</div>

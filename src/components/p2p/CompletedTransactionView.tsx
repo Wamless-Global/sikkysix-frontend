@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 import nprogress from 'nprogress';
 
 interface CompletedTransactionViewProps {
@@ -14,7 +14,6 @@ interface CompletedTransactionViewProps {
 		rateNGN: number;
 		quantityUSDT: number;
 	};
-	// Add mock transaction times or pass them as props if available
 	transactionTimeDetails?: {
 		initiated: string;
 		finished: string;
@@ -27,14 +26,13 @@ const CompletedTransactionView: React.FC<CompletedTransactionViewProps> = ({
 	transactionId,
 	orderDetails,
 	transactionTimeDetails = {
-		// Default mock data
 		initiated: 'Jul 27th 2025, 13:53:34',
 		finished: 'Jul 27th 2025, 13:53:34',
 		duration: '13 Minutes',
 		type: 'Transfer',
 	},
 }) => {
-	const router = useRouter(); // Initialize router
+	const router = useRouter();
 
 	useEffect(() => {
 		window.scrollTo(0, 0);

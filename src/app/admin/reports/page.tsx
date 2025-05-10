@@ -1,20 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// Import chart components if specific ones are reused or create new ones
 // import InvestmentTrendChart from '@/components/charts/InvestmentTrendChart';
 // import UserGrowthChart from '@/components/charts/UserGrowthChart';
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
 export default function ReportingPage() {
 	return (
 		<div className="space-y-6">
-			<Breadcrumbs /> {/* Add Breadcrumbs component */}
-			<h1 className="text-2xl font-semibold mt-2">Reporting & Analytics</h1> {/* Restore Title */}
+			<Breadcrumbs />
+			<h1 className="text-2xl font-semibold mt-2">Reporting & Analytics</h1>
 			<p className="text-muted-foreground">View investment trends, user activity, and revenue reports.</p>
 			{/* TODO: Add date range pickers or other filters */}
 			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{/* Investment Trends Card */}
 				<Card className="lg:col-span-2">
-					{/* Make this one wider */}
 					<CardHeader>
 						<CardTitle>Investment Trends</CardTitle>
 						<CardDescription>Overall and per-category investment performance.</CardDescription>
@@ -25,7 +22,6 @@ export default function ReportingPage() {
 					</CardContent>
 				</Card>
 
-				{/* User Activity Card */}
 				<Card>
 					<CardHeader>
 						<CardTitle>User Activity</CardTitle>
@@ -37,9 +33,7 @@ export default function ReportingPage() {
 					</CardContent>
 				</Card>
 
-				{/* Revenue Reports Card */}
 				<Card className="lg:col-span-3">
-					{/* Full width on larger screens */}
 					<CardHeader>
 						<CardTitle>Revenue Reports</CardTitle>
 						<CardDescription>Breakdown of fees collected (deposit, withdrawal, network).</CardDescription>
@@ -49,8 +43,6 @@ export default function ReportingPage() {
 						Revenue Report Chart/Table Placeholder
 					</CardContent>
 				</Card>
-
-				{/* Add more report cards as needed */}
 			</div>
 		</div>
 	);

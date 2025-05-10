@@ -11,11 +11,10 @@ import appSettings from '@/config/app';
 function VerifyEmailContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	// Destructure the new resendVerificationEmail function
 	const { checkEmailVerificationStatus, resendVerificationEmail, currentUser } = useAuthContext();
 	const [statusMessage, setStatusMessage] = useState('Checking email verification status, please wait...');
-	const [isLoading, setIsLoading] = useState(true); // General loading for the page
-	const [isResending, setIsResending] = useState(false); // Specific loading for resend action
+	const [isLoading, setIsLoading] = useState(true);
+	const [isResending, setIsResending] = useState(false);
 	const [errorOccurred, setErrorOccurred] = useState(false);
 	const [allowResend, setAllowResend] = useState(false);
 
@@ -54,7 +53,6 @@ function VerifyEmailContent() {
 					setErrorOccurred(true);
 					setTimeout(() => router.push('/auth/login'), 3000);
 				} else {
-					// 'error'
 					toast.error(result.message || 'Failed to check email status. Please try again.');
 					setErrorOccurred(true);
 					setTimeout(() => router.push('/auth/login'), 3000);
@@ -78,26 +76,24 @@ function VerifyEmailContent() {
 		const emailToResend = searchParams.get('email');
 
 		if (!emailToResend) {
-			// Primarily use email from URL for resend on this page
 			toast.error('Could not determine email for resending verification.');
 			return;
 		}
 
-		setIsResending(true); // Use specific loading state for resend
+		setIsResending(true);
 		setStatusMessage(`Resending verification email to ${emailToResend}...`);
 		try {
-			const result = await resendVerificationEmail(emailToResend); // Call context function
+			const result = await resendVerificationEmail(emailToResend);
 
 			if (result.success) {
 				toast.success(result.message || 'Verification email resent successfully!');
 				setStatusMessage(result.message || 'Verification email resent. Please check your inbox.');
-				setAllowResend(false); // Optionally hide resend button after successful resend
+				setAllowResend(false);
 			} else {
 				toast.error(result.message || 'Failed to resend verification email.');
 				setStatusMessage(result.message || 'Failed to resend. Please try again or contact support.');
 			}
 		} catch (error: any) {
-			// Catch errors from the context call itself, though context should handle internal errors
 			console.error('Error calling resendVerificationEmail from context:', error);
 			const errMsg = error.message || 'An unexpected error occurred while trying to resend.';
 			toast.error(errMsg);
@@ -114,7 +110,7 @@ function VerifyEmailContent() {
 				<h2 className="mb-2 text-2xl font-semibold">Check Email Verification</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>
 
-				{(isLoading || isResending) && ( // Show loader if page is loading OR resend is in progress
+				{(isLoading || isResending) && (
 					<div className="flex justify-center items-center mb-5">
 						<p>{isResending ? 'Resending...' : 'Loading...'}</p>
 					</div>

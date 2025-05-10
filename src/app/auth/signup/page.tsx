@@ -50,7 +50,7 @@ export default function SignupPage() {
 		}
 
 		try {
-			await signup(name, email, password, confirmPassword, ['user']);
+			await signup(name, email, password, confirmPassword);
 
 			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.');
@@ -78,93 +78,49 @@ export default function SignupPage() {
 							<Label htmlFor="name">Full name</Label>
 							<div className="relative flex items-center">
 								<User className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input
-									id="name"
-									type="text"
-									placeholder="Enter your full name"
-									value={name}
-									onChange={(e) => setName(e.target.value)}
-									required
-									disabled={isLoading}
-									className="auth-input pl-10" // Applied auth-input
-								/>
+								<Input id="name" type="text" placeholder="Enter your full name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 							</div>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="email">Email</Label>
-							{/* Added icon and updated input style */}
 							<div className="relative flex items-center">
 								<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input
-									id="email"
-									type="email"
-									placeholder="Enter your email address" /* Changed placeholder */
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									required
-									disabled={isLoading}
-									className="auth-input pl-10" // Applied auth-input
-								/>
+								<Input id="email" type="email" placeholder="Enter your email address" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 							</div>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="password">Password</Label>
-							{/* Added icon and updated input style */}
 							<div className="relative flex items-center">
 								<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input
-									id="password"
-									type="password"
-									placeholder="Enter your password" /* Changed placeholder */
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									required
-									disabled={isLoading}
-									className="auth-input pl-10" // Applied auth-input
-								/>
+								<Input id="password" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 							</div>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="confirm-password">Confirm password</Label> {/* Changed label */}
-							{/* Added icon and updated input style */}
+							<Label htmlFor="confirm-password">Confirm password</Label>
 							<div className="relative flex items-center">
 								<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input
-									id="confirm-password"
-									type="password"
-									placeholder="Enter your password again" /* Changed placeholder */
-									value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-									required
-									disabled={isLoading}
-									className="auth-input pl-10" // Applied auth-input
-								/>
+								<Input id="confirm-password" type="password" placeholder="Enter your password again" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 							</div>
 						</div>
-						{error && <p className="text-sm text-red-500 text-center">{error}</p>} {/* Centered error */}
+						{error && <p className="text-sm text-red-500 text-center">{error}</p>}
 						<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
-							{/* Use success variant */}
 							{isLoading ? 'Signing up...' : 'Sign up'}
 						</Button>
 					</form>
-					{/* Updated links and added Terms/Privacy */}
 					<div className="mt-6 text-center text-sm w-full space-y-2">
 						<div>
 							Already have an account?
 							<CustomLink href="/auth/login" className="link-success font-medium">
-								{/* Applied link-success */}
 								Login
 							</CustomLink>
 						</div>
 						<div className="text-xs text-gray-400">
 							By signing in, you agree to our
 							<CustomLink href="/terms" className="link-success underline">
-								{/* Applied link-success */}
 								Terms & Conditions
 							</CustomLink>
 							and
 							<CustomLink href="/privacy" className="link-success underline">
-								{/* Applied link-success */}
 								Privacy Policy
 							</CustomLink>
 						</div>

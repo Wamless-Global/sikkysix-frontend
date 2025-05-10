@@ -1,4 +1,4 @@
-'use client'; // Needed for form handling state later
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,52 +14,28 @@ export default function ChangePasswordPage() {
 				<h2 className="sub-page-heading">Change Your Password</h2>
 				<p className="text-sm text-muted-foreground text-center sm:text-left">Please enter your old password and the new password you want to set.</p>
 			</div>
-			{/* Form Section */}
 			<form className="space-y-6">
-				{/* Old Password */}
 				<div className="space-y-2">
 					<Label htmlFor="oldPassword" className="text-sm font-medium text-foreground">
 						Old Password
 					</Label>
-					<Input
-						id="oldPassword"
-						type="password"
-						required
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add value and onChange handler
-					/>
+					<Input id="oldPassword" type="password" required className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* New Password */}
 				<div className="space-y-2">
 					<Label htmlFor="newPassword" className="text-sm font-medium text-foreground">
 						New Password
 					</Label>
-					<Input
-						id="newPassword"
-						type="password"
-						required
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add value and onChange handler
-					/>
+					<Input id="newPassword" type="password" required className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Confirm Password */}
 				<div className="space-y-2">
 					<Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
 						Confirm Password
 					</Label>
-					<Input
-						id="confirmPassword"
-						type="password"
-						required
-						className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" // Apply new input style
-						// Add value and onChange handler
-						// Add validation logic to ensure it matches newPassword
-					/>
+					<Input id="confirmPassword" type="password" required className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
-				{/* Save Button */}
 				<div className="pt-4">
 					<Button type="submit" className="w-full bg-[var(--dashboard-accent)] hover:bg-[var(--dashboard-accent)]/90 text-[var(--dashboard-accent-foreground)] rounded-lg py-3" size="lg">
 						Save

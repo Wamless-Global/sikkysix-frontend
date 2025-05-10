@@ -4,20 +4,11 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import InvestmentTrendChart from '@/components/charts/InvestmentTrendChart';
 import UserGrowthChart from '@/components/charts/UserGrowthChart';
 import { Users, Activity, DollarSign, ListChecks, HandCoins } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Import cn
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
+import { cn } from '@/lib/utils';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
-// Define gradient classes (adjust colors based on the Violet theme or desired vibrancy)
-// Using arbitrary values for gradients. Ensure Tailwind JIT is enabled (default in recent versions).
-const kpiCardGradients = [
-	'from-violet-500 to-purple-600', // Example gradient 1
-	'from-cyan-400 to-sky-500', // Example gradient 2
-	'from-emerald-400 to-green-500', // Example gradient 3
-	'from-amber-400 to-orange-500', // Example gradient 4
-	'from-pink-500 to-rose-500', // Example gradient 5
-];
+const kpiCardGradients = ['from-violet-500 to-purple-600', 'from-cyan-400 to-sky-500', 'from-emerald-400 to-green-500', 'from-amber-400 to-orange-500', 'from-pink-500 to-rose-500'];
 
-// Placeholder data with icons
 const kpiData = [
 	{ title: 'Total Users', value: '1,234', description: '+20.1% from last month', icon: Users },
 	{ title: 'Active Users (Monthly)', value: '890', description: '+15.5% from last month', icon: Activity },
@@ -29,43 +20,27 @@ const kpiData = [
 export default function AdminDashboardPage() {
 	return (
 		<div className="space-y-6">
-			{/* Breadcrumbs replace the title */}
 			<Breadcrumbs />
-			<h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-2">Dashboard</h1> {/* Restore Title */}
-			{/* KPI Cards Section */}
+			<h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-2">Dashboard</h1>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 				{kpiData.map((kpi, index) => {
 					const Icon = kpi.icon;
-					const gradientClass = kpiCardGradients[index % kpiCardGradients.length]; // Cycle through gradients
+					const gradientClass = kpiCardGradients[index % kpiCardGradients.length];
 
 					return (
-						// Apply gradient, ensure text is white/light for contrast, add padding
-						<Card
-							key={index}
-							className={cn(
-								'text-white bg-gradient-to-br', // Base gradient styles + white text
-								gradientClass // Apply specific gradient
-							)}
-						>
+						<Card key={index} className={cn('text-white bg-gradient-to-br', gradientClass)}>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium text-white/90">
-									{/* Lighter title text */}
-									{kpi.title}
-								</CardTitle>
-								<Icon className="h-4 w-4 text-white/80" /> {/* Lighter icon */}
+								<CardTitle className="text-sm font-medium text-white/90">{kpi.title}</CardTitle>
+								<Icon className="h-4 w-4 text-white/80" />
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{kpi.value}</div>
-								<p className="text-xs text-white/70">
-									{/* Lighter description */}
-									{kpi.description}
-								</p>
+								<p className="text-xs text-white/70">{kpi.description}</p>
 							</CardContent>
 						</Card>
 					);
 				})}
 			</div>
-			{/* Quick CustomLinks Section - Style adjustments can be made here too */}
 			<div>
 				<h2 className="text-xl font-semibold mb-3">Quick CustomLinks</h2>
 				<div className="flex flex-wrap gap-2">
@@ -83,7 +58,6 @@ export default function AdminDashboardPage() {
 					</Button>
 				</div>
 			</div>
-			{/* Charts Section - Use standard card for now, styling charts is next */}
 			<div className="grid gap-4 md:grid-cols-2">
 				<Card>
 					<CardHeader>

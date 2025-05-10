@@ -10,7 +10,6 @@ import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-// Mock data (should ideally be shared or fetched, copied for now)
 interface Asset {
 	id: string;
 	symbol: string;
@@ -24,18 +23,15 @@ const mockAssets: Asset[] = [
 interface Merchant {
 	id: string;
 	name: string;
-	buyRateNGN: number; // NGN per Asset
+	buyRateNGN: number;
 }
 const mockMerchants: Merchant[] = [
-	// Simplified for this page
 	{ id: 'm1', name: 'FastTrader', buyRateNGN: 1650.5 },
 	{ id: 'm2', name: 'NairaKing', buyRateNGN: 1651.0 },
 	{ id: 'm3', name: 'CryptoQueen', buyRateNGN: 1649.8 },
 	{ id: 'm4', name: 'EasyExchange', buyRateNGN: 1650.0 },
 ];
-// End Mock Data
 
-// Reusable OrderDetailItem component (similar to deposit flow)
 const OrderDetailItem: React.FC<{ label: string; value: string | number; unit?: string; isBold?: boolean }> = ({ label, value, unit, isBold }) => (
 	<div className="flex justify-between items-center py-3">
 		<span className="text-sm text-[var(--dashboard-subtext)]">{label}</span>
@@ -63,7 +59,7 @@ function ConfirmP2PWithdrawalContent() {
 	useEffect(() => {
 		if (!merchantId || !assetId || !amountStr || isNaN(amount) || !selectedAsset || !selectedMerchant) {
 			toast.error('P2P order details missing or invalid. Redirecting...');
-			router.replace('/account/wallet/withdraw/p2p'); // Go back to merchant list
+			router.replace('/account/wallet/withdraw/p2p');
 		}
 	}, [merchantId, assetId, amountStr, amount, selectedAsset, selectedMerchant, router]);
 
@@ -76,30 +72,24 @@ function ConfirmP2PWithdrawalContent() {
 
 		setIsProcessingOrder(true);
 
-		// Simulate API call to create P2P withdrawal order
 		setTimeout(() => {
-			nProgress.start(); // Start progress on actual redirection
-			const mockTransactionId = `TXN-P2P-W-${Date.now()}`; // Generate a mock withdrawal ID
+			nProgress.start();
+			const mockTransactionId = `TXN-P2P-W-${Date.now()}`;
 			toast.success('P2P withdrawal order placed! Redirecting to transaction...');
 
-			// Prepare details to pass to the transaction page
 			const expectedFiat = amount * selectedMerchant.buyRateNGN;
 			const queryParams = new URLSearchParams({
-				type: 'p2p_withdrawal', // Indicate transaction type
-				status: 'pending_payment', // Initial status
+				type: 'p2p_withdrawal',
+				status: 'pending_payment',
 				merchantName: selectedMerchant.name,
 				assetSymbol: selectedAsset.symbol,
 				assetAmount: String(amount),
 				rateNGN: String(selectedMerchant.buyRateNGN),
 				expectedFiat: String(expectedFiat),
-				// Add other necessary details like user bank info if collected here,
-				// or expect it to be handled on the transaction page
 			}).toString();
 
-			// Redirect to the generic transaction page to handle the active P2P flow
 			router.replace(`/account/wallet/transactions/${mockTransactionId}?${queryParams}`);
-			// No need to reset processing state here as we are navigating away
-		}, 2000); // 2-second delay
+		}, 2000);
 	};
 
 	if (!selectedAsset || !selectedMerchant || isNaN(amount)) {
@@ -167,7 +157,6 @@ function ConfirmP2PWithdrawalContent() {
 }
 
 export default function ConfirmP2PWithdrawalPage() {
-	// Wrap with Suspense because useSearchParams() needs it
 	return (
 		<Suspense fallback={<div className="flex justify-center items-center h-screen">Loading order confirmation...</div>}>
 			<ConfirmP2PWithdrawalContent />

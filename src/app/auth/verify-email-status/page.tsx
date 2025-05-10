@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // useRouter for potential redirects
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { useAuthContext } from '@/context/AuthContext'; // Use AuthContext for resend
-import appSettings from '@/config/app'; // For support email link
+import { useAuthContext } from '@/context/AuthContext';
+import appSettings from '@/config/app';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 
@@ -25,16 +25,15 @@ export default function VerifyEmailStatusPage() {
 	useEffect(() => {
 		const hash = window.location.hash;
 		if (hash) {
-			const params = new URLSearchParams(hash.substring(1)); // Remove #
+			const params = new URLSearchParams(hash.substring(1));
 			const error = params.get('error');
 			const errorDesc = params.get('error_description');
-			// const errCode = params.get('error_code'); // Can be used if needed
 
 			if (error) {
 				const detailedMessage = errorDesc || 'An unknown error occurred during verification.';
 				setStatusMessage(detailedMessage);
 				toast.error(detailedMessage);
-				if (errorDesc?.toLowerCase().includes('expired') || error === 'access_denied' /* common for expired links */) {
+				if (errorDesc?.toLowerCase().includes('expired') || error === 'access_denied') {
 					setPageStatus('expired');
 					setTitle('Verification Link Expired');
 				} else {
@@ -42,17 +41,13 @@ export default function VerifyEmailStatusPage() {
 					setTitle('Email Verification Failed');
 				}
 			} else {
-				// If there's a hash but no error, it implies success from some OAuth/magic link flows
 				setPageStatus('success');
 				setTitle('Email Verified Successfully!');
 				setStatusMessage('Your email address has been successfully verified.');
 				toast.success('Email verified successfully!');
-				setTimeout(() => router.push('/auth/login'), 3000); // Redirect on success
+				setTimeout(() => router.push('/auth/login'), 3000);
 			}
 		} else {
-			// No hash: This page might be landed on directly after a successful verification
-			// that redirects cleanly without a hash, or if the user manually navigates here.
-			// Assume success if no error info is present in the URL.
 			setPageStatus('success');
 			setTitle('Email Verified Successfully!');
 			setStatusMessage('Your email address has been successfully verified. You can now log in.');
@@ -75,13 +70,11 @@ export default function VerifyEmailStatusPage() {
 			if (result.success) {
 				toast.success(result.message || `Verification email resent to ${emailForResend}.`);
 				setStatusMessage(result.message || `Verification email resent to ${emailForResend}. Please check your inbox.`);
-				// Optionally clear email field or give further instructions
 			} else {
 				toast.error(result.message || 'Failed to resend verification email.');
 				setStatusMessage(result.message || 'Failed to resend verification email. Please try again or contact support.');
 			}
 		} catch (error: unknown) {
-			// Catch errors from the context call itself
 			console.error('Error calling resendVerificationEmail from context:', error);
 			const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred.';
 			toast.error(errMsg);
@@ -98,7 +91,6 @@ export default function VerifyEmailStatusPage() {
 				<div className="w-full max-w-md text-center">
 					<h2 className="mb-2 text-2xl font-semibold">Verifying...</h2>
 					<p className="mb-8 text-gray-300">{statusMessage}</p>
-					{/* Optional: Add a spinner here */}
 				</div>
 			</div>
 		);
@@ -106,7 +98,7 @@ export default function VerifyEmailStatusPage() {
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-12 text-4xl font-bold">LOGO</h1> {/* Consistent LOGO */}
+			<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
 			<div className="w-full max-w-md text-center">
 				<h2 className="mb-2 text-2xl font-semibold">{title}</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>
@@ -139,7 +131,6 @@ export default function VerifyEmailStatusPage() {
 					</Button>
 				)}
 
-				{/* Always show login link unless it's a success state that auto-redirects quickly */}
 				{pageStatus !== 'success' && (
 					<Button
 						size="lg"

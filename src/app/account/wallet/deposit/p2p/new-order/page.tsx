@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight } from 'lucide-react'; // Changed ArrowLeft to ArrowRight for confirm button, removed MessageCircle, Copy
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
-import ConfirmationModal from '@/components/modals/ConfirmationModal'; // Added
+import ConfirmationModal from '@/components/modals/ConfirmationModal';
 
 // Mock data - In a real app, fetch this based on agentId and amount
 const MOCK_ORDER_DETAILS = {
@@ -29,30 +29,24 @@ export default function P2PNewOrderPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const agentId = searchParams.get('agentId');
-	const amount = searchParams.get('amount'); // This would be used to calculate order details
+	const amount = searchParams.get('amount');
 
-	// State for confirmation modal and order processing
 	const [isConfirmOrderModalOpen, setIsConfirmOrderModalOpen] = useState(false);
 	const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
 	const handleConfirmOrder = () => {
-		// Open confirmation modal instead of directly processing
 		setIsConfirmOrderModalOpen(true);
 	};
 
 	const proceedWithOrderPlacement = () => {
-		// setIsConfirmOrderModalOpen(false); // Close modal
 		setIsProcessingOrder(true);
 
-		// Simulate API call to create order and get transactionId
 		setTimeout(() => {
 			nProgress.start();
-			const mockTransactionId = `TXN-P2P-${Date.now()}`; // Generate a mock ID
+			const mockTransactionId = `TXN-P2P-${Date.now()}`;
 			toast.success('Order placed successfully! Redirecting...');
 
 			const queryParams = new URLSearchParams({
-				// Spread MOCK_ORDER_DETAILS and MOCK_SELLER_INFO
-				// Ensure all values are strings for URLSearchParams
 				amountNGN: String(MOCK_ORDER_DETAILS.amountNGN),
 				rateNGN: String(MOCK_ORDER_DETAILS.rateNGN),
 				quantityUSDT: String(MOCK_ORDER_DETAILS.quantityUSDT),
@@ -63,7 +57,7 @@ export default function P2PNewOrderPage() {
 			}).toString();
 			router.replace(`/account/wallet/transactions/${mockTransactionId}?${queryParams}`);
 			setIsProcessingOrder(false);
-		}, 2000); // 2-second delay
+		}, 2000);
 	};
 
 	const OrderDetailItem: React.FC<{ label: string; value: string | number; unit?: string; isBold?: boolean }> = ({ label, value, unit, isBold }) => (
@@ -77,7 +71,6 @@ export default function P2PNewOrderPage() {
 
 	return (
 		<div className="max-w-2xl space-y-8">
-			{/* orderState check removed, this page now only handles order confirmation */}
 			<Card className="bg-background border-0 shadow-none -mt-5">
 				<CardHeader className="px-0">
 					<CardTitle className="sub-page-heading">Order Summary</CardTitle>

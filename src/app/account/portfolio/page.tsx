@@ -1,13 +1,12 @@
-'use client'; // Required for useState
+'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
 import { useState } from 'react';
-import Link from 'next/link'; // Added Link import
+import Link from 'next/link';
 import { CustomLink } from '@/components/ui/CustomLink';
-// import { Progress } from '@/components/ui/progress'; // Removed as it's not used and causes error
 
 interface PortfolioItem {
 	id: string;
@@ -17,7 +16,7 @@ interface PortfolioItem {
 	startDate: string;
 	currentPrice: string;
 	value: number;
-	progress: number; // Percentage for progress bar
+	progress: number;
 	cancelled: boolean;
 	completed: boolean;
 }
@@ -40,7 +39,7 @@ const mockActiveInvestments: PortfolioItem[] = [
 		category: 'TRANSPORT',
 		currency: 'NGN',
 		shareId: 'Share#02',
-		startDate: '0.038321', // This seems like a price, but image shows it as start date
+		startDate: '0.038321',
 		currentPrice: '0.0048321',
 		value: 74872.0,
 		progress: 40,
@@ -157,7 +156,6 @@ export default function PortfolioPage() {
 												<p className="font-medium text-foreground">{item.currentPrice}</p>
 											</div>
 										</div>
-										{/* Using a simple div for progress bar as per image */}
 										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2">
 											<div className="bg-[var(--dashboard-accent)] h-1.5 md:h-2 rounded-full" style={{ width: `${item.progress}%` }}></div>
 										</div>
@@ -198,7 +196,6 @@ export default function PortfolioPage() {
 												<p className="font-medium text-foreground">{item.currentPrice}</p>
 											</div>
 										</div>
-										{/* Using a simple div for progress bar as per image */}
 										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2 opacity-55">
 											<div className={`${!item.cancelled ? 'bg-[var(--dashboard-accent)]' : 'bg-[var(--danger)]'} h-1.5 md:h-2 rounded-full`} style={{ width: `${item.progress}%` }}></div>
 										</div>

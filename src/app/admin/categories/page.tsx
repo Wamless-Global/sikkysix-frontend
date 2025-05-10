@@ -1,27 +1,17 @@
-'use client'; // Required for state management (dialog open/close)
+'use client';
 
-import { useState } from 'react'; // Import useState
+import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-	DialogClose, // Import DialogClose
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea'; // Import Textarea
+import { Textarea } from '@/components/ui/textarea';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
-// Placeholder Category Data Structure and Data
 // TODO: Replace with actual data fetching and type definition
 type Category = {
 	id: string;
@@ -54,20 +44,17 @@ export default function CategoryManagementPage() {
 	// TODO: Implement actual category creation logic (API call)
 	const handleCreateCategory = () => {
 		console.log('Creating category:', { name: newCategoryName, description: newCategoryDescription });
-		// Reset form and close dialog after submission (replace with actual logic)
 		setNewCategoryName('');
 		setNewCategoryDescription('');
 		setIsCreateDialogOpen(false);
-		alert('Category created (placeholder)! Check logger.'); // Placeholder feedback
+		alert('Category created (placeholder)! Check logger.');
 	};
 
 	return (
 		<div className="space-y-4">
-			{/* Add Breadcrumbs and remove the old h1 */}
 			<Breadcrumbs />
 			<div className="flex justify-between items-center mt-2">
-				{/* Added mt-2 */}
-				<h1 className="text-2xl font-semibold">Investment Category Management</h1> {/* Restore Title */}
+				<h1 className="text-2xl font-semibold">Investment Category Management</h1>
 				<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
 					<DialogTrigger asChild>
 						<Button>
@@ -100,7 +87,6 @@ export default function CategoryManagementPage() {
 								</Button>
 							</DialogClose>
 							<Button type="submit" onClick={handleCreateCategory} disabled={!newCategoryName || !newCategoryDescription}>
-								{/* Basic validation */}
 								Create Category
 							</Button>
 						</DialogFooter>
@@ -110,7 +96,6 @@ export default function CategoryManagementPage() {
 
 			<p className="text-muted-foreground">Create, edit, lock/unlock, and view investment categories here.</p>
 
-			{/* Category Data Table */}
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>
@@ -150,26 +135,11 @@ export default function CategoryManagementPage() {
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
 												<DropdownMenuLabel>Actions</DropdownMenuLabel>
-												<DropdownMenuItem
-													onClick={() => alert(`Editing ${category.name}`)} // Replace with actual action
-												>
-													Edit
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													onClick={() => alert(`Toggling lock for ${category.name}`)} // Replace with actual action
-												>
-													{category.status === 'Unlocked' ? 'Lock' : 'Unlock'} Category
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													onClick={() => alert(`Viewing chart for ${category.name}`)} // Replace with actual action
-												>
-													View Chart/Ledger
-												</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => alert(`Editing ${category.name}`)}>Edit</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => alert(`Toggling lock for ${category.name}`)}>{category.status === 'Unlocked' ? 'Lock' : 'Unlock'} Category</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => alert(`Viewing chart for ${category.name}`)}>View Chart/Ledger</DropdownMenuItem>
 												<DropdownMenuSeparator />
-												<DropdownMenuItem
-													className="text-red-600 focus:text-red-600 focus:bg-red-100"
-													onClick={() => alert(`Deleting ${category.name}`)} // Replace with actual action (optional)
-												>
+												<DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-100" onClick={() => alert(`Deleting ${category.name}`)}>
 													Delete (Optional)
 												</DropdownMenuItem>
 											</DropdownMenuContent>

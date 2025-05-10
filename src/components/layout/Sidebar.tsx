@@ -1,12 +1,10 @@
-'use client'; // Required for using hooks like usePathname
+'use client';
 
 import { CustomLink } from '@/components/ui/CustomLink';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-// Import Lucide icons
 import { Home, LogOut, LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart } from 'lucide-react';
 
-// Define navigation items with icons
 const navItems = [
 	{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
 	{ href: '/admin/users', label: 'User Management', icon: Users },
@@ -39,14 +37,7 @@ const Sidebar = () => {
 					const Icon = item.icon;
 
 					return (
-						<CustomLink
-							key={item.href}
-							href={item.href}
-							className={cn(
-								'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary border-l-4 border-transparent', // Base styles + transparent border
-								isActive && 'bg-muted text-primary border-primary' // Active styles: Add primary border color
-							)}
-						>
+						<CustomLink key={item.href} href={item.href} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary border-l-4 border-transparent', isActive && 'bg-muted text-primary border-primary')}>
 							<Icon className="h-4 w-4" />
 							{item.label}
 						</CustomLink>

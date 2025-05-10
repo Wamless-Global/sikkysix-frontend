@@ -1,29 +1,32 @@
+'use client';
+
+import { useState, useEffect, useMemo } from 'react'; // Added imports
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Import Select
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Import Tabs components
-import { Input } from '@/components/ui/input'; // Import Input
-import { MoreHorizontal, Search, Filter } from 'lucide-react'; // Import Icons
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
-import { TransactionHistoryTable } from '@/components/admin/TransactionHistoryTable'; // Import the new client component
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { MoreHorizontal, Search, Filter } from 'lucide-react';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
+import { TransactionHistoryTable, Transaction, SortableTransactionKeys, TransactionStatus, TransactionType } from '@/components/admin/TransactionHistoryTable'; // Import types
 
-// Placeholder Data Structures
+const ITEMS_PER_PAGE = 10; // Added for pagination
+
 // TODO: Replace with actual data fetching and type definitions
 type PendingTransaction = {
 	id: string;
 	userId: string;
-	userName: string; // Added for display
+	userName: string;
 	type: 'Deposit' | 'Withdrawal';
 	method: 'Bank Transfer' | 'Crypto';
 	amount: number;
-	currency: string; // e.g., NGN, USD, BTC
+	currency: string;
 	submittedDate: string;
 	status: 'Pending';
 };
 
-// Placeholder Data
 const placeholderPending: PendingTransaction[] = [
 	{ id: 'pend_1', userId: 'usr_1', userName: 'John Doe', type: 'Withdrawal', method: 'Bank Transfer', amount: 5000, currency: 'NGN', submittedDate: '2024-04-30', status: 'Pending' },
 	{ id: 'pend_2', userId: 'usr_3', userName: 'Adekunle Gold', type: 'Deposit', method: 'Crypto', amount: 0.01, currency: 'BTC', submittedDate: '2024-04-29', status: 'Pending' },
@@ -31,10 +34,6 @@ const placeholderPending: PendingTransaction[] = [
 ];
 
 const placeholderHistory = [
-	// Define the type inline or import from where TransactionHistoryTable imports it (or a shared types file)
-	// For simplicity here, we assume the type structure matches what TransactionHistoryTable expects.
-	// Ideally, define TransactionHistory type in a shared location (e.g., src/types/transactions.ts)
-	// and import it in both page.tsx and TransactionHistoryTable.tsx
 	// type TransactionHistory = { ... }; // Defined in TransactionHistoryTable.tsx or shared file
 	{ id: 'hist_1', userId: 'usr_1', userName: 'John Doe', type: 'Deposit' as const, method: 'Bank Transfer' as const, amount: 20000, currency: 'NGN', date: '2024-04-15', status: 'Completed' as const },
 	{ id: 'hist_2', userId: 'usr_1', userName: 'John Doe', type: 'Investment' as const, amount: 1500, currency: 'NGN', date: '2024-04-16', status: 'Completed' as const, details: 'Foodstuffs Category' },
@@ -43,8 +42,6 @@ const placeholderHistory = [
 	{ id: 'hist_5', userId: 'usr_1', userName: 'John Doe', type: 'Referral Bonus' as const, amount: 200, currency: 'NGN', date: '2024-04-25', status: 'Completed' as const, details: 'From usr_5' },
 	{ id: 'hist_6', userId: 'usr_4', userName: 'Bob Williams', type: 'Deposit' as const, method: 'Bank Transfer' as const, amount: 5000, currency: 'NGN', date: '2024-04-28', status: 'Rejected' as const, details: 'Proof mismatch' },
 ];
-// Note: Added 'as const' to string literals in placeholderHistory to help TypeScript infer the correct types
-// if the TransactionHistory type is not explicitly imported/defined here.
 
 // Helper for status badges (can be removed if not used elsewhere on this page)
 // const getTransactionStatusVariant = (status: 'Completed' | 'Pending' | 'Rejected' | 'Processing'): 'default' | 'secondary' | 'destructive' | 'outline' => {
@@ -65,10 +62,91 @@ const placeholderHistory = [
 export default function TransactionsPage() {
 	// TODO: Add state/logic for handling approvals/rejections
 
+	// State for TransactionHistoryTable
+	const [isLoading, setIsLoading] = useState(false); // Example state
+	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [sortColumn, setSortColumn] = useState<SortableTransactionKeys | null>('date');
+	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+	// Process placeholderHistory to match Transaction[] type for the table
+	// This is a simplified mapping; ensure all fields match the Transaction type
+	const processedHistory: Transaction[] = useMemo(
+		() =>
+			placeholderHistory.map((item) => ({
+				...item,
+				// Ensure date is a string that can be parsed by `new Date()` in the child, or parse here
+				// For simplicity, assuming date strings are fine for now if child handles parsing.
+				// If child expects Date objects, parse here: date: new Date(item.date),
+				method: item.method as TransactionMethod | undefined, // Cast method if it exists
+				type: item.type as TransactionType, // Cast type
+				status: item.status as TransactionStatus, // Cast status
+			})),
+		[]
+	);
+
+	// Memoized and Processed Data for TransactionHistoryTable
+	const sortedData = useMemo(() => {
+		let data = [...processedHistory]; // Use processedHistory
+		if (sortColumn) {
+			data.sort((a, b) => {
+				let valA = a[sortColumn];
+				let valB = b[sortColumn];
+
+				if (sortColumn === 'date') {
+					// Ensure date comparison is robust if dates are strings
+					valA = new Date(valA as string).getTime();
+					valB = new Date(valB as string).getTime();
+				} else if (sortColumn === 'amount') {
+					// Ensure amount is treated as number
+					valA = Number(valA);
+					valB = Number(valB);
+				}
+
+				let comparison = 0;
+				if (valA > valB) comparison = 1;
+				else if (valA < valB) comparison = -1;
+				return sortDirection === 'desc' ? comparison * -1 : comparison;
+			});
+		}
+		return data;
+	}, [processedHistory, sortColumn, sortDirection]);
+
+	const totalCount = sortedData.length;
+	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+	const paginatedTransactions = useMemo(() => {
+		const start = (currentPage - 1) * ITEMS_PER_PAGE;
+		const end = start + ITEMS_PER_PAGE;
+		return sortedData.slice(start, end);
+	}, [sortedData, currentPage]);
+
+	const handlePageChange = (page: number) => {
+		if (page < 1 || page > totalPages) return;
+		setLoadingButton(page > currentPage ? 'next' : 'previous');
+		setIsLoading(true);
+		setCurrentPage(page);
+		// Simulate data fetching delay for pagination
+		setTimeout(() => {
+			setIsLoading(false);
+			setLoadingButton(null);
+		}, 300);
+	};
+
+	const handleSort = (column: SortableTransactionKeys) => {
+		if (sortColumn === column) {
+			setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+		} else {
+			setSortColumn(column);
+			setSortDirection('asc');
+		}
+		setCurrentPage(1); // Reset to first page on sort
+	};
+
 	return (
 		<div className="space-y-4">
-			<Breadcrumbs /> {/* Add Breadcrumbs component */}
-			<h1 className="text-2xl font-semibold mt-2">Transactions</h1> {/* Restore Title */}
+			<Breadcrumbs />
+			<h1 className="text-2xl font-semibold mt-2">Transactions</h1>
 			<Tabs defaultValue="pending" className="w-full">
 				<TabsList className="grid w-full grid-cols-3">
 					<TabsTrigger value="pending">Pending Approvals ({placeholderPending.length})</TabsTrigger>
@@ -76,7 +154,6 @@ export default function TransactionsPage() {
 					<TabsTrigger value="ledger">Open Ledger</TabsTrigger>
 				</TabsList>
 
-				{/* Pending Approvals Tab */}
 				<TabsContent value="pending">
 					<div className="rounded-md border mt-4">
 						<Table>
@@ -106,11 +183,7 @@ export default function TransactionsPage() {
 											</TableCell>
 											<TableCell>{tx.submittedDate}</TableCell>
 											<TableCell>
-												<Button
-													variant="outline"
-													size="sm"
-													// onClick={() => alert(`Reviewing ${tx.id}`)} // This would also need to be moved to a client component if uncommented
-												>
+												<Button variant="outline" size="sm">
 													Review
 												</Button>
 											</TableCell>
@@ -129,9 +202,7 @@ export default function TransactionsPage() {
 					{/* TODO: Add Pagination if needed */}
 				</TabsContent>
 
-				{/* Transaction History Tab */}
 				<TabsContent value="history">
-					{/* Filter and Search Section */}
 					<div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0 md:space-x-2 mt-4 mb-4">
 						<div className="relative w-full md:w-1/3">
 							<Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
@@ -153,13 +224,21 @@ export default function TransactionsPage() {
 							</Select>
 						</div>
 					</div>
-					{/* End Filter and Search Section */}
-					{/* Use the new Client Component for the history table */}
-					<TransactionHistoryTable transactions={placeholderHistory} />
-					{/* TODO: Add Pagination if needed */}
+					<TransactionHistoryTable
+						transactions={paginatedTransactions}
+						isLoading={isLoading}
+						currentPage={currentPage}
+						totalPages={totalPages}
+						totalCount={totalCount}
+						onPageChange={handlePageChange}
+						sortColumn={sortColumn}
+						sortDirection={sortDirection}
+						onSort={handleSort}
+						loadingButton={loadingButton}
+					/>
+					{/* TODO: Add Pagination if needed (now handled by table) */}
 				</TabsContent>
 
-				{/* Open Ledger Tab */}
 				<TabsContent value="ledger">
 					<div className="rounded-md border mt-4 p-4">
 						<h2 className="text-lg font-semibold mb-2">Open Ledger View</h2>

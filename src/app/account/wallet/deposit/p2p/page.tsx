@@ -9,9 +9,8 @@ import nProgress from 'nprogress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import ConfirmationModal from '@/components/modals/ConfirmationModal'; // Added import
+import ConfirmationModal from '@/components/modals/ConfirmationModal';
 
-// Define AgentType based on mockAgents structure for better type safety
 type AgentType = (typeof mockAgents)[0];
 
 // Mock Data for P2P Agents - Replace with actual data fetching
@@ -22,7 +21,7 @@ const mockAgents = [
 		transactions: 32,
 		completionRate: 91,
 		rateNGN: 1653.21,
-		rating: 4.5, // Assuming a 0-5 star rating
+		rating: 4.5,
 	},
 	{
 		id: '2',
@@ -42,7 +41,7 @@ const mockAgents = [
 	},
 	{
 		id: '4',
-		name: 'Thor Odinsonn', // Corrected spelling from image
+		name: 'Thor Odinsonn',
 		transactions: 32,
 		completionRate: 91,
 		rateNGN: 1653.21,
@@ -50,7 +49,6 @@ const mockAgents = [
 	},
 ];
 
-// Helper to render stars
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
 	const halfStar = rating % 1 !== 0;
@@ -61,7 +59,6 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, m
 			{[...Array(fullStars)].map((_, i) => (
 				<Star key={`full-${i}`} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
 			))}
-			{/* Add half star logic if needed, for now only full/empty */}
 			{[...Array(emptyStars)].map((_, i) => (
 				<Star key={`empty-${i}`} className="h-3 w-3 text-gray-300 dark:text-gray-600" />
 			))}
@@ -74,19 +71,16 @@ export default function P2PAgentListPage() {
 	const searchParams = useSearchParams();
 	const amount = searchParams.get('amount');
 
-	// State for sorting
 	type SortByType = 'price_desc' | 'completion_desc' | 'orders_desc' | 'rating_desc' | 'default';
 	const [sortBy, setSortBy] = useState<SortByType>('default');
 
-	// State for filtering
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [showSortOptions, setShowSortOptions] = useState(false); // New state for toggling sort options
+	const [showSortOptions, setShowSortOptions] = useState(false);
 	const [tempMinRating, setTempMinRating] = useState('');
 	const [tempMinTransactions, setTempMinTransactions] = useState('');
 	const [appliedMinRating, setAppliedMinRating] = useState<number | null>(null);
 	const [appliedMinTransactions, setAppliedMinTransactions] = useState<number | null>(null);
 
-	// State for confirmation modal and redirection
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [selectedAgentForConfirmation, setSelectedAgentForConfirmation] = useState<AgentType | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
@@ -108,7 +102,6 @@ export default function P2PAgentListPage() {
 	const displayAgents = useMemo(() => {
 		let agents = [...mockAgents];
 
-		// Apply filters
 		if (appliedMinRating !== null) {
 			agents = agents.filter((agent) => agent.rating >= appliedMinRating!);
 		}
@@ -116,9 +109,8 @@ export default function P2PAgentListPage() {
 			agents = agents.filter((agent) => agent.transactions >= appliedMinTransactions!);
 		}
 
-		// Apply sorting
 		switch (sortBy) {
-			case 'price_desc': // Price (high to low) - higher rateNGN first
+			case 'price_desc':
 				agents.sort((a, b) => b.rateNGN - a.rateNGN);
 				break;
 			case 'completion_desc':
@@ -132,8 +124,6 @@ export default function P2PAgentListPage() {
 				break;
 			case 'default':
 			default:
-				// No specific sort or retain original mock order (or sort by ID if needed)
-				// For now, it means if no other sort is active, it's the filtered list in original order.
 				break;
 		}
 		return agents;
@@ -152,10 +142,10 @@ export default function P2PAgentListPage() {
 
 		setTimeout(() => {
 			router.push(`/account/wallet/deposit/p2p/new-order?agentId=${selectedAgentForConfirmation.id}&amount=${amount}`);
-			setIsConfirmModalOpen(false); // Close modal
-			setIsRedirecting(false); // Reset loading state
-			setSelectedAgentForConfirmation(null); // Clear selected agent
-		}, 2000); // 2-second delay
+			setIsConfirmModalOpen(false);
+			setIsRedirecting(false);
+			setSelectedAgentForConfirmation(null);
+		}, 2000);
 	};
 
 	return (
@@ -237,10 +227,7 @@ export default function P2PAgentListPage() {
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 					{displayAgents.map((agent) => (
 						<Card key={agent.id} className="!bg-background shadow-sm flex flex-col">
-							{/* Added flex flex-col for consistent card height if content varies */}
 							<CardContent className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-grow">
-								{' '}
-								{/* Added flex-grow to content */}
 								<div className="flex-grow">
 									<h3 className="text-lg font-semibold text-foreground mb-0.5">{agent.name}</h3>
 									<div className="flex items-center gap-1 mb-1">
@@ -251,8 +238,6 @@ export default function P2PAgentListPage() {
 									</p>
 								</div>
 								<div className="flex flex-col items-start sm:items-end w-full sm:w-auto pt-2 sm:pt-0 mt-auto">
-									{' '}
-									{/* Added mt-auto to push button to bottom */}
 									<p className="text-xs text-muted-foreground mb-0.5">{agent.transactions} Transactions</p>
 									<p className="text-xs text-muted-foreground mb-2">{agent.completionRate}% Completion</p>
 									<Button variant="success" size="sm" className="w-full sm:w-auto px-6" onClick={() => handleSelectAgent(agent)}>

@@ -1,13 +1,11 @@
-// src/components/admin/TransactionHistoryTable.tsx
-'use client'; // Mark this as a Client Component
+'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ChevronLeft, ChevronRight, ArrowUpDown, Loader2 } from 'lucide-react'; // Added ArrowUpDown, ChevronLeft, ChevronRight, Loader2
+import { MoreHorizontal, ChevronLeft, ChevronRight, ArrowUpDown, Loader2 } from 'lucide-react';
 
-// Consider moving types to a shared file, e.g., src/types/transactions.ts
 export type TransactionStatus = 'Completed' | 'Pending' | 'Rejected' | 'Processing';
 export type TransactionType = 'Deposit' | 'Withdrawal' | 'Fee' | 'Investment' | 'Referral Bonus';
 export type TransactionMethod = 'Bank Transfer' | 'Crypto' | 'Platform';
@@ -20,7 +18,7 @@ export type Transaction = {
 	method?: TransactionMethod;
 	amount: number;
 	currency: string;
-	date: string; // Should be ISO string or Date object for proper sorting
+	date: string;
 	status: TransactionStatus;
 	details?: string;
 };
@@ -29,21 +27,17 @@ export type SortableTransactionKeys = 'date' | 'userName' | 'type' | 'amount' | 
 
 export interface TransactionHistoryTableProps {
 	transactions: Transaction[];
-	isLoading: boolean; // For showing loading states
-	// Pagination
+	isLoading: boolean;
 	currentPage: number;
 	totalPages: number;
 	totalCount: number;
 	onPageChange: (page: number) => void;
-	// Sorting
 	sortColumn: SortableTransactionKeys | null;
 	sortDirection: 'asc' | 'desc';
 	onSort: (column: SortableTransactionKeys) => void;
-	// For pagination button loading
 	loadingButton?: 'previous' | 'next' | null;
 }
 
-// Helper for status badges
 const getTransactionStatusVariant = (status: TransactionStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {
 		case 'Completed':
@@ -93,7 +87,7 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{isLoading && transactions.length === 0 ? ( // Show main loader only if no data yet
+						{isLoading && transactions.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={7} className="h-24 text-center">
 									<Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
@@ -102,7 +96,7 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 						) : transactions.length > 0 ? (
 							transactions.map((tx) => (
 								<TableRow key={tx.id} className="hover:bg-muted/50 transition-colors">
-									<TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell> {/* Format date for display */}
+									<TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
 									<TableCell className="font-medium">
 										{tx.userName} ({tx.userId})
 									</TableCell>
@@ -111,7 +105,6 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 									</TableCell>
 									<TableCell className="text-right">
 										{' '}
-										{/* Align amount to right */}
 										{tx.currency} {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 									</TableCell>
 									<TableCell>
@@ -131,7 +124,6 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 											<DropdownMenuContent align="end">
 												<DropdownMenuLabel>Actions</DropdownMenuLabel>
 												<DropdownMenuItem onClick={() => handleViewDetails(tx.id)}>View Details</DropdownMenuItem>
-												{/* Add other relevant actions if any */}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
@@ -148,7 +140,6 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 				</Table>
 			</div>
 
-			{/* Pagination Controls */}
 			{totalPages > 1 && (
 				<div className="flex items-center justify-between space-x-2 py-4 px-2">
 					<div className="text-sm text-muted-foreground">

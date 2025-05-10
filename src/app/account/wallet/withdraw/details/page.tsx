@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import nProgress from 'nprogress';
 import { toast } from 'sonner';
 
-// Mock data (should ideally be shared or fetched, copied for now)
 interface Asset {
 	id: string;
 	name: string;
@@ -66,7 +65,6 @@ const mockAssets: Asset[] = [
 		],
 	},
 ];
-// End of mock data
 
 function WithdrawDetailsContent() {
 	const router = useRouter();
@@ -115,7 +113,6 @@ function WithdrawDetailsContent() {
 	};
 
 	if (!selectedAsset || !selectedNetwork || isNaN(amount)) {
-		// This case should be handled by the useEffect redirect, but as a fallback:
 		return (
 			<div className="max-w-2xl space-y-8 flex flex-col items-center justify-center py-10">
 				<Alert variant="destructive">
@@ -136,7 +133,6 @@ function WithdrawDetailsContent() {
 					<p className="sub-page-heading-sub-text">Enter the recipient's address for your withdrawal.</p>
 				</CardHeader>
 				<CardContent className="space-y-6 pt-6 px-0">
-					{/* Summary of selection */}
 					<Card className="bg-muted/30">
 						<CardHeader>
 							<CardTitle className="text-lg">Withdrawal Summary</CardTitle>
@@ -166,7 +162,6 @@ function WithdrawDetailsContent() {
 						</CardContent>
 					</Card>
 
-					{/* Recipient Address Input */}
 					<div className="space-y-2">
 						<Label htmlFor="recipientAddress" className="text-sm font-medium">
 							Recipient's {selectedAsset.symbol} Address ({selectedNetwork.name})
@@ -177,7 +172,7 @@ function WithdrawDetailsContent() {
 							value={recipientAddress}
 							onChange={(e) => {
 								setRecipientAddress(e.target.value);
-								if (addressError) validateAddress(); // Re-validate on change if there was an error
+								if (addressError) validateAddress();
 							}}
 							placeholder={`Enter ${selectedNetwork.name} address`}
 							className={`bg-background border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] ${addressError ? 'border-red-500 focus:border-red-500' : ''}`}

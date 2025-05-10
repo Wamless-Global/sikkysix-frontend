@@ -1,27 +1,26 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { ChevronRight } from 'lucide-react';
-import { Card } from '@/components/ui/card'; // Use Card for list items for consistent styling
+import { Card } from '@/components/ui/card';
 
 export default function ProfilePage() {
 	// Mock data - replace with actual data fetching/context later
 	const user = {
 		name: 'Denzel Washington',
 		email: 'denzel.washington@gmail.com',
-		avatarUrl: 'https://via.placeholder.com/100', // Simple placeholder
+		avatarUrl: 'https://via.placeholder.com/100',
 	};
 
 	const profileActions = [
-		{ label: 'Bank Details', href: '/account/profile/bank-details' }, // Assuming routes
+		{ label: 'Bank Details', href: '/account/profile/bank-details' },
 		{ label: 'Change Password', href: '/account/profile/change-password' },
 		// { label: 'Figure Heads', href: '/account/profile/figure-heads' },
 		// { label: 'Preferences', href: '/account/profile/preferences' }, // Remove old one
-		{ label: 'Preferences', href: '/account/profile/preferences' }, // Corrected link target
+		{ label: 'Preferences', href: '/account/profile/preferences' },
 	];
 
 	return (
 		<div className="space-y-12">
-			{/* User Info Section */}
 			<div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
 				<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-[var(--dashboard-accent)]">
 					<AvatarImage src={user.avatarUrl} alt={user.name} />

@@ -2,13 +2,11 @@
 
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-// import Link from 'next/link'; // Not strictly needed if using router.push for all actions
-import { XCircle, AlertTriangle } from 'lucide-react'; // Using XCircle for failure
+import { XCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-// Minimal mock data needed for asset symbol display
 interface Asset {
 	id: string;
 	symbol: string;
@@ -31,8 +29,6 @@ function FailureStatusContent() {
 	const selectedAsset = mockAssets.find((a) => a.id === assetId);
 
 	const handleTryAgain = () => {
-		// Navigate to the start of the withdrawal flow, potentially pre-filling known details
-		// For simplicity, just goes to the start. Could pass params to prefill.
 		router.push(`/account/wallet/withdraw?assetId=${assetId || ''}&amount=${amount || ''}&address=${address || ''}`);
 	};
 

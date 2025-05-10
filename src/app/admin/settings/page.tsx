@@ -1,4 +1,4 @@
-'use client'; // Required for form state management
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
-import Breadcrumbs from '@/components/layout/Breadcrumbs'; // Import Breadcrumbs
+import { ScrollArea } from '@/components/ui/scroll-area';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
 // TODO: Fetch initial settings values from API
 // TODO: Define a proper type for all settings
 
-// Placeholder country list - In a real app, this might come from an API or config
 const availableCountries = [
 	{ code: 'NG', name: 'Nigeria' },
 	{ code: 'GH', name: 'Ghana' },
@@ -23,10 +22,8 @@ const availableCountries = [
 	{ code: 'US', name: 'United States' },
 	{ code: 'GB', name: 'United Kingdom' },
 	{ code: 'CA', name: 'Canada' },
-	// Add more countries as needed
 ];
 
-// Placeholder category list for Crypto settings - fetch dynamically
 const availableCategories = [
 	{ id: 'cat_1', name: 'Foodstuffs' },
 	{ id: 'cat_2', name: 'Accessories' },
@@ -36,35 +33,28 @@ const availableCategories = [
 ];
 
 export default function PlatformSettingsPage() {
-	// State for General Settings (Example)
 	const [platformName, setPlatformName] = useState('SikkySix Invest');
 	const [baseCurrency, setBaseCurrency] = useState('NGN');
 
-	// State for Fee Configuration (Example)
 	const [depositFeePercent, setDepositFeePercent] = useState(5);
 	const [withdrawalFeePercent, setWithdrawalFeePercent] = useState(5);
 
-	// State for Withdrawal Rules (Example)
 	const [globalMaxMultiplier, setGlobalMaxMultiplier] = useState(2);
 	const [promoMaxMultiplier, setPromoMaxMultiplier] = useState(3);
 	const [penaltyType, setPenaltyType] = useState<'forfeit_interest' | 'fixed_fee' | 'percentage_fee'>('forfeit_interest');
 	const [penaltyFeeValue, setPenaltyFeeValue] = useState(0);
 
-	// State for Referral Program (Example)
 	const [referralBonusPercent, setReferralBonusPercent] = useState(2);
 	const [bonusFromDeposit, setBonusFromDeposit] = useState(true);
 	const [bonusFromWithdrawal, setBonusFromWithdrawal] = useState(true);
 	const [referralThreshold, setReferralThreshold] = useState(10);
 	const [higherEarningsMultiplier, setHigherEarningsMultiplier] = useState(4);
 
-	// State for Banking Availability (Example)
 	const [enabledBankCountries, setEnabledBankCountries] = useState<Set<string>>(new Set(['NG']));
 
-	// State for Crypto Settings (Example)
-	const [cryptoMinDeposit, setCryptoMinDeposit] = useState(100); // Example: $100 USD equivalent? Define unit clearly.
-	const [cryptoAllowedCategories, setCryptoAllowedCategories] = useState<Set<string>>(new Set(['cat_1', 'cat_4'])); // Example: Foodstuffs, Lifestyle
+	const [cryptoMinDeposit, setCryptoMinDeposit] = useState(100);
+	const [cryptoAllowedCategories, setCryptoAllowedCategories] = useState<Set<string>>(new Set(['cat_1', 'cat_4']));
 
-	// Placeholder Save Handlers
 	const handleSaveGeneralSettings = () => {
 		console.log('Saving General Settings:', { platformName, baseCurrency });
 		alert('General Settings Saved (Placeholder)!');
@@ -90,7 +80,6 @@ export default function PlatformSettingsPage() {
 		alert('Crypto Settings Saved (Placeholder)!');
 	};
 
-	// Handler for banking availability switch
 	const handleBankingToggle = (countryCode: string, checked: boolean) => {
 		setEnabledBankCountries((prev) => {
 			const newSet = new Set(prev);
@@ -103,7 +92,6 @@ export default function PlatformSettingsPage() {
 		});
 	};
 
-	// Handler for crypto category checkbox
 	const handleCryptoCategoryToggle = (categoryId: string, checked: boolean) => {
 		setCryptoAllowedCategories((prev) => {
 			const newSet = new Set(prev);
@@ -118,10 +106,9 @@ export default function PlatformSettingsPage() {
 
 	return (
 		<div className="space-y-6">
-			<Breadcrumbs /> {/* Add Breadcrumbs component */}
-			<h1 className="text-2xl font-semibold mt-2">Platform Settings</h1> {/* Restore Title */}
+			<Breadcrumbs />
+			<h1 className="text-2xl font-semibold mt-2">Platform Settings</h1>
 			<p className="text-muted-foreground">Configure general settings, fees, withdrawal rules, referrals, and more.</p>
-			{/* General Settings Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>General Settings</CardTitle>
@@ -140,7 +127,6 @@ export default function PlatformSettingsPage() {
 					<Button onClick={handleSaveGeneralSettings}>Save General Settings</Button>
 				</CardFooter>
 			</Card>
-			{/* Fee Configuration Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Fee Configuration</CardTitle>
@@ -159,7 +145,6 @@ export default function PlatformSettingsPage() {
 					<Button onClick={handleSaveFeeSettings}>Save Fee Settings</Button>
 				</CardFooter>
 			</Card>
-			{/* Withdrawal Rules Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Withdrawal Rules</CardTitle>
@@ -196,7 +181,6 @@ export default function PlatformSettingsPage() {
 					<Button onClick={handleSaveWithdrawalSettings}>Save Withdrawal Rules</Button>
 				</CardFooter>
 			</Card>
-			{/* Referral Program Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Referral Program</CardTitle>
@@ -238,7 +222,6 @@ export default function PlatformSettingsPage() {
 					<Button onClick={handleSaveReferralSettings}>Save Referral Settings</Button>
 				</CardFooter>
 			</Card>
-			{/* Banking Availability Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Banking Availability</CardTitle>
@@ -246,7 +229,6 @@ export default function PlatformSettingsPage() {
 				</CardHeader>
 				<CardContent>
 					<ScrollArea className="h-48 rounded-md border p-4">
-						{/* Using ScrollArea now */}
 						<div className="space-y-3">
 							{availableCountries.map((country) => (
 								<div key={country.code} className="flex items-center justify-between">
@@ -264,7 +246,6 @@ export default function PlatformSettingsPage() {
 					<Button onClick={handleSaveBankingSettings}>Save Banking Availability</Button>
 				</CardFooter>
 			</Card>
-			{/* Crypto Settings Card */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Cryptocurrency Settings</CardTitle>
