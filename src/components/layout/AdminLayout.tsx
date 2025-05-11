@@ -22,7 +22,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 	const [isLogoutLoading, setIsLogoutLoading] = useState(false);
 	const [, setError] = useState<string | null>(null);
 	const router = useRouter();
-	const { logout, currentUser, isLoading: isAuthLoading } = useAuthContext();
+	const { logout, currentUser } = useAuthContext();
 
 	const handleLogout = async () => {
 		setIsLogoutLoading(true);
@@ -80,7 +80,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
 						<ThemeToggle />
 
-						<Button variant="ghost" size="icon" onClick={handleLogout} className="ml-2 cursor-pointer" disabled={isLogoutLoading}>
+						<Button variant="outline" size="icon" onClick={handleLogout} className="ml-2 cursor-pointer" disabled={isLogoutLoading}>
+							{isLogoutLoading ? <Loader2 /> : <LogOut />}
+
 							<span className="sr-only">Log out</span>
 						</Button>
 					</div>

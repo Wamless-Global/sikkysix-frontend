@@ -6,13 +6,15 @@ import { useState, useEffect } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/UserContext';
 import NProgress from 'nprogress';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { User, Role, ALL_ROLES, fetchUserByUsername, updateUser, deleteUser } from '@/lib/userUtils';
 import { toast } from 'sonner';
@@ -28,7 +30,7 @@ export default function EditUserPage() {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [country, setCountry] = useState('');
-	const [roles, setRoles] = useState<Role>('user');
+	const [roles, setRoles] = useState<Role[]>(['user']); // Changed to Role[] and initialized
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -38,7 +40,7 @@ export default function EditUserPage() {
 		setName(userData.name);
 		setEmail(userData.email);
 		setCountry(userData.country);
-		setRoles(userData.roles);
+		setRoles(userData.roles && userData.roles.length > 0 ? userData.roles : ['user']); // Ensure roles is an array
 	};
 
 	useEffect(() => {
@@ -82,7 +84,7 @@ export default function EditUserPage() {
 				name,
 				email,
 				country,
-				roles,
+				roles: roles, // roles is now Role[]
 			};
 
 			const updatedUser = await updateUser(user.id, updatedData);
@@ -90,14 +92,26 @@ export default function EditUserPage() {
 			if (updatedUser) {
 				NProgress.start();
 				router.push(`/admin/users/${updatedUser.username}`);
-			} else {
-				setIsSaving(false);
 			}
+			setIsSaving(false);
 		} catch (error) {
 			console.error('Error during profile update process:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 			setIsSaving(false);
 		}
+	};
+
+	const handleRoleChange = (role: Role) => {
+		setRoles((prevRoles) => {
+			if (prevRoles.includes(role)) {
+				// If role exists, remove it. Ensure at least one role remains.
+				if (prevRoles.length === 1) return prevRoles; // Don't allow removing the last role
+				return prevRoles.filter((r) => r !== role);
+			} else {
+				// If role doesn't exist, add it.
+				return [...prevRoles, role];
+			}
+		});
 	};
 
 	const handleDelete = async () => {
@@ -166,19 +180,35 @@ export default function EditUserPage() {
 							</Select>
 						</div>
 						<div className="grid gap-2">
-							<Label htmlFor="role">Role</Label>
-							<Select value={roles} onValueChange={(value) => setRoles(value as Role)} disabled={isSaving}>
-								<SelectTrigger id="role">
-									<SelectValue placeholder="Select role" />
-								</SelectTrigger>
-								<SelectContent>
+							<Label htmlFor="roles">Roles</Label>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="outline" className="w-full justify-between" disabled={isSaving}>
+										<span>{roles.length > 0 ? `Selected (${roles.length})` : 'Select roles'}</span>
+										<ChevronDown className="h-4 w-4 opacity-50" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent className="w-full">
 									{ALL_ROLES.map((roleOption) => (
-										<SelectItem key={roleOption} value={roleOption} className="capitalize">
+										<DropdownMenuCheckboxItem
+											key={roleOption}
+											checked={roles.includes(roleOption)}
+											onCheckedChange={() => handleRoleChange(roleOption)}
+											disabled={isSaving || (roles.includes(roleOption) && roles.length === 1)} // Prevent unchecking the last role
+											className="capitalize"
+										>
 											{roleOption}
-										</SelectItem>
+										</DropdownMenuCheckboxItem>
 									))}
-								</SelectContent>
-							</Select>
+								</DropdownMenuContent>
+							</DropdownMenu>
+							<div className="mt-2 flex flex-wrap gap-2">
+								{roles.map((role) => (
+									<Badge key={role} variant="secondary" className="capitalize">
+										{role}
+									</Badge>
+								))}
+							</div>
 						</div>
 					</CardContent>
 					<CardFooter className="flex justify-between items-center gap-2 mt-6">

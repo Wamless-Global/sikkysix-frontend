@@ -4,8 +4,10 @@ export type Role = 'user' | 'figure-head' | 'agent' | 'admin';
 export const ALL_ROLES: Role[] = ['user', 'figure-head', 'agent', 'admin'];
 
 // Define User Status type and constants
-export type UserStatus = 'Active' | 'Inactive' | 'Suspended';
-export const ALL_STATUSES: UserStatus[] = ['Active', 'Inactive', 'Suspended'];
+export type UserStatus = 'Active' | 'Suspended' | 'Deleted';
+export type EmailStatus = 'Active' | 'Inactive';
+export const ALL_EMAIL_STATUSES: EmailStatus[] = ['Active', 'Inactive'];
+export const ALL_STATUSES: UserStatus[] = ['Active', 'Suspended', 'Deleted'];
 
 // Define Country constants
 export const ALL_COUNTRIES = ['Nigeria', 'USA', 'UK', 'Ghana', 'Canada']; // Assuming these are all possible countries for now
@@ -17,45 +19,54 @@ export type User = {
 	username: string; // Add username field
 	email: string;
 	profilePictureUrl?: string;
-	roles: Role;
+	roles: Role[]; // Changed to array to match server response and AuthenticatedUser
 	registrationDate: string;
 	investmentCount: number;
 	totalInvested: number;
+	email_status: EmailStatus;
 	status: UserStatus;
 	country: string;
 };
+// Define the structure of the 'data' object in the user update API response
+interface UserUpdateDataPayload {
+	id: string;
+	name: string;
+	username: string;
+	email: string;
+	profilePictureUrl?: string;
+	roles: Role[];
+	registrationDate: string;
+	investmentCount: number;
+	totalInvested: number;
+	email_status: EmailStatus;
+	status: UserStatus;
+	country: string;
+}
 
-// Generate placeholder users
-const generateUsers = (count: number): User[] => {
-	const users = Array.from({ length: count }, (_, i) => {
-		const email = `user${i + 1}@example.com`;
-		return {
-			id: `usr_${i + 1}`,
-			name: `User Name ${i + 1}`,
-			username: `user${i + 1}`, // Add placeholder username
-			email: email,
-			avatarUrl: `https://avatar.vercel.sh/${email}.png?size=40`, // Generate avatar URL
-			roles: ALL_ROLES[i % ALL_ROLES.length], // Assign roles cyclically
-			registrationDate: `2024-0${Math.floor(Math.random() * 4) + 1}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-			investmentCount: Math.floor(Math.random() * 15),
-			totalInvested: Math.floor(Math.random() * 5000) + 100,
-			status: ALL_STATUSES[i % ALL_STATUSES.length],
-			country: ALL_COUNTRIES[i % ALL_COUNTRIES.length],
-		};
-	});
-	return users;
+// Define the overall structure of the user update API response
+interface UserUpdateApiResponse {
+	status: string; // e.g., "success"
+	message: string;
+	data?: UserUpdateDataPayload; // The actual user data
+}
+
+// Helper function to determine badge variant based on status
+export const getEmailStatusVariant = (status: EmailStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
+	switch (status) {
+		case 'Active':
+			return 'default';
+		case 'Inactive':
+			return 'destructive';
+		default:
+			return 'outline';
+	}
 };
-
-// Initial set of placeholder users
-export const initialUsers: User[] = generateUsers(35);
 
 // Helper function to determine badge variant based on status
 export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {
 		case 'Active':
 			return 'default';
-		case 'Inactive':
-			return 'secondary';
 		case 'Suspended':
 			return 'destructive';
 		default:
@@ -157,20 +168,42 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
-				// Add Authorization or other necessary headers if required
 			},
 			body: JSON.stringify(userData),
 			credentials: 'include',
 		});
 
 		if (response.ok) {
-			const updatedUser: User = await response.json();
-			toast.success('User updated successfully!');
-			return updatedUser;
+			const apiResponse: UserUpdateApiResponse = await response.json();
+
+			if (apiResponse.status === 'success' && apiResponse.data) {
+				const { ...userDataFromApi } = apiResponse.data;
+				const updatedUser: User = {
+					...userDataFromApi,
+				};
+				toast.success(apiResponse.message || 'User updated successfully!');
+				return updatedUser;
+			} else {
+				// Handle cases where the API indicates success=false or data is missing
+				const errorMessage = apiResponse.message || `Failed to update user: Server responded with status ${apiResponse.status}.`;
+				console.error(`Backend API Error (PUT ${targetUrl}): ${errorMessage}`, apiResponse);
+				toast.error(errorMessage);
+				return null;
+			}
 		} else {
+			// Handle HTTP errors (e.g., 400, 500)
 			const errorBody = await response.text();
+			let errorMessage = `Failed to update user: ${response.statusText || 'Unknown server error'}`;
+			try {
+				const parsedError = JSON.parse(errorBody);
+				if (parsedError && parsedError.message) {
+					errorMessage = parsedError.message;
+				}
+			} catch (e) {
+				// If errorBody is not JSON or doesn't have a message, use the generic one
+			}
 			console.error(`Backend API Error (PUT ${targetUrl}): ${response.status} ${response.statusText}`, errorBody);
-			toast.error(`Failed to update user: ${response.statusText || 'Unknown error'}`);
+			toast.error(errorMessage);
 			return null;
 		}
 	} catch (error) {

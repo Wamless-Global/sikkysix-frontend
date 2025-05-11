@@ -6,13 +6,13 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useUserContext } from '@/context/UserContext';
 import NProgress from 'nprogress';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { MoreHorizontal, Loader2 } from 'lucide-react';
-import { User, UserStatus, Role, getStatusVariant, ALL_ROLES, fetchUserByUsername, updateUser, deleteUser as deleteUserUtil } from '@/lib/userUtils';
+import { User, UserStatus, getStatusVariant, fetchUserByUsername, updateUser, deleteUser as deleteUserUtil, getEmailStatusVariant } from '@/lib/userUtils';
 import { toast } from 'sonner';
 
 export default function UserDetailPage() {
@@ -20,8 +20,6 @@ export default function UserDetailPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isSuspending, setIsSuspending] = useState(false);
-	const [isChangingRole, setIsChangingRole] = useState(false);
-	const [changingRoleTo, setChangingRoleTo] = useState<Role | null>(null);
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 	const [confirmAction, setConfirmAction] = useState<'suspend' | 'delete' | null>(null);
 	const [dialogDetails, setDialogDetails] = useState({ title: '', description: '', actionText: '' });
@@ -186,50 +184,7 @@ export default function UserDetailPage() {
 								>
 									Edit Profile
 								</DropdownMenuItem>
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger className="cursor-pointer">Change Role</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										<DropdownMenuLabel>Select New Role</DropdownMenuLabel>
-										<DropdownMenuSeparator />
-										{ALL_ROLES.map((roleOption) => (
-											<DropdownMenuItem
-												key={roleOption}
-												disabled={currentUser.roles === roleOption || isChangingRole || isSuspending || isDeleting}
-												onClick={async (event) => {
-													event.preventDefault();
-													if (!currentUser) return;
-													const userId = currentUser.id;
-													const userName = currentUser.name;
-													setIsChangingRole(true);
-													setChangingRoleTo(roleOption);
-													try {
-														const updatedUser = await updateUser(userId, { roles: roleOption });
 
-														if (updatedUser) {
-															setCurrentUser(updatedUser);
-														}
-													} catch (error) {
-														console.error('Error during role change process:', error);
-														toast.error('An unexpected error occurred while changing role.');
-													} finally {
-														setIsChangingRole(false);
-														setChangingRoleTo(null);
-													}
-												}}
-												className="cursor-pointer capitalize"
-											>
-												{isChangingRole && changingRoleTo === roleOption ? (
-													<>
-														<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-														Processing...
-													</>
-												) : (
-													roleOption
-												)}
-											</DropdownMenuItem>
-										))}
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
 								<DropdownMenuItem
 									onClick={() => {
 										NProgress.start();
@@ -249,7 +204,7 @@ export default function UserDetailPage() {
 									View Transactions
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onClick={handleToggleSuspendUser} className="cursor-pointer" disabled={isSuspending || isDeleting || isChangingRole}>
+								<DropdownMenuItem onClick={handleToggleSuspendUser} className="cursor-pointer" disabled={isSuspending || isDeleting}>
 									{isSuspending ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -261,7 +216,7 @@ export default function UserDetailPage() {
 										'Suspend User'
 									)}
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={handleDeleteUser} className="text-red-600 focus:text-red-600 focus:bg-red-100 cursor-pointer" disabled={isDeleting || isSuspending || isChangingRole}>
+								<DropdownMenuItem onClick={handleDeleteUser} className="text-red-600 focus:text-red-600 focus:bg-red-100 cursor-pointer" disabled={isDeleting || isSuspending}>
 									{isDeleting ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -283,6 +238,9 @@ export default function UserDetailPage() {
 						</p>
 						<p>
 							<strong>Status:</strong> <Badge variant={getStatusVariant(currentUser.status)}>{currentUser.status}</Badge>
+						</p>
+						<p>
+							<strong>Email Verified:</strong> <Badge variant={getEmailStatusVariant(currentUser.email_status)}>{currentUser.email_status == 'Active' ? 'Yes' : 'No'}</Badge>
 						</p>
 						<p>
 							<strong>Country:</strong> {currentUser.country}

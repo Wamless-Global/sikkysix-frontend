@@ -31,10 +31,12 @@ export default function UserManagementPage() {
 	const [filterEndDate, setFilterEndDate] = useState<string>('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
+	const [isFetchingData, setIsFetchingData] = useState(true); // Handles overall loading state including debounce
 
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
 	useEffect(() => {
+		setIsFetchingData(true); // Indicate loading as soon as an action triggers a fetch
 		const filters: UserFilters = {
 			searchTerm: searchTerm || undefined,
 			role: filterRole === 'all' ? undefined : filterRole,
@@ -53,8 +55,11 @@ export default function UserManagementPage() {
 
 	useEffect(() => {
 		if (!isLoading) {
+			// isLoading from context
+			setIsFetchingData(false); // Update our local comprehensive loading state
 			setLoadingButton(null);
 		}
+		// No need for an else: setIsFetchingData(true) is handled by the other useEffect
 	}, [isLoading]);
 
 	const handlePreviousPage = () => {
@@ -217,7 +222,7 @@ export default function UserManagementPage() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{isLoading && currentPage === 1 ? (
+						{isFetchingData ? (
 							<TableRow>
 								<TableCell colSpan={8} className="h-24 text-center">
 									<Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
@@ -267,13 +272,13 @@ export default function UserManagementPage() {
 						Showing page {currentPage} of {totalPages} ({totalCount} users total)
 					</div>
 					<div className="space-x-2 flex items-center">
-						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading} className="cursor-pointer">
-							{isLoading && loadingButton === 'previous' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ChevronLeft className="h-4 w-4 mr-1" />}
+						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isFetchingData} className="cursor-pointer">
+							{isFetchingData && loadingButton === 'previous' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ChevronLeft className="h-4 w-4 mr-1" />}
 							Previous
 						</Button>
-						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading} className="cursor-pointer">
+						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isFetchingData} className="cursor-pointer">
 							Next
-							{isLoading && loadingButton === 'next' ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 ml-1" />}
+							{isFetchingData && loadingButton === 'next' ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 ml-1" />}
 						</Button>
 					</div>
 				</div>
