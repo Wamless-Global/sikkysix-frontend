@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { User, Role, UserStatus, getStatusVariant, ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
 import { COUNTRIES } from '@/lib/countries';
 import { Label } from '@/components/ui/label';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -55,7 +56,6 @@ export default function UserManagementPage() {
 
 	useEffect(() => {
 		if (!isLoading) {
-			// isLoading from context
 			setIsFetchingData(false); // Update our local comprehensive loading state
 			setLoadingButton(null);
 		}
@@ -89,9 +89,9 @@ export default function UserManagementPage() {
 	return (
 		<div className="space-y-6">
 			<Breadcrumbs />
-			<h1 className="text-2xl font-semibold mt-2">User Management</h1>
+			<h1 className="text-3xl font-bold">User Management</h1>
 
-			<p className="text-sm text-muted-foreground">Use the filters below to refine the user list.</p>
+			<p className="text-lg text-muted-foreground">Use the filters below to refine the user list.</p>
 
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
 				<Input
@@ -230,19 +230,12 @@ export default function UserManagementPage() {
 							</TableRow>
 						) : users.length > 0 ? (
 							users.map((user: User) => (
-								<TableRow
-									key={user.id}
-									className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-									onClick={() => {
-										NProgress.start();
-										router.push(`/admin/users/${user.username}`);
-									}}
-								>
+								<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
 									<TableCell className="font-medium">
-										<div className="flex items-center gap-3">
+										<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
 											{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={40} height={40} className="rounded-full" />}
 											<span>{user.name}</span>
-										</div>
+										</CustomLink>
 									</TableCell>
 									<TableCell>{user.email}</TableCell>
 									<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>

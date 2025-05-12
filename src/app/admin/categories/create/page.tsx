@@ -39,6 +39,8 @@ const categoryFormSchema = z.object({
 	quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }).default(1000000000),
 	total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }).default(0),
 	admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).default(2),
+	fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
+	volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
 });
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
@@ -54,6 +56,8 @@ const defaultValues: Partial<CategoryFormValues> = {
 	quantity: 1000000000,
 	total_liquidity: 0,
 	admin_target_multiplier: 2,
+	fee: null,
+	volatility_factor: null,
 };
 
 export default function CreateCategoryPage() {
@@ -229,10 +233,6 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-							</div>
-
-							{/* Column 2 */}
-							<div className="space-y-4">
 								<FormField
 									control={form.control}
 									name="quantity"
@@ -246,6 +246,10 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
+							</div>
+
+							{/* Column 2 */}
+							<div className="space-y-4">
 								<FormField
 									control={form.control}
 									name="total_liquidity"
@@ -268,6 +272,34 @@ export default function CreateCategoryPage() {
 											<FormControl>
 												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
 											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="fee"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Fee (%)</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.5 for 0.5%" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Transaction fee percentage for this category.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="volatility_factor"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Volatility Factor</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Factor to adjust for market volatility.</FormDescription>
 											<FormMessage />
 										</FormItem>
 									)}

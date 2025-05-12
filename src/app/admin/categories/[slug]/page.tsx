@@ -1,12 +1,12 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Loader2, Info, MoreHorizontal, Edit3, Trash2, Lock, Unlock, ArrowUpCircle, ArrowDownCircle, TrendingUp } from 'lucide-react';
+import { Loader2, Info, MoreHorizontal, Edit3, Trash2, Lock, Unlock, ArrowUpCircle, ArrowDownCircle, TrendingUp, ImageOff } from 'lucide-react';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Badge } from '@/components/ui/badge';
@@ -14,182 +14,138 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
 import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
+import { generateSlug } from '@/lib/helpers';
 
-// --- NEW TYPE DEFINITIONS FOR CRYPTO ASSETS ---
-type AssetMetricDetails = {
-	currentPriceUSD: number;
-	priceChange24hPercent: number;
-	priceChange7dPercent: number;
-	priceChange30dPercent: number;
-	volume24hUSD: number;
-	liquidityUSD: number;
-	marketCapUSD: number;
-	totalSupply: number;
-	circulatingSupply: number;
-	holdersCount: number;
-};
-
-type AssetSimulatedParameters = {
-	volatilityFactor: number;
-	baseTransactionFee: number;
-};
-
-type AssetDefinition = {
+interface Category {
 	id: string;
-	slug: string;
 	name: string;
-	symbol: string;
-	description: string;
-	logoUrl: string;
-	status: 'Active' | 'Locked' | 'Delisted';
-	statusReason?: string;
-	metrics: AssetMetricDetails;
-	simulatedParameters: AssetSimulatedParameters;
-};
+	description?: string | null;
+	ticker: string;
+	is_locked: boolean;
+	is_launched?: boolean; // Default should be true if not present
+	current_price_per_unit: number;
+	quantity: number;
+	total_liquidity: number;
+	admin_target_multiplier?: number | null;
+	created_by_admin_id: string;
+	updated_at?: string | null;
+	created_at: string;
+	image?: string | null;
+	fee?: number | null;
+	volatility_factor?: number | null;
+	circulating_supply?: number;
+	market_cap?: number;
+	holders?: number;
+	priceChange24hPercent?: number;
+	priceChange7dPercent?: number;
+	priceChange30dPercent?: number;
+	volume24hUSD?: number;
+}
 
-type AssetDetailsMock = {
-	[key: string]: AssetDefinition;
-};
+interface SingleCategoryResponse {
+	status: string;
+	data: Category;
+}
 
-// --- UPDATED MOCK DATA FOR SIMULATED CRYPTO ASSETS ---
-const assetDetailsMock: AssetDetailsMock = {
-	'eth-usd': {
-		id: 'asset_eth_001',
-		slug: 'eth-usd',
-		name: 'Simulated Ethereum',
-		symbol: 'sETH',
-		description: 'A simulated version of Ethereum for testing and educational purposes within the platform. Price and volume are algorithmically generated.',
-		logoUrl: '/crypto_logos/eth.png',
-		status: 'Active',
-		metrics: {
-			currentPriceUSD: 2050.75,
-			priceChange24hPercent: 2.5,
-			priceChange7dPercent: -1.2,
-			priceChange30dPercent: 15.8,
-			volume24hUSD: 12500000,
-			liquidityUSD: 50000000,
-			marketCapUSD: 246000000000,
-			totalSupply: 120000000,
-			circulatingSupply: 120000000,
-			holdersCount: 15203,
-		},
-		simulatedParameters: {
-			volatilityFactor: 0.03,
-			baseTransactionFee: 0.0005,
-		},
-	},
-	'btc-usd': {
-		id: 'asset_btc_002',
-		slug: 'btc-usd',
-		name: 'Simulated Bitcoin',
-		symbol: 'sBTC',
-		description: 'A simulated version of Bitcoin. Allows users to experience BTC trading dynamics in a sandboxed environment.',
-		logoUrl: '/crypto_logos/btc.png',
-		status: 'Active',
-		metrics: {
-			currentPriceUSD: 30100.2,
-			priceChange24hPercent: -0.8,
-			priceChange7dPercent: 3.1,
-			priceChange30dPercent: 8.2,
-			volume24hUSD: 25000000,
-			liquidityUSD: 100000000,
-			marketCapUSD: 580000000000,
-			totalSupply: 21000000,
-			circulatingSupply: 19500000,
-			holdersCount: 8750,
-		},
-		simulatedParameters: {
-			volatilityFactor: 0.02,
-			baseTransactionFee: 0.0002,
-		},
-	},
-	'sol-usd': {
-		id: 'asset_sol_003',
-		slug: 'sol-usd',
-		name: 'Simulated Solana',
-		symbol: 'sSOL',
-		description: 'Experience the high-throughput nature of Solana in a simulated setting.',
-		logoUrl: '/crypto_logos/sol.png',
-		status: 'Locked',
-		statusReason: 'Network upgrade simulation in progress',
-		metrics: {
-			currentPriceUSD: 22.5,
-			priceChange24hPercent: 0.1,
-			priceChange7dPercent: -5.5,
-			priceChange30dPercent: 25.0,
-			volume24hUSD: 8000000,
-			liquidityUSD: 30000000,
-			marketCapUSD: 9000000000,
-			totalSupply: 500000000,
-			circulatingSupply: 400000000,
-			holdersCount: 6100,
-		},
-		simulatedParameters: {
-			volatilityFactor: 0.05,
-			baseTransactionFee: 0.00001,
-		},
-	},
-};
-
+// TODO: Replace with actual transaction data fetching for the category
 const assetTransactionHistoryMock = [
-	{ id: 'txn_asset_1', timestamp: '2025-10-19T10:35:00Z', maskedInvestorId: 'User...a4f8', type: 'Buy sETH', amount: 2.5, currency: 'sETH', usdValue: 5126.88, status: 'Completed' },
-	{ id: 'txn_asset_2', timestamp: '2025-10-18T15:22:00Z', maskedInvestorId: 'User...b8e1', type: 'Sell sBTC', amount: 0.1, currency: 'sBTC', usdValue: 3010.02, status: 'Completed' },
-	{ id: 'txn_asset_3', timestamp: '2025-10-18T09:05:00Z', maskedInvestorId: 'User...c3d7', type: 'Deposit USD', amount: 1000, currency: 'USD', usdValue: 1000, status: 'Completed' },
+	{ id: 'txn_asset_1', timestamp: '2025-10-19T10:35:00Z', maskedInvestorId: 'User...a4f8', type: 'Buy Ticker', amount: 2.5, currency: 'TICK', usdValue: 5126.88, status: 'Completed' },
+	{ id: 'txn_asset_2', timestamp: '2025-10-18T15:22:00Z', maskedInvestorId: 'User...b8e1', type: 'Sell Ticker', amount: 0.1, currency: 'TICK', usdValue: 3010.02, status: 'Completed' },
 ];
 
 export default function AdminSingleCategoriesPage() {
 	const params = useParams<{ slug: string }>();
 	const router = useRouter();
-	const slug = params?.slug || 'eth-usd';
+	const categoryIdentifier = params?.slug;
 
-	const [assetData, setAssetData] = useState<AssetDefinition | null>(null);
+	const [categoryData, setCategoryData] = useState<Category | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 	const [isProcessingAction, setIsProcessingAction] = useState(false);
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-	const [confirmAction, setConfirmAction] = useState<'lock' | 'unlock' | 'delist' | null>(null);
+	const [confirmAction, setConfirmAction] = useState<'lock' | 'unlock' | 'delete' | null>(null);
 	const [dialogDetails, setDialogDetails] = useState({ title: '', description: '', actionText: '' });
 
-	useEffect(() => {
+	const fetchCategory = useCallback(async (identifier: string) => {
+		nProgress.start();
 		setIsLoading(true);
-		setTimeout(() => {
-			const data = assetDetailsMock[slug];
-			if (data) {
-				setAssetData(data);
-			} else {
-				toast.error(`Asset "${slug}" not found.`);
-				nProgress.start();
-				router.push('/admin/categories');
+		setError(null);
+		try {
+			const response = await fetch(`/api/admin/categories/${identifier}`);
+			if (!response.ok) {
+				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.message || errorData.detail || errorMessage;
+				} catch (e) {}
+				throw new Error(errorMessage);
 			}
+			const result: SingleCategoryResponse = await response.json();
+			if (result.status === 'success' && result.data) {
+				const fetchedCategory = result.data;
+				const circulatingSupply = fetchedCategory.circulating_supply ?? fetchedCategory.quantity;
+
+				console.log(result.data);
+
+				setCategoryData({
+					...fetchedCategory,
+					circulating_supply: circulatingSupply,
+					is_launched: fetchedCategory.is_launched === undefined ? true : fetchedCategory.is_launched,
+				});
+			} else {
+				throw new Error(result.data?.toString() || 'Failed to fetch category data or data is invalid');
+			}
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Could not load category details.';
+			console.error('Failed to fetch category:', err);
+			setError(errorMessage);
+			toast.error(errorMessage);
+			setCategoryData(null);
+		} finally {
 			setIsLoading(false);
-		}, 300);
-	}, [slug, router]);
+			nProgress.done();
+		}
+	}, []);
+
+	useEffect(() => {
+		if (categoryIdentifier) {
+			fetchCategory(categoryIdentifier);
+		} else {
+			const msg = 'Category identifier is missing.';
+			toast.error(msg);
+			setError(msg);
+			setIsLoading(false);
+			nProgress.start();
+			router.push('/admin/categories');
+		}
+	}, [categoryIdentifier, fetchCategory, router]);
 
 	const handleEdit = () => {
-		if (!assetData) return;
+		if (!categoryData) return;
 		nProgress.start();
-		router.push(`/admin/categories/${slug}/edit`);
+		router.push(`/admin/categories/${generateSlug(categoryData.ticker)}/edit`);
 	};
 
-	const prepareConfirmAction = (action: 'lock' | 'unlock' | 'delist') => {
-		if (!assetData) return;
+	const prepareConfirmAction = (action: 'lock' | 'unlock' | 'delete') => {
+		if (!categoryData) return;
 		let title = '',
 			description = '',
 			actionText = '';
 		switch (action) {
 			case 'lock':
-				title = 'Confirm Asset Lock';
-				description = `Are you sure you want to lock trading for "${assetData.name} (${assetData.symbol})"? Users will not be able to buy or sell this asset.`;
-				actionText = 'Lock Asset';
+				title = 'Confirm Category Lock';
+				description = `Are you sure you want to lock "${categoryData.name} (${categoryData.ticker})"? This may restrict certain user actions.`;
+				actionText = 'Lock Category';
 				break;
 			case 'unlock':
-				title = 'Confirm Asset Unlock';
-				description = `Are you sure you want to unlock trading for "${assetData.name} (${assetData.symbol})"? Users will be able to resume buying and selling.`;
-				actionText = 'Unlock Asset';
+				title = 'Confirm Category Unlock';
+				description = `Are you sure you want to unlock "${categoryData.name} (${categoryData.ticker})"?`;
+				actionText = 'Unlock Category';
 				break;
-			case 'delist':
-				title = 'Confirm Asset Delisting';
-				description = `Are you sure you want to DELIST "${assetData.name} (${assetData.symbol})"? This action is significant and may have irreversible consequences for simulated user holdings.`;
-				actionText = 'Delist Asset';
+			case 'delete':
+				title = 'Confirm Category Deletion';
+				description = `Are you sure you want to permanently delete "${categoryData.name} (${categoryData.ticker})"? This action cannot be undone.`;
+				actionText = 'Delete Category';
 				break;
 		}
 		setDialogDetails({ title, description, actionText });
@@ -198,46 +154,69 @@ export default function AdminSingleCategoriesPage() {
 	};
 
 	const executeConfirmedAction = async () => {
-		if (!assetData || !confirmAction) return;
+		if (!categoryData || !confirmAction) return;
 		setIsProcessingAction(true);
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		nProgress.start();
 
-		let newStatus: AssetDefinition['status'] = assetData.status;
-		let toastMessage = '';
+		try {
+			let response;
+			let toastMessage = '';
 
-		if (confirmAction === 'lock') {
-			newStatus = 'Locked';
-			toastMessage = `Asset "${assetData.name}" has been locked.`;
-		} else if (confirmAction === 'unlock') {
-			newStatus = 'Active';
-			toastMessage = `Asset "${assetData.name}" has been unlocked.`;
-		} else if (confirmAction === 'delist') {
-			newStatus = 'Delisted';
-			toastMessage = `Asset "${assetData.name}" has been delisted.`;
+			if (confirmAction === 'lock' || confirmAction === 'unlock') {
+				const newLockedStatus = confirmAction === 'lock';
+				const formData = new FormData();
+				formData.append('is_locked', newLockedStatus.toString());
+
+				response = await fetch(`/api/admin/categories/${categoryData.id}`, {
+					method: 'PUT',
+					body: formData,
+				});
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.message || `Failed to ${confirmAction} category.`);
+				}
+				const updatedCategory = await response.json();
+				setCategoryData(updatedCategory.data);
+				toastMessage = `Category "${categoryData.name}" has been ${newLockedStatus ? 'locked' : 'unlocked'}.`;
+				toast.success(toastMessage);
+			} else if (confirmAction === 'delete') {
+				response = await fetch(`/api/admin/categories/${categoryData.id}`, {
+					method: 'DELETE',
+				});
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.message || 'Failed to delete category.');
+				}
+				toastMessage = `Category "${categoryData.name}" has been deleted.`;
+				toast.success(toastMessage);
+				router.push('/admin/categories');
+			}
+		} catch (apiError) {
+			console.error(`Failed to ${confirmAction} category:`, apiError);
+			toast.error((apiError as Error).message || `Could not ${confirmAction} category. Please try again.`);
+			if (categoryIdentifier && confirmAction !== 'delete') {
+				fetchCategory(categoryIdentifier);
+			}
+		} finally {
+			setIsProcessingAction(false);
+			setShowConfirmDialog(false);
+			setConfirmAction(null);
+			nProgress.done();
 		}
-
-		const updatedAsset = { ...assetData, status: newStatus, statusReason: newStatus !== 'Active' ? `Manually ${newStatus.toLowerCase()} by admin` : '' };
-		assetDetailsMock[slug] = updatedAsset;
-		setAssetData(updatedAsset);
-		toast.success(toastMessage);
-
-		if (confirmAction === 'delist') {
-			// router.push('/admin/assets');
-		}
-
-		setIsProcessingAction(false);
-		setShowConfirmDialog(false);
-		setConfirmAction(null);
 	};
 
-	const formatUSD = (amount: number, precision = 2) => {
-		// Correctly named function
+	const formatUSD = (amount: number | undefined | null, precision = 2): string => {
+		if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
 		return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: precision, maximumFractionDigits: precision }).format(amount);
 	};
-	const formatNumber = (amount: number, options?: Intl.NumberFormatOptions) => {
+
+	const formatNumber = (amount: number | undefined | null, options?: Intl.NumberFormatOptions): string => {
+		if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
 		return new Intl.NumberFormat('en-US', options).format(amount);
 	};
-	const PriceChangeIndicator = ({ value }: { value: number }) => {
+
+	const PriceChangeIndicator = ({ value }: { value: number | undefined | null }) => {
+		if (value === undefined || value === null || isNaN(value)) return <span className="text-sm text-muted-foreground">N/A</span>;
 		const isPositive = value >= 0;
 		return (
 			<span className={`flex items-center text-sm ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -246,27 +225,48 @@ export default function AdminSingleCategoriesPage() {
 			</span>
 		);
 	};
-	const getStatusBadgeVariant = (status: AssetDefinition['status']): 'default' | 'secondary' | 'destructive' => {
+
+	type CategoryDisplayStatus = 'Active' | 'Locked' | 'Not Launched';
+	const getCategoryDisplayStatus = (cat: Category): CategoryDisplayStatus => {
+		if (cat.is_locked) return 'Locked';
+		if (cat.is_launched === false) return 'Not Launched'; // Check explicitly for false
+		return 'Active';
+	};
+
+	const getStatusBadgeVariant = (status: CategoryDisplayStatus): 'default' | 'secondary' | 'destructive' => {
 		switch (status) {
 			case 'Active':
 				return 'default';
 			case 'Locked':
-				return 'secondary';
-			case 'Delisted':
 				return 'destructive';
+			case 'Not Launched':
+				return 'secondary'; // Changed 'warning' to 'secondary'
 			default:
 				return 'secondary';
 		}
 	};
 
-	if (isLoading || !assetData) {
+	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center h-[calc(100vh-200px)]">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
-				<p className="ml-4 text-lg text-muted-foreground">Loading asset details...</p>
+				<p className="ml-4 text-lg text-muted-foreground">Loading category details...</p>
 			</div>
 		);
 	}
+
+	if (error || !categoryData) {
+		return (
+			<div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+				<Info className="h-12 w-12 text-destructive mb-4" />
+				<p className="text-xl text-muted-foreground">{error || 'Category not found or failed to load.'}</p>
+				<Button onClick={() => router.push('/admin/categories')} className="mt-4">
+					Back to Categories
+				</Button>
+			</div>
+		);
+	}
+	const displayStatus = getCategoryDisplayStatus(categoryData);
 
 	return (
 		<TooltipProvider>
@@ -275,39 +275,36 @@ export default function AdminSingleCategoriesPage() {
 				<Card className="overflow-hidden">
 					<CardHeader className="flex flex-row items-start gap-4 bg-muted/30 dark:bg-background/20 p-4 md:p-6">
 						<div className="flex-shrink-0">
-							<Image src={assetData.logoUrl} alt={`${assetData.name} logo`} width={64} height={64} className="rounded-md aspect-square object-contain border bg-background" />
+							{categoryData.image ? (
+								<Image src={categoryData.image} alt={`${categoryData.name} logo`} width={64} height={64} className="rounded-md aspect-square object-cover border bg-background" unoptimized />
+							) : (
+								<div className="h-16 w-16 bg-muted rounded-md flex items-center justify-center text-muted-foreground border">
+									<ImageOff size={32} />
+								</div>
+							)}
 						</div>
 						<div className="flex-1">
 							<div className="flex flex-col sm:flex-row justify-between sm:items-start">
 								<div>
 									<CardTitle className="text-2xl md:text-3xl font-bold">
-										{assetData.name} ({assetData.symbol})
+										{categoryData.name} ({categoryData.ticker})
 									</CardTitle>
-									<CardDescription className="text-sm text-muted-foreground mt-1">{assetData.description}</CardDescription>
+									<CardDescription className="text-sm text-muted-foreground mt-1">{categoryData.description || 'No description available.'}</CardDescription>
 								</div>
 								<Badge
-									variant={getStatusBadgeVariant(assetData.status)}
+									variant={getStatusBadgeVariant(displayStatus)}
 									className={`text-xs md:text-sm px-2.5 py-1 mt-2 sm:mt-0 whitespace-nowrap self-start sm:self-auto ${
-										assetData.status === 'Active'
+										displayStatus === 'Active'
 											? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700'
-											: assetData.status === 'Locked'
-											? 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-400 dark:border-yellow-700'
-											: assetData.status === 'Delisted'
+											: displayStatus === 'Locked'
 											? 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-400 dark:border-red-700'
+											: displayStatus === 'Not Launched'
+											? 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-400 dark:border-yellow-700'
 											: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700'
 									}`}
 								>
-									Status: {assetData.status}
-									{(assetData.status === 'Locked' || assetData.status === 'Delisted') && assetData.statusReason && (
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<Info className="h-3 w-3 ml-1.5 cursor-help opacity-70" />
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>{assetData.statusReason}</p>
-											</TooltipContent>
-										</Tooltip>
-									)}
+									Status: {displayStatus}
+									{/* TODO: Add tooltip for status reason if API provides it e.g. categoryData.status_reason */}
 								</Badge>
 							</div>
 						</div>
@@ -315,30 +312,28 @@ export default function AdminSingleCategoriesPage() {
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="ghost" size="icon" className="h-8 w-8">
-										<MoreHorizontal className="h-4 w-4" /> <span className="sr-only">Asset Actions</span>
+										<MoreHorizontal className="h-4 w-4" /> <span className="sr-only">Category Actions</span>
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
 									<DropdownMenuLabel>Admin Actions</DropdownMenuLabel>
 									<DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
-										<Edit3 className="mr-2 h-4 w-4" /> Edit Details
+										<Edit3 className="mr-2 h-4 w-4" /> Edit Category
 									</DropdownMenuItem>
-									{assetData.status === 'Active' && (
+									{!categoryData.is_locked && (
 										<DropdownMenuItem onClick={() => prepareConfirmAction('lock')} className="cursor-pointer">
-											<Lock className="mr-2 h-4 w-4" /> Lock Asset
+											<Lock className="mr-2 h-4 w-4" /> Lock Category
 										</DropdownMenuItem>
 									)}
-									{assetData.status === 'Locked' && (
+									{categoryData.is_locked && (
 										<DropdownMenuItem onClick={() => prepareConfirmAction('unlock')} className="cursor-pointer">
-											<Unlock className="mr-2 h-4 w-4" /> Unlock Asset
+											<Unlock className="mr-2 h-4 w-4" /> Unlock Category
 										</DropdownMenuItem>
 									)}
-									{assetData.status !== 'Delisted' && <DropdownMenuSeparator />}
-									{assetData.status !== 'Delisted' && (
-										<DropdownMenuItem onClick={() => prepareConfirmAction('delist')} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-											<Trash2 className="mr-2 h-4 w-4" /> Delist Asset
-										</DropdownMenuItem>
-									)}
+									<DropdownMenuSeparator />
+									<DropdownMenuItem onClick={() => prepareConfirmAction('delete')} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
+										<Trash2 className="mr-2 h-4 w-4" /> Delete Category
+									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
@@ -347,53 +342,64 @@ export default function AdminSingleCategoriesPage() {
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Key Asset Metrics (Simulated)</CardTitle>
+						<CardTitle>Key Category Metrics</CardTitle>
 					</CardHeader>
 					<CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
 						{[
-							{ label: 'Current Price', value: formatUSD(assetData.metrics.currentPriceUSD), size: 'large' },
-							{ label: '24h Change', value: <PriceChangeIndicator value={assetData.metrics.priceChange24hPercent} /> },
-							{ label: '7d Change', value: <PriceChangeIndicator value={assetData.metrics.priceChange7dPercent} /> },
-							{ label: '30d Change', value: <PriceChangeIndicator value={assetData.metrics.priceChange30dPercent} /> },
-							{ label: '24h Volume', value: formatUSD(assetData.metrics.volume24hUSD, 0) },
-							{ label: 'Liquidity (TVL)', value: formatUSD(assetData.metrics.liquidityUSD, 0), tooltip: 'Total Value Locked in simulated liquidity pools.' },
-							{ label: 'Market Cap', value: formatUSD(assetData.metrics.marketCapUSD, 0) },
-							{ label: 'Circulating Supply', value: formatNumber(assetData.metrics.circulatingSupply) + ' ' + assetData.symbol },
-							{ label: 'Total Supply', value: formatNumber(assetData.metrics.totalSupply) + ' ' + assetData.symbol },
-							{ label: 'Holders', value: formatNumber(assetData.metrics.holdersCount) },
-						].map((metric) => (
-							<div key={metric.label} className={`p-4 bg-muted/20 dark:bg-background/40 rounded-lg border ${metric.size === 'large' ? 'md:col-span-1 lg:row-span-2 flex flex-col justify-center' : ''}`}>
-								<div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
-									<span>{metric.label}</span>
-									{metric.tooltip && (
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<Info className="h-3.5 w-3.5 cursor-help opacity-60" />
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>{metric.tooltip}</p>
-											</TooltipContent>
-										</Tooltip>
-									)}
+							{ label: 'Current Price', value: formatUSD(categoryData.current_price_per_unit), size: 'large' },
+							{ label: 'Quantity (Total Supply)', value: formatNumber(categoryData.quantity) },
+							{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply) + (categoryData.ticker ? ` ${categoryData.ticker}` : '') },
+							{ label: 'Market Cap', value: formatUSD(categoryData.market_cap, 0), tooltip: 'Calculated: Price * Circulating Supply' },
+							{ label: 'Total Liquidity', value: formatUSD(categoryData.total_liquidity, 0) },
+							{ label: 'Holders', value: formatNumber(categoryData.holders) },
+							{ label: 'Fee (%)', value: categoryData.fee !== null && categoryData.fee !== undefined ? `${categoryData.fee}%` : 'N/A' },
+							{ label: 'Volatility Factor', value: categoryData.volatility_factor !== null && categoryData.volatility_factor !== undefined ? categoryData.volatility_factor.toString() : 'N/A' },
+							{ label: 'Admin Target Multiplier', value: categoryData.admin_target_multiplier !== null && categoryData.admin_target_multiplier !== undefined ? categoryData.admin_target_multiplier.toString() : 'N/A' },
+							{ label: '24h Change', value: <PriceChangeIndicator value={categoryData.priceChange24hPercent} /> },
+							{ label: '7d Change', value: <PriceChangeIndicator value={categoryData.priceChange7dPercent} /> },
+							{ label: '30d Change', value: <PriceChangeIndicator value={categoryData.priceChange30dPercent} /> },
+							{ label: '24h Volume', value: formatUSD(categoryData.volume24hUSD, 0) },
+							{ label: 'Created At', value: new Date(categoryData.created_at).toLocaleDateString() },
+							{ label: 'Last Updated', value: categoryData.updated_at ? new Date(categoryData.updated_at).toLocaleDateString() : 'N/A' },
+						]
+							.filter((metric) => metric.value !== undefined)
+							.map((metric) => (
+								<div key={metric.label} className={`p-4 bg-muted/20 dark:bg-background/40 rounded-lg border ${metric.size === 'large' ? 'md:col-span-1 lg:row-span-2 flex flex-col justify-center' : ''}`}>
+									<div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+										<span>{metric.label}</span>
+										{metric.tooltip && (
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Info className="h-3.5 w-3.5 cursor-help opacity-60" />
+												</TooltipTrigger>
+												<TooltipContent>
+													<p>{metric.tooltip}</p>
+												</TooltipContent>
+											</Tooltip>
+										)}
+									</div>
+									<p className={`font-semibold ${metric.size === 'large' ? 'text-3xl' : 'text-xl'}`}>{metric.value}</p>
 								</div>
-								<p className={`font-semibold ${metric.size === 'large' ? 'text-3xl' : 'text-xl'}`}>{metric.value}</p>
-							</div>
-						))}
+							))}
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Historical Performance (Simulated)</CardTitle>
+						<CardTitle>Historical Performance</CardTitle>
 					</CardHeader>
 					<CardContent>
+						{/* TODO: InvestmentPerformanceChart needs actual data for the category */}
 						<InvestmentPerformanceChart />
+						<p className="text-sm text-muted-foreground mt-2 text-center">Historical performance chart data is not yet connected for this category.</p>
 					</CardContent>
 				</Card>
 
 				<div className="mt-8">
-					<h2 className="text-2xl font-semibold mb-4">Simulated Transaction Ledger for {assetData.symbol}</h2>
-					<TransactionHistoryTable transactions={assetTransactionHistoryMock.map((tx) => ({ ...tx, type: tx.type.includes(assetData.symbol) ? tx.type : `${tx.type} (General)` }))} showMyTransactionsToggle={false} />
+					<h2 className="text-2xl font-semibold mb-4">Transaction Ledger for {categoryData.ticker}</h2>
+					{/* TODO: TransactionHistoryTable needs actual transaction data for the category */}
+					<TransactionHistoryTable transactions={assetTransactionHistoryMock.map((tx) => ({ ...tx, type: tx.type.replace('Ticker', categoryData.ticker).replace('TICK', categoryData.ticker) }))} showMyTransactionsToggle={false} />
+					<p className="text-sm text-muted-foreground mt-2 text-center">Transaction history data is not yet connected for this category.</p>
 				</div>
 			</div>
 
@@ -407,9 +413,9 @@ export default function AdminSingleCategoriesPage() {
 						<AlertDialogCancel onClick={() => setConfirmAction(null)} disabled={isProcessingAction}>
 							Cancel
 						</AlertDialogCancel>
-						<AlertDialogAction onClick={executeConfirmedAction} disabled={isProcessingAction} className={confirmAction === 'delist' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}>
+						<AlertDialogAction onClick={executeConfirmedAction} disabled={isProcessingAction} className={confirmAction === 'delete' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}>
 							{isProcessingAction ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-							{isProcessingAction ? 'Processing...' : dialogDetails.actionText}
+							{isProcessingAction ? `${confirmAction === 'delete' ? 'Deleting' : 'Processing'}...` : dialogDetails.actionText}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

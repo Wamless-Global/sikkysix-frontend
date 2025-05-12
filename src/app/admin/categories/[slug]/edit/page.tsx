@@ -1,269 +1,208 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import NProgress from 'nprogress';
-import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form'; // Removed Controller, not used directly for file input like this
+import { Loader2, ImageOff as ImageIcon } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch'; // Added for consistency if other fields need it, though not directly for image
+import { Switch } from '@/components/ui/switch';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import Image from 'next/image';
+import { generateSlug } from '@/lib/helpers';
 
-// Constants from create page for image handling
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-type AssetMetricDetails = {
-	currentPriceUSD: number;
-	priceChange24hPercent: number;
-	priceChange7dPercent: number;
-	priceChange30dPercent: number;
-	volume24hUSD: number;
-	liquidityUSD: number;
-	marketCapUSD: number;
-	totalSupply: number;
-	circulatingSupply: number;
-	holdersCount: number;
-};
-
-type AssetSimulatedParameters = {
-	volatilityFactor: number;
-	baseTransactionFee: number;
-};
-
-type AssetDefinition = {
+interface Category {
 	id: string;
-	slug: string;
 	name: string;
-	symbol: string;
-	description: string;
-	logoUrl: string;
-	status: 'Active' | 'Locked' | 'Delisted';
-	statusReason?: string;
-	metrics: AssetMetricDetails;
-	simulatedParameters: AssetSimulatedParameters;
-};
+	description?: string | null;
+	ticker: string;
+	is_locked: boolean;
+	is_launched?: boolean;
+	current_price_per_unit: number;
+	quantity: number;
+	total_liquidity: number;
+	admin_target_multiplier?: number | null;
+	image?: string | null;
+	fee?: number | null;
+	volatility_factor?: number | null;
+}
 
-type AssetDetailsMock = {
-	[key: string]: AssetDefinition;
-};
+interface SingleCategoryResponse {
+	status: string;
+	data: Category;
+}
 
-const assetDetailsMock: AssetDetailsMock = {
-	'eth-usd': {
-		id: 'asset_eth_001',
-		slug: 'eth-usd',
-		name: 'Simulated Ethereum',
-		symbol: 'sETH',
-		description: 'A simulated version of Ethereum for testing and educational purposes.',
-		logoUrl: '/crypto_logos/eth.png',
-		status: 'Active',
-		metrics: { currentPriceUSD: 2050.75, priceChange24hPercent: 2.5, priceChange7dPercent: -1.2, priceChange30dPercent: 15.8, volume24hUSD: 12500000, liquidityUSD: 50000000, marketCapUSD: 246000000000, totalSupply: 120000000, circulatingSupply: 120000000, holdersCount: 15203 },
-		simulatedParameters: { volatilityFactor: 0.03, baseTransactionFee: 0.0005 },
-	},
-	'btc-usd': {
-		id: 'asset_btc_002',
-		slug: 'btc-usd',
-		name: 'Simulated Bitcoin',
-		symbol: 'sBTC',
-		description: 'A simulated version of Bitcoin.',
-		logoUrl: '/crypto_logos/btc.png',
-		status: 'Active',
-		metrics: { currentPriceUSD: 30100.2, priceChange24hPercent: -0.8, priceChange7dPercent: 3.1, priceChange30dPercent: 8.2, volume24hUSD: 25000000, liquidityUSD: 100000000, marketCapUSD: 580000000000, totalSupply: 21000000, circulatingSupply: 19500000, holdersCount: 8750 },
-		simulatedParameters: { volatilityFactor: 0.02, baseTransactionFee: 0.0002 },
-	},
-	'sol-usd': {
-		id: 'asset_sol_003',
-		slug: 'sol-usd',
-		name: 'Simulated Solana',
-		symbol: 'sSOL',
-		description: 'Experience Solana in a simulated setting.',
-		logoUrl: '/crypto_logos/sol.png',
-		status: 'Locked',
-		statusReason: 'Network upgrade simulation',
-		metrics: { currentPriceUSD: 22.5, priceChange24hPercent: 0.1, priceChange7dPercent: -5.5, priceChange30dPercent: 25.0, volume24hUSD: 8000000, liquidityUSD: 30000000, marketCapUSD: 9000000000, totalSupply: 500000000, circulatingSupply: 400000000, holdersCount: 6100 },
-		simulatedParameters: { volatilityFactor: 0.05, baseTransactionFee: 0.00001 },
-	},
-};
-
-const assetEditFormSchema = z.object({
+const categoryEditFormSchema = z.object({
 	name: z.string().min(3, { message: 'Name must be at least 3 characters.' }).max(50, { message: 'Name must not exceed 50 characters.' }),
-	symbol: z
+	ticker: z
 		.string()
-		.min(2, { message: 'Symbol must be at least 2 characters.' })
-		.max(10, { message: 'Symbol must not exceed 10 characters.' })
-		.regex(/^[a-zA-Z0-9]+$/, { message: 'Symbol must be alphanumeric.' }),
-	description: z.string().max(500, { message: 'Description must not exceed 500 characters.' }).optional().nullable(),
-	image: z // Changed from logoUrl to image
-		.instanceof(File, { message: 'Image is required.' })
+		.min(2, { message: 'Ticker must be at least 2 characters.' })
+		.max(10, { message: 'Ticker must not exceed 10 characters.' })
+		.regex(/^[A-Z0-9]+$/, { message: 'Ticker must be uppercase alphanumeric.' }),
+	description: z.string().max(255, { message: 'Description must not exceed 255 characters.' }).optional().nullable(),
+	imageFile: z // New field for the uploaded file
+		.instanceof(File)
 		.optional()
 		.nullable()
 		.refine((file) => !file || file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
 		.refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), 'Only .jpg, .jpeg, .png and .webp formats are supported.'),
-	simulatedParameters: z.object({
-		volatilityFactor: z.coerce.number().min(0).max(1, { message: 'Volatility must be between 0 and 1.' }),
-		baseTransactionFee: z.coerce.number().min(0),
-	}),
+	is_locked: z.boolean().default(false),
+	is_launched: z.boolean().default(true),
+	current_price_per_unit: z.coerce.number({ invalid_type_error: 'Price must be a number.' }).nonnegative({ message: 'Price must be non-negative.' }),
+	quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }),
+	total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }),
+	admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).optional().nullable(),
+	fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
+	volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
 });
 
-type AssetEditFormValues = z.infer<typeof assetEditFormSchema>;
+type CategoryEditFormValues = z.infer<typeof categoryEditFormSchema>;
 
-export default function EditAssetPage() {
+export default function EditCategoryPage() {
 	const router = useRouter();
 	const params = useParams<{ slug: string }>();
-	const slug = params?.slug;
+	const [categoryId, setCategoryId] = useState(params?.slug);
 
-	const [assetData, setAssetData] = useState<AssetDefinition | null>(null);
+	const [initialCategoryData, setInitialCategoryData] = useState<Category | null>(null);
 	const [isLoadingData, setIsLoadingData] = useState(true);
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-	const form = useForm<AssetEditFormValues>({
-		resolver: zodResolver(assetEditFormSchema) as any,
-		defaultValues: {
-			name: '',
-			symbol: '',
-			description: null,
-			image: undefined, // Changed from logoUrl
-			simulatedParameters: {
-				volatilityFactor: 0.05,
-				baseTransactionFee: 0.001,
-			},
-		},
+	const form = useForm<CategoryEditFormValues>({
+		resolver: zodResolver(categoryEditFormSchema) as any,
 		mode: 'onChange',
 	});
 
 	const {
 		formState: { isSubmitting },
-		watch, // Added watch
-		reset, // Added reset for easier access
+		watch,
+		reset,
+		setValue,
 	} = form;
 
-	const imageFile = watch('image');
+	const imageFileWatcher = watch('imageFile');
 
 	useEffect(() => {
-		if (imageFile && imageFile instanceof File) {
-			const objectUrl = URL.createObjectURL(imageFile);
+		if (imageFileWatcher && imageFileWatcher instanceof File) {
+			const objectUrl = URL.createObjectURL(imageFileWatcher);
 			setImagePreview(objectUrl);
 			return () => URL.revokeObjectURL(objectUrl);
-		} else if (!imageFile && assetData?.logoUrl) {
-			// If imageFile is cleared and there was an original logoUrl, show that
-			setImagePreview(assetData.logoUrl);
-		} else if (!imageFile) {
+		} else if (!imageFileWatcher && initialCategoryData?.image) {
+			setImagePreview(initialCategoryData.image); // Show existing image if no new one selected
+		} else if (!imageFileWatcher) {
 			setImagePreview(null);
 		}
-	}, [imageFile, assetData?.logoUrl]);
+	}, [imageFileWatcher, initialCategoryData?.image]);
+
+	const fetchCategoryDetails = useCallback(
+		async (id: string) => {
+			setIsLoadingData(true);
+			NProgress.start();
+			try {
+				const response = await fetch(`/api/admin/categories/${id}`);
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(errorData.message || `Failed to fetch category details: ${response.statusText}`);
+				}
+				const result: SingleCategoryResponse = await response.json();
+				if (result.status === 'success' && result.data) {
+					setInitialCategoryData(result.data);
+					reset({
+						name: result.data.name,
+						ticker: result.data.ticker,
+						description: result.data.description || null,
+						imageFile: undefined, // Don't prefill file input
+						is_locked: result.data.is_locked,
+						is_launched: result.data.is_launched === undefined ? true : result.data.is_launched,
+						current_price_per_unit: result.data.current_price_per_unit,
+						quantity: result.data.quantity,
+						total_liquidity: result.data.total_liquidity,
+						admin_target_multiplier: result.data.admin_target_multiplier || null,
+						fee: result.data.fee || null,
+						volatility_factor: result.data.volatility_factor || null,
+					});
+					if (result.data.image) {
+						setImagePreview(result.data.image);
+					}
+					setCategoryId(result.data.id);
+				} else {
+					throw new Error(result.data?.toString() || 'Category data is invalid.');
+				}
+			} catch (error) {
+				console.error('Error fetching category:', error);
+				toast.error((error as Error).message || 'Could not load category for editing.');
+				router.push('/admin/categories');
+			} finally {
+				setIsLoadingData(false);
+				NProgress.done();
+			}
+		},
+		[router, reset]
+	);
 
 	useEffect(() => {
-		if (slug) {
-			setIsLoadingData(true);
-			// Simulate API call
-			setTimeout(() => {
-				const currentAsset = assetDetailsMock[slug];
-				if (currentAsset) {
-					setAssetData(currentAsset);
-					reset({
-						// Use reset from form
-						name: currentAsset.name,
-						symbol: currentAsset.symbol,
-						description: currentAsset.description || null,
-						image: undefined, // Image file is not part of reset data from server directly
-						simulatedParameters: {
-							volatilityFactor: currentAsset.simulatedParameters.volatilityFactor || 0.05,
-							baseTransactionFee: currentAsset.simulatedParameters.baseTransactionFee || 0.001,
-						},
-					});
-					if (currentAsset.logoUrl) {
-						setImagePreview(currentAsset.logoUrl); // Set initial preview from existing URL
-					} else {
-						setImagePreview(null);
-					}
-				} else {
-					toast.error(`Category "${slug}" not found for editing.`); // Changed Asset to Category
-					router.push('/admin/categories'); // Changed /admin/assets to /admin/categories
-				}
-				setIsLoadingData(false);
-			}, 300);
+		if (categoryId) {
+			fetchCategoryDetails(categoryId);
 		} else {
-			toast.error('No category specified for editing.'); // Changed Asset to Category
-			router.push('/admin/categories'); // Changed /admin/assets to /admin/categories
-			setIsLoadingData(false);
+			toast.error('No category ID specified for editing.');
+			router.push('/admin/categories');
 		}
-	}, [slug, router, reset]); // Added reset to dependency array
+	}, [categoryId, fetchCategoryDetails, router]);
 
-	async function onSubmit(data: AssetEditFormValues) {
-		if (!assetData) {
-			toast.error('Category data not loaded. Cannot save.'); // Changed Asset to Category
+	async function onSubmit(data: CategoryEditFormValues) {
+		if (!categoryId) {
+			toast.error('Category ID is missing. Cannot save.');
 			return;
 		}
 		NProgress.start();
-
 		const formData = new FormData();
 
-		// Append all fields except image first
+		// Append all fields from 'data' except 'imageFile'
 		Object.entries(data).forEach(([key, value]) => {
-			if (key === 'image') {
-				// Handle image separately
+			if (key === 'imageFile') {
 				if (value instanceof File) {
-					formData.append(key, value);
+					formData.append('image', value);
 				}
-			} else if (key === 'simulatedParameters' && typeof value === 'object' && value !== null) {
-				// Flatten simulatedParameters for FormData
-				Object.entries(value).forEach(([simKey, simValue]) => {
-					if (simValue !== null && simValue !== undefined) {
-						formData.append(`simulatedParameters.${simKey}`, String(simValue));
-					}
-				});
 			} else if (value !== null && value !== undefined) {
 				formData.append(key, String(value));
 			}
 		});
 
-		if (data.symbol) {
-			formData.set('symbol', data.symbol.toUpperCase());
-		}
-
-		// If no new image is selected, and we need to inform the backend to keep the old one,
-		// we might not need to append anything for 'image'.
-		// If the backend expects 'logoUrl' to be sent if image is unchanged:
-		// if (!(data.image instanceof File) && assetData.logoUrl) {
-		// formData.append('logoUrl', assetData.logoUrl);
-		// }
-
-		console.log('Submitting FormData:', Object.fromEntries(formData.entries())); // For debugging
-
-		// Mock API call (replace with actual fetch)
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		// Ensure boolean values are sent correctly
+		formData.set('is_locked', String(data.is_locked));
+		formData.set('is_launched', String(data.is_launched));
 
 		try {
-			// This part is mock, actual implementation would involve a PUT/PATCH request with formData
-			const updatedAssetInMock: AssetDefinition = {
-				...assetData,
-				name: data.name,
-				symbol: data.symbol.toUpperCase(),
-				description: data.description || '',
-				// If a new image was uploaded, the backend would update logoUrl.
-				// For mock, if imageFile exists, we'd ideally generate a fake new URL or skip updating logoUrl here.
-				// For simplicity, we'll assume the backend handles it. If imageFile is present, logoUrl might change.
-				// If not, assetData.logoUrl remains.
-				logoUrl: data.image instanceof File ? `/uploads/${(data.image as File).name}` : assetData.logoUrl, // Mocking new URL path
-				simulatedParameters: {
-					volatilityFactor: Number(data.simulatedParameters.volatilityFactor),
-					baseTransactionFee: Number(data.simulatedParameters.baseTransactionFee),
-				},
-			};
-			assetDetailsMock[slug as string] = updatedAssetInMock;
+			const response = await fetch(`/api/admin/categories/${categoryId}`, {
+				method: 'PUT',
+				body: formData,
+				credentials: 'include',
+			});
 
-			toast.success(`Category "${updatedAssetInMock.name}" updated successfully!`); // Changed Asset to Category
-			NProgress.start();
-			router.push(`/admin/categories/${slug}`); // Changed /admin/assets to /admin/categories
+			if (response.ok) {
+				const responseData = await response.json();
+				toast.success(`Category "${responseData.data?.name || data.name}" updated successfully!`);
+				NProgress.start();
+				router.push(`/admin/categories/${categoryId}`);
+			} else {
+				let errorMessage = `Failed to update category. Status: ${response.status}`;
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.message || errorData.detail || errorMessage;
+				} catch (e) {}
+				toast.error(errorMessage);
+			}
 		} catch (error) {
-			console.error('Error updating category:', error); // Changed Asset to Category
+			console.error('Error updating category:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 		} finally {
 			NProgress.done();
@@ -274,13 +213,13 @@ export default function EditAssetPage() {
 		return (
 			<div className="flex items-center justify-center h-[calc(100vh-200px)]">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
-				<p className="ml-4 text-lg text-muted-foreground">Loading asset data for editing...</p>
+				<p className="ml-4 text-lg text-muted-foreground">Loading category data for editing...</p>
 			</div>
 		);
 	}
 
-	if (!assetData) {
-		return <p className="text-center text-destructive p-8">Asset not found.</p>;
+	if (!initialCategoryData) {
+		return <p className="text-center text-destructive p-8">Category not found or failed to load.</p>;
 	}
 
 	return (
@@ -288,14 +227,15 @@ export default function EditAssetPage() {
 			<Breadcrumbs />
 			<Card>
 				<CardHeader>
-					<CardTitle>Edit Category: {assetData.name}</CardTitle> {/* Changed Asset to Category */}
+					<CardTitle>Edit Category: {initialCategoryData.name}</CardTitle>
 					<CardDescription>
-						Modify the details for the category. Fields marked with <span className="text-destructive">*</span> are required. {/* Changed simulated crypto asset to category */}
+						Modify the details for the category. Fields marked with <span className="text-destructive">*</span> are required.
 					</CardDescription>
 				</CardHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<CardContent className="space-y-6">
+							{/* Name and Ticker */}
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<FormField
 									control={form.control}
@@ -303,7 +243,7 @@ export default function EditAssetPage() {
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>
-												Category Name <span className="text-destructive">*</span>
+												Name <span className="text-destructive">*</span>
 											</FormLabel>
 											<FormControl>
 												<Input placeholder="e.g., Technology Stocks" {...field} disabled={isSubmitting} />
@@ -314,7 +254,7 @@ export default function EditAssetPage() {
 								/>
 								<FormField
 									control={form.control}
-									name="symbol"
+									name="ticker"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>
@@ -323,12 +263,14 @@ export default function EditAssetPage() {
 											<FormControl>
 												<Input placeholder="e.g., TECH" {...field} onChange={(e) => field.onChange(e.target.value.toUpperCase())} disabled={isSubmitting} />
 											</FormControl>
-											<FormDescription>2-10 alphanumeric characters (will be uppercased).</FormDescription>
+											<FormDescription>Min 2, Max 10 uppercase alphanumeric.</FormDescription>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
 							</div>
+
+							{/* Description */}
 							<FormField
 								control={form.control}
 								name="description"
@@ -336,15 +278,17 @@ export default function EditAssetPage() {
 									<FormItem>
 										<FormLabel>Description</FormLabel>
 										<FormControl>
-											<Textarea placeholder="A brief description of the category (max 500 characters)" {...field} value={field.value ?? ''} disabled={isSubmitting} rows={4} />
+											<Textarea placeholder="Optional: A brief description (max 255 characters)" {...field} value={field.value ?? ''} disabled={isSubmitting} rows={3} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
+
+							{/* Image Upload */}
 							<FormField
 								control={form.control}
-								name="image" // Changed from logoUrl to image
+								name="imageFile"
 								render={({ field: { onChange, value, ...restField } }) => (
 									<FormItem>
 										<FormLabel>Category Image</FormLabel>
@@ -352,52 +296,151 @@ export default function EditAssetPage() {
 											<Input
 												type="file"
 												accept={ACCEPTED_IMAGE_TYPES.join(',')}
-												onChange={(event) => {
-													onChange(event.target.files ? event.target.files[0] : null);
-												}}
+												onChange={(event) => onChange(event.target.files ? event.target.files[0] : null)}
 												{...restField}
 												className="pt-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
 												disabled={isSubmitting}
 											/>
 										</FormControl>
-										<FormDescription>{imageFile instanceof File ? imageFile.name : 'Current image will be kept if no new file is chosen. Max 2MB. JPG, PNG, WEBP.'}</FormDescription>
+										<FormDescription>{imageFileWatcher instanceof File ? imageFileWatcher.name : 'Current image will be kept if no new file is chosen. Max 2MB. JPG, PNG, WEBP.'}</FormDescription>
 										<FormMessage />
 										{imagePreview && (
 											<div className="mt-2">
-												<img src={imagePreview} alt="Image preview" className="h-32 w-32 object-cover rounded-md border" />
+												<Image src={imagePreview} alt="Image preview" width={128} height={128} className="h-32 w-32 object-cover rounded-md border" />
+											</div>
+										)}
+										{!imagePreview && (
+											<div className="mt-2 h-32 w-32 bg-muted rounded-md flex items-center justify-center text-muted-foreground border">
+												<ImageIcon size={48} />
 											</div>
 										)}
 									</FormItem>
 								)}
 							/>
 
-							<CardTitle className="text-lg pt-4 border-t">Simulated Parameters</CardTitle>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								{/* Current Price Per Unit */}
 								<FormField
 									control={form.control}
-									name="simulatedParameters.volatilityFactor"
+									name="current_price_per_unit"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Current Price Per Unit</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Quantity */}
+								<FormField
+									control={form.control}
+									name="quantity"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Quantity</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Total Liquidity */}
+								<FormField
+									control={form.control}
+									name="total_liquidity"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Total Liquidity</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Admin Target Multiplier */}
+								<FormField
+									control={form.control}
+									name="admin_target_multiplier"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Admin Target Multiplier</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Target multiplier for admin.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								{/* Fee */}
+								<FormField
+									control={form.control}
+									name="fee"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Fee (%)</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.5" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Transaction fee percentage.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Volatility Factor */}
+								<FormField
+									control={form.control}
+									name="volatility_factor"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Volatility Factor</FormLabel>
 											<FormControl>
-												<Input type="number" min="0" max="1" step="0.01" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
 											</FormControl>
-											<FormDescription>A value between 0 and 1 influencing price fluctuations.</FormDescription>
+											<FormDescription>Optional: Factor for market volatility.</FormDescription>
 											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							{/* Switches: Is Locked & Is Launched */}
+							<div className="space-y-4 pt-4 border-t">
+								<FormField
+									control={form.control}
+									name="is_locked"
+									render={({ field }) => (
+										<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+											<div className="space-y-0.5">
+												<FormLabel>Is Locked?</FormLabel>
+												<FormDescription>Prevent users from interacting with this category.</FormDescription>
+											</div>
+											<FormControl>
+												<Switch checked={field.value} onCheckedChange={field.onChange} disabled={isSubmitting} />
+											</FormControl>
 										</FormItem>
 									)}
 								/>
 								<FormField
 									control={form.control}
-									name="simulatedParameters.baseTransactionFee"
+									name="is_launched"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Base Transaction Fee (Asset Units)</FormLabel>
+										<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+											<div className="space-y-0.5">
+												<FormLabel>Is Launched?</FormLabel>
+												<FormDescription>Make this category visible and available to users.</FormDescription>
+											</div>
 											<FormControl>
-												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+												<Switch checked={field.value} onCheckedChange={field.onChange} disabled={isSubmitting} />
 											</FormControl>
-											<FormDescription>Fee charged per simulated transaction in the asset's own units.</FormDescription>
-											<FormMessage />
 										</FormItem>
 									)}
 								/>
@@ -409,13 +452,13 @@ export default function EditAssetPage() {
 								variant="outline"
 								onClick={() => {
 									NProgress.start();
-									router.push(slug ? `/admin/categories/${slug}` : '/admin/categories');
+									router.push(params?.slug ? `/admin/categories/${generateSlug(params?.slug)}` : '/admin/categories');
 								}}
 								disabled={isSubmitting}
 							>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={isSubmitting}>
+							<Button type="submit" disabled={isSubmitting || isLoadingData}>
 								{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								{isSubmitting ? 'Saving...' : 'Save Changes'}
 							</Button>
