@@ -12,13 +12,15 @@ import nProgress from 'nprogress';
 import { Skeleton } from '@/components/ui/skeleton';
 import appSettings from '@/config/app';
 import { generateSlug } from '@/lib/helpers';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 
-interface Category {
+export interface Category {
 	id: string;
 	name: string;
 	description?: string | null;
 	ticker: string;
 	is_locked: boolean;
+	is_launched?: boolean;
 	current_price_per_unit: number;
 	quantity: number;
 	total_liquidity: number;
@@ -27,12 +29,22 @@ interface Category {
 	updated_at?: string | null;
 	created_at: string;
 	image?: string | null;
-	is_launched?: boolean;
 	fee?: number | null;
 	volatility_factor?: number | null;
 	circulating_supply?: number;
 	market_cap?: number;
 	holders?: number;
+	price_change_24h?: number;
+	price_change_7d?: number;
+	price_change_30d?: number;
+	volume_24h?: number;
+	minimum_investable: number;
+	maximum_investable: number;
+}
+
+export interface SingleCategoryResponse {
+	status: string;
+	data: Category;
 }
 
 // API response structure for paginated data
@@ -133,18 +145,7 @@ export default function CategoryManagementPage() {
 
 			<p className="text-lg text-muted-foreground">Oversee and manage all investment categories. View details, edit properties, and monitor performance.</p>
 
-			{error && (
-				<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center justify-between" role="alert">
-					<div className="flex items-center">
-						<AlertCircle className="h-5 w-5 mr-2" />
-						<strong className="font-bold">Error:</strong>
-						<span className="block sm:inline ml-2">{error}</span>
-					</div>
-					<Button onClick={handleRetry} variant="outline" size="sm">
-						Retry
-					</Button>
-				</div>
-			)}
+			{error && <ErrorMessage message={error} onRetry={handleRetry} />}
 
 			<div className="rounded-md border bg-card shadow-sm">
 				<Table>
@@ -156,6 +157,8 @@ export default function CategoryManagementPage() {
 							<TableHead className="max-w-xs">Description</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead className="text-right">Price/Unit</TableHead>
+							<TableHead className="text-right">Min Invest</TableHead>
+							<TableHead className="text-right">Max Invest</TableHead>
 							<TableHead className="text-right">Market Cap</TableHead>
 							<TableHead className="text-right">Holders</TableHead>
 							<TableHead className="text-center">
@@ -186,6 +189,12 @@ export default function CategoryManagementPage() {
 										<Skeleton className="h-4 w-[100px] ml-auto" />
 									</TableCell>
 									<TableCell className="text-right">
+										<Skeleton className="h-4 w-[70px] ml-auto" />
+									</TableCell>
+									<TableCell className="text-right">
+										<Skeleton className="h-4 w-[70px] ml-auto" />
+									</TableCell>
+									<TableCell className="text-right">
 										<Skeleton className="h-4 w-[120px] ml-auto" />
 									</TableCell>
 									<TableCell className="text-right">
@@ -211,7 +220,7 @@ export default function CategoryManagementPage() {
 										)}
 									</TableCell>
 									<TableCell className="font-medium">
-										<CustomLink href={`/admin/categories/${category.ticker}`} className="hover:underline text-primary">
+										<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}`} className="hover:underline text-primary">
 											{category.name}
 										</CustomLink>
 									</TableCell>
@@ -223,6 +232,12 @@ export default function CategoryManagementPage() {
 										<Badge variant={getLockStatusVariant(category.is_locked)}>{category.is_locked ? 'Locked' : 'Unlocked'}</Badge>
 									</TableCell>
 									<TableCell className="text-right font-mono">${category.current_price_per_unit.toFixed(2)}</TableCell>
+									<TableCell className="text-right font-mono">
+										{category.minimum_investable !== undefined ? `$${category.minimum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
+									</TableCell>
+									<TableCell className="text-right font-mono">
+										{category.maximum_investable !== undefined ? `$${category.maximum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
+									</TableCell>
 									<TableCell className="text-right font-mono">{category.market_cap ? `$${category.market_cap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 									<TableCell className="text-right">{category.holders !== undefined ? category.holders.toLocaleString() : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 									<TableCell className="text-center">
@@ -259,7 +274,7 @@ export default function CategoryManagementPage() {
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={9} className="h-32 text-center text-lg text-muted-foreground">
+								<TableCell colSpan={11} className="h-32 text-center text-lg text-muted-foreground">
 									No categories found.
 									{!isLoading && !error && (
 										<Button variant="link" asChild className="ml-2">

@@ -1,15 +1,18 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { ChevronRight } from 'lucide-react';
+import { useAuthContext } from '@/context/AuthContext'; // Import the hook
 import { Card } from '@/components/ui/card';
 
 export default function ProfilePage() {
-	// Mock data - replace with actual data fetching/context later
-	const user = {
-		name: 'Denzel Washington',
-		email: 'denzel.washington@gmail.com',
-		avatarUrl: 'https://via.placeholder.com/100',
-	};
+	const { currentUser, isLoading } = useAuthContext(); // Use the hook
+
+	// Optional: Add a loading state or skeleton while currentUser is loading
+	// if (isLoading) {
+	//   return <div>Loading profile...</div>; // Or a skeleton component
+	// }
 
 	const profileActions = [
 		{ label: 'Bank Details', href: '/account/profile/bank-details' },
@@ -23,12 +26,12 @@ export default function ProfilePage() {
 		<div className="space-y-12">
 			<div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
 				<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-[var(--dashboard-accent)]">
-					<AvatarImage src={user.avatarUrl} alt={user.name} />
-					<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+					<AvatarImage src={currentUser?.profilePictureUrl ?? undefined} alt={currentUser?.name ?? 'User Avatar'} />
+					<AvatarFallback>{currentUser?.name?.charAt(0) ?? 'U'}</AvatarFallback>
 				</Avatar>
 				<div className="flex-grow space-y-1">
-					<h2 className="text-2xl font-semibold text-foreground">{user.name}</h2>
-					<p className="text-muted-foreground">{user.email}</p>
+					<h2 className="text-2xl font-semibold text-foreground">{currentUser?.name ?? 'User Name'}</h2>
+					<p className="text-muted-foreground">{currentUser?.email ?? 'user@example.com'}</p>
 					<CustomLink href="/account/profile/edit" className="text-sm text-[var(--dashboard-accent)] hover:underline">
 						Edit personal information
 					</CustomLink>

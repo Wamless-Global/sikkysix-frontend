@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useUserContext, UserFilters } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
 import NProgress from 'nprogress';
@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MoreHorizontal, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'; // Removed Loader2
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import Image from 'next/image';
 import { User, Role, UserStatus, getStatusVariant, ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
+import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
 import { COUNTRIES } from '@/lib/countries';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -31,13 +32,12 @@ export default function UserManagementPage() {
 	const [filterStartDate, setFilterStartDate] = useState<string>('');
 	const [filterEndDate, setFilterEndDate] = useState<string>('');
 	const [currentPage, setCurrentPage] = useState(1);
-	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
-	const [isFetchingData, setIsFetchingData] = useState(true); // Handles overall loading state including debounce
+	// Removed loadingButton and isFetchingData states
 
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
 	useEffect(() => {
-		setIsFetchingData(true); // Indicate loading as soon as an action triggers a fetch
+		// Removed setIsFetchingData(true)
 		const filters: UserFilters = {
 			searchTerm: searchTerm || undefined,
 			role: filterRole === 'all' ? undefined : filterRole,
@@ -54,24 +54,18 @@ export default function UserManagementPage() {
 		return () => clearTimeout(timer);
 	}, [searchTerm, filterRole, filterStatus, filterCountry, filterStartDate, filterEndDate, currentPage, fetchUsers]);
 
-	useEffect(() => {
-		if (!isLoading) {
-			setIsFetchingData(false); // Update our local comprehensive loading state
-			setLoadingButton(null);
-		}
-		// No need for an else: setIsFetchingData(true) is handled by the other useEffect
-	}, [isLoading]);
+	// Removed useEffect that managed isFetchingData and loadingButton
 
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
-			setLoadingButton('previous');
+			// Removed setLoadingButton('previous');
 			setCurrentPage((prev) => prev - 1);
 		}
 	};
 
 	const handleNextPage = () => {
 		if (currentPage < totalPages) {
-			setLoadingButton('next');
+			// Removed setLoadingButton('next');
 			setCurrentPage((prev) => prev + 1);
 		}
 	};
@@ -222,12 +216,36 @@ export default function UserManagementPage() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{isFetchingData ? (
-							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center">
-									<Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-								</TableCell>
-							</TableRow>
+						{isLoading ? ( // Use isLoading from context
+							Array.from({ length: ITEMS_PER_PAGE / 2 }).map((_, index) => (
+								<TableRow key={`skeleton-${index}`}>
+									<TableCell className="flex items-center gap-3">
+										<Skeleton className="h-10 w-10 rounded-full" />
+										<Skeleton className="h-4 w-[120px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[180px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[100px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[150px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[50px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[80px]" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-6 w-[70px] rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-[100px]" />
+									</TableCell>
+								</TableRow>
+							))
 						) : users.length > 0 ? (
 							users.map((user: User) => (
 								<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -265,13 +283,13 @@ export default function UserManagementPage() {
 						Showing page {currentPage} of {totalPages} ({totalCount} users total)
 					</div>
 					<div className="space-x-2 flex items-center">
-						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isFetchingData} className="cursor-pointer">
-							{isFetchingData && loadingButton === 'previous' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ChevronLeft className="h-4 w-4 mr-1" />}
+						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading} className="cursor-pointer">
+							<ChevronLeft className="h-4 w-4 mr-1" />
 							Previous
 						</Button>
-						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isFetchingData} className="cursor-pointer">
+						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading} className="cursor-pointer">
 							Next
-							{isFetchingData && loadingButton === 'next' ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 ml-1" />}
+							<ChevronRight className="h-4 w-4 ml-1" />
 						</Button>
 					</div>
 				</div>

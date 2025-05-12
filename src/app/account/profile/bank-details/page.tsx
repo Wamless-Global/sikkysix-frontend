@@ -3,14 +3,17 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuthContext } from '@/context/AuthContext'; // Import the hook
 
-export default async function BankDetailsPage() {
-	// Mock data - replace with actual user data and form state
-	const bankDetails = {
-		accountName: 'Denzel Washington',
-		bank: 'UBA',
-		accountNumber: '23481929201',
-	};
+export default function BankDetailsPage() {
+	// Removed async
+	const { currentUser, isLoading } = useAuthContext(); // Use the hook
+
+	// TODO: Add form state management for bank and accountNumber
+	// TODO: Implement form submission logic
+
+	// Optional: Add loading state
+	// if (isLoading) return <div>Loading...</div>;
 
 	return (
 		<div className="max-w-2xl space-y-8">
@@ -23,21 +26,23 @@ export default async function BankDetailsPage() {
 					<Label htmlFor="accountName" className="text-sm font-medium text-foreground">
 						Account Name
 					</Label>
-					<Input id="accountName" type="text" defaultValue={bankDetails.accountName} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" readOnly />
+					<Input id="accountName" type="text" defaultValue={currentUser?.name ?? ''} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" readOnly />
 				</div>
 
 				<div className="space-y-2">
 					<Label htmlFor="bank" className="text-sm font-medium text-foreground">
 						Bank
 					</Label>
-					<Input id="bank" type="text" defaultValue={bankDetails.bank} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
+					{/* Bank not in AuthContext, remove defaultValue */}
+					<Input id="bank" type="text" placeholder="Enter bank name" className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
 				<div className="space-y-2">
 					<Label htmlFor="accountNumber" className="text-sm font-medium text-foreground">
 						Account Number
 					</Label>
-					<Input id="accountNumber" type="text" defaultValue={bankDetails.accountNumber} className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
+					{/* Account number not in AuthContext, remove defaultValue */}
+					<Input id="accountNumber" type="text" placeholder="Enter account number" className="bg-muted/30 dark:bg-muted/10 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-14 account-input" />
 				</div>
 
 				<div className="pt-4">

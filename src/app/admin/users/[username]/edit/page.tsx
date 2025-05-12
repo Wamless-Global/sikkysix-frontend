@@ -84,7 +84,7 @@ export default function EditUserPage() {
 				name,
 				email,
 				country,
-				roles: roles, // roles is now Role[]
+				roles: roles,
 			};
 
 			const updatedUser = await updateUser(user.id, updatedData);

@@ -16,24 +16,33 @@ export const ALL_COUNTRIES = ['Nigeria', 'USA', 'UK', 'Ghana', 'Canada']; // Ass
 export type User = {
 	id: string;
 	name: string;
-	username: string; // Add username field
+	username: string;
 	email: string;
-	profilePictureUrl?: string;
-	roles: Role[]; // Changed to array to match server response and AuthenticatedUser
-	registrationDate: string;
+	profilePictureUrl?: string | null; // Allow null explicitly
+	roles: Role[];
+	registrationDate: string; // Consider changing to Date object later if needed
 	investmentCount: number;
 	totalInvested: number;
 	email_status: EmailStatus;
 	status: UserStatus;
 	country: string;
+	// Added fields for User Detail Page
+	phone_number?: string | null;
+	is_active: boolean; // Assuming this is non-nullable based on requirement
+	telegram_user_id?: string | null;
+	last_login?: string | null; // Consider changing to Date object later
+	referral_code?: string | null;
+	referred_by_user_id?: string | null;
+	wallet_balance?: number; // Added based on AuthenticatedUser and potential need
 };
 // Define the structure of the 'data' object in the user update API response
+// Should mirror the User type for consistency when API returns the updated user
 interface UserUpdateDataPayload {
 	id: string;
 	name: string;
 	username: string;
 	email: string;
-	profilePictureUrl?: string;
+	profilePictureUrl?: string | null;
 	roles: Role[];
 	registrationDate: string;
 	investmentCount: number;
@@ -41,6 +50,14 @@ interface UserUpdateDataPayload {
 	email_status: EmailStatus;
 	status: UserStatus;
 	country: string;
+	// Added fields
+	phone_number?: string | null;
+	is_active: boolean;
+	telegram_user_id?: string | null;
+	last_login?: string | null;
+	referral_code?: string | null;
+	referred_by_user_id?: string | null;
+	wallet_balance?: number;
 }
 
 // Define the overall structure of the user update API response
@@ -85,6 +102,7 @@ export interface AuthenticatedUser {
 	registrationDate: string; // Assuming string representation of date
 	investmentCount: number;
 	totalInvested: number;
+	wallet_balance: number;
 	status: UserStatus | null; // Allow null
 	country: string | null; // Allow null
 	accountBalance?: number; // Optional: User's current account balance

@@ -1,18 +1,24 @@
+'use client';
+
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2 } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
+import { useAuthContext } from '@/context/AuthContext';
+import { formatNaira } from '@/lib/helpers';
+
+interface Transaction {
+	id: string;
+	type: string;
+	timestamp: string;
+	amount: string;
+	isCredit: boolean;
+	completed: boolean;
+}
 
 export default function WalletPage() {
-	interface Transaction {
-		id: string;
-		type: string;
-		timestamp: string;
-		amount: string;
-		isCredit: boolean;
-		completed: boolean;
-	}
+	const { currentUser } = useAuthContext();
 
 	const LIMIT = 3;
 
@@ -24,20 +30,6 @@ export default function WalletPage() {
 		{ id: 'TXN-P2P-17466146399105', type: 'Deposit', timestamp: '16:20:11 10/02/2025', amount: '10,000.00 NGN', completed: true, isCredit: true },
 	];
 
-	const calculateBalance = (transactions: Transaction[]): string => {
-		const total = transactions.reduce((acc, transaction) => {
-			const amountValue = parseFloat(transaction.amount.replace(/ NGN|,/g, ''));
-			if (isNaN(amountValue)) {
-				console.warn(`Invalid amount found for transaction ID ${transaction.id}: ${transaction.amount}`);
-				return acc;
-			}
-			return transaction.isCredit ? acc + amountValue : acc - amountValue;
-		}, 0);
-
-		return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(total);
-	};
-
-	const availableBalance = calculateBalance(transactionsData);
 	const hasTransactions = transactionsData.length > 0;
 
 	return (
@@ -46,7 +38,7 @@ export default function WalletPage() {
 				<CardContent className="p-1 px-6 md:p-6 flex justify-center items-center relative">
 					<div className="flex items-center flex-col">
 						<p className="text-sm opacity-80 mb-1">Available Balance</p>
-						<p className="amount-heading-extra-large">{availableBalance}</p>
+						<p className="amount-heading-extra-large">{formatNaira(currentUser?.wallet_balance || 0)}</p>
 					</div>
 					<div className="opacity-80 dark:opacity-70 absolute right-0">
 						<Image src="/wallet.png" alt="Wallet Graphic" width={80} height={50} className="hidden sm:block" />

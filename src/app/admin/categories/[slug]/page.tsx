@@ -15,37 +15,7 @@ import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanc
 import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { generateSlug } from '@/lib/helpers';
-
-interface Category {
-	id: string;
-	name: string;
-	description?: string | null;
-	ticker: string;
-	is_locked: boolean;
-	is_launched?: boolean; // Default should be true if not present
-	current_price_per_unit: number;
-	quantity: number;
-	total_liquidity: number;
-	admin_target_multiplier?: number | null;
-	created_by_admin_id: string;
-	updated_at?: string | null;
-	created_at: string;
-	image?: string | null;
-	fee?: number | null;
-	volatility_factor?: number | null;
-	circulating_supply?: number;
-	market_cap?: number;
-	holders?: number;
-	priceChange24hPercent?: number;
-	priceChange7dPercent?: number;
-	priceChange30dPercent?: number;
-	volume24hUSD?: number;
-}
-
-interface SingleCategoryResponse {
-	status: string;
-	data: Category;
-}
+import { Category, SingleCategoryResponse } from '../page';
 
 // TODO: Replace with actual transaction data fetching for the category
 const assetTransactionHistoryMock = [
@@ -351,14 +321,16 @@ export default function AdminSingleCategoriesPage() {
 							{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply) + (categoryData.ticker ? ` ${categoryData.ticker}` : '') },
 							{ label: 'Market Cap', value: formatUSD(categoryData.market_cap, 0), tooltip: 'Calculated: Price * Circulating Supply' },
 							{ label: 'Total Liquidity', value: formatUSD(categoryData.total_liquidity, 0) },
+							{ label: 'Minimum Investable', value: formatUSD(categoryData.minimum_investable) },
+							{ label: 'Maximum Investable', value: formatUSD(categoryData.maximum_investable) },
 							{ label: 'Holders', value: formatNumber(categoryData.holders) },
 							{ label: 'Fee (%)', value: categoryData.fee !== null && categoryData.fee !== undefined ? `${categoryData.fee}%` : 'N/A' },
 							{ label: 'Volatility Factor', value: categoryData.volatility_factor !== null && categoryData.volatility_factor !== undefined ? categoryData.volatility_factor.toString() : 'N/A' },
 							{ label: 'Admin Target Multiplier', value: categoryData.admin_target_multiplier !== null && categoryData.admin_target_multiplier !== undefined ? categoryData.admin_target_multiplier.toString() : 'N/A' },
-							{ label: '24h Change', value: <PriceChangeIndicator value={categoryData.priceChange24hPercent} /> },
-							{ label: '7d Change', value: <PriceChangeIndicator value={categoryData.priceChange7dPercent} /> },
-							{ label: '30d Change', value: <PriceChangeIndicator value={categoryData.priceChange30dPercent} /> },
-							{ label: '24h Volume', value: formatUSD(categoryData.volume24hUSD, 0) },
+							{ label: '24h Change', value: <PriceChangeIndicator value={categoryData.price_change_24h} /> },
+							{ label: '7d Change', value: <PriceChangeIndicator value={categoryData.price_change_7d} /> },
+							{ label: '30d Change', value: <PriceChangeIndicator value={categoryData.price_change_30d} /> },
+							{ label: '24h Volume', value: formatUSD(categoryData.volume_24h, 0) },
 							{ label: 'Created At', value: new Date(categoryData.created_at).toLocaleDateString() },
 							{ label: 'Last Updated', value: categoryData.updated_at ? new Date(categoryData.updated_at).toLocaleDateString() : 'N/A' },
 						]

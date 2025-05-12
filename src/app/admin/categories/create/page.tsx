@@ -19,29 +19,36 @@ import { toast } from 'sonner';
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-const categoryFormSchema = z.object({
-	name: z.string().min(3, { message: 'Name must be at least 3 characters.' }).max(50, { message: 'Name must not exceed 50 characters.' }),
-	ticker: z
-		.string()
-		.min(2, { message: 'Ticker must be at least 2 characters.' })
-		.max(10, { message: 'Ticker must not exceed 10 characters.' })
-		.regex(/^[A-Z0-9]+$/, { message: 'Ticker must be uppercase alphanumeric.' }),
-	description: z.string().max(255, { message: 'Description must not exceed 255 characters.' }).optional().nullable(),
-	image: z
-		.instanceof(File, { message: 'Image is required.' })
-		.optional()
-		.nullable()
-		.refine((file) => !file || file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
-		.refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), 'Only .jpg, .jpeg, .png and .webp formats are supported.'),
-	is_locked: z.boolean().default(false),
-	is_launched: z.boolean().default(false),
-	current_price_per_unit: z.coerce.number({ invalid_type_error: 'Price must be a number.' }).nonnegative({ message: 'Price must be non-negative.' }).default(0.0),
-	quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }).default(1000000000),
-	total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }).default(0),
-	admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).default(2),
-	fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
-	volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
-});
+const categoryFormSchema = z
+	.object({
+		name: z.string().min(3, { message: 'Name must be at least 3 characters.' }).max(50, { message: 'Name must not exceed 50 characters.' }),
+		ticker: z
+			.string()
+			.min(2, { message: 'Ticker must be at least 2 characters.' })
+			.max(10, { message: 'Ticker must not exceed 10 characters.' })
+			.regex(/^[A-Z0-9]+$/, { message: 'Ticker must be uppercase alphanumeric.' }),
+		description: z.string().max(255, { message: 'Description must not exceed 255 characters.' }).optional().nullable(),
+		image: z
+			.instanceof(File, { message: 'Image is required.' })
+			.optional()
+			.nullable()
+			.refine((file) => !file || file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
+			.refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), 'Only .jpg, .jpeg, .png and .webp formats are supported.'),
+		is_locked: z.boolean().default(false),
+		is_launched: z.boolean().default(false),
+		current_price_per_unit: z.coerce.number({ invalid_type_error: 'Price must be a number.' }).nonnegative({ message: 'Price must be non-negative.' }).default(0.0),
+		quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }).default(1000000000),
+		total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }).default(0),
+		admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).default(2),
+		fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
+		volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
+		minimum_investable: z.coerce.number({ required_error: 'Minimum investable amount is required.', invalid_type_error: 'Minimum investable amount must be a number.' }).positive({ message: 'Minimum investable amount must be greater than 0.' }),
+		maximum_investable: z.coerce.number({ required_error: 'Maximum investable amount is required.', invalid_type_error: 'Maximum investable amount must be a number.' }).positive({ message: 'Minimum investable amount must be greater than 0.' }),
+	})
+	.refine((data) => data.maximum_investable >= data.minimum_investable, {
+		message: 'Maximum investable amount cannot be less than minimum investable amount.',
+		path: ['maximum_investable'],
+	});
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
@@ -58,6 +65,8 @@ const defaultValues: Partial<CategoryFormValues> = {
 	admin_target_multiplier: 2,
 	fee: null,
 	volatility_factor: null,
+	minimum_investable: 0,
+	maximum_investable: 0,
 };
 
 export default function CreateCategoryPage() {
@@ -246,10 +255,39 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
+
+								<FormField
+									control={form.control}
+									name="minimum_investable"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Minimum Investable Amount</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 100" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Minimum amount a user can invest in this category.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 							</div>
 
 							{/* Column 2 */}
 							<div className="space-y-4">
+								<FormField
+									control={form.control}
+									name="maximum_investable"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Maximum Investable Amount</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 10000" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>{`Maximum amount a user can invest in this category. Must be  >= minimum.`}</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 								<FormField
 									control={form.control}
 									name="total_liquidity"
