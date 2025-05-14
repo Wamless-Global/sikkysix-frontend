@@ -13,54 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import appSettings from '@/config/app';
 import { generateSlug } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-
-export interface Category {
-	id: string;
-	name: string;
-	description?: string | null;
-	ticker: string;
-	is_locked: boolean;
-	is_launched?: boolean;
-	current_price_per_unit: number;
-	quantity: number;
-	total_liquidity: number;
-	admin_target_multiplier?: number | null;
-	created_by_admin_id: string;
-	updated_at?: string | null;
-	created_at: string;
-	image?: string | null;
-	fee?: number | null;
-	volatility_factor?: number | null;
-	circulating_supply?: number;
-	market_cap?: number;
-	holders?: number;
-	price_change_24h?: number;
-	price_change_7d?: number;
-	price_change_30d?: number;
-	volume_24h?: number;
-	minimum_investable: number;
-	maximum_investable: number;
-}
-
-export interface SingleCategoryResponse {
-	status: string;
-	data: Category;
-}
-
-// API response structure for paginated data
-interface ApiCategoriesData {
-	categories: Category[];
-	hasMore: boolean;
-	currentPage: number;
-	pageSize: number;
-	totalCount: number;
-	totalPages: number;
-}
-
-interface PaginatedCategoriesResponse {
-	status: string;
-	data: ApiCategoriesData;
-}
+import { Category, PaginatedCategoriesResponse } from '@/types';
 
 // Helper function to determine badge variant based on lock status
 const getLockStatusVariant = (isLocked: boolean): 'destructive' | 'default' => {

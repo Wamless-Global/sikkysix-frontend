@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import NProgress from 'nprogress';
 import { Loader2 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,12 +16,18 @@ import { Switch } from '@/components/ui/switch';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { AmmParameterFields } from '@/components/admin/AmmParameterFields';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
+const ammModelTypes = ['adjusted_l_s', 'constant_product', 'linear_bonding_curve', 'exponential_bonding_curve'] as const;
+
 const categoryFormSchema = z
 	.object({
+		amm_model_type: z.enum(ammModelTypes, {
+			required_error: 'AMM Model Type is required',
+		}),
 		name: z.string().min(3, { message: 'Name must be at least 3 characters.' }).max(50, { message: 'Name must not exceed 50 characters.' }),
 		ticker: z
 			.string()
@@ -44,15 +51,40 @@ const categoryFormSchema = z
 		volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
 		minimum_investable: z.coerce.number({ required_error: 'Minimum investable amount is required.', invalid_type_error: 'Minimum investable amount must be a number.' }).positive({ message: 'Minimum investable amount must be greater than 0.' }),
 		maximum_investable: z.coerce.number({ required_error: 'Maximum investable amount is required.', invalid_type_error: 'Maximum investable amount must be a number.' }).positive({ message: 'Minimum investable amount must be greater than 0.' }),
+		amm_parameters: z
+			.record(z.string(), z.number().or(z.string()))
+			.nullable()
+			.refine(
+				(val) => {
+					if (!val) return true;
+					return Object.keys(val).length > 0;
+				},
+				{
+					message: 'AMM parameters are required',
+				}
+			)
+			.refine(
+				(val) => {
+					if (!val) return true;
+					return Object.values(val).every((v) => v !== null && v !== undefined && v !== '');
+				},
+				{
+					message: 'All AMM parameters must have values',
+				}
+			),
 	})
 	.refine((data) => data.maximum_investable >= data.minimum_investable, {
 		message: 'Maximum investable amount cannot be less than minimum investable amount.',
 		path: ['maximum_investable'],
 	});
 
-type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+type CategoryFormValues = z.infer<typeof categoryFormSchema> & {
+	amm_parameters: Record<string, any>;
+};
 
 const defaultValues: Partial<CategoryFormValues> = {
+	amm_model_type: undefined,
+	amm_parameters: {},
 	name: '',
 	ticker: '',
 	description: null,
@@ -96,9 +128,18 @@ export default function CreateCategoryPage() {
 		}
 	}, [imageFile]);
 
+	const ammModelType = form.watch('amm_model_type');
+
 	async function onSubmit(data: CategoryFormValues) {
 		NProgress.start();
 		const formData = new FormData();
+
+		const ammParams: { [key: string]: number } = {};
+		Object.entries(data.amm_parameters).forEach(([key, value]) => {
+			if (value !== null && value !== undefined) {
+				ammParams[key] = Number(value);
+			}
+		});
 
 		Object.entries(data).forEach(([key, value]) => {
 			if (key === 'image') {
@@ -109,10 +150,16 @@ export default function CreateCategoryPage() {
 				formData.append(key, String(value));
 			}
 		});
+		formData.delete('amm_parameters');
+		formData.append('amm_parameters', JSON.stringify(ammParams));
 
 		if (data.ticker) {
 			formData.set('ticker', data.ticker.toUpperCase());
 		}
+
+		// for (let [key, value] of formData.entries()) {
+		// 	console.log(`${key}: ${value}`);
+		// }
 
 		try {
 			const response = await fetch('/api/admin/categories', {
@@ -258,6 +305,38 @@ export default function CreateCategoryPage() {
 
 								<FormField
 									control={form.control}
+									name="amm_model_type"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												AMM Model Type <span className="text-destructive">*</span>
+											</FormLabel>
+											<Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select AMM model type" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{ammModelTypes.map((type) => (
+														<SelectItem key={type} value={type}>
+															{type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<AmmParameterFields ammModelType={ammModelType} isSubmitting={isSubmitting} control={form.control} />
+							</div>
+
+							{/* Column 2 */}
+							<div className="space-y-4">
+								<FormField
+									control={form.control}
 									name="minimum_investable"
 									render={({ field }) => (
 										<FormItem>
@@ -270,10 +349,7 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-							</div>
 
-							{/* Column 2 */}
-							<div className="space-y-4">
 								<FormField
 									control={form.control}
 									name="maximum_investable"

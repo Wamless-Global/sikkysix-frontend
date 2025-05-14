@@ -1,24 +1,9 @@
 'use client';
 
-import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { AuthenticatedUser } from '@/lib/userUtils';
-
-interface AuthContextType {
-	currentUser: AuthenticatedUser | null;
-	setCurrentUser: (user: AuthenticatedUser | null) => void;
-	isLoading: boolean;
-	login: (email: string, password: string) => Promise<AuthenticatedUser>;
-	logout: () => Promise<void>;
-	signup: (name: string, email: string, password: string, confirmPassword: string, roles?: Array<string>) => Promise<void>;
-	checkEmailVerificationStatus: (email: string) => Promise<{ status: 'verified' | 'not_verified' | 'error' | 'not_found'; message: string | null }>;
-	resendVerificationEmail: (email: string) => Promise<{ success: boolean; message: string | null }>;
-}
+import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-	children: ReactNode;
-}
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);

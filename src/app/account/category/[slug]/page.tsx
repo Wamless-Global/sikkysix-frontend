@@ -15,15 +15,8 @@ import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNaira, formatNumber } from '@/lib/helpers';
-import { Category } from '@/app/admin/categories/page';
 import { useAuthContext } from '@/context/AuthContext';
-
-// Define API response structure
-export interface UserSingleCategoryResponse {
-	status: 'success' | 'error';
-	data: Category | null | string;
-	message?: string;
-}
+import { Category, UserSingleCategoryResponse } from '@/types';
 
 // Mock activity data (keep for now until real data is fetched)
 const activityData = [
@@ -118,12 +111,12 @@ export default function SingleCategoryPage() {
 			return `Amount cannot exceed ${formatNaira(categoryData.maximum_investable)}.`;
 		}
 		if (balance === undefined) {
-			return 'Could not verify your balance. Please try again.'; // Balance fetch might have failed
+			return 'Could not verify your balance. Please try again.';
 		}
 		if (amount > balance) {
 			return 'Insufficient balance.';
 		}
-		return null; // No error
+		return null;
 	};
 
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {

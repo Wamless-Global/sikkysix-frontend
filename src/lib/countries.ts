@@ -1,7 +1,4 @@
-export interface Country {
-	code: string;
-	name: string;
-}
+import { Country } from '@/types';
 
 export const COUNTRIES: Country[] = [
 	{ code: 'US', name: 'United States' },

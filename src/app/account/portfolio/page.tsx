@@ -5,7 +5,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
 import { useState } from 'react';
-import Link from 'next/link';
 import { CustomLink } from '@/components/ui/CustomLink';
 
 interface PortfolioItem {

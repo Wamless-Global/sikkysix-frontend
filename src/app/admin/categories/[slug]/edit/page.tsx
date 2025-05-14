@@ -17,7 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { generateSlug } from '@/lib/helpers';
-import { Category, SingleCategoryResponse } from '../../page';
+import { Category, SingleCategoryResponse } from '@/types';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -312,11 +312,12 @@ export default function EditCategoryPage() {
 								<FormField
 									control={form.control}
 									name="current_price_per_unit"
+									disabled={true}
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Current Price Per Unit</FormLabel>
 											<FormControl>
-												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={true} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -448,21 +449,23 @@ export default function EditCategoryPage() {
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="is_launched"
-									render={({ field }) => (
-										<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-											<div className="space-y-0.5">
-												<FormLabel>Is Launched?</FormLabel>
-												<FormDescription>Make this category visible and available to users.</FormDescription>
-											</div>
-											<FormControl>
-												<Switch checked={field.value} onCheckedChange={field.onChange} disabled={isSubmitting} />
-											</FormControl>
-										</FormItem>
-									)}
-								/>
+								{!initialCategoryData.is_launched && (
+									<FormField
+										control={form.control}
+										name="is_launched"
+										render={({ field }) => (
+											<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+												<div className="space-y-0.5">
+													<FormLabel>Is Launched?</FormLabel>
+													<FormDescription>Make this category visible and available to users.</FormDescription>
+												</div>
+												<FormControl>
+													<Switch checked={field.value} onCheckedChange={field.onChange} disabled={isSubmitting} />
+												</FormControl>
+											</FormItem>
+										)}
+									/>
+								)}
 							</div>
 						</CardContent>
 						<CardFooter className="flex justify-end gap-2 mt-6">

@@ -1,115 +1,10 @@
+import { EmailStatus, Role, User, UserStatus, UserUpdateApiResponse } from '@/types';
 import { toast } from 'sonner';
-// Define Role type
-export type Role = 'user' | 'figure-head' | 'agent' | 'admin';
-export const ALL_ROLES: Role[] = ['user', 'figure-head', 'agent', 'admin'];
 
-// Define User Status type and constants
-export type UserStatus = 'Active' | 'Suspended' | 'Deleted';
-export type EmailStatus = 'Active' | 'Inactive';
 export const ALL_EMAIL_STATUSES: EmailStatus[] = ['Active', 'Inactive'];
 export const ALL_STATUSES: UserStatus[] = ['Active', 'Suspended', 'Deleted'];
+export const ALL_ROLES: Role[] = ['user', 'figure-head', 'agent', 'admin'];
 
-// Define Country constants
-export const ALL_COUNTRIES = ['Nigeria', 'USA', 'UK', 'Ghana', 'Canada']; // Assuming these are all possible countries for now
-
-// Define User Data Structure
-export type User = {
-	id: string;
-	name: string;
-	username: string;
-	email: string;
-	profilePictureUrl?: string | null; // Allow null explicitly
-	roles: Role[];
-	registrationDate: string; // Consider changing to Date object later if needed
-	investmentCount: number;
-	totalInvested: number;
-	email_status: EmailStatus;
-	status: UserStatus;
-	country: string;
-	// Added fields for User Detail Page
-	phone_number?: string | null;
-	is_active: boolean; // Assuming this is non-nullable based on requirement
-	telegram_user_id?: string | null;
-	last_login?: string | null; // Consider changing to Date object later
-	referral_code?: string | null;
-	referred_by_user_id?: string | null;
-	wallet_balance?: number; // Added based on AuthenticatedUser and potential need
-};
-// Define the structure of the 'data' object in the user update API response
-// Should mirror the User type for consistency when API returns the updated user
-interface UserUpdateDataPayload {
-	id: string;
-	name: string;
-	username: string;
-	email: string;
-	profilePictureUrl?: string | null;
-	roles: Role[];
-	registrationDate: string;
-	investmentCount: number;
-	totalInvested: number;
-	email_status: EmailStatus;
-	status: UserStatus;
-	country: string;
-	// Added fields
-	phone_number?: string | null;
-	is_active: boolean;
-	telegram_user_id?: string | null;
-	last_login?: string | null;
-	referral_code?: string | null;
-	referred_by_user_id?: string | null;
-	wallet_balance?: number;
-}
-
-// Define the overall structure of the user update API response
-interface UserUpdateApiResponse {
-	status: string; // e.g., "success"
-	message: string;
-	data?: UserUpdateDataPayload; // The actual user data
-}
-
-// Helper function to determine badge variant based on status
-export const getEmailStatusVariant = (status: EmailStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
-	switch (status) {
-		case 'Active':
-			return 'default';
-		case 'Inactive':
-			return 'destructive';
-		default:
-			return 'outline';
-	}
-};
-
-// Helper function to determine badge variant based on status
-export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
-	switch (status) {
-		case 'Active':
-			return 'default';
-		case 'Suspended':
-			return 'destructive';
-		default:
-			return 'outline';
-	}
-};
-
-// Define Authenticated User Data Structure (from login response)
-// Matches the structure within the `data.user` field of the API response
-export interface AuthenticatedUser {
-	id: string;
-	name: string;
-	email: string;
-	profilePictureUrl: string | null; // Allow null
-	roles: Role[]; // Array of roles
-	registrationDate: string; // Assuming string representation of date
-	investmentCount: number;
-	totalInvested: number;
-	wallet_balance: number;
-	status: UserStatus | null; // Allow null
-	country: string | null; // Allow null
-	accountBalance?: number; // Optional: User's current account balance
-	isEmailVerified?: boolean; // Added for email verification status
-}
-
-// --- NEW Centralized Function ---
 /**
  * Fetches a single user from the backend API by username.
  * @param username The username of the user to fetch.
@@ -163,9 +58,7 @@ export const fetchUserByUsername = async (username: string): Promise<User | null
 		return null; // Network or other fetch error
 	}
 };
-// --- End NEW Function ---
 
-// --- NEW Update User Function ---
 /**
  * Updates a user's data via the backend API.
  * @param userId The ID of the user to update.
@@ -237,9 +130,7 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 		return null;
 	}
 };
-// --- End Update User Function ---
 
-// --- NEW Delete User Function ---
 /**
  * Deletes a user via the backend API.
  * @param userId The ID of the user to delete.
@@ -261,14 +152,11 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 		});
 
 		if (response.ok) {
-			// Check if the response has content before trying to parse JSON
-			// Some DELETE endpoints might return 204 No Content
 			if (response.status === 204) {
 				toast.success('User deleted successfully!');
 				return true;
 			}
-			// If there's content (like a confirmation message)
-			// const result = await response.json(); // Or response.text() if not JSON
+
 			toast.success('User deleted successfully!');
 			return true;
 		} else {
@@ -278,11 +166,9 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 			return false;
 		}
 	} catch (error) {
-		// Check for JSON parsing errors
 		if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
 			toast.error('Server unavailable. Please try again later.');
 		} else if (error instanceof Error) {
-			// Handle other standard errors
 			toast.error(`An error occurred while deleting the user: ${error.message}`);
 		} else {
 			toast.error('An unknown error occurred while deleting the user.');
@@ -290,51 +176,41 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 		return false;
 	}
 };
-// --- End Delete User Function ---
 
-// --- NEW Function to Fetch Current User's Balance ---
 /**
  * Fetches the current authenticated user's account balance.
  * This is a placeholder and should be replaced with a real API call.
  * @returns A Promise resolving to the user's balance, or null if an error occurs.
  */
 export const fetchCurrentUserBalance = async (): Promise<number | null> => {
-	// Replace with your actual API endpoint for fetching the current user's balance
-	const targetUrl = '/api/me/balance'; // Example endpoint
+	const targetUrl = '/api/users/me/balance';
 
 	try {
-		console.log(`Fetching current user balance from: ${targetUrl}`); // Debug log
-		// const response = await fetch(targetUrl, {
-		// 	method: 'GET',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 		// Add Authorization header if needed (e.g., Bearer token)
-		// 		// 'Authorization': `Bearer ${your_auth_token}`,
-		// 	},
-		// 	credentials: 'include', // Important if using session cookies
-		// });
+		console.log(`Fetching current user balance from: ${targetUrl}`);
+		const response = await fetch(targetUrl, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			credentials: 'include',
+		});
 
-		// if (response.ok) {
-		// 	const data = await response.json();
-		// 	if (typeof data.balance === 'number') {
-		// 		return data.balance;
-		// 	} else {
-		// 		console.error('Balance data is not in the expected format:', data);
-		// 		toast.error('Received invalid balance data from server.');
-		// 		return null;
-		// 	}
-		// } else {
-		// 	const errorBody = await response.text();
-		// 	console.error(`API Error (${targetUrl}): ${response.status} ${response.statusText}`, errorBody);
-		// 	toast.error(`Failed to fetch balance: ${response.statusText || 'Server error'}`);
-		// 	return null;
-		// }
+		if (response.ok) {
+			const { data } = await response.json();
 
-		// Placeholder simulation:
-		await new Promise((resolve) => setTimeout(resolve, 600)); // Simulate network delay
-		const mockBalance = 2500.75; // Example balance
-		console.log('Mock balance fetched:', mockBalance);
-		return mockBalance;
+			if (data && typeof data.balance === 'number') {
+				return data.balance;
+			} else {
+				console.error('Balance data is not in the expected format or missing:', data);
+				toast.error('Received invalid or missing balance data from server.');
+				return null;
+			}
+		} else {
+			const errorBody = await response.text();
+			console.error(`API Error (${targetUrl}): ${response.status} ${response.statusText}`, errorBody);
+			toast.error(`Failed to fetch balance: ${response.statusText || 'Server error'}`);
+			return null;
+		}
 	} catch (error) {
 		if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
 			toast.error('Server unavailable or returned an invalid response while fetching balance.');
@@ -347,4 +223,3 @@ export const fetchCurrentUserBalance = async (): Promise<number | null> => {
 		return null;
 	}
 };
-// --- End Fetch Current User's Balance Function ---

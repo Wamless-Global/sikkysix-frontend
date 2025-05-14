@@ -1,3 +1,5 @@
+import { EmailStatus, UserStatus } from '@/types';
+
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
 export const formatNaira = (amount: number | null | undefined): string => {
@@ -22,4 +24,28 @@ export const formatCurrency = (amount: number | null | undefined): string => {
 		return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(0);
 	}
 	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+};
+
+// Helper function to determine badge variant based on status
+export const getEmailStatusVariant = (status: EmailStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
+	switch (status) {
+		case 'Active':
+			return 'default';
+		case 'Inactive':
+			return 'destructive';
+		default:
+			return 'outline';
+	}
+};
+
+// Helper function to determine badge variant based on status
+export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
+	switch (status) {
+		case 'Active':
+			return 'default';
+		case 'Suspended':
+			return 'destructive';
+		default:
+			return 'outline';
+	}
 };

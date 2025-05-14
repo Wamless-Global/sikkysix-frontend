@@ -1,45 +1,10 @@
 'use client';
 
+import { FetchUsersApiResponse, User, UserContextType, UserFilters, UserProviderProps } from '@/types';
 import { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { User, Role, UserStatus, ALL_ROLES, ALL_STATUSES, ALL_COUNTRIES } from '@/lib/userUtils';
-
-export interface UserFilters {
-	searchTerm?: string;
-	role?: Role | 'all';
-	status?: UserStatus | 'all';
-	country?: string | 'all';
-	startDate?: string;
-	endDate?: string;
-}
-
-interface ApiUserData {
-	users: User[];
-	hasMore: boolean;
-	nextPage: number | null;
-	totalCount: number;
-}
-
-interface FetchUsersApiResponse {
-	status: string;
-	data: ApiUserData;
-}
-
-interface UserContextType {
-	users: User[];
-	isLoading: boolean;
-	totalCount: number;
-	activeFilters: UserFilters;
-	getUserById: (id: string) => User | undefined;
-	getUserByUsername: (username: string) => User | undefined;
-	fetchUsers: (filters: UserFilters, page?: number) => Promise<void>;
-}
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
-
-interface UserProviderProps {
-	children: ReactNode;
-}
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 	const [users, setUsers] = useState<User[]>([]);

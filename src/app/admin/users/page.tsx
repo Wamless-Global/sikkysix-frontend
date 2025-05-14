@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUserContext, UserFilters } from '@/context/UserContext';
+import { useUserContext } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
 import NProgress from 'nprogress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,11 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'; // Removed Loader2
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import Image from 'next/image';
-import { User, Role, UserStatus, getStatusVariant, ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
 import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
 import { COUNTRIES } from '@/lib/countries';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
+import { Role, User, UserFilters, UserStatus } from '@/types';
+import { ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
+import { getStatusVariant } from '@/lib/helpers';
 
 const ITEMS_PER_PAGE = 10;
 

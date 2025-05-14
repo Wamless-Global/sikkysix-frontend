@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/UserContext';
@@ -16,9 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { User, Role, ALL_ROLES, fetchUserByUsername, updateUser, deleteUser } from '@/lib/userUtils';
 import { toast } from 'sonner';
-import { COUNTRIES, Country } from '@/lib/countries';
+import { COUNTRIES } from '@/lib/countries';
+import { Country, Role, User } from '@/types';
+import { ALL_ROLES, deleteUser, fetchUserByUsername, updateUser } from '@/lib/userUtils';
 
 export default function EditUserPage() {
 	const params = useParams();
@@ -190,13 +189,7 @@ export default function EditUserPage() {
 								</DropdownMenuTrigger>
 								<DropdownMenuContent className="w-full">
 									{ALL_ROLES.map((roleOption) => (
-										<DropdownMenuCheckboxItem
-											key={roleOption}
-											checked={roles.includes(roleOption)}
-											onCheckedChange={() => handleRoleChange(roleOption)}
-											disabled={isSaving || (roles.includes(roleOption) && roles.length === 1)} // Prevent unchecking the last role
-											className="capitalize"
-										>
+										<DropdownMenuCheckboxItem key={roleOption} checked={roles.includes(roleOption)} onCheckedChange={() => handleRoleChange(roleOption)} disabled={isSaving || (roles.includes(roleOption) && roles.length === 1)} className="capitalize">
 											{roleOption}
 										</DropdownMenuCheckboxItem>
 									))}

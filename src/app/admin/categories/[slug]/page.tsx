@@ -15,7 +15,7 @@ import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanc
 import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { generateSlug } from '@/lib/helpers';
-import { Category, SingleCategoryResponse } from '../page';
+import { Category, SingleCategoryResponse } from '@/types';
 
 // TODO: Replace with actual transaction data fetching for the category
 const assetTransactionHistoryMock = [

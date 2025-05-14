@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server';
 
 interface UserDetails {
 	roles: string[];
-	// Add other user details if needed from the verify-me endpoint
 }
 
 interface VerificationResult {

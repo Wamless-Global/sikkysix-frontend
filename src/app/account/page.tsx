@@ -6,34 +6,9 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
-import { Category } from '../admin/categories/page';
 import { useAuthContext } from '@/context/AuthContext';
 import { generateSlug } from '@/lib/helpers';
-
-// Interface for the API response structure
-interface ApiCategoriesResponse {
-	status: string;
-	data: {
-		categories: Category[];
-		hasMore: boolean;
-		currentPage: number;
-		pageSize: number;
-		totalCount: number;
-		totalPages: number;
-	};
-}
-
-// Interface for the category data transformed for display by DashboardCard
-interface UserDisplayCategory {
-	id: string;
-	slug: string;
-	title: string;
-	image?: string | null;
-	minimum: string;
-	buttonText: string;
-	buttonEnabled: boolean;
-	description?: string | null;
-}
+import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 
 export default function AccountPage() {
 	const [categories, setCategories] = useState<UserDisplayCategory[]>([]);
@@ -128,7 +103,7 @@ export default function AccountPage() {
 			{error && !isLoading && <ErrorMessage message={error} onRetry={handleRetry} />}
 
 			{!isLoading && !error && categories.length === 0 && (
-				<div className="text-center py-10">
+				<div className="h-[50svh] flex-col flex justify-center items-center">
 					<p className="text-xl text-muted-foreground">No categories available at the moment.</p>
 					<p className="text-sm text-muted-foreground mt-2">Please check back later or contact support if you believe this is an error.</p>
 				</div>
