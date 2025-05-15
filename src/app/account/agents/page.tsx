@@ -1,5 +1,4 @@
 import { ComingSoon } from '@/components/ui/coming-soon';
-// import Content from './content';
 
 export default function Page() {
 	return (
