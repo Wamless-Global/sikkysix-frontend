@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react'; // Added imports
+import { useState, useMemo } from 'react'; // Added imports
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-// import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { MoreHorizontal, Search, Filter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { TransactionHistoryTable, Transaction, SortableTransactionKeys, TransactionStatus, TransactionType } from '@/components/admin/TransactionHistoryTable'; // Import types
+// import { TransactionHistoryTable } from '@/components/admin/TransactionHistoryTable';
+import { SortableTransactionKeys, TransactionMethod, TransactionStatus, TransactionType } from '@/types';
 
 const ITEMS_PER_PAGE = 10; // Added for pagination
 
@@ -63,15 +62,15 @@ export default function TransactionsPage() {
 	// TODO: Add state/logic for handling approvals/rejections
 
 	// State for TransactionHistoryTable
-	const [isLoading, setIsLoading] = useState(false); // Example state
-	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
+	const [, setIsLoading] = useState(false); // Example state
+	const [, setLoadingButton] = useState<'previous' | 'next' | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [sortColumn, setSortColumn] = useState<SortableTransactionKeys | null>('date');
 	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
 	// Process placeholderHistory to match Transaction[] type for the table
 	// This is a simplified mapping; ensure all fields match the Transaction type
-	const processedHistory: Transaction[] = useMemo(
+	const processedHistory = useMemo(
 		() =>
 			placeholderHistory.map((item) => ({
 				...item,
@@ -87,7 +86,7 @@ export default function TransactionsPage() {
 
 	// Memoized and Processed Data for TransactionHistoryTable
 	const sortedData = useMemo(() => {
-		let data = [...processedHistory]; // Use processedHistory
+		const data = [...processedHistory]; // Use processedHistory
 		if (sortColumn) {
 			data.sort((a, b) => {
 				let valA = a[sortColumn];
@@ -115,13 +114,13 @@ export default function TransactionsPage() {
 	const totalCount = sortedData.length;
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-	const paginatedTransactions = useMemo(() => {
+	const _paginatedTransactions = useMemo(() => {
 		const start = (currentPage - 1) * ITEMS_PER_PAGE;
 		const end = start + ITEMS_PER_PAGE;
 		return sortedData.slice(start, end);
 	}, [sortedData, currentPage]);
 
-	const handlePageChange = (page: number) => {
+	const _handlePageChange = (page: number) => {
 		if (page < 1 || page > totalPages) return;
 		setLoadingButton(page > currentPage ? 'next' : 'previous');
 		setIsLoading(true);
@@ -133,7 +132,7 @@ export default function TransactionsPage() {
 		}, 300);
 	};
 
-	const handleSort = (column: SortableTransactionKeys) => {
+	const _handleSort = (column: SortableTransactionKeys) => {
 		if (sortColumn === column) {
 			setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
 		} else {
@@ -224,7 +223,7 @@ export default function TransactionsPage() {
 							</Select>
 						</div>
 					</div>
-					<TransactionHistoryTable
+					{/* <TransactionHistoryTable
 						transactions={paginatedTransactions}
 						isLoading={isLoading}
 						currentPage={currentPage}
@@ -235,7 +234,7 @@ export default function TransactionsPage() {
 						sortDirection={sortDirection}
 						onSort={handleSort}
 						loadingButton={loadingButton}
-					/>
+					/> */}
 					{/* TODO: Add Pagination if needed (now handled by table) */}
 				</TabsContent>
 

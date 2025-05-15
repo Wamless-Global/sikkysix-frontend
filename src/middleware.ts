@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
 				try {
 					// Attempt to parse redirectToParam.
 					// If relative (e.g., "/foo"), it resolves against request.nextUrl.origin.
-					// If absolute (e.g., "http://.../foo"), it's parsed directly.
+					// If absolute (e.g., "http://.../foo"), it&apos;s parsed directly.
 					const potentialTargetUrl = new URL(redirectToParam, request.nextUrl.origin);
 
 					// Security: Ensure the target URL is for the same origin.

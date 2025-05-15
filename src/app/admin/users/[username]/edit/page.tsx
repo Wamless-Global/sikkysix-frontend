@@ -151,7 +151,7 @@ export default function EditUserPage() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Edit Profile: {user.name}</CardTitle>
-					<CardDescription>Update the user's profile information.</CardDescription>
+					<CardDescription>Update the user&apos;s profile information.</CardDescription>
 				</CardHeader>
 				<form onSubmit={handleSubmit}>
 					<CardContent className="space-y-4 flex flex-col gap-5">

@@ -71,7 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 					<h1 className="text-xl font-semibold text-foreground flex-1">{appSettings.appName} Admin</h1>
 					<div className="flex items-center">
 						<div className="flex gap-2 items-center">
-							{currentUser?.profilePictureUrl && <Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}'s profile picture`} width={20} height={20} className="rounded-full" />}
+							{currentUser?.profilePictureUrl && <Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}&apos;s profile picture`} width={20} height={20} className="rounded-full" />}
 
 							{currentUser && <span className="text-sm text-muted-foreground hidden sm:inline-block mr-4">Hello, {currentUser.name}</span>}
 						</div>

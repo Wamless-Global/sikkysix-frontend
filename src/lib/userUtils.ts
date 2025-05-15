@@ -60,7 +60,7 @@ export const fetchUserByUsername = async (username: string): Promise<User | null
 };
 
 /**
- * Updates a user's data via the backend API.
+ * Updates a user&apos;s data via the backend API.
  * @param userId The ID of the user to update.
  * @param userData The partial user data containing the fields to update.
  * @returns A Promise resolving to the updated User object if successful, or null otherwise.
@@ -110,7 +110,7 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 				if (parsedError && parsedError.message) {
 					errorMessage = parsedError.message;
 				}
-			} catch (e) {
+			} catch (_e) {
 				// If errorBody is not JSON or doesn't have a message, use the generic one
 			}
 			console.error(`Backend API Error (PUT ${targetUrl}): ${response.status} ${response.statusText}`, errorBody);
@@ -178,9 +178,9 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 };
 
 /**
- * Fetches the current authenticated user's account balance.
+ * Fetches the current authenticated user&apos;s account balance.
  * This is a placeholder and should be replaced with a real API call.
- * @returns A Promise resolving to the user's balance, or null if an error occurs.
+ * @returns A Promise resolving to the user&apos;s balance, or null if an error occurs.
  */
 export const fetchCurrentUserBalance = async (): Promise<number | null> => {
 	const targetUrl = '/api/users/me/balance';

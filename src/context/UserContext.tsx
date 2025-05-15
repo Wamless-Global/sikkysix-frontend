@@ -1,7 +1,7 @@
 'use client';
 
 import { FetchUsersApiResponse, User, UserContextType, UserFilters, UserProviderProps } from '@/types';
-import { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
+import { createContext, useState, useContext, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

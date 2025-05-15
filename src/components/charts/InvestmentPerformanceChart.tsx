@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Assuming Select is available
 
 // Mock data for chart - replace with actual data fetching and processing
-const mockChartData = {
+const _mockChartData = {
 	'Total Investment Value': [
 		{ date: '2025-01-01', value: 10000 },
 		{ date: '2025-02-01', value: 12000 },
@@ -30,7 +30,18 @@ const mockChartData = {
 	],
 };
 
-type DataSeries = keyof typeof mockChartData;
+interface _ChartDataType {
+	labels: string[];
+	datasets: {
+		label: string;
+		data: number[];
+		backgroundColor: string[];
+		borderColor: string[];
+		borderWidth: number;
+	}[];
+}
+
+type DataSeries = keyof typeof _mockChartData;
 
 const InvestmentPerformanceChart: React.FC = () => {
 	const [selectedSeries, setSelectedSeries] = useState<DataSeries>('Total Investment Value');
@@ -73,8 +84,9 @@ const InvestmentPerformanceChart: React.FC = () => {
 				<div className="h-80 bg-muted/30 rounded-md flex items-center justify-center text-muted-foreground mb-4">
 					{/* Chart will be rendered here by a library */}
 					<p>
-						Interactive {chartType === 'line' ? 'Line' : 'Bar'} Chart for "{selectedSeries}" ({timePeriod}) - Placeholder
+						Interactive {chartType === 'line' ? 'Line' : 'Bar'} Chart for &quot;{selectedSeries}&quot; ({timePeriod}) - Placeholder
 					</p>
+					<p>&quot;Nothing here yet&quot; &quot;Start investing to see your performance!&quot;</p>
 				</div>
 				<div className="flex flex-wrap justify-center gap-2">
 					{['24H', '7D', '30D', '90D', 'YTD', 'All Time'].map((period) => (

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -37,9 +38,11 @@ export default function RootLayout({
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<AuthProvider>
-						<ProgressBar />
-						{children}
-						<Toaster richColors />
+						<Suspense>
+							<ProgressBar />
+							{children}
+							<Toaster richColors />
+						</Suspense>
 					</AuthProvider>
 				</ThemeProvider>
 			</body>

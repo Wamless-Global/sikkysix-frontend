@@ -8,7 +8,7 @@ type CustomLinkProps = LinkProps & {
 	children: React.ReactNode;
 	className?: string;
 	onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
-	[key: string]: any;
+	[key: string]: unknown;
 };
 
 export function CustomLink({ children, onClick, ...props }: CustomLinkProps) {

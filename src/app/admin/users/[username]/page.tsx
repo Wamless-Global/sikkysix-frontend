@@ -189,7 +189,7 @@ export default function UserDetailPage() {
 
 		const currentAction = confirmAction;
 		const userId = currentUser.id;
-		const userName = currentUser.name;
+		const _userName = currentUser.name;
 
 		if (currentAction === 'suspend') {
 			setIsSuspending(true);
@@ -274,7 +274,7 @@ export default function UserDetailPage() {
 					<div className="flex items-center gap-4 flex-1">
 						<div className="flex-shrink-0">
 							{currentUser.profilePictureUrl ? (
-								<Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}'s profile picture`} width={80} height={80} className="rounded-full border" />
+								<Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}&apos;s profile picture`} width={80} height={80} className="rounded-full border" />
 							) : (
 								<div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border">
 									<UserIcon className="w-10 h-10 text-muted-foreground" />

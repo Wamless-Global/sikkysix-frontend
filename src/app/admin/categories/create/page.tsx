@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NProgress from 'nprogress';
 import { Loader2 } from 'lucide-react';
@@ -17,6 +17,7 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { AmmParameterFields } from '@/components/admin/AmmParameterFields';
+import Image from 'next/image';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -78,8 +79,8 @@ const categoryFormSchema = z
 		path: ['maximum_investable'],
 	});
 
-type CategoryFormValues = z.infer<typeof categoryFormSchema> & {
-	amm_parameters: Record<string, any>;
+export type CategoryFormValues = z.infer<typeof categoryFormSchema> & {
+	amm_parameters: Record<string, string | number>;
 };
 
 const defaultValues: Partial<CategoryFormValues> = {
@@ -92,7 +93,7 @@ const defaultValues: Partial<CategoryFormValues> = {
 	is_locked: false,
 	is_launched: true,
 	current_price_per_unit: 0.0,
-	quantity: 1000000000,
+	quantity: 0,
 	total_liquidity: 0,
 	admin_target_multiplier: 2,
 	fee: null,
@@ -150,6 +151,7 @@ export default function CreateCategoryPage() {
 				formData.append(key, String(value));
 			}
 		});
+
 		formData.delete('amm_parameters');
 		formData.append('amm_parameters', JSON.stringify(ammParams));
 
@@ -178,7 +180,7 @@ export default function CreateCategoryPage() {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorData.detail || errorMessage;
-				} catch (e) {}
+				} catch (_e) {}
 				toast.error(errorMessage);
 			}
 		} catch (error) {
@@ -270,7 +272,7 @@ export default function CreateCategoryPage() {
 											<FormMessage />
 											{imagePreview && (
 												<div className="mt-2">
-													<img src={imagePreview} alt="Image preview" className="h-32 w-32 object-cover rounded-md border" />
+													<Image src={imagePreview} alt="Image preview" className="h-32 w-32 object-cover rounded-md border" />
 												</div>
 											)}
 										</FormItem>
@@ -278,10 +280,10 @@ export default function CreateCategoryPage() {
 								/>
 								<FormField
 									control={form.control}
-									name="current_price_per_unit"
+									name="total_liquidity"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Current Price Per Unit</FormLabel>
+											<FormLabel>Total Liquidity</FormLabel>
 											<FormControl>
 												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
 											</FormControl>
@@ -366,12 +368,19 @@ export default function CreateCategoryPage() {
 								/>
 								<FormField
 									control={form.control}
-									name="total_liquidity"
+									name="current_price_per_unit"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Total Liquidity</FormLabel>
+											<FormLabel>Current Price Per Unit</FormLabel>
 											<FormControl>
-												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+												<Input
+													type="number"
+													min="0"
+													step="any"
+													{...field}
+													// onChange={(e) => field.onChange(parseFloat(e.target.value))}
+													disabled={true}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>

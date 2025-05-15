@@ -5,7 +5,7 @@ const copyToClipboard = (text: string, successMsg: string = 'Copied successfully
 		() => {
 			toast.success(successMsg);
 		},
-		(err) => {
+		(_err) => {
 			toast.error(errorMsg);
 		}
 	);

@@ -365,7 +365,7 @@
 #nprogress .bar {
 	background: #29d !important; /* Blue color like GitHub */
 	height: 3px !important; /* Make it slightly thicker */
-	z-index: 1031 !important; /* Ensure it's above most elements */
+	z-index: 1031 !important; /* Ensure it&apos;s above most elements */
 }
 
 #nprogress .peg {

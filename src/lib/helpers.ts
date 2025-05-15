@@ -1,4 +1,4 @@
-import { EmailStatus, UserStatus } from '@/types';
+import { AccountStatus, EmailStatus, Transaction, UserStatus } from '@/types';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
@@ -10,6 +10,11 @@ export const formatNaira = (amount: number | null | undefined): string => {
 export const formatNumber = (amount: number | undefined | null, options?: Intl.NumberFormatOptions): string => {
 	if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
 	return new Intl.NumberFormat('en-US', options).format(amount);
+};
+
+export const formatUSD = (amount: number | undefined | null, precision = 2): string => {
+	if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
+	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: precision, maximumFractionDigits: precision }).format(amount);
 };
 
 /**
@@ -38,6 +43,19 @@ export const getEmailStatusVariant = (status: EmailStatus): 'default' | 'seconda
 	}
 };
 
+export const getStatusBadgeVariant = (status: Transaction['status']): 'secondary' | 'destructive' | 'outline' | 'default' | 'error' | 'active' | 'completed' | null | undefined => {
+	switch (status.toLowerCase()) {
+		case 'completed':
+			return 'completed';
+		case 'pending':
+			return 'outline';
+		case 'failed':
+			return 'destructive';
+		default:
+			return 'secondary';
+	}
+};
+
 // Helper function to determine badge variant based on status
 export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {
@@ -47,5 +65,18 @@ export const getStatusVariant = (status: UserStatus): 'default' | 'secondary' | 
 			return 'destructive';
 		default:
 			return 'outline';
+	}
+};
+
+export const getAccountStatusBadgeVariant = (status: AccountStatus) => {
+	switch (status) {
+		case 'active':
+			return 'completed';
+		case 'inactive':
+			return 'destructive';
+		case 'pending':
+			return 'secondary';
+		default:
+			return 'default';
 	}
 };

@@ -5,38 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ChevronLeft, ChevronRight, ArrowUpDown, Loader2 } from 'lucide-react';
-
-export type TransactionStatus = 'Completed' | 'Pending' | 'Rejected' | 'Processing';
-export type TransactionType = 'Deposit' | 'Withdrawal' | 'Fee' | 'Investment' | 'Referral Bonus';
-export type TransactionMethod = 'Bank Transfer' | 'Crypto' | 'Platform';
-
-export type Transaction = {
-	id: string;
-	userId: string;
-	userName: string;
-	type: TransactionType;
-	method?: TransactionMethod;
-	amount: number;
-	currency: string;
-	date: string;
-	status: TransactionStatus;
-	details?: string;
-};
-
-export type SortableTransactionKeys = 'date' | 'userName' | 'type' | 'amount' | 'status';
-
-export interface TransactionHistoryTableProps {
-	transactions: Transaction[];
-	isLoading: boolean;
-	currentPage: number;
-	totalPages: number;
-	totalCount: number;
-	onPageChange: (page: number) => void;
-	sortColumn: SortableTransactionKeys | null;
-	sortDirection: 'asc' | 'desc';
-	onSort: (column: SortableTransactionKeys) => void;
-	loadingButton?: 'previous' | 'next' | null;
-}
+import { SortableTransactionKeys, TransactionHistoryTableProps, TransactionStatus } from '@/types';
 
 const getTransactionStatusVariant = (status: TransactionStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {

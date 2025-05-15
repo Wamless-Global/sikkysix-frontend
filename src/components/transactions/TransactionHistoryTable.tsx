@@ -8,23 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card'; // Added Card import
 import { ArrowUpDown, Search } from 'lucide-react';
-
-type Transaction = {
-	id: string;
-	timestamp: string;
-	maskedInvestorId: string;
-	type: 'Deposit' | 'Withdrawal' | 'Profit Share' | string; // Allow for other types
-	amount: number; // Amount in native currency
-	currency: string; // Native currency symbol (e.g., sETH, sBTC)
-	usdValue?: number; // Optional: Equivalent value in USD
-	status: 'Completed' | 'Pending' | 'Failed' | string; // Allow for other statuses
-};
-
-interface TransactionHistoryTableProps {
-	transactions: Transaction[];
-	showMyTransactionsToggle?: boolean; // To show "View My Transactions Only"
-	currentUserId?: string; // For filtering "My Transactions"
-}
+import { Transaction, TransactionHistoryTableProps } from '@/types';
+import { getStatusBadgeVariant } from '@/lib/helpers';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -70,7 +55,7 @@ const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({ trans
 	}, [transactions, searchTerm, filterType, showOnlyMyTransactions, currentUserId, showMyTransactionsToggle]);
 
 	const sortedTransactions = useMemo(() => {
-		let sortableItems = [...filteredTransactions];
+		const sortableItems = [...filteredTransactions];
 		if (sortConfig !== null) {
 			sortableItems.sort((a, b) => {
 				const valA = a[sortConfig.key] ?? '';
@@ -107,19 +92,6 @@ const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({ trans
 			return <ArrowUpDown className="ml-2 h-4 w-4 opacity-30" />;
 		}
 		return sortConfig.direction === 'ascending' ? '🔼' : '🔽';
-	};
-
-	const getStatusBadgeVariant = (status: Transaction['status']) => {
-		switch (status.toLowerCase()) {
-			case 'completed':
-				return 'success';
-			case 'pending':
-				return 'warning';
-			case 'failed':
-				return 'destructive';
-			default:
-				return 'secondary';
-		}
 	};
 
 	return (
@@ -225,7 +197,7 @@ const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({ trans
 										)}
 									</TableCell>
 									<TableCell>
-										<Badge variant={getStatusBadgeVariant(tx.status) as any}>{tx.status}</Badge>
+										<Badge variant={getStatusBadgeVariant(tx.status)}>{tx.status}</Badge>
 									</TableCell>
 								</TableRow>
 							))

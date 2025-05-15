@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -68,7 +68,7 @@ const mockAssets: Asset[] = [
 	},
 ];
 
-export default function WithdrawPage() {
+export default function WithdrawPageContent() {
 	const router = useRouter();
 	const [withdrawalMethod, setWithdrawalMethod] = useState<'onchain' | 'p2p'>('onchain');
 	const [selectedAssetId, setSelectedAssetId] = useState<string>('');
@@ -95,7 +95,7 @@ export default function WithdrawPage() {
 		}
 	}, [selectedAssetId, selectedAsset, selectedNetworkId, withdrawalMethod]);
 
-	const validateAmount = () => {
+	const validateAmount = useCallback(() => {
 		if (!selectedAsset || !amount) {
 			setAmountError(null);
 			return true;
@@ -119,11 +119,12 @@ export default function WithdrawPage() {
 		}
 		setAmountError(null);
 		return true;
-	};
-
-	useEffect(() => {
-		validateAmount();
 	}, [amount, selectedAsset]);
+	useEffect(() => {
+		if (amount) {
+			validateAmount();
+		}
+	}, [amount, validateAmount]);
 
 	const handleProceed = () => {
 		if (!validateAmount() || !selectedAssetId) {

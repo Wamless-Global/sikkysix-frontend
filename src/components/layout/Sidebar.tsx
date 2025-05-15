@@ -3,7 +3,7 @@
 import { CustomLink } from '@/components/ui/CustomLink';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, LogOut, LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart } from 'lucide-react';
+import { LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart } from 'lucide-react';
 
 const navItems = [
 	{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },

@@ -2,15 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useUserContext } from '@/context/UserContext';
-import { useRouter } from 'next/navigation';
-import NProgress from 'nprogress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'; // Removed Loader2
+import { ChevronLeft, ChevronRight } from 'lucide-react'; // Removed Loader2
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
@@ -24,7 +21,6 @@ import { getStatusVariant } from '@/lib/helpers';
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManagementPage() {
-	const router = useRouter();
 	const { users, fetchUsers, isLoading, totalCount } = useUserContext();
 
 	const [searchTerm, setSearchTerm] = useState('');
@@ -253,7 +249,7 @@ export default function UserManagementPage() {
 								<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
 									<TableCell className="font-medium">
 										<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
-											{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}'s profile picture`} width={40} height={40} className="rounded-full" />}
+											{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
 											<span>{user.name}</span>
 										</CustomLink>
 									</TableCell>

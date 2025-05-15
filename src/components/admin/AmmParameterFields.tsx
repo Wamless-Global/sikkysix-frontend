@@ -1,11 +1,12 @@
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AmmModelType } from '@/types';
+import { Control } from 'react-hook-form';
 
 interface AmmParameterFieldsProps {
 	ammModelType: AmmModelType | undefined;
 	isSubmitting: boolean;
-	control: any;
+	control: Control<any>;
 }
 
 export function AmmParameterFields({ ammModelType, isSubmitting, control }: AmmParameterFieldsProps) {
@@ -66,28 +67,28 @@ export function AmmParameterFields({ ammModelType, isSubmitting, control }: AmmP
 				<>
 					<FormField
 						control={control}
-						name="amm_parameters.initial_virtual_currency"
+						name="amm_parameters.initial_ngn_pool_balance"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Initial Virtual NGN</FormLabel>
+								<FormLabel>Initial NGN Balance</FormLabel>
 								<FormControl>
 									<Input type="number" min="0" step="any" placeholder="e.g., 1000" {...field} disabled={isSubmitting} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
 								</FormControl>
-								<FormDescription>Initial virtual NGN amount.</FormDescription>
+								<FormDescription>Initial NGN pool balance.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={control}
-						name="amm_parameters.initial_virtual_units"
+						name="amm_parameters.initial_units_pool_balance"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Initial Virtual Units</FormLabel>
+								<FormLabel>Initial Units Balance</FormLabel>
 								<FormControl>
 									<Input type="number" min="0" step="any" placeholder="e.g., 10" {...field} disabled={isSubmitting} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
 								</FormControl>
-								<FormDescription>Initial virtual unit amount.</FormDescription>
+								<FormDescription>Initial unit pool balance.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}

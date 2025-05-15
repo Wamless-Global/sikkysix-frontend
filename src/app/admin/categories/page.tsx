@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle, ImageOff, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, PlusCircle, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
@@ -14,6 +14,7 @@ import appSettings from '@/config/app';
 import { generateSlug } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Category, PaginatedCategoriesResponse } from '@/types';
+import Image from 'next/image';
 
 // Helper function to determine badge variant based on lock status
 const getLockStatusVariant = (isLocked: boolean): 'destructive' | 'default' => {
@@ -38,7 +39,7 @@ export default function CategoryManagementPage() {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorMessage;
-				} catch (jsonError) {}
+				} catch (_jsonError) {}
 				throw new Error(errorMessage);
 			}
 			const result: PaginatedCategoriesResponse = await response.json();
@@ -165,7 +166,7 @@ export default function CategoryManagementPage() {
 								<TableRow key={category.id} className="hover:bg-muted/50 transition-colors">
 									<TableCell>
 										{category.image ? (
-											<img src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
+											<Image src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
 										) : (
 											<div className="h-10 w-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground">
 												<ImageOff size={20} />

@@ -318,7 +318,7 @@ export default function LandingPage() {
 					</AccordionItem>
 					<AccordionItem value="item-3" className="border-b border-[var(--lp-border)]">
 						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>
-						<AccordionContent className="text-muted-foreground text-base pb-6">Yes. It's animated by default, but you can disable it if you prefer.</AccordionContent>
+						<AccordionContent className="text-muted-foreground text-base pb-6">Yes. It&apos;s animated by default, but you can disable it if you prefer.</AccordionContent>
 					</AccordionItem>
 					<AccordionItem value="item-4" className="border-b-0 border-[var(--lp-border)]">
 						<AccordionTrigger className="text-xl hover:no-underline py-6 text-left text-foreground">Lorem ipsum dolor sit amet consterqeur?</AccordionTrigger>

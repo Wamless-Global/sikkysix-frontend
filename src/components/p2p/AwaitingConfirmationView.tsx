@@ -49,7 +49,7 @@ const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({ tra
 			</Card>
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm px-0">
 				<CardHeader className="flex flex-row justify-between items-center px-4">
-					<CardTitle className="text-lg text-foreground">Seller's Information</CardTitle>
+					<CardTitle className="text-lg text-foreground">Seller&apos;s Information</CardTitle>
 					<Button variant="ghost" className="text-muted-foreground hover:text-foreground" onClick={onToggleMessageScreen}>
 						<MessageCircle className="h-10 w-10" />
 					</Button>

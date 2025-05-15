@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorMessage;
-				} catch (parseError) {}
+				} catch (_parseError) {}
 				console.error('AuthContext Logout Error:', errorMessage);
 				throw new Error(errorMessage);
 			}
@@ -155,13 +155,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			} else {
 				return { status: 'error', message: 'Unexpected response from server.' };
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			let errMessage = 'An unknown error occurred while checking email status.';
 			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
 				errMessage = 'Server unavailable or returned an invalid response.';
 				console.error(`AuthContext: ${errMessage}`);
-			} else if (error.message) {
-				errMessage = error.message;
+			} else if (error && typeof error === 'object' && 'message' in error) {
+				errMessage = error.message as string;
 			}
 			return { status: 'error', message: errMessage };
 		}
@@ -198,14 +198,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				console.warn('AuthContext: Resend verification email backend issue:', errorMessage);
 				return { success: false, message: errorMessage };
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error('AuthContext: Exception during resendVerificationEmail:', error);
 			let errMessage = 'An unknown error occurred while resending the verification email.';
 			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
 				errMessage = 'Server unavailable or returned an invalid response for resend.';
 				console.error(`AuthContext: ${errMessage}`);
-			} else if (error.message) {
-				errMessage = error.message;
+			} else if (error && typeof error === 'object' && 'message' in error) {
+				errMessage = error.message as string;
 			}
 			return { success: false, message: errMessage };
 		}

@@ -6,19 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Loader2, Info, MoreHorizontal, Edit3, Trash2, Lock, Unlock, ArrowUpCircle, ArrowDownCircle, TrendingUp, ImageOff } from 'lucide-react';
+import { Loader2, Info, MoreHorizontal, Edit3, Trash2, Lock, Unlock, ArrowUpCircle, ArrowDownCircle, ImageOff } from 'lucide-react';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
-import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
+// import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { generateSlug } from '@/lib/helpers';
+import { formatNumber, formatUSD, generateSlug } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 
 // TODO: Replace with actual transaction data fetching for the category
-const assetTransactionHistoryMock = [
+const _assetTransactionHistoryMock = [
 	{ id: 'txn_asset_1', timestamp: '2025-10-19T10:35:00Z', maskedInvestorId: 'User...a4f8', type: 'Buy Ticker', amount: 2.5, currency: 'TICK', usdValue: 5126.88, status: 'Completed' },
 	{ id: 'txn_asset_2', timestamp: '2025-10-18T15:22:00Z', maskedInvestorId: 'User...b8e1', type: 'Sell Ticker', amount: 0.1, currency: 'TICK', usdValue: 3010.02, status: 'Completed' },
 ];
@@ -47,7 +47,7 @@ export default function AdminSingleCategoriesPage() {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorData.detail || errorMessage;
-				} catch (e) {}
+				} catch (_e: unknown) {}
 				throw new Error(errorMessage);
 			}
 			const result: SingleCategoryResponse = await response.json();
@@ -173,16 +173,6 @@ export default function AdminSingleCategoriesPage() {
 			setConfirmAction(null);
 			nProgress.done();
 		}
-	};
-
-	const formatUSD = (amount: number | undefined | null, precision = 2): string => {
-		if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
-		return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: precision, maximumFractionDigits: precision }).format(amount);
-	};
-
-	const formatNumber = (amount: number | undefined | null, options?: Intl.NumberFormatOptions): string => {
-		if (amount === undefined || amount === null || isNaN(amount)) return 'N/A';
-		return new Intl.NumberFormat('en-US', options).format(amount);
 	};
 
 	const PriceChangeIndicator = ({ value }: { value: number | undefined | null }) => {
@@ -370,7 +360,7 @@ export default function AdminSingleCategoriesPage() {
 				<div className="mt-8">
 					<h2 className="text-2xl font-semibold mb-4">Transaction Ledger for {categoryData.ticker}</h2>
 					{/* TODO: TransactionHistoryTable needs actual transaction data for the category */}
-					<TransactionHistoryTable transactions={assetTransactionHistoryMock.map((tx) => ({ ...tx, type: tx.type.replace('Ticker', categoryData.ticker).replace('TICK', categoryData.ticker) }))} showMyTransactionsToggle={false} />
+					{/* <TransactionHistoryTable transactions={assetTransactionHistoryMock.map((tx) => ({ ...tx, type: tx.type.replace('Ticker', categoryData.ticker).replace('TICK', categoryData.ticker) }))} showMyTransactionsToggle={false} /> */}
 					<p className="text-sm text-muted-foreground mt-2 text-center">Transaction history data is not yet connected for this category.</p>
 				</div>
 			</div>

@@ -45,8 +45,8 @@ const categoryEditFormSchema = z
 		admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).optional().nullable(),
 		fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
 		volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
-		minimum_investable: z.coerce.number({ required_error: 'Minimum investable amount is required.', invalid_type_error: 'Minimum investable amount must be a number.' }).nonnegative({ message: 'Minimum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it's required.
-		maximum_investable: z.coerce.number({ required_error: 'Maximum investable amount is required.', invalid_type_error: 'Maximum investable amount must be a number.' }).nonnegative({ message: 'Maximum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it's required.
+		minimum_investable: z.coerce.number({ required_error: 'Minimum investable amount is required.', invalid_type_error: 'Minimum investable amount must be a number.' }).nonnegative({ message: 'Minimum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it&apos;s required.
+		maximum_investable: z.coerce.number({ required_error: 'Maximum investable amount is required.', invalid_type_error: 'Maximum investable amount must be a number.' }).nonnegative({ message: 'Maximum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it&apos;s required.
 	})
 	.refine((data) => data.maximum_investable >= data.minimum_investable, {
 		message: 'Maximum investable amount cannot be less than minimum investable amount.',
@@ -73,7 +73,6 @@ export default function EditCategoryPage() {
 		formState: { isSubmitting },
 		watch,
 		reset,
-		setValue,
 	} = form;
 
 	const imageFileWatcher = watch('imageFile');
@@ -187,7 +186,7 @@ export default function EditCategoryPage() {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorData.detail || errorMessage;
-				} catch (e) {}
+				} catch (e: unknown) {}
 				toast.error(errorMessage);
 			}
 		} catch (error) {
