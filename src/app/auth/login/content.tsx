@@ -24,10 +24,11 @@ export default function LoginPage() {
 		event.preventDefault();
 		setIsLoading(true);
 
+		const toastId = toast.loading('Logging you in...');
 		try {
 			const loggedInUser = await login(email, password);
 
-			toast.success(`Login successful! Welcome, ${loggedInUser.name}`);
+			toast.success(`Login successful! Welcome, ${loggedInUser.name}`, { id: toastId });
 
 			nProgress.start();
 			setTimeout(() => {
@@ -58,7 +59,7 @@ export default function LoginPage() {
 					router.push('/auth/verify-email?email=' + email);
 				}
 			}
-			toast.error(errorMessage);
+			toast.error(errorMessage, { id: toastId });
 		} finally {
 			setIsLoading(false);
 		}

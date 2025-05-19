@@ -181,7 +181,7 @@ export default function AdminSingleCategoriesPage() {
 		return (
 			<span className={`flex items-center text-sm ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
 				{isPositive ? <ArrowUpCircle className="mr-1 h-4 w-4" /> : <ArrowDownCircle className="mr-1 h-4 w-4" />}
-				{value.toFixed(2)}%
+				{value.toFixed(5)}%
 			</span>
 		);
 	};

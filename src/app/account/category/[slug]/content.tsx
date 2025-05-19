@@ -1,4 +1,5 @@
 'use client';
+
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -14,15 +15,39 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatNaira, formatNumber } from '@/lib/helpers';
-import { Category, UserSingleCategoryResponse } from '@/types';
+import { formatNaira, formatNumber, formatRelativeTime } from '@/lib/helpers';
+import { AuthenticatedUser, Category, Investment, InvestmentsResponse, UserSingleCategoryResponse } from '@/types';
+import { CustomLink } from '@/components/ui/CustomLink';
+import { Badge } from '@/components/ui/badge';
+import { useAuthContext } from '@/context/AuthContext';
 
-// Mock activity data (keep for now until real data is fetched)
-const activityData = [
-	{ id: 1, type: 'buy', hash: 'dnwhw82o20wmo29', amount: '20,000.00 NGN', time: '15m ago', icon: ArrowUp, color: 'text-red-500', bg: 'bg-red-500/10', isCredit: true },
-	{ id: 2, type: 'sell', hash: 'ks9Qksjws9jkhHw2n', amount: '10,000.00 NGN', time: '10h ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10', isCredit: false },
-	{ id: 3, type: 'sell', hash: 'QxhsuHiu92j2njniNn', amount: '10,000.00 NGN', time: '20s ago', icon: ArrowDown, color: 'text-green-500', bg: 'bg-green-500/10', isCredit: true },
-];
+export interface Transaction {
+	id: string;
+	user_id: string;
+	category_id: string;
+	investment_id: string;
+	type: 'investment' | 'investment_profit_withdrawal' | 'penalty';
+	amount: number;
+	currency: string;
+	status: string;
+	payment_method: string | null;
+	description: string | null;
+	related_transaction_id: string | null;
+	updated_at: string | null;
+	created_at: string;
+}
+
+export interface TransactionResponse {
+	status: string;
+	data: {
+		transactions: Transaction[];
+		hasMore: boolean;
+		currentPage: number;
+		pageSize: number;
+		totalCount: number;
+		totalPages: number;
+	};
+}
 
 export default function SingleCategoryContent() {
 	const paramsFromHook = useParams<{ slug: string }>();
@@ -37,6 +62,15 @@ export default function SingleCategoryContent() {
 	const [isLoadingPurchase, setIsLoadingPurchase] = useState(false);
 	const [amountInput, setAmountInput] = useState('');
 	const [amountError, setAmountError] = useState<string | null>(null);
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+	const [activeInvestments, setActiveInvestments] = useState<Investment[]>([]);
+	const [isLoadingInvestments, setIsLoadingInvestments] = useState(false);
+	const [investmentsPage, setInvestmentsPage] = useState(1);
+	const [investmentsTotalPages, setInvestmentsTotalPages] = useState(1);
+	const { setCurrentUser, currentUser } = useAuthContext();
 
 	const fetchUserCategory = useCallback(async (identifier: string) => {
 		nProgress.start();
@@ -77,6 +111,44 @@ export default function SingleCategoryContent() {
 		}
 	}, []);
 
+	const fetchTransactions = useCallback(async (categoryId: string, page: number = 1) => {
+		setIsLoadingTransactions(true);
+		try {
+			const response = await fetch(`/api/users/categories/${categoryId}/transactions?page=${page}`);
+			if (!response.ok) {
+				throw new Error('Failed to fetch transactions');
+			}
+			const data: TransactionResponse = await response.json();
+			setTransactions(data.data.transactions);
+			setCurrentPage(data.data.currentPage);
+			setTotalPages(data.data.totalPages);
+		} catch (err) {
+			console.error('Error fetching transactions:', err);
+			toast.error('Failed to load transaction history');
+		} finally {
+			setIsLoadingTransactions(false);
+		}
+	}, []);
+
+	const fetchActiveInvestments = useCallback(async (page: number = 1) => {
+		setIsLoadingInvestments(true);
+		try {
+			const response = await fetch(`/api/users/investments/?status=active&page=${page}`);
+			if (!response.ok) {
+				throw new Error('Failed to fetch active investments');
+			}
+			const data: InvestmentsResponse = await response.json();
+			setActiveInvestments(data.data.investments);
+			setInvestmentsPage(data.data.currentPage);
+			setInvestmentsTotalPages(data.data.totalPages);
+		} catch (err) {
+			console.error('Error fetching active investments:', err);
+			toast.error('Failed to load active investments');
+		} finally {
+			setIsLoadingInvestments(false);
+		}
+	}, []);
+
 	useEffect(() => {
 		if (slug) {
 			fetchUserCategory(slug);
@@ -85,6 +157,13 @@ export default function SingleCategoryContent() {
 			setIsLoading(false);
 		}
 	}, [slug, fetchUserCategory]);
+
+	useEffect(() => {
+		if (categoryData?.id) {
+			fetchTransactions(categoryData.id);
+			fetchActiveInvestments();
+		}
+	}, [categoryData?.id, fetchTransactions, fetchActiveInvestments]);
 
 	const validateAmount = (amount: number, balance: number | undefined): string | null => {
 		if (isNaN(amount) || amount <= 0) {
@@ -103,6 +182,8 @@ export default function SingleCategoryContent() {
 			return 'Could not verify your balance. Please try again.';
 		}
 		if (amount > balance) {
+			console.log(balance, amount);
+
 			return 'Insufficient balance.';
 		}
 		return null;
@@ -142,14 +223,11 @@ export default function SingleCategoryContent() {
 			return;
 		}
 
-		nProgress.start();
 		try {
 			const bodyData = {
 				amount_ngn: amount,
 				category_id: categoryData?.id,
 			};
-
-			console.log(JSON.stringify(bodyData));
 
 			const response = await fetch('/api/users/investments/new', {
 				method: 'POST',
@@ -161,11 +239,11 @@ export default function SingleCategoryContent() {
 			});
 
 			if (response.ok) {
-				// nProgress.start();
-				const { data } = await response.json();
-				console.log(data);
+				nProgress.start();
 
-				// toast.success(`Category "${data.name}" created successfully!`);
+				setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) - amount });
+
+				toast.success(`New shares bought successfully!`);
 				router.push('/account/portfolio');
 			} else {
 				let errorMessage = `Failed to create category. Status: ${response.status}`;
@@ -182,6 +260,20 @@ export default function SingleCategoryContent() {
 			nProgress.done();
 
 			setIsLoadingPurchase(false);
+		}
+	};
+
+	const handlePageChange = (newPage: number) => {
+		if (categoryData?.id && newPage >= 1 && newPage <= totalPages) {
+			setCurrentPage(newPage);
+			fetchTransactions(categoryData.id, newPage);
+		}
+	};
+
+	const handleInvestmentsPageChange = (newPage: number) => {
+		if (newPage >= 1 && newPage <= investmentsTotalPages) {
+			setInvestmentsPage(newPage);
+			fetchActiveInvestments(newPage);
 		}
 	};
 
@@ -224,12 +316,14 @@ export default function SingleCategoryContent() {
 				<Image src={categoryData.image || '/Variety-fruits-vegetables.png'} alt={categoryData.name} layout="fill" objectFit="cover" className="brightness-75" unoptimized />
 				<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
 				<div className="absolute bottom-0 left-0 p-4 md:p-6 text-white">
-					<h1 className="text-2xl md:text-3xl font-bold mb-1">{categoryData.ticker}</h1>
+					<h1 className="text-2xl md:text-3xl font-bold mb-1">
+						{categoryData.name} ({categoryData.ticker})
+					</h1>
 					<div className="flex items-center space-x-2 text-sm">
 						<span>{formatNaira(categoryData.current_price_per_unit)}</span>
 						{categoryData.price_change_24h !== null && categoryData.price_change_24h !== undefined && (
 							<span className={`flex items-center ${categoryData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-								<TrendingUp className="h-4 w-4 mr-1" /> {categoryData.price_change_24h.toFixed(2)}%
+								<TrendingUp className="h-4 w-4 mr-1" /> {categoryData.price_change_24h.toFixed(5)}%
 							</span>
 						)}
 					</div>
@@ -279,7 +373,7 @@ export default function SingleCategoryContent() {
 							Amount to Invest (NGN)
 						</Label>
 
-						<div className="flex gap-4">
+						<div className="flex flex-col md:flex-row gap-1 md:gap-4">
 							<Input
 								id="amount"
 								type="text"
@@ -319,34 +413,122 @@ export default function SingleCategoryContent() {
 				</TabsList>
 
 				<TabsContent value="activity" className="mt-0 space-y-4">
-					{activityData.length > 0 ? (
-						activityData.map((item) => (
-							<div key={item.id} className="flex items-center justify-between pl-0 p-3 rounded-lg hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
-								<div className="flex items-center gap-3">
-									{item.isCredit ? (
-										<div className="bg-[var(--success)] rounded-full p-3">
-											<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+					{isLoadingTransactions ? (
+						<div className="space-y-4">
+							{[1, 2, 3].map((index) => (
+								<Skeleton key={index} className="h-16 w-full rounded-lg" />
+							))}
+						</div>
+					) : transactions.length > 0 ? (
+						<>
+							{transactions.map((transaction) => {
+								const isCredit = transaction.type === 'investment';
+								return (
+									<div key={transaction.id} className="flex items-center justify-between pl-0 p-3 rounded-lg hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
+										<div className="flex items-center gap-3">
+											{isCredit ? (
+												<div className="bg-[var(--success)] rounded-full p-3">
+													<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+												</div>
+											) : (
+												<div className="bg-[var(--danger)] rounded-full p-3">
+													<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+												</div>
+											)}
+											<div>
+												<p className="font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{transaction.id}</p>
+												<p className="text-sm text-muted-foreground">{formatRelativeTime(transaction.created_at)}</p>
+											</div>
 										</div>
-									) : (
-										<div className="bg-[var(--danger)] rounded-full p-3">
-											<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
-										</div>
-									)}
-									<div>
-										<p className="font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{item.hash}</p>
-										<p className="text-sm text-muted-foreground">{item.time}</p>
+										<span className={`font-semibold ${isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatNaira(transaction.amount)}</span>
 									</div>
+								);
+							})}
+
+							{/* Pagination */}
+							{totalPages > 1 && (
+								<div className="flex justify-center gap-2 mt-6">
+									<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+										Previous
+									</Button>
+									<span className="flex items-center px-3 text-sm">
+										Page {currentPage} of {totalPages}
+									</span>
+									<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+										Next
+									</Button>
 								</div>
-								<span className={`font-semibold ${item.isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{item.amount}</span>
-							</div>
-						))
+							)}
+						</>
 					) : (
 						<div className="text-center py-10 text-muted-foreground">No activity yet.</div>
 					)}
 				</TabsContent>
 
 				<TabsContent value="positions" className="mt-0">
-					<div className="text-center py-10 text-muted-foreground">No open positions.</div>
+					{isLoadingInvestments ? (
+						<div className="space-y-4">
+							{[1, 2, 3].map((index) => (
+								<Skeleton key={index} className="h-20 w-full rounded-lg" />
+							))}
+						</div>
+					) : activeInvestments.length > 0 ? (
+						<div className="space-y-4">
+							{activeInvestments.map((investment) => (
+								<CustomLink key={investment.id} href={`/account/portfolio/${investment.id}`} className="block">
+									<div className="bg-card hover:bg-muted/50 transition-colors duration-200 rounded-lg p-4 space-y-3">
+										<div className="flex justify-between items-start">
+											<div>
+												<h3 className="font-semibold text-foreground">Investment ID: {investment.id}</h3>
+												<p className="text-sm text-muted-foreground">Created: {formatRelativeTime(investment.created_at)}</p>
+											</div>
+											<Badge variant="outline" className="ml-2">
+												{investment.status}
+											</Badge>
+										</div>
+										<div className="flex justify-between items-center text-sm">
+											<span className="text-muted-foreground">Initial Investment</span>
+											<span className="font-medium text-foreground">{formatNaira(investment.amount_invested)}</span>
+										</div>
+										<div className="flex justify-between items-center text-sm">
+											<span className="text-muted-foreground">Units Purchased</span>
+											<span className="font-medium text-foreground">{formatNumber(investment.units_purchased)}</span>
+										</div>
+										<div className="flex justify-between items-center text-sm">
+											<span className="text-muted-foreground">Price Per Unit</span>
+											<span className="font-medium text-foreground">{formatNaira(investment.price_per_unit_at_investment)}</span>
+										</div>
+										<div className="flex justify-between items-center text-sm">
+											<span className="text-muted-foreground">Current Value</span>
+											<span className="font-medium text-foreground">{formatNaira(investment.units_purchased * categoryData.current_price_per_unit)}</span>
+										</div>
+										{investment.status === 'withdrawn' && (
+											<div className="flex justify-between items-center text-sm">
+												<span className="text-muted-foreground">Profit Withdrawn</span>
+												<span className="font-medium text-[var(--success)]">{formatNaira(investment.amount_invested * investment.target_profit_multiplier_at_investment)}</span>
+											</div>
+										)}
+									</div>
+								</CustomLink>
+							))}
+
+							{investmentsTotalPages > 1 && (
+								<div className="flex justify-center gap-2 mt-6">
+									<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage - 1)} disabled={investmentsPage === 1}>
+										Previous
+									</Button>
+									<span className="flex items-center px-3 text-sm">
+										Page {investmentsPage} of {investmentsTotalPages}
+									</span>
+									<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage + 1)} disabled={investmentsPage === investmentsTotalPages}>
+										Next
+									</Button>
+								</div>
+							)}
+						</div>
+					) : (
+						<div className="text-center py-10 text-muted-foreground">No active positions in this category.</div>
+					)}
 				</TabsContent>
 			</Tabs>
 

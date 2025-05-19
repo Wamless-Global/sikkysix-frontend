@@ -15,7 +15,7 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 						r={radius}
 						strokeWidth={strokeWidth}
 						stroke="currentColor"
-						className={!active ? `text-[var(--dashboard-accent)]` : `text-[var(--dashboard-accent)]/30`}
+						className={active ? `text-[var(--dashboard-accent)]` : `text-[var(--dashboard-accent)]/30`}
 						fill="transparent"
 						strokeDasharray={circumference}
 						strokeDashoffset={offset}
@@ -24,10 +24,10 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 				)}
 			</svg>
 			<div className="absolute flex flex-col items-center justify-center text-white">
-				<span className="text-3xl font-bold">{value}</span>
+				<span className="text-xl md:text-3xl font-bold">{value}</span>
 				{percentage !== undefined && (
-					<span className={`text-sm ${percentage >= 0 ? 'text-[var(--dashboard-accent)]/90' : 'text-red-400'}`}>
-						{percentage >= 0 ? '+' : ''}
+					<span className={`text-sm ${percentage > 0 ? 'text-[var(--dashboard-accent)]/90' : 'text-red-400'}`}>
+						{percentage > 0 ? '+' : ''}
 						{percentage.toFixed(2)}%
 					</span>
 				)}

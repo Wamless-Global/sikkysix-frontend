@@ -12,7 +12,7 @@ export type User = {
 	name: string;
 	username: string;
 	email: string;
-	profilePictureUrl?: string | null;
+	avatar_url?: string | null;
 	roles: Role[];
 	registrationDate: string;
 	investmentCount: number;
@@ -34,7 +34,7 @@ export interface UserUpdateDataPayload {
 	name: string;
 	username: string;
 	email: string;
-	profilePictureUrl?: string | null;
+	avatar_url?: string | null;
 	roles: Role[];
 	registrationDate: string;
 	investmentCount: number;
@@ -63,7 +63,7 @@ export interface AuthenticatedUser {
 	id: string;
 	name: string;
 	email: string;
-	profilePictureUrl: string | null;
+	avatar_url: string | null;
 	roles: Role[]; // Array of roles
 	registrationDate: string;
 	investmentCount: number;

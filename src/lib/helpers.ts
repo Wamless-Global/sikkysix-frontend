@@ -80,3 +80,48 @@ export const getAccountStatusBadgeVariant = (status: AccountStatus) => {
 			return 'default';
 	}
 };
+
+// Format timestamp to relative time
+export const formatRelativeTime = (timestamp: string) => {
+	const date = new Date(timestamp);
+	const now = new Date();
+	const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+	if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+	if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+	if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+	return `${Math.floor(diffInSeconds / 86400)}d ago`;
+};
+
+export const formatTransactionDate = (date: Date): string => {
+	const month = date.toLocaleDateString('en-US', { month: 'short' });
+	const day = date.getDate();
+	const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+	return `${month} ${day}, ${time}`;
+};
+
+// Utility to make transaction type readable
+export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
+	deposit: 'Deposit',
+	withdrawal: 'Withdrawal',
+	investment: 'Investment',
+	investment_profit_withdrawal: 'Investment Profit',
+	referral_bonus: 'Referral Bonus',
+	fee: 'Fee',
+	penalty: 'Penalty',
+	promo_bonus: 'Promo Bonus',
+	refund: 'Refund',
+	payout: 'Payout',
+	wallet_debit_admin: 'Debit (Admin)',
+	wallet_credit_admin: 'Credit (Admin)',
+	deposit_fee_revenue: 'Deposit Fee',
+	withdrawal_fee_revenue: 'Withdrawal Fee',
+	early_withdrawal_penalty_revenue: 'Early Withdrawal Penalty',
+	profit_cap_retained_revenue: 'Profit Cap Retained',
+	investment_fee_revenue: 'Investment Fee',
+	selling_units_fee_revenue: 'Selling Shares Fee',
+};
+
+export function getTransactionTypeLabel(type: string) {
+	return TRANSACTION_TYPE_LABELS[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}

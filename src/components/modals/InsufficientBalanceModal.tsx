@@ -44,10 +44,10 @@ const InsufficientBalanceModal: React.FC<InsufficientBalanceModalProps> = ({ isO
 					{currentBalance !== undefined && requiredAmount !== undefined && (
 						<div className="mt-2">
 							<p>
-								Current Balance: <span className="font-bold">₦{currentBalance.toFixed(2)}</span>
+								Current Balance: <span className="font-bold">₦{currentBalance.toFixed(5)}</span>
 							</p>
 							<p>
-								Required: <span className="font-bold">₦{requiredAmount.toFixed(2)}</span>
+								Required: <span className="font-bold">₦{requiredAmount.toFixed(5)}</span>
 							</p>
 						</div>
 					)}

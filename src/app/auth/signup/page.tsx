@@ -49,17 +49,18 @@ export default function SignupPage() {
 			return;
 		}
 
+		const toastId = toast.loading('Creating your account...');
 		try {
 			await signup(name, email, password, confirmPassword);
 
 			nprogress.start();
-			toast.success('Signup successful! Please check your email for confirmation.');
+			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
 			router.push(`/auth/verify-email?email=${email}`);
 		} catch (err) {
 			console.error('Signup page error:', err);
 			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during signup.';
 			setError(errorMessage);
-			toast.error(errorMessage);
+			toast.error(errorMessage, { id: toastId });
 		} finally {
 			setIsLoading(false);
 		}

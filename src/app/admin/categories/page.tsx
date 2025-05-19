@@ -166,7 +166,7 @@ export default function CategoryManagementPage() {
 								<TableRow key={category.id} className="hover:bg-muted/50 transition-colors">
 									<TableCell>
 										{category.image ? (
-											<Image src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
+											<Image width={40} height={40} src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
 										) : (
 											<div className="h-10 w-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground">
 												<ImageOff size={20} />
@@ -185,7 +185,7 @@ export default function CategoryManagementPage() {
 									<TableCell>
 										<Badge variant={getLockStatusVariant(category.is_locked)}>{category.is_locked ? 'Locked' : 'Unlocked'}</Badge>
 									</TableCell>
-									<TableCell className="text-right font-mono">${category.current_price_per_unit.toFixed(2)}</TableCell>
+									<TableCell className="text-right font-mono">${category.current_price_per_unit.toFixed(5)}</TableCell>
 									<TableCell className="text-right font-mono">
 										{category.minimum_investable !== undefined ? `$${category.minimum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
 									</TableCell>

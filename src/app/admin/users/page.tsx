@@ -249,7 +249,7 @@ export default function UserManagementPage() {
 								<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
 									<TableCell className="font-medium">
 										<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
-											{user.profilePictureUrl && <Image src={user.profilePictureUrl} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
+											{user.avatar_url && <Image src={user.avatar_url} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
 											<span>{user.name}</span>
 										</CustomLink>
 									</TableCell>

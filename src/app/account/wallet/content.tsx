@@ -6,31 +6,54 @@ import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loa
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/context/AuthContext';
-import { formatNaira } from '@/lib/helpers';
+import { formatNaira, formatTransactionDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ApiTransaction } from '@/types';
 
-interface Transaction {
-	id: string;
-	type: string;
-	timestamp: string;
-	amount: string;
-	isCredit: boolean;
-	completed: boolean;
+function TransactionSkeletonList({ count = 3 }: { count?: number }) {
+	return (
+		<div className="space-y-2 md:space-y-5">
+			{Array.from({ length: count }).map((_, i) => (
+				<div key={i} className="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+					<div className="flex items-center gap-3">
+						<Skeleton className="rounded-full p-3 w-12 h-12" />
+						<div>
+							<Skeleton className="h-4 w-24 mb-2" />
+							<Skeleton className="h-3 w-16" />
+						</div>
+					</div>
+					<Skeleton className="h-5 w-16" />
+				</div>
+			))}
+		</div>
+	);
 }
 
 export default function WalletPageContent() {
 	const { currentUser } = useAuthContext();
-
 	const LIMIT = 3;
 
-	const transactionsData: Transaction[] = [
-		{ id: 'TXN-P2P-17466146399101', type: 'Referral Bonus', timestamp: '08:58:52 05/03/2025', amount: '500.00 NGN', completed: false, isCredit: true },
-		{ id: 'TXN-P2P-17466146399102', type: 'Withdrawal', timestamp: '13:41:22 02/03/2025', amount: '15,000.00 NGN', completed: true, isCredit: false },
-		{ id: 'TXN-P2P-17466146399103', type: 'Withdrawal', timestamp: '08:29:53 01/03/2025', amount: '5,000.00 NGN', completed: true, isCredit: false },
-		{ id: 'TXN-P2P-17466146399104', type: 'Shares#01 Maturity', timestamp: '10:00:00 15/02/2025', amount: '20,000.00 NGN', completed: true, isCredit: true },
-		{ id: 'TXN-P2P-17466146399105', type: 'Deposit', timestamp: '16:20:11 10/02/2025', amount: '10,000.00 NGN', completed: true, isCredit: true },
-	];
+	const [transactions, setTransactions] = useState<ApiTransaction[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [totalCount, setTotalCount] = useState(0);
 
-	const hasTransactions = transactionsData.length > 0;
+	useEffect(() => {
+		setIsLoading(true);
+		fetch(`/api/users/transactions?page=1&pageSize=${LIMIT}`)
+			.then((res) => res.json())
+			.then((data) => {
+				setTransactions(data.data.transactions || []);
+				setTotalCount(data.data.totalCount || 0);
+			})
+			.catch(() => {
+				setTransactions([]);
+				setTotalCount(0);
+			})
+			.finally(() => setIsLoading(false));
+	}, []);
+
+	const hasTransactions = transactions.length > 0;
 
 	return (
 		<div className="space-y-12">
@@ -63,33 +86,31 @@ export default function WalletPageContent() {
 			</div>
 			<div className="sm:mt-20">
 				<h2 className="text-lg font-semibold text-foreground my-4 text-center">Transaction History</h2>
-				{hasTransactions ? (
+				{isLoading ? (
+					<TransactionSkeletonList count={LIMIT} />
+				) : hasTransactions ? (
 					<div className="space-y-2 md:space-y-5">
-						{transactionsData.slice(0, LIMIT).map((transaction) => (
+						{transactions.slice(0, LIMIT).map((transaction) => (
 							<CustomLink href={`/account/wallet/transactions/${transaction.id}`} key={transaction.id} className="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0 hover:bg-background/100">
 								<div className="flex items-center gap-3">
-									{!transaction.completed ? (
+									{transaction.status !== 'completed' ? (
 										<div className="flex justify-center items-center h-full p-3">
 											<Loader2 className="h-4 w-4 animate-spin text-slate-400" />
 										</div>
-									) : transaction.isCredit ? (
-										<div className="bg-[var(--success)] rounded-full p-3">
-											<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
-										</div>
 									) : (
-										<div className="bg-[var(--danger)] rounded-full p-3">
-											<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+										<div className={`rounded-full p-3 ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}>
+											{transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? <ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" /> : <ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />}
 										</div>
 									)}
 									<div>
-										<p className="font-medium text-sm md:text-base text-foreground">{transaction.type}</p>
-										<p className="text-xs text-muted-foreground">{transaction.timestamp}</p>
+										<p className="font-bold text-sm md:text-base text-foreground">{getTransactionTypeLabel(transaction.type)}</p>
+										<p className="text-xs md:text-sm text-muted-foreground">{formatTransactionDate(new Date(transaction.created_at))}</p>
 									</div>
 								</div>
-								<p className={`font-semibold text-base md:text-lg ${transaction.isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{transaction.amount}</p>
+								<p className={`font-semibold text-base md:text-lg ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatNaira(transaction.amount)}</p>
 							</CustomLink>
 						))}
-						{transactionsData.length > LIMIT && (
+						{totalCount > LIMIT && (
 							<div className="mt-20 text-center">
 								<CustomLink href="/account/wallet/transactions">
 									<Button variant="success" className="w-full sm:w-auto" size={'lg'}>

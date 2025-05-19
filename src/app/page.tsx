@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Image from 'next/image';
-import Link from 'next/link';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 // Placeholder SVG for Logo - Using CSS Vars
 const LogoPlaceholder = () => (
@@ -59,9 +59,9 @@ export default function LandingPage() {
 						Tasks
 					</a>
 				</nav>
-				<Link href="/auth/login" passHref>
+				<CustomLink href="/auth/login" passHref>
 					<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-6 hidden md:block">Login / Signup</Button>
-				</Link>
+				</CustomLink>
 				<button className="md:hidden text-foreground z-50" onClick={toggleMobileMenu}>
 					{/* Use foreground color */}
 					{isMobileMenuOpen ? (
@@ -90,11 +90,11 @@ export default function LandingPage() {
 					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
 						Tasks
 					</a>
-					<Link href="/auth/login" passHref>
+					<CustomLink href="/auth/login" passHref>
 						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg mt-8" onClick={toggleMobileMenu}>
 							Login / Signup
 						</Button>
-					</Link>
+					</CustomLink>
 				</div>
 			)}
 			<section className="container mx-auto px-4 py-16 md:py-24 text-center relative overflow-hidden">
@@ -107,9 +107,9 @@ export default function LandingPage() {
 				</h1>
 				<p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Join our revolutionary investment platform that rewards early investors. Choose from various categories, earn up to 2x your investment, and benefit from our transparent, fee-based system.</p>
 				<div className="flex justify-center space-x-4 mb-16">
-					<Link href="/auth/login" passHref>
+					<CustomLink href="/auth/login" passHref>
 						<Button className="bg-[var(--lp-green-primary)] hover:opacity-90 text-primary-foreground rounded-full px-8 py-3 text-lg">Get Started</Button>
-					</Link>
+					</CustomLink>
 					{/* Commented out Watch Demo Button */}
 					{/*
 					<Button variant="outline" className="border-muted-foreground hover:bg-muted text-foreground rounded-full px-8 py-3 text-lg flex items-center space-x-2">

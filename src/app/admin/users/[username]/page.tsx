@@ -273,8 +273,8 @@ export default function UserDetailPage() {
 				<CardHeader className="flex flex-col md:flex-row items-start justify-between gap-4">
 					<div className="flex items-center gap-4 flex-1">
 						<div className="flex-shrink-0">
-							{currentUser.profilePictureUrl ? (
-								<Image src={currentUser.profilePictureUrl} alt={`${currentUser.name}&apos;s profile picture`} width={80} height={80} className="rounded-full border" />
+							{currentUser.avatar_url ? (
+								<Image src={currentUser.avatar_url} alt={`${currentUser.name}&apos;s profile picture`} width={80} height={80} className="rounded-full border" />
 							) : (
 								<div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border">
 									<UserIcon className="w-10 h-10 text-muted-foreground" />

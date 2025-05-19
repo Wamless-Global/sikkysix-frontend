@@ -234,7 +234,7 @@ export default function P2PAgentListPageContent() {
 										<StarRating rating={agent.rating} />
 									</div>
 									<p className="text-sm text-muted-foreground">
-										NGN <span className="font-semibold text-base text-foreground">{agent.rateNGN.toFixed(2)}</span>
+										NGN <span className="font-semibold text-base text-foreground">{agent.rateNGN.toFixed(5)}</span>
 									</p>
 								</div>
 								<div className="flex flex-col items-start sm:items-end w-full sm:w-auto pt-2 sm:pt-0 mt-auto">
@@ -270,7 +270,7 @@ export default function P2PAgentListPageContent() {
 					}}
 					onConfirm={proceedToNewOrder}
 					title="Confirm Agent Selection"
-					description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? They have a rate of NGN ${selectedAgentForConfirmation.rateNGN.toFixed(2)}.`}
+					description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? They have a rate of NGN ${selectedAgentForConfirmation.rateNGN.toFixed(5)}.`}
 					confirmButtonText="Proceed"
 					cancelButtonText="Cancel"
 					isLoading={isRedirecting}

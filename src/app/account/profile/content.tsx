@@ -26,7 +26,7 @@ export default function ProfilePageContent() {
 		<div className="space-y-12">
 			<div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
 				<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-[var(--dashboard-accent)]">
-					<AvatarImage src={currentUser?.profilePictureUrl ?? undefined} alt={currentUser?.name ?? 'User Avatar'} />
+					<AvatarImage src={currentUser?.avatar_url ?? undefined} alt={currentUser?.name ?? 'User Avatar'} />
 					<AvatarFallback>{currentUser?.name?.charAt(0) ?? 'U'}</AvatarFallback>
 				</Avatar>
 				<div className="flex-grow space-y-1">

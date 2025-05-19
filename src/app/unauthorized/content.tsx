@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { CustomLink } from '@/components/ui/CustomLink';
+import nProgress from 'nprogress';
 
 const UnauthorizedPageContent: React.FC = () => {
 	const { logout } = useAuthContext();
@@ -19,11 +20,14 @@ const UnauthorizedPageContent: React.FC = () => {
 		setIsLoggingOut(true);
 		try {
 			await logout();
+			nProgress.start();
 			toast.success('Logged out successfully!');
 			router.push('/auth/login');
 		} catch (err) {
 			console.error('Logout failed:', err);
 			toast.error(err instanceof Error ? err.message : 'An unexpected error occurred during logout.');
+		} finally {
+			nProgress.done();
 			setIsLoggingOut(false);
 		}
 	};
@@ -33,11 +37,11 @@ const UnauthorizedPageContent: React.FC = () => {
 			<h1 className="text-4xl font-bold mb-4 text-destructive">Unauthorized Access</h1>
 			<p className="text-lg mb-6 text-center">You do not have the necessary permissions to access {attemptedPath ? <code className="bg-muted px-1 py-0.5 rounded">{attemptedPath}</code> : 'this page'}.</p>
 			<div className="flex gap-4">
-				<Link href="/" passHref>
+				<CustomLink href="/" passHref>
 					<Button variant="outline" className="cursor-pointer" disabled={isLoggingOut}>
 						Go to Home Page
 					</Button>
-				</Link>
+				</CustomLink>
 				<Button variant="destructive" onClick={handleLogout} className="cursor-pointer" disabled={isLoggingOut}>
 					{isLoggingOut ? (
 						<>

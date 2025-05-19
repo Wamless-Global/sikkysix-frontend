@@ -73,7 +73,25 @@ const categoryFormSchema = z
 					message: 'All AMM parameters must have values',
 				}
 			),
+		early_withdrawal_penalty_type: z
+			.enum(['none', 'forfeit_profit', 'percentage_fee'], {
+				required_error: 'Early withdrawal penalty type is required',
+			})
+			.default('none'),
+		early_withdrawal_penalty_value: z.coerce.number().min(0, { message: 'Penalty value must be non-negative' }).max(1, { message: 'Penalty value must not exceed 100%' }).optional().nullable(),
 	})
+	.refine(
+		(data) => {
+			if (data.early_withdrawal_penalty_type === 'percentage_fee') {
+				return data.early_withdrawal_penalty_value !== null && data.early_withdrawal_penalty_value !== undefined;
+			}
+			return true;
+		},
+		{
+			message: 'Percentage fee requires a value between 0 and 1',
+			path: ['early_withdrawal_penalty_value'],
+		}
+	)
 	.refine((data) => data.maximum_investable >= data.minimum_investable, {
 		message: 'Maximum investable amount cannot be less than minimum investable amount.',
 		path: ['maximum_investable'],
@@ -100,6 +118,8 @@ const defaultValues: Partial<CategoryFormValues> = {
 	volatility_factor: null,
 	minimum_investable: 0,
 	maximum_investable: 0,
+	early_withdrawal_penalty_type: 'none',
+	early_withdrawal_penalty_value: null,
 };
 
 export default function CreateCategoryPage() {
@@ -272,7 +292,7 @@ export default function CreateCategoryPage() {
 											<FormMessage />
 											{imagePreview && (
 												<div className="mt-2">
-													<Image src={imagePreview} alt="Image preview" className="h-32 w-32 object-cover rounded-md border" />
+													<Image src={imagePreview} alt="Image preview" width={128} height={128} className="h-32 w-32 object-cover rounded-md border" />
 												</div>
 											)}
 										</FormItem>
@@ -304,7 +324,6 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-
 								<FormField
 									control={form.control}
 									name="amm_model_type"
@@ -331,8 +350,58 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-
 								<AmmParameterFields ammModelType={ammModelType} isSubmitting={isSubmitting} control={form.control} />
+								<FormField
+									control={form.control}
+									name="early_withdrawal_penalty_type"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Early Withdrawal Penalty Type</FormLabel>
+											<Select onValueChange={field.onChange} defaultValue={field.value}>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select a penalty type" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="none">None</SelectItem>
+													<SelectItem value="forfeit_profit">Forfeit Profit</SelectItem>
+													<SelectItem value="percentage_fee">Percentage Fee</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormDescription>Choose how to handle early withdrawals</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>{' '}
+								{form.watch('early_withdrawal_penalty_type') === 'percentage_fee' && (
+									<FormField
+										control={form.control}
+										name="early_withdrawal_penalty_value"
+										render={({ field: { onChange, value, ...fieldProps } }) => (
+											<FormItem>
+												<FormLabel>Penalty Percentage</FormLabel>
+												<FormControl>
+													<Input
+														type="number"
+														step="0.01"
+														min="0"
+														max="1"
+														placeholder="0.10"
+														{...fieldProps}
+														value={value ?? ''}
+														onChange={(e) => {
+															const newValue = e.target.value === '' ? null : parseFloat(e.target.value);
+															onChange(newValue);
+														}}
+													/>
+												</FormControl>
+												<FormDescription>Enter the penalty percentage as a decimal (e.g., 0.10 for 10%)</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 							</div>
 
 							{/* Column 2 */}

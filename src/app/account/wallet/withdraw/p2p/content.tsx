@@ -240,7 +240,7 @@ export default function P2PWithdrawalContent() {
 										<StarRating rating={merchant.rating} />
 									</div>
 									<p className="text-sm text-muted-foreground">
-										Rate: <span className="font-semibold text-base text-foreground">{merchant.buyRateNGN.toFixed(2)} NGN</span> / {selectedAsset.symbol}
+										Rate: <span className="font-semibold text-base text-foreground">{merchant.buyRateNGN.toFixed(5)} NGN</span> / {selectedAsset.symbol}
 									</p>
 									<p className="text-xs text-muted-foreground">
 										Limits: {merchant.minAmountAsset} - {merchant.maxAmountAsset} {selectedAsset.symbol}
@@ -279,7 +279,7 @@ export default function P2PWithdrawalContent() {
 					}}
 					onConfirm={proceedToTrade}
 					title="Confirm Merchant Selection"
-					description={`Start P2P withdrawal with ${selectedMerchant.name}? Rate: ${selectedMerchant.buyRateNGN.toFixed(2)} NGN / ${selectedAsset.symbol}.`}
+					description={`Start P2P withdrawal with ${selectedMerchant.name}? Rate: ${selectedMerchant.buyRateNGN.toFixed(5)} NGN / ${selectedAsset.symbol}.`}
 					confirmButtonText="Proceed"
 					cancelButtonText="Cancel"
 					isLoading={isRedirecting}
