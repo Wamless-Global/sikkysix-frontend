@@ -33,7 +33,7 @@ export default function CategoryManagementPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/admin/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
+			const response = await fetch(`/api/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
@@ -99,163 +99,167 @@ export default function CategoryManagementPage() {
 
 			<p className="text-lg text-muted-foreground">Oversee and manage all investment categories. View details, edit properties, and monitor performance.</p>
 
-			{error && <ErrorMessage message={error} onRetry={handleRetry} />}
-
-			<div className="rounded-md border bg-card shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-[80px]">Image</TableHead>
-							<TableHead>Name</TableHead>
-							<TableHead>Ticker</TableHead>
-							<TableHead className="max-w-xs">Description</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead className="text-right">Price/Unit</TableHead>
-							<TableHead className="text-right">Min Invest</TableHead>
-							<TableHead className="text-right">Max Invest</TableHead>
-							<TableHead className="text-right">Market Cap</TableHead>
-							<TableHead className="text-right">Holders</TableHead>
-							<TableHead className="text-center">
-								<span className="sr-only">Actions</span>
-							</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							Array.from({ length: appSettings.itemsPerPage / 2 }).map((_, index) => (
-								<TableRow key={`skeleton-${index}`}>
-									<TableCell>
-										<Skeleton className="h-10 w-10 rounded-sm" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[150px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[80px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[200px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-6 w-[70px] rounded-full" />
-									</TableCell>
-									<TableCell className="text-right">
-										<Skeleton className="h-4 w-[100px] ml-auto" />
-									</TableCell>
-									<TableCell className="text-right">
-										<Skeleton className="h-4 w-[70px] ml-auto" />
-									</TableCell>
-									<TableCell className="text-right">
-										<Skeleton className="h-4 w-[70px] ml-auto" />
-									</TableCell>
-									<TableCell className="text-right">
-										<Skeleton className="h-4 w-[120px] ml-auto" />
-									</TableCell>
-									<TableCell className="text-right">
-										<Skeleton className="h-4 w-[60px] ml-auto" />
-									</TableCell>
-									<TableCell className="text-center">
-										<Button variant="ghost" className="h-8 w-8 p-0" disabled>
-											<MoreHorizontal className="h-4 w-4" />
-										</Button>
-									</TableCell>
+			{error ? (
+				<ErrorMessage message={error} onRetry={handleRetry} />
+			) : (
+				<>
+					<div className="rounded-md border bg-card shadow-sm">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead className="w-[80px]">Image</TableHead>
+									<TableHead>Name</TableHead>
+									<TableHead>Ticker</TableHead>
+									<TableHead className="max-w-xs">Description</TableHead>
+									<TableHead>Status</TableHead>
+									<TableHead className="text-right">Price/Unit</TableHead>
+									<TableHead className="text-right">Min Invest</TableHead>
+									<TableHead className="text-right">Max Invest</TableHead>
+									<TableHead className="text-right">Market Cap</TableHead>
+									<TableHead className="text-right">Holders</TableHead>
+									<TableHead className="text-center">
+										<span className="sr-only">Actions</span>
+									</TableHead>
 								</TableRow>
-							))
-						) : categories.length > 0 ? (
-							categories.map((category) => (
-								<TableRow key={category.id} className="hover:bg-muted/50 transition-colors">
-									<TableCell>
-										{category.image ? (
-											<Image width={40} height={40} src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
-										) : (
-											<div className="h-10 w-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground">
-												<ImageOff size={20} />
-											</div>
-										)}
-									</TableCell>
-									<TableCell className="font-medium">
-										<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}`} className="hover:underline text-primary">
-											{category.name}
-										</CustomLink>
-									</TableCell>
-									<TableCell className="text-muted-foreground">{category.ticker}</TableCell>
-									<TableCell className="text-sm text-muted-foreground max-w-xs truncate" title={category.description || undefined}>
-										{category.description || <span className="text-gray-400 italic">No description</span>}
-									</TableCell>
-									<TableCell>
-										<Badge variant={getLockStatusVariant(category.is_locked)}>{category.is_locked ? 'Locked' : 'Unlocked'}</Badge>
-									</TableCell>
-									<TableCell className="text-right font-mono">${category.current_price_per_unit.toFixed(5)}</TableCell>
-									<TableCell className="text-right font-mono">
-										{category.minimum_investable !== undefined ? `$${category.minimum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
-									</TableCell>
-									<TableCell className="text-right font-mono">
-										{category.maximum_investable !== undefined ? `$${category.maximum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
-									</TableCell>
-									<TableCell className="text-right font-mono">{category.market_cap ? `$${category.market_cap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
-									<TableCell className="text-right">{category.holders !== undefined ? category.holders.toLocaleString() : <span className="text-gray-400 italic">N/A</span>}</TableCell>
-									<TableCell className="text-center">
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" className="h-8 w-8 p-0">
-													<span className="sr-only">Open menu for {category.name}</span>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									Array.from({ length: appSettings.itemsPerPage / 2 }).map((_, index) => (
+										<TableRow key={`skeleton-${index}`}>
+											<TableCell>
+												<Skeleton className="h-10 w-10 rounded-sm" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[150px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[80px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[200px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-6 w-[70px] rounded-full" />
+											</TableCell>
+											<TableCell className="text-right">
+												<Skeleton className="h-4 w-[100px] ml-auto" />
+											</TableCell>
+											<TableCell className="text-right">
+												<Skeleton className="h-4 w-[70px] ml-auto" />
+											</TableCell>
+											<TableCell className="text-right">
+												<Skeleton className="h-4 w-[70px] ml-auto" />
+											</TableCell>
+											<TableCell className="text-right">
+												<Skeleton className="h-4 w-[120px] ml-auto" />
+											</TableCell>
+											<TableCell className="text-right">
+												<Skeleton className="h-4 w-[60px] ml-auto" />
+											</TableCell>
+											<TableCell className="text-center">
+												<Button variant="ghost" className="h-8 w-8 p-0" disabled>
 													<MoreHorizontal className="h-4 w-4" />
 												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuLabel>Actions</DropdownMenuLabel>
-												<DropdownMenuItem asChild>
-													<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}/edit`} className="w-full justify-start cursor-pointer">
-														Edit Category
-													</CustomLink>
-												</DropdownMenuItem>
-												{/* <DropdownMenuItem onClick={() => alert(`Toggling lock for ${category.name}`)} className="cursor-pointer">
+											</TableCell>
+										</TableRow>
+									))
+								) : categories.length > 0 ? (
+									categories.map((category) => (
+										<TableRow key={category.id} className="hover:bg-muted/50 transition-colors">
+											<TableCell>
+												{category.image ? (
+													<Image width={40} height={40} src={category.image} alt={category.name} className="h-10 w-10 object-cover rounded-sm" />
+												) : (
+													<div className="h-10 w-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground">
+														<ImageOff size={20} />
+													</div>
+												)}
+											</TableCell>
+											<TableCell className="font-medium">
+												<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}`} className="hover:underline text-primary">
+													{category.name}
+												</CustomLink>
+											</TableCell>
+											<TableCell className="text-muted-foreground">{category.ticker}</TableCell>
+											<TableCell className="text-sm text-muted-foreground max-w-xs truncate" title={category.description || undefined}>
+												{category.description || <span className="text-gray-400 italic">No description</span>}
+											</TableCell>
+											<TableCell>
+												<Badge variant={getLockStatusVariant(category.is_locked)}>{category.is_locked ? 'Locked' : 'Unlocked'}</Badge>
+											</TableCell>
+											<TableCell className="text-right font-mono">${category.current_price_per_unit.toFixed(5)}</TableCell>
+											<TableCell className="text-right font-mono">
+												{category.minimum_investable !== undefined ? `$${category.minimum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
+											</TableCell>
+											<TableCell className="text-right font-mono">
+												{category.maximum_investable !== undefined ? `$${category.maximum_investable.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}
+											</TableCell>
+											<TableCell className="text-right font-mono">{category.market_cap ? `$${category.market_cap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
+											<TableCell className="text-right">{category.holders !== undefined ? category.holders.toLocaleString() : <span className="text-gray-400 italic">N/A</span>}</TableCell>
+											<TableCell className="text-center">
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" className="h-8 w-8 p-0">
+															<span className="sr-only">Open menu for {category.name}</span>
+															<MoreHorizontal className="h-4 w-4" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuLabel>Actions</DropdownMenuLabel>
+														<DropdownMenuItem asChild>
+															<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}/edit`} className="w-full justify-start cursor-pointer">
+																Edit Category
+															</CustomLink>
+														</DropdownMenuItem>
+														{/* <DropdownMenuItem onClick={() => alert(`Toggling lock for ${category.name}`)} className="cursor-pointer">
 													{category.is_locked ? 'Unlock' : 'Lock'} Category
 												</DropdownMenuItem> */}
-												<DropdownMenuItem asChild>
-													<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}`} className="w-full justify-start cursor-pointer">
-														View Details
-													</CustomLink>
-												</DropdownMenuItem>
-												{/* <DropdownMenuSeparator /> */}
-												{/* <DropdownMenuItem className="text-red-600 hover:!text-red-600 hover:!bg-red-100 focus:text-red-600 focus:bg-red-100 cursor-pointer" onClick={() => alert(`Deleting ${category.name}`)}>
+														<DropdownMenuItem asChild>
+															<CustomLink href={`/admin/categories/${generateSlug(category.ticker)}`} className="w-full justify-start cursor-pointer">
+																View Details
+															</CustomLink>
+														</DropdownMenuItem>
+														{/* <DropdownMenuSeparator /> */}
+														{/* <DropdownMenuItem className="text-red-600 hover:!text-red-600 hover:!bg-red-100 focus:text-red-600 focus:bg-red-100 cursor-pointer" onClick={() => alert(`Deleting ${category.name}`)}>
 													Delete Category
 												</DropdownMenuItem> */}
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</TableCell>
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={11} className="h-32 text-center text-lg text-muted-foreground">
-									No categories found.
-									{!isLoading && !error && (
-										<Button variant="link" asChild className="ml-2">
-											<CustomLink href={'/admin/categories/create'}>Create one now</CustomLink>
-										</Button>
-									)}
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</TableCell>
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={11} className="h-32 text-center text-lg text-muted-foreground">
+											No categories found.
+											{!isLoading && !error && (
+												<Button variant="link" asChild className="ml-2">
+													<CustomLink href={'/admin/categories/create'}>Create one now</CustomLink>
+												</Button>
+											)}
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
 
-			{!isLoading && categories.length > 0 && totalPages > 1 && (
-				<div className="flex items-center justify-end space-x-2 py-4">
-					<span className="text-sm text-muted-foreground">
-						Page {currentPage} of {totalPages}
-					</span>
-					<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading}>
-						<ChevronLeft className="mr-1 h-4 w-4" />
-						Previous
-					</Button>
-					<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading}>
-						Next
-						<ChevronRight className="ml-1 h-4 w-4" />
-					</Button>
-				</div>
+					{!isLoading && categories.length > 0 && totalPages > 1 && (
+						<div className="flex items-center justify-end space-x-2 py-4">
+							<span className="text-sm text-muted-foreground">
+								Page {currentPage} of {totalPages}
+							</span>
+							<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading}>
+								<ChevronLeft className="mr-1 h-4 w-4" />
+								Previous
+							</Button>
+							<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading}>
+								Next
+								<ChevronRight className="ml-1 h-4 w-4" />
+							</Button>
+						</div>
+					)}
+				</>
 			)}
 			{/* TODO: Consider more advanced pagination (e.g., page numbers) or infinite scrolling */}
 		</div>

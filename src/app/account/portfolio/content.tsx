@@ -28,7 +28,7 @@ export default function PortfolioPageContent() {
 	const [selectedTab, setSelectedTab] = useState<'active' | 'completed'>('active');
 	const [investments, setInvestments] = useState<Investment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [, setError] = useState<string | null>(null);
 
 	const fetchInvestments = useCallback(async () => {
 		setIsLoading(true);
@@ -36,7 +36,7 @@ export default function PortfolioPageContent() {
 		nProgress.start();
 
 		try {
-			const response = await fetch('/api/users/investments?with_metrics=true');
+			const response = await fetch('/api/investments?with_metrics=true');
 			if (!response.ok) {
 				throw new Error('Failed to fetch investments');
 			}
@@ -63,7 +63,7 @@ export default function PortfolioPageContent() {
 
 	const investmentsToShow = investments.filter((item) => (selectedTab === 'active' ? item.status === 'active' && !item.cancelled : item.completed || item.cancelled));
 
-	const portfolioValue = investmentsToShow.reduce((sum, item) => (sum + item.status === 'active' ? item.current_value : (item.details?.sold_at ?? 0) * (item.details?.initial_units_purchased ?? 0)), 0);
+	const portfolioValue = investmentsToShow.reduce((sum, item) => sum + (item.status === 'active' ? item.current_value : item.details?.realized_value ?? 0), 0);
 	const hasInvestments = investmentsToShow.length > 0;
 
 	return (
@@ -188,7 +188,7 @@ export default function PortfolioPageContent() {
 												<h3 className="text-base md:text-lg font-semibold text-foreground">{item.ticker} Investment</h3>
 												<Badge variant={item.cancelled ? 'destructive' : 'completed'}>{item.cancelled ? 'Cancelled' : 'Completed'}</Badge>
 											</div>
-											<p className="text-lg md:text-xl font-bold text-foreground">{formatCurrency((item.details?.sold_at ?? 0) * (item.details?.initial_units_purchased ?? 0))}</p>
+											<p className="text-lg md:text-xl font-bold text-foreground">{formatCurrency(item.details?.realized_value ?? 0)}</p>
 										</div>
 										<div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 mb-3">
 											<div className="text-muted-foreground">

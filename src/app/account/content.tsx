@@ -21,7 +21,7 @@ export default function AccountPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch('/api/users/categories');
+			const response = await fetch('/api/categories');
 
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;

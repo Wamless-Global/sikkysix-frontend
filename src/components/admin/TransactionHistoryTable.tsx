@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ChevronLeft, ChevronRight, ArrowUpDown, Loader2 } from 'lucide-react';
-import { SortableTransactionKeys, TransactionHistoryTableProps, TransactionStatus } from '@/types';
+import { SortableTransactionKeys, TransactionHistoryTableProps, TransactionStatusEnum } from '@/types';
 
-const getTransactionStatusVariant = (status: TransactionStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
+const getTransactionStatusVariant = (status: TransactionStatusEnum): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {
-		case 'Completed':
+		case 'completed':
 			return 'default';
-		case 'Pending':
+		case 'pending':
 			return 'secondary';
-		case 'Processing':
+		case 'cancelled':
 			return 'outline';
-		case 'Rejected':
+		case 'rejected':
 			return 'destructive';
 		default:
 			return 'outline';
@@ -65,12 +65,12 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 						) : transactions.length > 0 ? (
 							transactions.map((tx) => (
 								<TableRow key={tx.id} className="hover:bg-muted/50 transition-colors">
-									<TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
+									<TableCell>{new Date(tx.created_at).toLocaleDateString()}</TableCell>
 									<TableCell className="font-medium">
-										{tx.userName} ({tx.userId})
+										{tx.userName} ({tx.id})
 									</TableCell>
 									<TableCell>
-										{tx.type} {tx.method ? `(${tx.method})` : ''}
+										{tx.type} {tx.payment_method ? `(${tx.payment_method})` : ''}
 									</TableCell>
 									<TableCell className="text-right">
 										{' '}
@@ -79,9 +79,9 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 									<TableCell>
 										<Badge variant={getTransactionStatusVariant(tx.status)}>{tx.status}</Badge>
 									</TableCell>
-									<TableCell className="text-sm text-muted-foreground max-w-[200px] truncate" title={tx.details}>
+									{/* <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate" title={tx.details}>
 										{tx.details || '-'}
-									</TableCell>
+									</TableCell> */}
 									<TableCell>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>

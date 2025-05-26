@@ -1,5 +1,7 @@
 export type AmmModelType = 'adjusted_l_s' | 'constant_product' | 'linear_bonding_curve' | 'exponential_bonding_curve';
 
+export type PenaltyType = 'none' | 'forfeit_profit' | 'percentage_fee';
+
 export interface AdjustedLSParams {
 	deposit_impact_factor: number;
 	withdrawal_impact_factor: number;

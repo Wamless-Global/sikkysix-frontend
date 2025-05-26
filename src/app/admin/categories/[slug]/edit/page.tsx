@@ -94,7 +94,7 @@ export default function EditCategoryPage() {
 			setIsLoadingData(true);
 			NProgress.start();
 			try {
-				const response = await fetch(`/api/admin/categories/${id}`);
+				const response = await fetch(`/api/categories/${id}`);
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({}));
 					throw new Error(errorData.message || `Failed to fetch category details: ${response.statusText}`);
@@ -170,7 +170,7 @@ export default function EditCategoryPage() {
 		formData.set('is_launched', String(data.is_launched));
 
 		try {
-			const response = await fetch(`/api/admin/categories/${categoryId}`, {
+			const response = await fetch(`/api/categories/${categoryId}`, {
 				method: 'PUT',
 				body: formData,
 				credentials: 'include',
@@ -186,7 +186,7 @@ export default function EditCategoryPage() {
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorData.detail || errorMessage;
-				} catch (e: unknown) {}
+				} catch (_e: unknown) {}
 				toast.error(errorMessage);
 			}
 		} catch (error) {

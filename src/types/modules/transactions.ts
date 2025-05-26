@@ -1,28 +1,56 @@
+import { PenaltyType } from './categories';
+
 export interface TransactionHistoryTableProps {
 	transactions: Transaction[];
 	showMyTransactionsToggle?: boolean; // To show "View My Transactions Only"
 	currentUserId?: string; // For filtering "My Transactions"
 }
 
-export type TransactionStatus = 'Completed' | 'Pending' | 'Rejected' | 'Processing';
-export type TransactionType = 'Deposit' | 'Withdrawal' | 'Fee' | 'Investment' | 'Referral Bonus';
-export type TransactionMethod = 'Bank Transfer' | 'Crypto' | 'Platform';
+export type TransactionsType =
+	| 'deposit'
+	| 'withdrawal'
+	| 'investment'
+	| 'investment_profit_withdrawal'
+	| 'referral_bonus'
+	| 'fee'
+	| 'penalty'
+	| 'promo_bonus'
+	| 'refund'
+	| 'payout'
+	| 'wallet_debit_admin'
+	| 'wallet_credit_admin'
+	| 'deposit_fee_revenue'
+	| 'withdrawal_fee_revenue'
+	| 'early_withdrawal_penalty_revenue'
+	| 'profit_cap_retained_revenue'
+	| 'investment_fee_revenue'
+	| 'selling_units_fee_revenue';
+export type TransactionsPaymentMethod = 'p2p' | 'wallet_balance' | 'crypto' | 'internal';
+export type TransactionStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'failed' | 'cancelled';
 
-export type Transaction = {
-	id: string;
-	userId: string;
-	userName: string;
-	type: TransactionType;
-	method?: TransactionMethod;
-	amount: number;
-	currency: string;
-	date: string;
+export interface Transaction {
+	id: string; // uuid
+	user_id: string; // uuid
+	category_id: string | null; // uuid
+	investment_id: string | null; // uuid
+	type: TransactionsType;
+	amount: number; // numeric
+	currency: string; // text, default currency
 	status: TransactionStatus;
-	details?: string;
-	maskedInvestorId: string;
-	timestamp: string;
-	usdValue?: number; // Optional: Equivalent value in USD
-};
+	payment_method: TransactionsPaymentMethod | null;
+	description: string | null; // text
+	related_transaction_id: string | null; // uuid
+	updated_at: string | null; // timestamp with time zone
+	created_at: string; // timestamp with time zone
+	raw_amount_from_amm?: number;
+	capped_amount?: number;
+	penalty_type_applied?: PenaltyType;
+	penalty_amount_deducted?: number;
+	details?: Record<string, any>;
+	is_instant?: boolean;
+	duration_seconds?: number; // For non-instant transactions
+	userName?: string; // uuid
+}
 
 export type SortableTransactionKeys = 'date' | 'userName' | 'type' | 'amount' | 'status';
 
@@ -69,6 +97,6 @@ export interface AccountTransaction {
 	type: string;
 	date: Date;
 	amount: number;
-	status: 'Completed' | 'Pending' | string;
+	status: 'completed' | 'pending' | string;
 	originalType: string;
 }

@@ -65,6 +65,7 @@ export interface WithdrawalPreviewResponse {
 	} | null;
 	estimated_net_amount_to_user: number;
 	current_market_price_per_unit: number;
+	fee: number;
 }
 
 export interface WithdrawalConfirmResponse {

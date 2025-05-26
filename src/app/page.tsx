@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import Image from 'next/image';
 import { CustomLink } from '@/components/ui/CustomLink';
 
 // Placeholder SVG for Logo - Using CSS Vars

@@ -238,7 +238,7 @@ export default function UserDetailPage() {
 		setIsAdjustingBalance(true);
 
 		try {
-			const response = await fetch(`/api/admin/users/${currentUser.id}/wallet`, {
+			const response = await fetch(`/api/users/${currentUser.id}/wallet`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ amount, reason }),

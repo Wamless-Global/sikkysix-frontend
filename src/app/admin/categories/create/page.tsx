@@ -184,7 +184,7 @@ export default function CreateCategoryPage() {
 		// }
 
 		try {
-			const response = await fetch('/api/admin/categories', {
+			const response = await fetch('/api/categories', {
 				method: 'POST',
 				body: formData,
 				credentials: 'include',

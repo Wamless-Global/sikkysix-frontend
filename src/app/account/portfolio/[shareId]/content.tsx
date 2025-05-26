@@ -5,10 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import CircularProgressDisplay from '@/components/ui/circular-progress-display';
-import currencyFormatter from '@/components/ui/currency-formatter';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'sonner';
-import { formatRelativeTime, generateSlug } from '@/lib/helpers';
+import { currencyFormatter, formatRelativeTime, generateSlug } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AuthenticatedUser, Investment, SingleInvestmentResponse, WithdrawalPreviewResponse } from '@/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -42,13 +41,12 @@ export default function PortfolioItemDetailPageContent() {
 			setError(null);
 
 			try {
-				const response = await fetch(`/api/users/investments/${investmentId}`);
+				const response = await fetch(`/api/investments/${investmentId}`);
 				if (!response.ok) {
 					throw new Error('Failed to fetch investment details');
 				}
 
 				const data: SingleInvestmentResponse = await response.json();
-				console.log(data);
 
 				setInvestment(data.data.investment);
 			} catch (err) {
@@ -65,7 +63,7 @@ export default function PortfolioItemDetailPageContent() {
 	const handleWithdrawClick = async () => {
 		setIsWithdrawing(true);
 		try {
-			const response = await fetch(`/api/users/investments/${investmentId}/withdraw-preview`, {
+			const response = await fetch(`/api/investments/${investmentId}/withdraw-preview`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -102,7 +100,7 @@ export default function PortfolioItemDetailPageContent() {
 		const toastId = toast.loading('Processing withdrawal...');
 
 		try {
-			const response = await fetch(`/api/users/investments/${investmentId}/withdraw`, {
+			const response = await fetch(`/api/investments/${investmentId}/withdraw`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -128,9 +126,9 @@ export default function PortfolioItemDetailPageContent() {
 					: null
 			);
 
-			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.BaseCurrencyAmount });
+			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.base_currency_amount });
 
-			toast.success(`Withdrawal successful! ${currencyFormatter(data.BaseCurrencyAmount)} credited to your wallet.`, { id: toastId });
+			toast.success(`Withdrawal successful! ${currencyFormatter(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
 			router.push('/account/portfolio');
 		} catch (err) {
 			console.error('Error processing withdrawal:', err);
@@ -212,12 +210,12 @@ export default function PortfolioItemDetailPageContent() {
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Price Per Unit at Investment</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.price_per_unit_at_investment)}</span>
+					<span className="font-medium text-foreground">{currencyFormatter(investment.price_per_unit_at_investment, 4)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Current Price Per Unit</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.current_price ?? 0)}</span>
+					<span className="font-medium text-foreground">{currencyFormatter(investment.current_price ?? 0, 4)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
@@ -262,11 +260,14 @@ export default function PortfolioItemDetailPageContent() {
 								<div className="text-muted-foreground">Units to Withdraw:</div>
 								<div className="text-right font-medium">{previewData.units_to_withdraw}</div>
 
-								<div className="text-muted-foreground">Raw Value:</div>
-								<div className="text-right font-medium">{currencyFormatter(previewData.raw_value_from_pool)}</div>
+								<div className="text-muted-foreground">Selling Price:</div>
+								<div className="text-right font-medium">{currencyFormatter(previewData.current_market_price_per_unit, 4)}</div>
 
-								<div className="text-muted-foreground">After Profit Cap:</div>
+								<div className="text-muted-foreground">Initial Amount:</div>
 								<div className="text-right font-medium">{currencyFormatter(previewData.value_after_profit_cap)}</div>
+
+								<div className="text-muted-foreground">Fees:</div>
+								<div className={`text-right font-medium ${previewData.fee > 0 ? 'text-destructive' : ''}`}>-{currencyFormatter(previewData.fee)}</div>
 
 								{previewData.penalty && (
 									<>

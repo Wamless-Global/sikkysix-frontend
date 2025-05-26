@@ -100,6 +100,7 @@ export interface UserContextType {
 	users: User[];
 	isLoading: boolean;
 	totalCount: number;
+	error: string | null;
 	activeFilters: UserFilters;
 	getUserById: (id: string) => User | undefined;
 	getUserByUsername: (username: string) => User | undefined;

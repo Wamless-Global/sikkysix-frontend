@@ -4,20 +4,22 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getTransactionTypeLabel } from '@/lib/helpers';
+import { formatTransactionDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { Transaction } from '@/types';
 
 export default function TransactionDetailsPageContent() {
 	const params = useParams();
 	const transactionId = params.transactionId as string;
 
-	const [transaction, setTransaction] = useState<any>(null);
+	const [transaction, setTransaction] = useState<Transaction | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [P2PContent, setP2PContent] = useState<React.ComponentType<any> | null>(null);
 
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
-		fetch(`/api/users/transactions/${transactionId}`)
+		fetch(`/api/transactions/${transactionId}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch transaction');
 				return res.json();
@@ -27,11 +29,18 @@ export default function TransactionDetailsPageContent() {
 
 				setTransaction(data);
 			})
-			.catch((err) => {
+			.catch((_err) => {
 				setError('Could not load transaction.');
 			})
 			.finally(() => setLoading(false));
 	}, [transactionId]);
+
+	useEffect(() => {
+		const isP2P = transaction?.payment_method === 'p2p' || (transaction?.details && transaction.details.type === 'p2p');
+		if (isP2P) {
+			import('./p2p-content').then((module) => setP2PContent(() => module.default)).catch((error) => console.error('Failed to load P2PContent', error));
+		}
+	}, [transaction]);
 
 	if (loading) {
 		return (
@@ -67,9 +76,10 @@ export default function TransactionDetailsPageContent() {
 		);
 	}
 
-	// If P2P, render the P2P content page (assume dynamic import or direct render)
-	if (transaction.type === 'p2p' || (transaction.details && transaction.details.type === 'p2p')) {
-		const P2PContent = require('./p2p-content').default;
+	if (transaction?.payment_method === 'p2p' || (transaction?.details && transaction.details.type === 'p2p')) {
+		if (!P2PContent) {
+			return <div>Loading P2P Content...</div>;
+		}
 		return <P2PContent transaction={transaction} />;
 	}
 
@@ -102,12 +112,12 @@ export default function TransactionDetailsPageContent() {
 						</div>
 						<div>
 							<p className="text-muted-foreground text-xs mb-1">Created At</p>
-							<p className="font-medium">{new Date(transaction.created_at).toLocaleString()}</p>
+							<p className="font-medium">{formatTransactionDate(new Date(transaction.created_at))}</p>
 						</div>
 						{transaction.updated_at && (
 							<div>
 								<p className="text-muted-foreground text-xs mb-1">Updated At</p>
-								<p className="font-medium">{new Date(transaction.updated_at).toLocaleString()}</p>
+								<p className="font-medium">{formatTransactionDate(new Date(transaction.updated_at))}</p>
 							</div>
 						)}
 						{transaction.payment_method && (
@@ -119,7 +129,7 @@ export default function TransactionDetailsPageContent() {
 						{transaction.description && (
 							<div className="sm:col-span-2">
 								<p className="text-muted-foreground text-xs mb-1">Description</p>
-								<p className="font-medium">{transaction.description}</p>
+								<p className="font-medium text-sm">{transaction.description}</p>
 							</div>
 						)}
 						{transaction.related_transaction_id && (
@@ -128,7 +138,7 @@ export default function TransactionDetailsPageContent() {
 								<p className="font-mono text-xs bg-muted text-muted-foreground px-2 py-1 rounded">{transaction.related_transaction_id}</p>
 							</div>
 						)}
-						{transaction.duration_seconds && (
+						{transaction.is_instant !== undefined && !transaction.is_instant && transaction.duration_seconds && (
 							<div>
 								<p className="text-muted-foreground text-xs mb-1">Duration</p>
 								<p className="font-medium">{transaction.duration_seconds} seconds</p>

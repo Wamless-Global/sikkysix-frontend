@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Filter } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 // import { TransactionHistoryTable } from '@/components/admin/TransactionHistoryTable';
-import { SortableTransactionKeys, TransactionMethod, TransactionStatus, TransactionType } from '@/types';
+import { SortableTransactionKeys, TransactionsPaymentMethod, TransactionStatus, TransactionsType } from '@/types';
 
 const ITEMS_PER_PAGE = 10; // Added for pagination
 
@@ -77,8 +77,8 @@ export default function TransactionsPage() {
 				// Ensure date is a string that can be parsed by `new Date()` in the child, or parse here
 				// For simplicity, assuming date strings are fine for now if child handles parsing.
 				// If child expects Date objects, parse here: date: new Date(item.date),
-				method: item.method as TransactionMethod | undefined, // Cast method if it exists
-				type: item.type as TransactionType, // Cast type
+				method: item.method as TransactionsPaymentMethod | undefined, // Cast method if it exists
+				type: item.type as TransactionsType, // Cast type
 				status: item.status as TransactionStatus, // Cast status
 			})),
 		[]

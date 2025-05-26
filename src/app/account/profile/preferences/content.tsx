@@ -17,6 +17,11 @@ const initialPreferences = {
 		marketing: false,
 	},
 	language: 'en',
+	timezone: 'local',
+	dateFormat: '24h',
+	showProfilePublic: false,
+	enable2FA: false,
+	reduceMotion: false,
 };
 
 export default function PreferencesPageContent() {
@@ -48,6 +53,26 @@ export default function PreferencesPageContent() {
 	const handleLanguageChange = (value: string) => {
 		setPreferences((prev) => ({ ...prev, language: value }));
 		console.log('Language changed to:', value);
+	};
+
+	const handleTimezoneChange = (value: string) => {
+		setPreferences((prev) => ({ ...prev, timezone: value }));
+	};
+
+	const handleDateFormatChange = (value: string) => {
+		setPreferences((prev) => ({ ...prev, dateFormat: value }));
+	};
+
+	const handleShowProfilePublicChange = (checked: boolean) => {
+		setPreferences((prev) => ({ ...prev, showProfilePublic: checked }));
+	};
+
+	const handle2FAChange = (checked: boolean) => {
+		setPreferences((prev) => ({ ...prev, enable2FA: checked }));
+	};
+
+	const handleReduceMotionChange = (checked: boolean) => {
+		setPreferences((prev) => ({ ...prev, reduceMotion: checked }));
 	};
 
 	const handleSaveChanges = () => {
@@ -126,6 +151,85 @@ export default function PreferencesPageContent() {
 							<SelectItem value="fr">Français (French)</SelectItem>
 						</SelectContent>
 					</Select>
+				</CardContent>
+			</Card>
+
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+				<CardHeader>
+					<CardTitle className="text-lg text-foreground">Timezone</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<Select value={preferences.timezone} onValueChange={handleTimezoneChange}>
+						<SelectTrigger className="w-full bg-background border-border">
+							<SelectValue placeholder="Select timezone" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="local">Local</SelectItem>
+							<SelectItem value="UTC">UTC</SelectItem>
+							<SelectItem value="America/New_York">New York (EST)</SelectItem>
+							<SelectItem value="Europe/London">London (GMT)</SelectItem>
+							<SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
+						</SelectContent>
+					</Select>
+				</CardContent>
+			</Card>
+
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+				<CardHeader>
+					<CardTitle className="text-lg text-foreground">Date & Time Format</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<Select value={preferences.dateFormat} onValueChange={handleDateFormatChange}>
+						<SelectTrigger className="w-full bg-background border-border">
+							<SelectValue placeholder="Select format" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="24h">24-hour</SelectItem>
+							<SelectItem value="12h">12-hour (AM/PM)</SelectItem>
+						</SelectContent>
+					</Select>
+				</CardContent>
+			</Card>
+
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+				<CardHeader>
+					<CardTitle className="text-lg text-foreground">Privacy</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between">
+						<Label htmlFor="show-profile-public" className="text-foreground">
+							Show Profile Publicly
+						</Label>
+						<Switch id="show-profile-public" checked={preferences.showProfilePublic} onCheckedChange={handleShowProfilePublicChange} />
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+				<CardHeader>
+					<CardTitle className="text-lg text-foreground">Security</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between">
+						<Label htmlFor="enable-2fa" className="text-foreground">
+							Enable Two-Factor Authentication (2FA)
+						</Label>
+						<Switch id="enable-2fa" checked={preferences.enable2FA} onCheckedChange={handle2FAChange} />
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+				<CardHeader>
+					<CardTitle className="text-lg text-foreground">Accessibility</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between">
+						<Label htmlFor="reduce-motion" className="text-foreground">
+							Reduce Motion
+						</Label>
+						<Switch id="reduce-motion" checked={preferences.reduceMotion} onCheckedChange={handleReduceMotionChange} />
+					</div>
 				</CardContent>
 			</Card>
 

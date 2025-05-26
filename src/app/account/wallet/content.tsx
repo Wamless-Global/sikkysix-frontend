@@ -40,7 +40,7 @@ export default function WalletPageContent() {
 
 	useEffect(() => {
 		setIsLoading(true);
-		fetch(`/api/users/transactions?page=1&pageSize=${LIMIT}`)
+		fetch(`/api/transactions?page=1&pageSize=${LIMIT}`)
 			.then((res) => res.json())
 			.then((data) => {
 				setTransactions(data.data.transactions || []);

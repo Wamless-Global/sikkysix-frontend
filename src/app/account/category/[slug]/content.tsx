@@ -79,7 +79,7 @@ export default function SingleCategoryContent() {
 		setCategoryData(null);
 
 		try {
-			const response = await fetch(`/api/users/categories/${identifier}`);
+			const response = await fetch(`/api/categories/${identifier}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
@@ -114,7 +114,7 @@ export default function SingleCategoryContent() {
 	const fetchTransactions = useCallback(async (categoryId: string, page: number = 1) => {
 		setIsLoadingTransactions(true);
 		try {
-			const response = await fetch(`/api/users/categories/${categoryId}/transactions?page=${page}`);
+			const response = await fetch(`/api/categories/${categoryId}/transactions?page=${page}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch transactions');
 			}
@@ -133,7 +133,7 @@ export default function SingleCategoryContent() {
 	const fetchActiveInvestments = useCallback(async (page: number = 1) => {
 		setIsLoadingInvestments(true);
 		try {
-			const response = await fetch(`/api/users/investments/?status=active&page=${page}`);
+			const response = await fetch(`/api/investments/?status=active&page=${page}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch active investments');
 			}
@@ -229,7 +229,7 @@ export default function SingleCategoryContent() {
 				category_id: categoryData?.id,
 			};
 
-			const response = await fetch('/api/users/investments/new', {
+			const response = await fetch('/api/investments/new', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

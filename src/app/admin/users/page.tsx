@@ -17,11 +17,12 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import { Role, User, UserFilters, UserStatus } from '@/types';
 import { ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
 import { getStatusVariant } from '@/lib/helpers';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManagementPage() {
-	const { users, fetchUsers, isLoading, totalCount } = useUserContext();
+	const { users, fetchUsers, isLoading, totalCount, error } = useUserContext();
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterRole, setFilterRole] = useState<Role | 'all'>('all');
@@ -30,21 +31,19 @@ export default function UserManagementPage() {
 	const [filterStartDate, setFilterStartDate] = useState<string>('');
 	const [filterEndDate, setFilterEndDate] = useState<string>('');
 	const [currentPage, setCurrentPage] = useState(1);
-	// Removed loadingButton and isFetchingData states
 
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
+	const filters: UserFilters = {
+		searchTerm: searchTerm || undefined,
+		role: filterRole === 'all' ? undefined : filterRole,
+		status: filterStatus === 'all' ? undefined : filterStatus,
+		country: filterCountry === 'all' ? undefined : filterCountry,
+		startDate: filterStartDate || undefined,
+		endDate: filterEndDate || undefined,
+	};
 	useEffect(() => {
 		// Removed setIsFetchingData(true)
-		const filters: UserFilters = {
-			searchTerm: searchTerm || undefined,
-			role: filterRole === 'all' ? undefined : filterRole,
-			status: filterStatus === 'all' ? undefined : filterStatus,
-			country: filterCountry === 'all' ? undefined : filterCountry,
-			startDate: filterStartDate || undefined,
-			endDate: filterEndDate || undefined,
-		};
-
 		const timer = setTimeout(() => {
 			fetchUsers(filters, currentPage);
 		}, 300);
@@ -78,6 +77,10 @@ export default function UserManagementPage() {
 		setCurrentPage(1);
 	};
 
+	const handleRetry = () => {
+		fetchUsers(filters, currentPage);
+	};
+
 	return (
 		<div className="space-y-6">
 			<Breadcrumbs />
@@ -100,197 +103,203 @@ export default function UserManagementPage() {
 				</div>
 			</div>
 
-			<div className="flex flex-wrap gap-2 items-end mt-8">
-				<div className="flex flex-col gap-1.5">
-					<Label htmlFor="role-filter">Role</Label>
-					<Select
-						value={filterRole}
-						onValueChange={(value) => {
-							setFilterRole(value as Role | 'all');
-							setCurrentPage(1);
-						}}
-					>
-						<SelectTrigger className="w-full sm:w-[160px]" id="role-filter">
-							<SelectValue placeholder="Role" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Roles</SelectItem>
-							{ALL_ROLES.map((role) => (
-								<SelectItem key={role} value={role}>
-									{role.charAt(0).toUpperCase() + role.slice(1)}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label htmlFor="status-filter">Status</Label>
-					<Select
-						value={filterStatus}
-						onValueChange={(value) => {
-							setFilterStatus(value as UserStatus | 'all');
-							setCurrentPage(1);
-						}}
-					>
-						<SelectTrigger className="w-full sm:w-[160px]" id="status-filter">
-							<SelectValue placeholder="Status" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Statuses</SelectItem>
-							{ALL_STATUSES.map((status) => (
-								<SelectItem key={status} value={status}>
-									{status}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label htmlFor="country-filter">Country</Label>
-					<Select
-						value={filterCountry}
-						onValueChange={(value) => {
-							setFilterCountry(value);
-							setCurrentPage(1);
-						}}
-					>
-						<SelectTrigger className="w-full sm:w-[160px]" id="country-filter">
-							<SelectValue placeholder="Country" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Countries</SelectItem>
-							{COUNTRIES.map((country) => (
-								<SelectItem key={country.code} value={country.code}>
-									{country.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label htmlFor="start-date">Registered From</Label>
-					<Input
-						id="start-date"
-						type="date"
-						value={filterStartDate}
-						onChange={(e) => {
-							setFilterStartDate(e.target.value);
-							setCurrentPage(1);
-						}}
-						className="w-full sm:w-[160px]"
-					/>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label htmlFor="end-date">Registered To</Label>
-					<Input
-						id="end-date"
-						type="date"
-						value={filterEndDate}
-						onChange={(e) => {
-							setFilterEndDate(e.target.value);
-							setCurrentPage(1);
-						}}
-						className="w-full sm:w-[160px]"
-						min={filterStartDate}
-					/>
-				</div>
-				<Button variant="outline" onClick={handleResetFilters} className="self-end">
-					Reset Filters
-				</Button>
-			</div>
-
-			<div className="rounded-md border mt-4">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Name</TableHead>
-							<TableHead>Email</TableHead>
-							<TableHead>Roles</TableHead>
-							<TableHead>Registered</TableHead>
-							<TableHead>Investments</TableHead>
-							<TableHead>Total Invested</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Country</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? ( // Use isLoading from context
-							Array.from({ length: ITEMS_PER_PAGE / 2 }).map((_, index) => (
-								<TableRow key={`skeleton-${index}`}>
-									<TableCell className="flex items-center gap-3">
-										<Skeleton className="h-10 w-10 rounded-full" />
-										<Skeleton className="h-4 w-[120px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[180px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[100px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[150px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[50px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[80px]" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-6 w-[70px] rounded-full" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="h-4 w-[100px]" />
-									</TableCell>
-								</TableRow>
-							))
-						) : users.length > 0 ? (
-							users.map((user: User) => (
-								<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-									<TableCell className="font-medium">
-										<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
-											{user.avatar_url && <Image src={user.avatar_url} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
-											<span>{user.name}</span>
-										</CustomLink>
-									</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
-									<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
-									<TableCell>{user.investmentCount}</TableCell>
-									<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
-									<TableCell>
-										<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
-									</TableCell>
-									<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center">
-									No users found {searchTerm || filterRole !== 'all' || filterStatus !== 'all' || filterCountry !== 'all' || filterStartDate || filterEndDate ? 'matching your criteria' : ''}.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
-
-			{totalPages > 1 && (
-				<div className="flex items-center justify-between space-x-2 py-4 px-2">
-					<div className="text-sm text-muted-foreground">
-						Showing page {currentPage} of {totalPages} ({totalCount} users total)
-					</div>
-					<div className="space-x-2 flex items-center">
-						<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading} className="cursor-pointer">
-							<ChevronLeft className="h-4 w-4 mr-1" />
-							Previous
-						</Button>
-						<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading} className="cursor-pointer">
-							Next
-							<ChevronRight className="h-4 w-4 ml-1" />
+			{error ? (
+				<ErrorMessage message={error} onRetry={handleRetry} />
+			) : (
+				<>
+					<div className="flex flex-wrap gap-2 items-end mt-8">
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="role-filter">Role</Label>
+							<Select
+								value={filterRole}
+								onValueChange={(value) => {
+									setFilterRole(value as Role | 'all');
+									setCurrentPage(1);
+								}}
+							>
+								<SelectTrigger className="w-full sm:w-[160px]" id="role-filter">
+									<SelectValue placeholder="Role" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Roles</SelectItem>
+									{ALL_ROLES.map((role) => (
+										<SelectItem key={role} value={role}>
+											{role.charAt(0).toUpperCase() + role.slice(1)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="status-filter">Status</Label>
+							<Select
+								value={filterStatus}
+								onValueChange={(value) => {
+									setFilterStatus(value as UserStatus | 'all');
+									setCurrentPage(1);
+								}}
+							>
+								<SelectTrigger className="w-full sm:w-[160px]" id="status-filter">
+									<SelectValue placeholder="Status" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Statuses</SelectItem>
+									{ALL_STATUSES.map((status) => (
+										<SelectItem key={status} value={status}>
+											{status}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="country-filter">Country</Label>
+							<Select
+								value={filterCountry}
+								onValueChange={(value) => {
+									setFilterCountry(value);
+									setCurrentPage(1);
+								}}
+							>
+								<SelectTrigger className="w-full sm:w-[160px]" id="country-filter">
+									<SelectValue placeholder="Country" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Countries</SelectItem>
+									{COUNTRIES.map((country) => (
+										<SelectItem key={country.code} value={country.code}>
+											{country.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="start-date">Registered From</Label>
+							<Input
+								id="start-date"
+								type="date"
+								value={filterStartDate}
+								onChange={(e) => {
+									setFilterStartDate(e.target.value);
+									setCurrentPage(1);
+								}}
+								className="w-full sm:w-[160px]"
+							/>
+						</div>
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="end-date">Registered To</Label>
+							<Input
+								id="end-date"
+								type="date"
+								value={filterEndDate}
+								onChange={(e) => {
+									setFilterEndDate(e.target.value);
+									setCurrentPage(1);
+								}}
+								className="w-full sm:w-[160px]"
+								min={filterStartDate}
+							/>
+						</div>
+						<Button variant="outline" onClick={handleResetFilters} className="self-end">
+							Reset Filters
 						</Button>
 					</div>
-				</div>
+
+					<div className="rounded-md border mt-4">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Name</TableHead>
+									<TableHead>Email</TableHead>
+									<TableHead>Roles</TableHead>
+									<TableHead>Registered</TableHead>
+									<TableHead>Investments</TableHead>
+									<TableHead>Total Invested</TableHead>
+									<TableHead>Status</TableHead>
+									<TableHead>Country</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? ( // Use isLoading from context
+									Array.from({ length: ITEMS_PER_PAGE / 2 }).map((_, index) => (
+										<TableRow key={`skeleton-${index}`}>
+											<TableCell className="flex items-center gap-3">
+												<Skeleton className="h-10 w-10 rounded-full" />
+												<Skeleton className="h-4 w-[120px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[180px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[100px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[150px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[50px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[80px]" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-6 w-[70px] rounded-full" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-[100px]" />
+											</TableCell>
+										</TableRow>
+									))
+								) : users.length > 0 ? (
+									users.map((user: User) => (
+										<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+											<TableCell className="font-medium">
+												<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
+													{user.avatar_url && <Image src={user.avatar_url} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
+													<span>{user.name}</span>
+												</CustomLink>
+											</TableCell>
+											<TableCell>{user.email}</TableCell>
+											<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
+											<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
+											<TableCell>{user.investmentCount}</TableCell>
+											<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
+											<TableCell>
+												<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+											</TableCell>
+											<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={8} className="h-24 text-center">
+											No users found {searchTerm || filterRole !== 'all' || filterStatus !== 'all' || filterCountry !== 'all' || filterStartDate || filterEndDate ? 'matching your criteria' : ''}.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+
+					{totalPages > 1 && (
+						<div className="flex items-center justify-between space-x-2 py-4 px-2">
+							<div className="text-sm text-muted-foreground">
+								Showing page {currentPage} of {totalPages} ({totalCount} users total)
+							</div>
+							<div className="space-x-2 flex items-center">
+								<Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1 || isLoading} className="cursor-pointer">
+									<ChevronLeft className="h-4 w-4 mr-1" />
+									Previous
+								</Button>
+								<Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages || isLoading} className="cursor-pointer">
+									Next
+									<ChevronRight className="h-4 w-4 ml-1" />
+								</Button>
+							</div>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);

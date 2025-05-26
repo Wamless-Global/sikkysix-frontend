@@ -11,10 +11,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [totalCount, setTotalCount] = useState<number>(0);
 	const [activeFilters, setActiveFilters] = useState<UserFilters>({});
+	const [error, setError] = useState<string | null>(null);
 
 	const fetchUsers = useCallback(async (filters: UserFilters, page: number = 1) => {
 		setIsLoading(true);
 		setActiveFilters(filters);
+		setError(null);
 
 		try {
 			const params = new URLSearchParams();
@@ -26,7 +28,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 			if (filters.startDate) params.append('startDate', filters.startDate);
 			if (filters.endDate) params.append('endDate', filters.endDate);
 
-			const apiUrl = `/api/admin/users/all?${params.toString()}`;
+			const apiUrl = `/api/users/all?${params.toString()}`;
 
 			const response = await fetch(apiUrl, {
 				method: 'GET',
@@ -55,11 +57,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
 				const specificError = new Error('Server unavailable or returned an invalid response. Please try again later.');
-				toast.error(specificError.message);
+				setError(specificError.message);
 			} else if (error instanceof Error) {
-				toast.error(`Error fetching users: ${error.message}`);
+				setError(`Error fetching users: ${error.message}`);
 			} else {
-				toast.error('An unknown error occurred while fetching users.');
+				setError('An unknown error occurred while fetching users.');
 			}
 		} finally {
 			setIsLoading(false);
@@ -89,6 +91,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 		isLoading,
 		totalCount,
 		activeFilters,
+		error,
 		getUserById,
 		getUserByUsername,
 		fetchUsers,

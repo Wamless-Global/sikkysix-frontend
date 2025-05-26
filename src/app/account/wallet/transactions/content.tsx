@@ -47,7 +47,7 @@ export default function AccountTransactionsPageContent() {
 			page: currentPage.toString(),
 			pageSize: ITEMS_PER_PAGE.toString(),
 		});
-		fetch(`/api/users/transactions?${params}`)
+		fetch(`/api/transactions?${params}`)
 			.then((res) => res.json())
 			.then((data: TransactionApiResponse) => {
 				const txs = data.data.transactions.map((t) => ({

@@ -17,7 +17,7 @@ export const fetchUserByUsername = async (username: string): Promise<User | null
 	}
 
 	// TODO: Confirm backend base URL if needed (e.g., from env var)
-	const targetUrl = `/api/admin/users/username/${username}`;
+	const targetUrl = `/api/users/username/${username}`;
 
 	try {
 		// console.log(`Fetching user ${username} directly from backend: ${targetUrl}`); // Debug log
@@ -72,7 +72,7 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 		return null;
 	}
 
-	const targetUrl = `/api/admin/users/${userId}`;
+	const targetUrl = `/api/users/${userId}`;
 
 	try {
 		const response = await fetch(targetUrl, {
@@ -143,7 +143,7 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 		return false;
 	}
 
-	const targetUrl = `/api/admin/users/${userId}`;
+	const targetUrl = `/api/users/${userId}`;
 
 	try {
 		const response = await fetch(targetUrl, {
@@ -183,7 +183,7 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
  * @returns A Promise resolving to the user&apos;s balance, or null if an error occurs.
  */
 export const fetchCurrentUserBalance = async (): Promise<number | null> => {
-	const targetUrl = '/api/users/me/balance';
+	const targetUrl = '/api/me/balance';
 
 	try {
 		console.log(`Fetching current user balance from: ${targetUrl}`);

@@ -62,7 +62,7 @@ export default function EditProfilePageContent() {
 			if (avatarFile) {
 				const formData = new FormData();
 				formData.append('image', avatarFile);
-				const res = await fetch('/api/users/profile', {
+				const res = await fetch('/api/profile', {
 					method: 'PUT',
 					body: formData,
 					credentials: 'include',
@@ -92,8 +92,10 @@ export default function EditProfilePageContent() {
 			} else {
 				toast.error('Failed to update profile.');
 			}
-		} catch (err: any) {
-			toast.error(err.message || 'An error occurred while updating profile.');
+		} catch (err) {
+			if (err instanceof Error) {
+				toast.error(err.message || 'An error occurred while updating profile.');
+			}
 		} finally {
 			setIsSubmitting(false);
 		}
