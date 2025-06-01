@@ -49,7 +49,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 				<Sidebar />
 			</div>
 
-			<div className={cn('fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden', isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full')}>
+			<div className={cn('fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden', isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full', 'bg-background')}>
 				<div className="relative h-full z-10">
 					<Sidebar />
 				</div>
