@@ -53,7 +53,7 @@ const desktopNavItems: desktopNavItemsType = [
 export default function UserLayout({ children }: { children: React.ReactNode }) {
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 	const [isLogoutLoading, setIsLogoutLoading] = useState(false);
-	const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+	const [_openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { logout, currentUser } = useAuthContext();

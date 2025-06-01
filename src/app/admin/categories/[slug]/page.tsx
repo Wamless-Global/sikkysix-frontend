@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
 // import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { formatNumber, formatUSD, generateSlug } from '@/lib/helpers';
+import { formatNumber, formatUSD, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 
 // TODO: Replace with actual transaction data fetching for the category
@@ -155,15 +155,16 @@ export default function AdminSingleCategoriesPage() {
 				});
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({}));
-					throw new Error(errorData.message || 'Failed to delete category.');
+					throw new Error(errorData || 'Failed to delete category.');
 				}
 				toastMessage = `Category "${categoryData.name}" has been deleted.`;
 				toast.success(toastMessage);
 				router.push('/admin/categories');
 			}
 		} catch (apiError) {
-			console.error(`Failed to ${confirmAction} category:`, apiError);
-			toast.error((apiError as Error).message || `Could not ${confirmAction} category. Please try again.`);
+			const errorMessage = handleFetchErrorMessage(apiError, `Could not ${confirmAction} category. Please try again.`);
+
+			toast.error(errorMessage);
 			if (categoryIdentifier && confirmAction !== 'delete') {
 				fetchCategory(categoryIdentifier);
 			}

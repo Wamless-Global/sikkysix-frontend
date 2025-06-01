@@ -6,7 +6,7 @@ import { CustomLink } from '../ui/CustomLink';
 import { useAuthContext } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 
 interface UserMobileSidebarProps {
@@ -18,27 +18,27 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 	const [isLogoutLoading, setIsLogoutLoading] = useState(false);
 	const router = useRouter();
 	const { logout, currentUser } = useAuthContext();
+	const pathname = usePathname();
 
 	const navItems = [
 		{ href: '/account', label: 'Home' },
 		{ href: '/account/referrals', label: 'Referrals' },
-		{ href: '/account/profile', label: 'Profile' },
 		{ href: '/account/report', label: 'Report' },
-		// Agent Portal with sub menu for agents
 		...(currentUser?.roles.includes('agent')
 			? [
 					{
 						href: '/account/agent-portal',
 						label: 'Agent Portal',
 						subMenu: [
-							{ href: '/account/agent-portal/dashboard', label: 'Dashboard' },
-							{ href: '/account/agent-portal/clients', label: 'Clients' },
-							{ href: '/account/agent-portal/reports', label: 'Reports' },
+							{ href: '/account/agent-portal/overview', label: 'overview' },
+							{ href: '/account/agent-portal/orders', label: 'orders' },
+							{ href: '/account/agent-portal/trades', label: 'trades' },
+							{ href: '/account/agent-portal/settings', label: 'settings' },
 						],
 					},
 			  ]
 			: []),
-		{ href: '/account/profile/preference', label: 'Settings' },
+		{ href: '/account/profile/preferences', label: 'Settings' },
 	];
 	const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
@@ -70,17 +70,20 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 				</div>
 				<nav className="flex-1 space-y-2 p-4">
 					{navItems.map((item) => {
+						const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/account');
+
 						if ('subMenu' in item && item.subMenu) {
 							return (
 								<div key={item.href}>
 									<button type="button" className="flex w-full items-center justify-between rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => setOpenSubMenu(openSubMenu === item.label ? null : item.label)}>
-										<span>{item.label}</span>
+										{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
 										<span className={cn('ml-2 transition-transform', openSubMenu === item.label ? 'rotate-90' : '')}>▶</span>
 									</button>
+
 									<ul className={cn('pl-4 space-y-1', openSubMenu === item.label ? 'block' : 'hidden')}>
 										{item.subMenu.map((sub) => (
 											<li key={sub.href}>
-												<CustomLink href={sub.href} className="block rounded px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
+												<CustomLink href={sub.href} className={cn(pathname === sub.href ? 'font-bold text-[oklch(0.69_0.21_145)] !py-4' : 'block rounded text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground', 'px-3 py-2')} onClick={onClose}>
 													{sub.label}
 												</CustomLink>
 											</li>
@@ -91,7 +94,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 						}
 						return (
 							<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
-								{item.label === 'Home' ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
+								{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
 							</CustomLink>
 						);
 					})}

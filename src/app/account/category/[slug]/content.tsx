@@ -304,7 +304,6 @@ export default function SingleCategoryContent() {
 		);
 	}
 
-	// --- Error State ---
 	if (error || !categoryData) {
 		return <ErrorMessage message={error || 'Failed to load category data.'} onRetry={() => slug && fetchUserCategory(slug)} />;
 	}
@@ -329,7 +328,7 @@ export default function SingleCategoryContent() {
 				</div>
 			</div>
 
-			<div>
+			{/* <div>
 				<div className="bg-muted/20 dark:bg-muted/10 h-64 md:h-80 rounded-lg flex items-center justify-center text-muted-foreground mb-4">Chart Placeholder</div>
 				<div className="flex justify-center space-x-2">
 					{['1H', '1D', '1W', '1M', '1Y'].map((range) => (
@@ -338,7 +337,7 @@ export default function SingleCategoryContent() {
 						</Button>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			{/* --- Key Metrics --- */}
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
