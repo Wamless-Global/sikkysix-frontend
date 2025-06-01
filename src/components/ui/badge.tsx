@@ -15,6 +15,7 @@ const badgeVariants = cva(
 				outline: 'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
 				error: 'bg-[var(--ddanger)] text-[var(--ddanger-foreground)] [a&]:hover:bg-[var(--ddanger-hover)]',
 				active: 'bg-[var(--dashboard-accent)] text-[var(--dashboard-accent-foreground)] [a&]:hover:bg-[var(--dashboard-accent-hover)]',
+				warning: 'bg-[var(--warning)] text-[var(--warning-foreground)] [a&]:hover:bg-[var(--warning-hover)]',
 				completed: 'bg-gray-600 text-gray-100',
 			},
 			size: {

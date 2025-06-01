@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { formatCurrency } from '@/lib/helpers';
+import { formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Investment } from '@/types';
@@ -48,8 +48,8 @@ export default function PortfolioPageContent() {
 				throw new Error('Invalid response format from server');
 			}
 		} catch (err) {
-			console.error('Error fetching investments:', err);
-			setError(err instanceof Error ? err.message : 'Failed to load investments');
+			const errorMessage = handleFetchErrorMessage(err, 'Failed to load investments');
+			setError(errorMessage);
 			toast.error('Failed to load portfolio data');
 		} finally {
 			setIsLoading(false);

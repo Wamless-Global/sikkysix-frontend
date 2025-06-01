@@ -5,3 +5,6 @@ export * from './modules/auth';
 export * from './modules/countries';
 export * from './modules/transactions';
 export * from './modules/investments';
+export * from './modules/applications';
+export * from './modules/agents';
+export * from './modules/payment-methods';

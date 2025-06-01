@@ -88,20 +88,27 @@ export async function middleware(request: NextRequest) {
 	const loginUrl = new URL('/auth/login', request.url);
 	const unauthorizedUrl = new URL('/unauthorized', request.url);
 	const accountUrl = new URL('/account', request.url);
-	const adminDashboardUrl = new URL('/admin', request.url); // For redirecting from login if already authed
+	const adminDashboardUrl = new URL('/admin', request.url);
 
 	const isAdminPath = pathname.startsWith('/admin');
 	const isAccountPath = pathname.startsWith('/account') && !pathname.startsWith('/account/wallet/transactions');
 	const isAuthLoginPath = pathname === '/auth/login';
 	const isUnauthorizedPagePath = pathname === '/unauthorized';
+	const isAgentPortalPath = pathname.startsWith('/account/agent-portal');
 
 	// If accessing /unauthorized without a token, redirect to login (they shouldn't be here)
 	if (isUnauthorizedPagePath && !authToken) {
 		console.log('Middleware: Accessing /unauthorized without token. Redirecting to login.');
 		return NextResponse.redirect(loginUrl);
 	}
-	// If accessing /unauthorized with a token, allow it (they were likely redirected here by protected route logic)
-	// This also means if they manually navigate here with a token, they'll see it.
+
+	// Restrict /account/agent-portal to agents only
+	if (isAgentPortalPath) {
+		const verificationResult = await verifyTokenAndGetUserDetails(request, authToken);
+		if (!verificationResult.user || !verificationResult.user.roles.includes('agent')) {
+			return NextResponse.redirect(unauthorizedUrl);
+		}
+	}
 
 	if (isAdminPath) {
 		const response = await handleProtectedRoute(request, authToken, ['admin'], loginUrl, unauthorizedUrl, pathname);
@@ -130,9 +137,6 @@ export async function middleware(request: NextRequest) {
 
 			if (redirectToParam) {
 				try {
-					// Attempt to parse redirectToParam.
-					// If relative (e.g., "/foo"), it resolves against request.nextUrl.origin.
-					// If absolute (e.g., "http://.../foo"), it&apos;s parsed directly.
 					const potentialTargetUrl = new URL(redirectToParam, request.nextUrl.origin);
 
 					// Security: Ensure the target URL is for the same origin.
@@ -168,6 +172,15 @@ export async function middleware(request: NextRequest) {
 		const response = NextResponse.next(); // Stay on login page
 		response.cookies.delete('auth_token');
 		return response;
+	}
+
+	// Custom restriction: If agent tries to access /account/agents-apply, redirect to agent-portal
+	if (pathname === '/account/agents-apply' && authToken) {
+		const verificationResult = await verifyTokenAndGetUserDetails(request, authToken);
+		if (verificationResult.user && verificationResult.user.roles.includes('agent')) {
+			const agentPortalUrl = new URL('/account/agent-portal', request.url);
+			return NextResponse.redirect(agentPortalUrl);
+		}
 	}
 
 	return NextResponse.next(); // Allow other requests

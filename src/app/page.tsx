@@ -368,7 +368,7 @@ export default function LandingPage() {
 							</Button>
 						</form>
 						<p className="text-sm text-muted-foreground">
-							Already investing with us?{' '}
+							Already investing with us?
 							<a href="/auth/login" className="text-foreground underline hover:text-[var(--lp-green-primary)]">
 								Sign in
 							</a>

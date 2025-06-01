@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { formatTransactionDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel } from '@/lib/helpers';
 import { AccountTransaction, TransactionApiResponse } from '@/types';
 
 const ITEMS_PER_PAGE = 10;
@@ -282,11 +282,11 @@ export default function AccountTransactionsPageContent() {
 										)}
 									</TableCell>
 									<TableCell className="py-3 hidden sm:table-cell">
-										<div className="text-sm font-medium text-foreground">{formatTransactionDate(transaction.date)}</div>
+										<div className="text-sm font-medium text-foreground">{formatDate(transaction.date)}</div>
 									</TableCell>
 									<TableCell className="py-3 text-sm text-foreground ">
 										<span className="block max-w-[100px] sm:max-w-none">{getTransactionTypeLabel(transaction.originalType)}</span>
-										<div className="text-xs font-medium text-foreground sm:hidden">{formatTransactionDate(transaction.date)}</div>
+										<div className="text-xs font-medium text-foreground sm:hidden">{formatDate(transaction.date)}</div>
 									</TableCell>
 									<TableCell className="py-3 hidden sm:table-cell">
 										<Badge

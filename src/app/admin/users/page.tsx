@@ -51,18 +51,14 @@ export default function UserManagementPage() {
 		return () => clearTimeout(timer);
 	}, [searchTerm, filterRole, filterStatus, filterCountry, filterStartDate, filterEndDate, currentPage, fetchUsers]);
 
-	// Removed useEffect that managed isFetchingData and loadingButton
-
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
-			// Removed setLoadingButton('previous');
 			setCurrentPage((prev) => prev - 1);
 		}
 	};
 
 	const handleNextPage = () => {
 		if (currentPage < totalPages) {
-			// Removed setLoadingButton('next');
 			setCurrentPage((prev) => prev + 1);
 		}
 	};

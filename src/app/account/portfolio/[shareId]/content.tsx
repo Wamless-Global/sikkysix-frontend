@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import CircularProgressDisplay from '@/components/ui/circular-progress-display';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'sonner';
-import { currencyFormatter, formatRelativeTime, generateSlug } from '@/lib/helpers';
+import { currencyFormatter, formatRelativeTime, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AuthenticatedUser, Investment, SingleInvestmentResponse, WithdrawalPreviewResponse } from '@/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -50,8 +50,9 @@ export default function PortfolioItemDetailPageContent() {
 
 				setInvestment(data.data.investment);
 			} catch (err) {
-				console.error('Error fetching investment:', err);
-				setError(err instanceof Error ? err.message : 'Failed to load investment details');
+				// console.error('Error fetching investment:', err);
+				const errorMessage = handleFetchErrorMessage(err, 'Failed to load investment details');
+				setError(errorMessage);
 			} finally {
 				setIsLoading(false);
 			}
@@ -82,7 +83,7 @@ export default function PortfolioItemDetailPageContent() {
 			setPreviewData(data);
 			setIsPreviewModalOpen(true);
 		} catch (err) {
-			console.error('Error getting withdrawal preview:', err);
+			// console.error('Error getting withdrawal preview:', err);
 			toast.error('Failed to get withdrawal preview. Please try again.');
 		} finally {
 			setIsWithdrawing(false);
@@ -131,7 +132,7 @@ export default function PortfolioItemDetailPageContent() {
 			toast.success(`Withdrawal successful! ${currencyFormatter(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
 			router.push('/account/portfolio');
 		} catch (err) {
-			console.error('Error processing withdrawal:', err);
+			// console.error('Error processing withdrawal:', err);
 			toast.error('Failed to process withdrawal. Please try again.', { id: toastId });
 		} finally {
 			setIsWithdrawing(false);

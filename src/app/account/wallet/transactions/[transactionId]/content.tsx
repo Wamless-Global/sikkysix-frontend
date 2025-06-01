@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatTransactionDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel } from '@/lib/helpers';
 import { Transaction } from '@/types';
 
 export default function TransactionDetailsPageContent() {
@@ -112,12 +112,12 @@ export default function TransactionDetailsPageContent() {
 						</div>
 						<div>
 							<p className="text-muted-foreground text-xs mb-1">Created At</p>
-							<p className="font-medium">{formatTransactionDate(new Date(transaction.created_at))}</p>
+							<p className="font-medium">{formatDate(new Date(transaction.created_at))}</p>
 						</div>
 						{transaction.updated_at && (
 							<div>
 								<p className="text-muted-foreground text-xs mb-1">Updated At</p>
-								<p className="font-medium">{formatTransactionDate(new Date(transaction.updated_at))}</p>
+								<p className="font-medium">{formatDate(new Date(transaction.updated_at))}</p>
 							</div>
 						)}
 						{transaction.payment_method && (

@@ -1,5 +1,6 @@
 'use client';
 
+import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { createContext, useState, useContext, useEffect } from 'react';
 
@@ -27,19 +28,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorMessage;
 				} catch (_parseError) {}
-				console.error('AuthContext Logout Error:', errorMessage);
+				// console.error('AuthContext Logout Error:', errorMessage);
 				throw new Error(errorMessage);
 			}
 
 			console.log('AuthContext: Logout successful via API.');
-		} catch (error) {
-			console.error('AuthContext: Error during logout:', error);
+		} catch (err) {
+			// console.error('AuthContext: Error during logout:', err);
 			setCurrentUser(null);
-			let finalError = error;
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				finalError = new Error('Server unavailable or returned an invalid response. Please try again later.');
-			}
-			throw finalError;
+			throw err;
 		} finally {
 		}
 	};
@@ -72,14 +69,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				console.error('AuthContext Login Error: Unexpected success response format', responseData);
 				throw new Error('Login failed: Unexpected response from server.');
 			}
-		} catch (error) {
-			console.error('AuthContext: Error during login:', error);
+		} catch (err) {
+			// console.error('AuthContext: Error during login:', err);
 			setCurrentUser(null);
-			let finalError = error;
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				finalError = new Error('Server unavailable or returned an invalid response. Please try again later.');
-			}
-			throw finalError;
+			throw err;
 		} finally {
 		}
 	};
@@ -110,13 +103,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			}
 
 			console.log('AuthContext: Signup request successful.', responseData);
-		} catch (error) {
-			console.error('AuthContext: Error during signup:', error);
-			let finalError = error;
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				finalError = new Error('Server unavailable or returned an invalid response. Please try again later.');
-			}
-			throw finalError;
+		} catch (err) {
+			// console.error('AuthContext: Error during signup:', err);
+			throw err;
 		}
 	};
 
@@ -155,15 +144,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			} else {
 				return { status: 'error', message: 'Unexpected response from server.' };
 			}
-		} catch (error: unknown) {
-			let errMessage = 'An unknown error occurred while checking email status.';
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				errMessage = 'Server unavailable or returned an invalid response.';
-				console.error(`AuthContext: ${errMessage}`);
-			} else if (error && typeof error === 'object' && 'message' in error) {
-				errMessage = error.message as string;
-			}
-			return { status: 'error', message: errMessage };
+		} catch (err: unknown) {
+			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.');
+			return { status: 'error', message: errorMessage };
 		}
 	};
 
@@ -198,16 +181,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				console.warn('AuthContext: Resend verification email backend issue:', errorMessage);
 				return { success: false, message: errorMessage };
 			}
-		} catch (error: unknown) {
-			console.error('AuthContext: Exception during resendVerificationEmail:', error);
-			let errMessage = 'An unknown error occurred while resending the verification email.';
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				errMessage = 'Server unavailable or returned an invalid response for resend.';
-				console.error(`AuthContext: ${errMessage}`);
-			} else if (error && typeof error === 'object' && 'message' in error) {
-				errMessage = error.message as string;
-			}
-			return { success: false, message: errMessage };
+		} catch (err: unknown) {
+			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.');
+			return { success: false, message: errorMessage };
 		}
 	};
 
@@ -231,17 +207,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 				if (sessionData.status === 'success' && sessionData.data?.user) {
 					setCurrentUser(sessionData.data.user as AuthenticatedUser);
-					console.log('AuthContext: Session restored.');
 				} else {
-					console.warn('AuthContext: Session data format unexpected or user missing.', sessionData);
 					setCurrentUser(null);
 				}
 			} catch (error) {
-				console.error('AuthContext: Failed to check session:', error);
 				setCurrentUser(null);
-				if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-					console.error('AuthContext: Session check received invalid JSON (server likely down).');
-				}
 			} finally {
 				setIsLoading(false);
 			}

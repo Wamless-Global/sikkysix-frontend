@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import appSettings from '@/config/app';
 import Image from 'next/image';
 import nProgress from 'nprogress';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 interface AdminLayoutProps {
 	children: React.ReactNode;
@@ -34,7 +35,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 			nProgress.start();
 			router.push('/auth/login');
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during logout.';
+			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred during logout.');
 			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {

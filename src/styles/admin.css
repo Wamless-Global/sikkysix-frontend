@@ -1,0 +1,112 @@
+:root {
+	--admin-bg: #f7f8fa;
+	--admin-table-bg: #fff;
+	--admin-table-border: #e0e0e0;
+	--admin-primary: #2d6cdf;
+	--admin-danger: #e53e3e;
+	--admin-success: #38a169;
+	--admin-text: #222;
+	--admin-muted: #888;
+	--admin-radius: 6px;
+	--admin-spacing: 1.5rem;
+	--admin-font: 'Inter', Arial, sans-serif;
+}
+
+.admin-page {
+	background: var(--admin-bg);
+	padding: var(--admin-spacing);
+	border-radius: var(--admin-radius);
+	font-family: var(--admin-font);
+	color: var(--admin-text);
+	min-height: 80vh;
+}
+
+.admin-title {
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: var(--admin-spacing);
+}
+
+.admin-controls {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.admin-select,
+.admin-input,
+.admin-table input,
+.admin-table select,
+.admin-table textarea {
+	padding: 0.5rem 1rem;
+	border-radius: var(--admin-radius);
+	border: 1px solid var(--admin-table-border);
+	font-size: 1rem;
+}
+
+.admin-table {
+	width: 100%;
+	background: var(--admin-table-bg);
+	border-radius: var(--admin-radius);
+	border-collapse: separate;
+	border-spacing: 0;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.admin-table th,
+.admin-table td {
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid var(--admin-table-border);
+	text-align: left;
+}
+
+.admin-table th {
+	background: var(--admin-bg);
+	font-weight: 600;
+	cursor: pointer;
+	user-select: none;
+}
+
+.admin-table th.admin-sortable:hover {
+	color: var(--admin-primary);
+}
+
+.admin-table tr:last-child td {
+	border-bottom: none;
+}
+
+.admin-actions {
+	display: flex;
+	gap: 1rem;
+	margin-top: 2rem;
+}
+
+.admin-section {
+	background: var(--admin-table-bg);
+	border-radius: var(--admin-radius);
+	padding: 1.5rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.admin-modal {
+	background: var(--admin-table-bg);
+	border-radius: var(--admin-radius);
+	padding: 2rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1000;
+}
+
+.admin-input {
+	width: 100%;
+	margin-top: 0.5rem;
+	margin-bottom: 1rem;
+	padding: 0.5rem 1rem;
+	border-radius: var(--admin-radius);
+	border: 1px solid var(--admin-table-border);
+	font-size: 1rem;
+}

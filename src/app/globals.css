@@ -126,6 +126,10 @@
 
 	--danger: #d07d7d;
 	--danger-foreground: oklch(1 0 0);
+
+	--warning: #facc15; /* Amber 400 */
+	--warning-foreground: oklch(0.19 0.028 258.6);
+	--warning-hover: #fde047; /* Amber 300 */
 }
 
 .dark {
@@ -227,6 +231,37 @@
 	--danger: #d07d7d;
 	--danger-hover: #d75c5c;
 	--danger-foreground: oklch(0.19 0.028 258.6);
+
+	--warning: #facc15;
+	--warning-foreground: oklch(0.19 0.028 258.6);
+	--warning-hover: #fde047;
+}
+
+/* Global custom scrollbar styles */
+html {
+	scrollbar-width: thin;
+	scrollbar-color: var(--dashboard-secondary-foreground) var(--dashboard-secondary);
+}
+html::-webkit-scrollbar {
+	width: 8px;
+}
+html::-webkit-scrollbar-thumb {
+	background: var(--dashboard-secondary-foreground);
+	border-radius: 8px;
+}
+html::-webkit-scrollbar-track {
+	background: var(--dashboard-secondary);
+}
+
+/* For dark mode, ensure colors adapt */
+.dark html {
+	scrollbar-color: var(--dashboard-secondary-foreground) var(--dashboard-secondary);
+}
+.dark html::-webkit-scrollbar-thumb {
+	background: var(--dashboard-secondary-foreground);
+}
+.dark html::-webkit-scrollbar-track {
+	background: var(--dashboard-secondary);
 }
 
 @layer components {

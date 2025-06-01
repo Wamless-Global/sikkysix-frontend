@@ -6,7 +6,7 @@ import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loa
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
 import { useAuthContext } from '@/context/AuthContext';
-import { formatNaira, formatTransactionDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatNaira, formatDate, getTransactionTypeLabel } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
@@ -104,7 +104,7 @@ export default function WalletPageContent() {
 									)}
 									<div>
 										<p className="font-bold text-sm md:text-base text-foreground">{getTransactionTypeLabel(transaction.type)}</p>
-										<p className="text-xs md:text-sm text-muted-foreground">{formatTransactionDate(new Date(transaction.created_at))}</p>
+										<p className="text-xs md:text-sm text-muted-foreground">{formatDate(new Date(transaction.created_at))}</p>
 									</div>
 								</div>
 								<p className={`font-semibold text-base md:text-lg ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatNaira(transaction.amount)}</p>

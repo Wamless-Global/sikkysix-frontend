@@ -15,3 +15,9 @@ export interface AuthContextType {
 export interface AuthProviderProps {
 	children: ReactNode;
 }
+
+export interface VerifyResetTokenResult {
+	valid: boolean;
+	user?: {};
+	error?: { name: string; message: string; status?: number };
+}

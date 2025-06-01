@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
@@ -49,16 +50,13 @@ export default function LoginPage() {
 				router.push(destination);
 			}, 1000);
 		} catch (err) {
-			let errorMessage = 'An unexpected error occurred during login.';
-			if (err instanceof SyntaxError && (err.message.includes('JSON') || err.message.includes('token'))) {
-				errorMessage = 'Server unavailable. Please try again later.';
-			} else if (err instanceof Error) {
-				errorMessage = err.message;
-				if (errorMessage.includes('Please verify your email address before logging in')) {
-					nProgress.start();
-					router.push('/auth/verify-email?email=' + email);
-				}
+			const errorMessage = handleFetchErrorMessage(err);
+
+			if (errorMessage.includes('Please verify your email address before logging in')) {
+				nProgress.start();
+				router.push('/auth/verify-email?email=' + email);
 			}
+
 			toast.error(errorMessage, { id: toastId });
 		} finally {
 			setIsLoading(false);

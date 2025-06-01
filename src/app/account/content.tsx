@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
-import { generateSlug } from '@/lib/helpers';
+import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 
 export default function AccountPage() {
@@ -56,12 +56,8 @@ export default function AccountPage() {
 				}
 			}
 		} catch (err) {
-			if (err instanceof Error) {
-				setError(err.message);
-			} else {
-				setError('An unexpected error occurred while fetching categories.');
-			}
-			console.error('Failed to fetch user categories:', err);
+			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred while fetching categories.');
+			setError(errorMessage);
 			setCategories([]);
 		} finally {
 			setIsLoading(false);

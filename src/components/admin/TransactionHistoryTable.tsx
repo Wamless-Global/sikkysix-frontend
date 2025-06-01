@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ChevronLeft, ChevronRight, ArrowUpDown, Loader2 } from 'lucide-react';
-import { SortableTransactionKeys, TransactionHistoryTableProps, TransactionStatusEnum } from '@/types';
+import { SortableTransactionKeys, TransactionHistoryTableProps, TransactionStatus } from '@/types';
 
-const getTransactionStatusVariant = (status: TransactionStatusEnum): 'default' | 'secondary' | 'destructive' | 'outline' => {
+const getTransactionStatusVariant = (status: TransactionStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
 	switch (status) {
 		case 'completed':
 			return 'default';
@@ -73,7 +73,6 @@ export function TransactionHistoryTable({ transactions, isLoading, currentPage, 
 										{tx.type} {tx.payment_method ? `(${tx.payment_method})` : ''}
 									</TableCell>
 									<TableCell className="text-right">
-										{' '}
 										{tx.currency} {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 									</TableCell>
 									<TableCell>

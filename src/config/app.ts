@@ -14,6 +14,10 @@ export const appSettings: AppSettings = {
 	itemsPerPage: 10,
 };
 
+export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
 export const logMessages = true;
+
+export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
 export default appSettings;

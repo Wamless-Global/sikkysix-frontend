@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatNaira, formatNumber, formatRelativeTime } from '@/lib/helpers';
+import { formatNaira, formatNumber, formatRelativeTime, handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthenticatedUser, Category, Investment, InvestmentsResponse, UserSingleCategoryResponse } from '@/types';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
@@ -101,8 +101,7 @@ export default function SingleCategoryContent() {
 				throw new Error(errorMessage);
 			}
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Could not load category details.';
-			console.error('Failed to fetch user category:', err);
+			const errorMessage = handleFetchErrorMessage(err, 'Could not load category details.');
 			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {
@@ -123,7 +122,7 @@ export default function SingleCategoryContent() {
 			setCurrentPage(data.data.currentPage);
 			setTotalPages(data.data.totalPages);
 		} catch (err) {
-			console.error('Error fetching transactions:', err);
+			// console.error('Error fetching transactions:', err);
 			toast.error('Failed to load transaction history');
 		} finally {
 			setIsLoadingTransactions(false);
@@ -142,7 +141,7 @@ export default function SingleCategoryContent() {
 			setInvestmentsPage(data.data.currentPage);
 			setInvestmentsTotalPages(data.data.totalPages);
 		} catch (err) {
-			console.error('Error fetching active investments:', err);
+			// console.error('Error fetching active investments:', err);
 			toast.error('Failed to load active investments');
 		} finally {
 			setIsLoadingInvestments(false);
@@ -254,7 +253,7 @@ export default function SingleCategoryContent() {
 				toast.error(errorMessage);
 			}
 		} catch (error) {
-			console.error('Error creating category:', error);
+			// console.error('Error creating category:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 		} finally {
 			nProgress.done();

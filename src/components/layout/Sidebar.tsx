@@ -3,11 +3,21 @@
 import { CustomLink } from '@/components/ui/CustomLink';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart } from 'lucide-react';
+import { LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart, UserCheck, FileText, WalletIcon } from 'lucide-react';
 
 const navItems = [
 	{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
 	{ href: '/admin/users', label: 'User Management', icon: Users },
+	{
+		href: '/admin/agents',
+		label: 'Agents',
+		icon: UserCheck,
+	},
+	{
+		href: '/admin/applications',
+		label: 'Agent Applications',
+		icon: FileText,
+	},
 	{
 		href: '/admin/categories',
 		label: 'Investment Categories',
@@ -15,6 +25,7 @@ const navItems = [
 	},
 	{ href: '/admin/transactions', label: 'Transactions', icon: ArrowLeftRight },
 	{ href: '/admin/settings', label: 'Platform Settings', icon: Settings },
+	{ href: '/admin/payment-methods', label: 'Payment Methods', icon: WalletIcon },
 	{
 		href: '/admin/communication',
 		label: 'Communication',
@@ -28,9 +39,7 @@ const Sidebar = () => {
 
 	return (
 		<aside className="w-72 bg-muted/40 border-r border-border p-4 flex flex-col">
-			<div className="mb-6 flex items-center gap-2">
-				<h2 className="text-sm font-medium text-muted-foreground">Menu</h2>
-			</div>
+			<div className="mb-6 flex items-center gap-2"></div>
 			<nav className="flex-1 space-y-1">
 				{navItems.map((item) => {
 					const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));

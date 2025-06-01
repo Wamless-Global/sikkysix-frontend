@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COUNTRIES } from '@/lib/countries';
 import { format } from 'date-fns';
-import { formatCurrency, getEmailStatusVariant, getStatusVariant } from '@/lib/helpers';
+import { formatCurrency, getEmailStatusVariant, getStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { AdjustBalanceModal } from '@/components/modals/AdjustBalanceModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, UserStatus } from '@/types';
@@ -203,7 +203,7 @@ export default function UserDetailPage() {
 					setCurrentUser(updatedUser);
 				}
 			} catch (error) {
-				console.error('Error during status update process:', error);
+				// console.error('Error during status update process:', error);
 				toast.error('An unexpected error occurred while updating status.');
 			} finally {
 				setIsSuspending(false);
@@ -224,7 +224,7 @@ export default function UserDetailPage() {
 					setConfirmAction(null);
 				}
 			} catch (error) {
-				console.error('Error during user deletion process:', error);
+				// console.error('Error during user deletion process:', error);
 				toast.error('An unexpected error occurred while deleting the user.');
 				setIsDeleting(false);
 				setShowConfirmDialog(false);
@@ -257,10 +257,10 @@ export default function UserDetailPage() {
 			setCurrentUser((prevUser) => (prevUser ? { ...prevUser, wallet_balance: result.data.newBalance } : null));
 			toast.success(result.message || 'Balance adjusted successfully!');
 			setIsAdjustModalOpen(false); // Close modal on success
-		} catch (error) {
-			console.error('Error adjusting balance:', error);
-			toast.error(error instanceof Error ? error.message : 'An unexpected error occurred.');
-		} finally {
+		} catch (err) {
+			// console.error('Error adjusting balance:', err);
+			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred.');
+			toast.error(errorMessage);
 			setIsAdjustingBalance(false);
 		}
 	};
@@ -430,7 +430,7 @@ export default function UserDetailPage() {
 							<LinkIcon className="w-4 h-4" /> <span>Referral Code:</span> <span className="font-mono text-foreground">{currentUser.referral_code ?? 'N/A'}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Users className="w-4 h-4" /> <span>Referred By:</span>{' '}
+							<Users className="w-4 h-4" /> <span>Referred By:</span>
 							<span className="text-foreground">
 								{currentUser.referred_by_user_id ? `User ID: ${currentUser.referred_by_user_id}` : 'None'} {/* TODO: Fetch referrer name */}
 							</span>
@@ -501,7 +501,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Active investments table...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 1 */}
 					</Card>
 				</TabsContent>
@@ -512,7 +512,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Investment history table...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 2 */}
 					</Card>
 				</TabsContent>
@@ -523,7 +523,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Transaction history table with filters...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 3 */}
 					</Card>
 				</TabsContent>
@@ -534,7 +534,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Wallet history table...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 4 */}
 					</Card>
 				</TabsContent>
@@ -545,7 +545,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Referred users table...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 5 */}
 					</Card>
 				</TabsContent>
@@ -556,7 +556,7 @@ export default function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-muted-foreground">Task details and withdrawal eligibility...</p>
-						</CardContent>{' '}
+						</CardContent>
 						{/* TODO: Implement Tab 6 */}
 					</Card>
 				</TabsContent>

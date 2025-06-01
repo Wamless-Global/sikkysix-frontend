@@ -47,7 +47,7 @@ export default function DepositPageContent() {
 								<span className="font-medium flex-1">P2P Agent</span>
 							</Label>
 							<Label htmlFor="onchain" className="flex items-center space-x-2 p-3 bg-background rounded-md border border-border has-[[data-state=checked]]:border-[var(--dashboard-accent)] has-[[data-state=checked]]:bg-muted/50 transition-all cursor-pointer">
-								<RadioGroupItem value="onchain" id="onchain" className="border-border data-[state=checked]:border-[var(--dashboard-accent)] data-[state=checked]:bg-[var(--dashboard-accent)] data-[state=checked]:text-accent-foreground" />
+								<RadioGroupItem value="onchain" id="onchain" className="border-border data-[state=checked]:border-[var(--dashboard-accent)] data-[state=checked]:bg-[var(--dashboard-accent)] data-[state=checked]:text-accent-foreground" disabled />
 								<span className="font-medium flex-1">On Chain</span>
 							</Label>
 						</RadioGroup>

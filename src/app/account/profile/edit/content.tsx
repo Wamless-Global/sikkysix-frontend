@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { updateUser } from '@/lib/userUtils';
 import type { AuthenticatedUser } from '@/types';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 export default function EditProfilePageContent() {
 	const { currentUser, setCurrentUser } = useAuthContext();
@@ -93,9 +94,8 @@ export default function EditProfilePageContent() {
 				toast.error('Failed to update profile.');
 			}
 		} catch (err) {
-			if (err instanceof Error) {
-				toast.error(err.message || 'An error occurred while updating profile.');
-			}
+			const errorMessage = handleFetchErrorMessage(err, 'An error occurred while updating profile.');
+			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);
 		}

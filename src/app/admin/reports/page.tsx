@@ -1,6 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import InvestmentTrendChart from '@/components/charts/InvestmentTrendChart';
-// import UserGrowthChart from '@/components/charts/UserGrowthChart';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 
 export default function ReportingPage() {

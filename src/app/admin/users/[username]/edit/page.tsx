@@ -94,7 +94,7 @@ export default function EditUserPage() {
 			}
 			setIsSaving(false);
 		} catch (error) {
-			console.error('Error during profile update process:', error);
+			// console.error('Error during profile update process:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 			setIsSaving(false);
 		}
@@ -127,7 +127,7 @@ export default function EditUserPage() {
 				setIsDeleting(false);
 			}
 		} catch (error) {
-			console.error('Error during user deletion process:', error);
+			// console.error('Error during user deletion process:', error);
 			toast.error('An unexpected error occurred while deleting the user.');
 			setIsDeleting(false);
 		}

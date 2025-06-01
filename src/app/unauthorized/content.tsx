@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 const UnauthorizedPageContent: React.FC = () => {
 	const { logout } = useAuthContext();
@@ -24,8 +25,9 @@ const UnauthorizedPageContent: React.FC = () => {
 			toast.success('Logged out successfully!');
 			router.push('/auth/login');
 		} catch (err) {
-			console.error('Logout failed:', err);
-			toast.error(err instanceof Error ? err.message : 'An unexpected error occurred during logout.');
+			// console.error('Logout failed:', err);
+			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred during logout.');
+			toast.error(errorMessage);
 		} finally {
 			nProgress.done();
 			setIsLoggingOut(false);

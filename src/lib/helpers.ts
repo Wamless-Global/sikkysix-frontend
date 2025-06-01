@@ -85,6 +85,22 @@ export const getAccountStatusBadgeVariant = (status: AccountStatus) => {
 	}
 };
 
+// Assuming this helper function exists or needs to be defined
+export const getAgentStatusVariant = (status: string) => {
+	switch (status) {
+		case 'approved':
+			return 'default';
+		case 'pending':
+			return 'warning';
+		case 'rejected':
+			return 'destructive';
+		case 'needs_more_info':
+			return 'secondary';
+		default:
+			return 'default';
+	}
+};
+
 // Format timestamp to relative time
 export const formatRelativeTime = (timestamp: string) => {
 	const date = new Date(timestamp);
@@ -97,12 +113,28 @@ export const formatRelativeTime = (timestamp: string) => {
 	return `${Math.floor(diffInSeconds / 86400)}d ago`;
 };
 
-export const formatTransactionDate = (date: Date): string => {
+export const formatDate = (date: Date, showTime: boolean = true): string => {
 	const month = date.toLocaleDateString('en-US', { month: 'short' });
 	const day = date.getDate();
 	const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-	return `${month} ${day}, ${time}`;
+	return `${month} ${day} ${showTime ? ', ' + time : ''}`;
 };
+
+/**
+ * Formats a birth date as "MMM dd, yyyy" (e.g., Jan 01, 2000).
+ * Returns 'N/A' if input is invalid.
+ * @param date Date object or date string
+ */
+export function formatFullDate(date: Date | string | null | undefined): string {
+	if (!date) return 'N/A';
+	const d = typeof date === 'string' ? new Date(date) : date;
+	if (isNaN(d.getTime())) return 'N/A';
+	return d.toLocaleDateString('en-US', {
+		month: 'short',
+		day: '2-digit',
+		year: 'numeric',
+	});
+}
 
 // Utility to make transaction type readable
 export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
@@ -128,4 +160,42 @@ export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
 
 export function getTransactionTypeLabel(type: string) {
 	return TRANSACTION_TYPE_LABELS[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function handleFetchErrorMessage(err: { message?: string; detail?: unknown } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = ''): string {
+	let errorMessage = defaultMessage || 'An unexpected error occurred.';
+	console.log(err);
+
+	let message: string | undefined;
+	let detail: unknown;
+
+	if (typeof err === 'string') {
+		message = err;
+	} else if (typeof err === 'object' && err !== null) {
+		if ('message' in err && typeof (err as any).message === 'string') {
+			message = (err as any).message;
+		}
+		if ('detail' in err) {
+			detail = (err as any).detail;
+		}
+	}
+
+	if (detail && typeof detail === 'string') message = detail;
+
+	if (message) {
+		const lowerMessage = message.toLowerCase();
+		if (lowerMessage.includes('violates foreign key constraint')) {
+			errorMessage = 'This action cannot be completed because it is linked to other records. Please resolve related data first or contact support.';
+		} else if (lowerMessage.includes('failed to fetch')) {
+			errorMessage = 'An error occurred. Please try again later.';
+		} else if (lowerMessage.includes('resource not found for')) {
+			errorMessage = 'An internal error occurred, please contact support.';
+		} else if (err instanceof SyntaxError || lowerMessage.includes('json') || lowerMessage.includes('token')) {
+			errorMessage = JSONErr || 'Server unavailable. Please try again later.';
+		} else {
+			errorMessage = message;
+		}
+	}
+
+	return errorMessage;
 }

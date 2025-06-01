@@ -16,7 +16,7 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { generateSlug } from '@/lib/helpers';
+import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -125,9 +125,10 @@ export default function EditCategoryPage() {
 				} else {
 					throw new Error(result.data?.toString() || 'Category data is invalid.');
 				}
-			} catch (error) {
-				console.error('Error fetching category:', error);
-				toast.error((error as Error).message || 'Could not load category for editing.');
+			} catch (err) {
+				// console.error('Error fetching category:', error);
+				const errorMessage = handleFetchErrorMessage(err, 'Could not load category for editing.');
+				toast.error(errorMessage);
 				router.push('/admin/categories');
 			} finally {
 				setIsLoadingData(false);

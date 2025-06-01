@@ -73,6 +73,8 @@ export interface AuthenticatedUser {
 	country: string | null;
 	accountBalance?: number;
 	isEmailVerified?: boolean;
+	agent_id?: string | null;
+	figure_head_id?: string | null;
 }
 
 export interface UserFilters {

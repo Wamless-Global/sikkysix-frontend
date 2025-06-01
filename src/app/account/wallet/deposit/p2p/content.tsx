@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Star, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,50 +10,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
+import { Skeleton } from '@/components/ui/skeleton';
 
-type AgentType = (typeof mockAgents)[0];
-
-// Mock Data for P2P Agents - Replace with actual data fetching
-const mockAgents = [
-	{
-		id: '1',
-		name: 'John Doe',
-		transactions: 32,
-		completionRate: 91,
-		rateNGN: 1653.21,
-		rating: 4.5,
-	},
-	{
-		id: '2',
-		name: 'Sung Jin Woo',
-		transactions: 32,
-		completionRate: 91,
-		rateNGN: 1653.21,
-		rating: 4.0,
-	},
-	{
-		id: '3',
-		name: 'Scarlett Johanson',
-		transactions: 32,
-		completionRate: 91,
-		rateNGN: 1653.21,
-		rating: 3.5,
-	},
-	{
-		id: '4',
-		name: 'Thor Odinsonn',
-		transactions: 32,
-		completionRate: 91,
-		rateNGN: 1653.21,
-		rating: 5.0,
-	},
-];
+interface AgentType {
+	id: string;
+	name: string;
+	avatar_url?: string;
+	transactions: number;
+	completionRate: number;
+	rateNGN: number;
+	rating: number;
+}
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
 	const halfStar = rating % 1 !== 0;
 	const emptyStars = maxStars - fullStars - (halfStar ? 1 : 0);
-
 	return (
 		<div className="flex items-center">
 			{[...Array(fullStars)].map((_, i) => (
@@ -85,6 +57,44 @@ export default function P2PAgentListPageContent() {
 	const [selectedAgentForConfirmation, setSelectedAgentForConfirmation] = useState<AgentType | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 
+	const [agents, setAgents] = useState<AgentType[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		setLoading(true);
+		setError(null);
+		fetch(`/api/agents/active-with-orders/?order_type=buy&amount=${amount}`)
+			.then((res) => {
+				if (!res.ok) throw new Error('Failed to fetch agents');
+				return res.json();
+			})
+			.then((data) => {
+				// Map backend data to AgentType[]
+				const apiAgents = data?.data?.agents || [];
+				const mapped = apiAgents
+					.filter((a: any) => Array.isArray(a.orders) && a.orders.length > 0)
+					.map((a: any) => {
+						const user = a.agent.user;
+						const firstOrder = a.orders[0];
+						return {
+							id: a.agent.id,
+							name: user?.name || user?.username || 'Unknown',
+							avatar_url: user?.avatar_url,
+							transactions: parseInt(a.agent.total_trades_completed || '0', 10),
+							completionRate: 100, // Placeholder, backend does not provide
+							rateNGN: firstOrder ? parseFloat(firstOrder.price_per_unit) : 0,
+							rating: 5, // Placeholder, backend does not provide
+						};
+					});
+				setAgents(mapped);
+			})
+			.catch(() => {
+				setError('Failed to load agents');
+			})
+			.finally(() => setLoading(false));
+	}, []);
+
 	const handleApplyFilters = () => {
 		setAppliedMinRating(tempMinRating ? parseFloat(tempMinRating) : null);
 		setAppliedMinTransactions(tempMinTransactions ? parseInt(tempMinTransactions, 10) : null);
@@ -100,34 +110,32 @@ export default function P2PAgentListPageContent() {
 	};
 
 	const displayAgents = useMemo(() => {
-		let agents = [...mockAgents];
-
+		let agentsList = [...agents];
 		if (appliedMinRating !== null) {
-			agents = agents.filter((agent) => agent.rating >= appliedMinRating!);
+			agentsList = agentsList.filter((agent) => agent.rating >= appliedMinRating!);
 		}
 		if (appliedMinTransactions !== null) {
-			agents = agents.filter((agent) => agent.transactions >= appliedMinTransactions!);
+			agentsList = agentsList.filter((agent) => agent.transactions >= appliedMinTransactions!);
 		}
-
 		switch (sortBy) {
 			case 'price_desc':
-				agents.sort((a, b) => b.rateNGN - a.rateNGN);
+				agentsList.sort((a, b) => b.rateNGN - a.rateNGN);
 				break;
 			case 'completion_desc':
-				agents.sort((a, b) => b.completionRate - a.completionRate);
+				agentsList.sort((a, b) => b.completionRate - a.completionRate);
 				break;
 			case 'orders_desc':
-				agents.sort((a, b) => b.transactions - a.transactions);
+				agentsList.sort((a, b) => b.transactions - a.transactions);
 				break;
 			case 'rating_desc':
-				agents.sort((a, b) => b.rating - a.rating);
+				agentsList.sort((a, b) => b.rating - a.rating);
 				break;
 			case 'default':
 			default:
 				break;
 		}
-		return agents;
-	}, [sortBy, appliedMinRating, appliedMinTransactions]);
+		return agentsList;
+	}, [agents, sortBy, appliedMinRating, appliedMinTransactions]);
 
 	const handleSelectAgent = (agent: AgentType) => {
 		setSelectedAgentForConfirmation(agent);
@@ -223,27 +231,71 @@ export default function P2PAgentListPageContent() {
 					</div>
 				</div>
 			</div>
-			{displayAgents.length > 0 ? (
+			{loading ? (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-					{displayAgents.map((agent) => (
-						<Card key={agent.id} className="!bg-background shadow-sm flex flex-col">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<Card key={i} className="!bg-background shadow-sm flex flex-col">
 							<CardContent className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-grow">
-								<div className="flex-grow">
-									<h3 className="text-lg font-semibold text-foreground mb-0.5">{agent.name}</h3>
-									<div className="flex items-center gap-1 mb-1">
-										<StarRating rating={agent.rating} />
+								<div className="flex items-center gap-3 w-full">
+									<Skeleton className="h-12 w-12 rounded-full" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-5 w-32" />
+										<Skeleton className="h-4 w-20" />
+										<Skeleton className="h-4 w-24" />
 									</div>
-									<p className="text-sm text-muted-foreground">
-										NGN <span className="font-semibold text-base text-foreground">{agent.rateNGN.toFixed(5)}</span>
-									</p>
 								</div>
 								<div className="flex flex-col items-start sm:items-end w-full sm:w-auto pt-2 sm:pt-0 mt-auto">
-									<p className="text-xs text-muted-foreground mb-0.5">{agent.transactions} Transactions</p>
-									<p className="text-xs text-muted-foreground mb-2">{agent.completionRate}% Completion</p>
-									<Button variant="success" size="sm" className="w-full sm:w-auto px-6" onClick={() => handleSelectAgent(agent)}>
-										Select
-									</Button>
+									<Skeleton className="h-4 w-24 mb-2" />
+									<Skeleton className="h-8 w-24" />
 								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			) : error ? (
+				<Card className="bg-background border-0 shadow-none mt-10 text-center">
+					<CardHeader className="px-0">
+						<CardTitle className="text-lg text-foreground">Error</CardTitle>
+					</CardHeader>
+					<CardContent className="px-0">
+						<p className="text-muted-foreground">{error}</p>
+					</CardContent>
+				</Card>
+			) : displayAgents.length > 0 ? (
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+					{displayAgents.map((agent) => (
+						<Card key={agent.id} className="!bg-background shadow-sm flex flex-col transition-transform hover:scale-[1.015] hover:shadow-md border border-border/60">
+							<CardContent className="p-4 flex flex-col gap-3 sm:gap-4 flex-grow">
+								<div className="flex items-center gap-3">
+									{agent.avatar_url ? (
+										<img src={agent.avatar_url} alt={agent.name} className="h-12 w-12 rounded-full object-cover border border-border" />
+									) : (
+										<div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground">{agent.name[0]}</div>
+									)}
+									<div className="flex-1 min-w-0">
+										<h3 className="text-base font-semibold text-foreground truncate">{agent.name}</h3>
+										<div className="flex items-center gap-1 mt-0.5">
+											<StarRating rating={agent.rating} />
+											<span className="ml-1 text-xs text-muted-foreground">{agent.rating.toFixed(1)}</span>
+										</div>
+									</div>
+									<span className="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20 ml-auto">Buy</span>
+								</div>
+								<div className="flex flex-col gap-1 sm:gap-2 mt-2">
+									<div className="flex flex-wrap items-center gap-2 text-sm">
+										<span className="text-muted-foreground">Price:</span>
+										<span className="font-semibold text-base text-foreground">₦{agent.rateNGN.toLocaleString(undefined, { maximumFractionDigits: 5 })}</span>
+										<span className="text-xs text-muted-foreground">per NGN</span>
+									</div>
+									<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+										<span>{agent.transactions} Transactions</span>
+										<span className="hidden sm:inline">•</span>
+										<span>{agent.completionRate}% Completion</span>
+									</div>
+								</div>
+								<Button variant="success" size="sm" className="w-full mt-3 sm:mt-0 px-6" onClick={() => handleSelectAgent(agent)}>
+									Select
+								</Button>
 							</CardContent>
 						</Card>
 					))}

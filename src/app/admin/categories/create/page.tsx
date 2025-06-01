@@ -18,9 +18,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast } from 'sonner';
 import { AmmParameterFields } from '@/components/admin/AmmParameterFields';
 import Image from 'next/image';
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/config/app';
 
 const ammModelTypes = ['adjusted_l_s', 'constant_product', 'linear_bonding_curve', 'exponential_bonding_curve'] as const;
 
@@ -204,7 +202,7 @@ export default function CreateCategoryPage() {
 				toast.error(errorMessage);
 			}
 		} catch (error) {
-			console.error('Error creating category:', error);
+			// console.error('Error creating category:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 		} finally {
 			NProgress.done();
@@ -373,7 +371,7 @@ export default function CreateCategoryPage() {
 											<FormMessage />
 										</FormItem>
 									)}
-								/>{' '}
+								/>
 								{form.watch('early_withdrawal_penalty_type') === 'percentage_fee' && (
 									<FormField
 										control={form.control}
@@ -394,6 +392,7 @@ export default function CreateCategoryPage() {
 															const newValue = e.target.value === '' ? null : parseFloat(e.target.value);
 															onChange(newValue);
 														}}
+														disabled={isSubmitting}
 													/>
 												</FormControl>
 												<FormDescription>Enter the penalty percentage as a decimal (e.g., 0.10 for 10%)</FormDescription>

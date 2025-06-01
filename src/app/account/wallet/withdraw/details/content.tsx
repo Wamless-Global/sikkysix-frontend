@@ -139,13 +139,13 @@ export default function WithdrawDetailsContent() {
 						</CardHeader>
 						<CardContent className="space-y-3 text-sm">
 							<div className="flex justify-between">
-								<span>Asset:</span>{' '}
+								<span>Asset:</span>
 								<span className="font-medium">
 									{selectedAsset.name} ({selectedAsset.symbol})
 								</span>
 							</div>
 							<div className="flex justify-between">
-								<span>Amount:</span>{' '}
+								<span>Amount:</span>
 								<span className="font-medium">
 									{amount} {selectedAsset.symbol}
 								</span>
@@ -154,7 +154,7 @@ export default function WithdrawDetailsContent() {
 								<span>Network:</span> <span className="font-medium">{selectedNetwork.name}</span>
 							</div>
 							<div className="flex justify-between">
-								<span>Est. Fee:</span>{' '}
+								<span>Est. Fee:</span>
 								<span className="font-medium">
 									{selectedNetwork.fee} {selectedNetwork.feeCurrency || selectedAsset.symbol}
 								</span>

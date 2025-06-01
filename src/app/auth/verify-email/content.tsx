@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CustomLink } from '@/components/ui/CustomLink';
 import appSettings from '@/config/app';
+import { handleFetchErrorMessage } from '@/lib/helpers';
+import nProgress from 'nprogress';
 
 export default function VerifyEmailContent() {
 	const router = useRouter();
@@ -57,14 +59,12 @@ export default function VerifyEmailContent() {
 					setErrorOccurred(true);
 					setTimeout(() => router.push('/auth/login'), 3000);
 				}
-			} catch (e: unknown) {
-				console.error('Email status check process error:', e);
-				if (e instanceof SyntaxError && (e.message.includes('JSON') || e.message.includes('token'))) {
-					const errMsg = e.message || 'A critical error occurred while checking email status.';
-					setStatusMessage(errMsg);
-					toast.error(errMsg);
-				}
+			} catch (err: unknown) {
+				const errorMessage = handleFetchErrorMessage(err, null, 'A critical error occurred while checking email status.');
+				setStatusMessage(errorMessage);
+				toast.error(errorMessage);
 				setErrorOccurred(true);
+				nProgress.start();
 				setTimeout(() => router.push('/auth/login'), 3000);
 			} finally {
 				setIsLoading(false);
@@ -95,13 +95,10 @@ export default function VerifyEmailContent() {
 				toast.error(result.message || 'Failed to resend verification email.');
 				setStatusMessage(result.message || 'Failed to resend. Please try again or contact support.');
 			}
-		} catch (error: unknown) {
-			console.error('Error calling resendVerificationEmail from context:', error);
-			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-				const errMsg = error.message || 'An unexpected error occurred while trying to resend.';
-				toast.error(errMsg);
-				setStatusMessage(errMsg);
-			}
+		} catch (err) {
+			const errorMessage = handleFetchErrorMessage(err);
+			toast.error(errorMessage);
+			setStatusMessage(errorMessage);
 		} finally {
 			setIsResending(false);
 		}
