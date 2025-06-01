@@ -11,16 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface AgentType {
-	id: string;
-	name: string;
-	avatar_url?: string;
-	transactions: number;
-	completionRate: number;
-	rateNGN: number;
-	rating: number;
-}
+import { AgentType } from '@/types';
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
@@ -60,17 +51,34 @@ export default function P2PAgentListPageContent() {
 	const [agents, setAgents] = useState<AgentType[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [hasPagination, setHasPagination] = useState(false);
+	const [apiPage, setApiPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
 
+	// Helper to build API URL with filters/sorts
+	const buildApiUrl = (page: number = 1) => {
+		const params = new URLSearchParams();
+		params.append('order_type', 'buy');
+		if (amount) params.append('amount', amount);
+		params.append('page', page.toString());
+		params.append('pageSize', pageSize.toString());
+		if (appliedMinRating !== null) params.append('minRating', appliedMinRating.toString());
+		if (appliedMinTransactions !== null) params.append('minTransactions', appliedMinTransactions.toString());
+		if (sortBy && sortBy !== 'default') params.append('sortBy', sortBy);
+		return `/api/agents/active-with-orders/?${params.toString()}`;
+	};
+
+	// Fetch agents from API, always with filters/sorts if pagination is available
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
-		fetch(`/api/agents/active-with-orders/?order_type=buy&amount=${amount}`)
+		const url = buildApiUrl(apiPage);
+		fetch(url)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch agents');
 				return res.json();
 			})
 			.then((data) => {
-				// Map backend data to AgentType[]
 				const apiAgents = data?.data?.agents || [];
 				const mapped = apiAgents
 					.filter((a: any) => Array.isArray(a.orders) && a.orders.length > 0)
@@ -84,21 +92,28 @@ export default function P2PAgentListPageContent() {
 							transactions: parseInt(a.agent.total_trades_completed || '0', 10),
 							completionRate: 100, // Placeholder, backend does not provide
 							rateNGN: firstOrder ? parseFloat(firstOrder.price_per_unit) : 0,
-							rating: 5, // Placeholder, backend does not provide
+							rating: a.agent.rating,
 						};
 					});
 				setAgents(mapped);
+				const count = data?.data?.count || 0;
+				const hasMore = data?.data?.hasMore || false;
+				const pageSizeResp = data?.data?.pageSize || 10;
+				setPageSize(pageSizeResp);
+				setHasPagination(count > pageSizeResp || hasMore);
 			})
 			.catch(() => {
 				setError('Failed to load agents');
 			})
 			.finally(() => setLoading(false));
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [amount, appliedMinRating, appliedMinTransactions, sortBy, apiPage]);
 
 	const handleApplyFilters = () => {
 		setAppliedMinRating(tempMinRating ? parseFloat(tempMinRating) : null);
 		setAppliedMinTransactions(tempMinTransactions ? parseInt(tempMinTransactions, 10) : null);
 		setIsFilterOpen(false);
+		setApiPage(1); // Reset to first page on filter
 	};
 
 	const handleClearFilters = () => {
@@ -107,9 +122,17 @@ export default function P2PAgentListPageContent() {
 		setAppliedMinRating(null);
 		setAppliedMinTransactions(null);
 		setIsFilterOpen(false);
+		setApiPage(1);
 	};
 
+	const handleSortChange = (sort: SortByType) => {
+		setSortBy(sort);
+		setApiPage(1);
+	};
+
+	// If pagination, use agents as-is. If not, filter/sort in-memory.
 	const displayAgents = useMemo(() => {
+		if (hasPagination) return agents;
 		let agentsList = [...agents];
 		if (appliedMinRating !== null) {
 			agentsList = agentsList.filter((agent) => agent.rating >= appliedMinRating!);
@@ -135,7 +158,7 @@ export default function P2PAgentListPageContent() {
 				break;
 		}
 		return agentsList;
-	}, [agents, sortBy, appliedMinRating, appliedMinTransactions]);
+	}, [agents, sortBy, appliedMinRating, appliedMinTransactions, hasPagination]);
 
 	const handleSelectAgent = (agent: AgentType) => {
 		setSelectedAgentForConfirmation(agent);

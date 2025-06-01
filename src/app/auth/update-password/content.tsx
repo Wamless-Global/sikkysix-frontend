@@ -70,7 +70,7 @@ export default function UpdatePasswordPageContent() {
 					setPageStatus(result.error?.name === 'TokenExpiredError' ? 'expired' : 'error');
 					setTitle(result.error?.name === 'TokenExpiredError' ? 'Link Expired' : 'Invalid Link');
 				}
-			} catch (e) {
+			} catch {
 				setStatusMessage('Failed to verify reset link.');
 				setPageStatus('error');
 				setTitle('Error');

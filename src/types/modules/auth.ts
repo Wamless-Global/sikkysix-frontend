@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AuthenticatedUser } from './users';
+import { AuthenticatedUser, User } from './users';
 
 export interface AuthContextType {
 	currentUser: AuthenticatedUser | null;
@@ -18,6 +18,6 @@ export interface AuthProviderProps {
 
 export interface VerifyResetTokenResult {
 	valid: boolean;
-	user?: {};
+	user?: User;
 	error?: { name: string; message: string; status?: number };
 }

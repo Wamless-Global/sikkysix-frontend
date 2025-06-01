@@ -202,7 +202,7 @@ export default function UserDetailPage() {
 				if (updatedUser) {
 					setCurrentUser(updatedUser);
 				}
-			} catch (error) {
+			} catch {
 				// console.error('Error during status update process:', error);
 				toast.error('An unexpected error occurred while updating status.');
 			} finally {
@@ -223,7 +223,7 @@ export default function UserDetailPage() {
 					setShowConfirmDialog(false);
 					setConfirmAction(null);
 				}
-			} catch (error) {
+			} catch {
 				// console.error('Error during user deletion process:', error);
 				toast.error('An unexpected error occurred while deleting the user.');
 				setIsDeleting(false);

@@ -12,6 +12,7 @@ import * as z from 'zod';
 import nProgress from 'nprogress';
 import { toast } from 'sonner';
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
@@ -143,7 +144,7 @@ export default function EditP2PPage() {
 				} catch (_e) {}
 				toast.error(errorMessage);
 			}
-		} catch (error) {
+		} catch {
 			toast.error('An unexpected error occurred. Please try again.');
 		} finally {
 			nProgress.done();
@@ -232,7 +233,7 @@ export default function EditP2PPage() {
 													}}
 												/>
 											</FormControl>
-											{(imagePreview || logoUrl) && <img src={imagePreview || logoUrl} alt="Preview" className="h-16 w-16 object-cover rounded mt-2" />}
+											{(imagePreview || logoUrl) && <Image layout="fill" src={imagePreview ?? logoUrl!} alt="Preview" className="h-16 w-16 object-cover rounded mt-2" />}
 											<FormMessage />
 										</FormItem>
 									)}

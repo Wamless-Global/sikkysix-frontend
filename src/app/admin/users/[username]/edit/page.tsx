@@ -93,7 +93,7 @@ export default function EditUserPage() {
 				router.push(`/admin/users/${updatedUser.username}`);
 			}
 			setIsSaving(false);
-		} catch (error) {
+		} catch {
 			// console.error('Error during profile update process:', error);
 			toast.error('An unexpected error occurred. Please try again.');
 			setIsSaving(false);
@@ -126,7 +126,7 @@ export default function EditUserPage() {
 			} else {
 				setIsDeleting(false);
 			}
-		} catch (error) {
+		} catch {
 			// console.error('Error during user deletion process:', error);
 			toast.error('An unexpected error occurred while deleting the user.');
 			setIsDeleting(false);

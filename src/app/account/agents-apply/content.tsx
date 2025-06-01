@@ -223,7 +223,7 @@ const AgentApplyContent = () => {
 										</FormControl>
 										<SelectContent>
 											<SelectItem value="Passport">Passport</SelectItem>
-											<SelectItem value="Driver's License">Driver's License</SelectItem>
+											<SelectItem value="Driver's License">Driver&apos;s License</SelectItem>
 											<SelectItem value="National ID">National ID</SelectItem>
 											<SelectItem value="Other">Other</SelectItem>
 										</SelectContent>

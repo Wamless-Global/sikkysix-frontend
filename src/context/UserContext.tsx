@@ -2,7 +2,6 @@
 
 import { FetchUsersApiResponse, User, UserContextType, UserFilters, UserProviderProps } from '@/types';
 import { createContext, useState, useContext, useCallback, useEffect } from 'react';
-import { toast } from 'sonner';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -20,12 +19,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 		try {
 			const params = new URLSearchParams();
+
 			params.append('page', page.toString());
+
 			if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
+
 			if (filters.role && filters.role !== 'all') params.append('role', filters.role);
+
 			if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+
 			if (filters.country && filters.country !== 'all') params.append('country', filters.country);
+
 			if (filters.startDate) params.append('startDate', filters.startDate);
+
 			if (filters.endDate) params.append('endDate', filters.endDate);
 
 			const apiUrl = `/api/users/all?${params.toString()}`;

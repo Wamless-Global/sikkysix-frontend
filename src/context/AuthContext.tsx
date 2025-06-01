@@ -210,7 +210,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				} else {
 					setCurrentUser(null);
 				}
-			} catch (error) {
+			} catch {
 				setCurrentUser(null);
 			} finally {
 				setIsLoading(false);

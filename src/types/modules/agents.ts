@@ -20,6 +20,7 @@ export interface Agent {
 		email: string;
 		avatar_url?: string;
 	};
+	rating: number; // Added rating property
 }
 
 // Define AgentFilters type based on API endpoint parameters
@@ -31,4 +32,15 @@ export interface AgentFilters {
 	maxTrades?: number;
 	minVolume?: number;
 	maxVolume?: number;
+}
+
+// AgentType interface for component usage
+export interface AgentType {
+	id: string;
+	name: string;
+	avatar_url?: string;
+	transactions: number;
+	completionRate: number;
+	rateNGN: number;
+	rating: number; // Now typed as number, not placeholder
 }

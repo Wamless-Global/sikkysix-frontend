@@ -77,8 +77,8 @@ export default function P2PManagementPage() {
 			toast.success(`Payment method "${name}" deleted successfully.`, { id: toastId });
 
 			fetchMethods(currentPage);
-		} catch (err: any) {
-			toast.error(err.message || 'Failed to delete payment method.', { id: toastId });
+		} catch (err: unknown) {
+			toast.error(handleFetchErrorMessage('Failed to delete payment method.'), { id: toastId });
 		}
 	};
 
