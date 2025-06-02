@@ -37,6 +37,7 @@ export interface AgentFilters {
 // AgentType interface for component usage
 export interface AgentType {
 	id: string;
+	orderId: string;
 	name: string;
 	avatar_url?: string;
 	transactions: number;

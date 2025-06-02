@@ -183,7 +183,7 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
  * @returns A Promise resolving to the user&apos;s balance, or null if an error occurs.
  */
 export const fetchCurrentUserBalance = async (): Promise<number | null> => {
-	const targetUrl = '/api/me/balance';
+	const targetUrl = '/api/users/me/balance';
 
 	try {
 		console.log(`Fetching current user balance from: ${targetUrl}`);

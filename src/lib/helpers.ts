@@ -17,7 +17,7 @@ export const formatUSD = (amount: number | undefined | null, precision = 2): str
 	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: precision, maximumFractionDigits: precision }).format(amount);
 };
 
-export const currencyFormatter = (value: number, units = 2, currency = '₦') => {
+export const currencyFormatter = (value: number | string, units = 2, currency = '₦') => {
 	return `${currency}${value.toLocaleString(undefined, { minimumFractionDigits: units, maximumFractionDigits: units })}`;
 };
 
