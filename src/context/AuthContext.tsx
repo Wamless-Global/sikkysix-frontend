@@ -2,6 +2,8 @@
 
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
+import { useRouter } from 'next/navigation';
+import nProgress from 'nprogress';
 import { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,6 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const router = useRouter();
 
 	const logout = async (): Promise<void> => {
 		try {
@@ -195,7 +198,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				});
 				if (!response.ok) {
 					if (response.status === 401) {
-						console.log('AuthContext: No active session found.');
+						nProgress.start();
+						router.push('/auth/login?redirect_to=' + encodeURIComponent(window.location.pathname));
 					} else {
 						console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
 					}

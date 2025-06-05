@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
 import { Transaction } from '@/types';
+import P2PContent from './p2p-content';
 
 export default function TransactionDetailsPageContent() {
 	const params = useParams();
@@ -14,7 +15,6 @@ export default function TransactionDetailsPageContent() {
 	const [transaction, setTransaction] = useState<Transaction | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [P2PContent, setP2PContent] = useState<React.ComponentType<any> | null>(null);
 
 	useEffect(() => {
 		setLoading(true);
@@ -25,22 +25,15 @@ export default function TransactionDetailsPageContent() {
 				return res.json();
 			})
 			.then(({ data }) => {
-				console.log(data);
-
 				setTransaction(data);
 			})
 			.catch((_err) => {
+				handleFetchErrorMessage(_err);
+
 				setError('Could not load transaction.');
 			})
 			.finally(() => setLoading(false));
 	}, [transactionId]);
-
-	useEffect(() => {
-		const isP2P = transaction?.payment_method === 'p2p' || (transaction?.details && transaction.details.type === 'p2p');
-		if (isP2P) {
-			import('./p2p-content').then((module) => setP2PContent(() => module.default)).catch((error) => console.error('Failed to load P2PContent', error));
-		}
-	}, [transaction]);
 
 	if (loading) {
 		return (
@@ -77,9 +70,6 @@ export default function TransactionDetailsPageContent() {
 	}
 
 	if (transaction?.payment_method === 'p2p' || (transaction?.details && transaction.details.type === 'p2p')) {
-		if (!P2PContent) {
-			return <div>Loading P2P Content...</div>;
-		}
 		return <P2PContent transaction={transaction} />;
 	}
 

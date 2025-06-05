@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { usePathname, useRouter } from 'next/navigation';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { Role } from '@/types';
 
 interface UserMobileSidebarProps {
 	isOpen: boolean;
@@ -21,9 +22,10 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 	const pathname = usePathname();
 
 	const navItems = [
-		{ href: '/account', label: 'Home' },
-		{ href: '/account/referrals', label: 'Referrals' },
-		{ href: '/account/report', label: 'Report' },
+		{ href: '/account', for: 'user', label: 'Home' },
+		{ href: '/account/referrals', for: 'user', label: 'Referrals' },
+		{ href: '/account/report', for: 'user', label: 'Report' },
+		{ href: '/account/agents-apply', for: 'user', label: 'Become an Agent', hideFor: 'agent' },
 		...(currentUser?.roles.includes('agent')
 			? [
 					{
@@ -32,13 +34,12 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 						subMenu: [
 							{ href: '/account/agent-portal/overview', label: 'overview' },
 							{ href: '/account/agent-portal/orders', label: 'orders' },
-							{ href: '/account/agent-portal/trades', label: 'trades' },
 							{ href: '/account/agent-portal/settings', label: 'settings' },
 						],
 					},
 			  ]
 			: []),
-		{ href: '/account/profile/preferences', label: 'Settings' },
+		{ href: '/account/profile/preferences', label: 'Settings', for: 'user' },
 	];
 	const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
@@ -92,11 +93,13 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 								</div>
 							);
 						}
-						return (
-							<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
-								{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
-							</CustomLink>
-						);
+
+						if (currentUser?.roles.includes(item.for as Role) && !currentUser?.roles.includes(item.hideFor as Role))
+							return (
+								<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
+									{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
+								</CustomLink>
+							);
 					})}
 				</nav>
 				<div className="mt-auto border-t border-border/40 p-4">

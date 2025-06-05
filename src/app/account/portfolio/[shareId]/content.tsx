@@ -143,21 +143,21 @@ export default function PortfolioItemDetailPageContent() {
 		return (
 			<div className="max-w-2xl animate-pulse space-y-8">
 				<div className="space-y-4">
-					<Skeleton className="h-8 w-3/4" />
-					<Skeleton className="h-4 w-2/3" />
+					<Skeleton className="h-8 w-3/4 rounded" />
+					<Skeleton className="h-4 w-2/3 rounded" />
 				</div>
 				<div className="flex items-center justify-between gap-6 md:gap-20">
 					<Skeleton className="h-[220px] w-[220px] rounded-full" />
 					<div className="flex-1 space-y-4">
-						<Skeleton className="h-12 w-full" />
-						<Skeleton className="h-12 w-full" />
+						<Skeleton className="h-12 w-full rounded" />
+						<Skeleton className="h-12 w-full rounded" />
 					</div>
 				</div>
 				<div className="space-y-4">
 					{[1, 2, 3, 4].map((i) => (
 						<div key={i} className="flex justify-between">
-							<Skeleton className="h-6 w-24" />
-							<Skeleton className="h-6 w-32" />
+							<Skeleton className="h-6 w-24 rounded" />
+							<Skeleton className="h-6 w-32 rounded" />
 						</div>
 					))}
 				</div>
@@ -168,9 +168,14 @@ export default function PortfolioItemDetailPageContent() {
 	if (error || !investment) {
 		return (
 			<div className="flex flex-col items-center justify-center min-h-[50vh] bg-background text-foreground p-4">
-				<h1 className="text-2xl font-semibold mb-4">Investment Not Found</h1>
-				<p className="text-muted-foreground mb-6">{error || `The investment with ID "${investmentId}" could not be found.`}</p>
-				<Button onClick={() => router.back()}>Go Back</Button>
+				<Alert variant="destructive" className="mb-6 max-w-md">
+					<AlertCircle className="h-6 w-6 mr-2" />
+					<AlertTitle>Investment Not Found</AlertTitle>
+					<AlertDescription>{error || `The investment with ID "${investmentId}" could not be found.`}</AlertDescription>
+				</Alert>
+				<Button onClick={() => router.back()} variant="outline">
+					Go Back
+				</Button>
 			</div>
 		);
 	}
@@ -198,7 +203,7 @@ export default function PortfolioItemDetailPageContent() {
 				</div>
 			</div>
 
-			<div className="w-full space-y-5 mt-6">
+			<div className="w-full space-y-5 mt-6 bg-muted p-6">
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Initial Investment</span>
 					<span className="font-medium text-foreground">{currencyFormatter(investment.amount_invested)}</span>
@@ -249,6 +254,7 @@ export default function PortfolioItemDetailPageContent() {
 				</div>
 			</div>
 
+			{/* Withdrawal Preview Dialog */}
 			<Dialog open={isPreviewModalOpen} onOpenChange={setIsPreviewModalOpen}>
 				<DialogContent className="sm:max-w-md mt-10 p-7">
 					<DialogHeader className="mb-5">

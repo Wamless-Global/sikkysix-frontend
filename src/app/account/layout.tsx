@@ -42,7 +42,6 @@ const desktopNavItems: desktopNavItemsType = [
 		subMenu: [
 			{ href: '/account/agent-portal/overview', label: 'overview' },
 			{ href: '/account/agent-portal/orders', label: 'orders' },
-			{ href: '/account/agent-portal/trades', label: 'trades' },
 			{ href: '/account/agent-portal/settings', label: 'settings' },
 		],
 	},
@@ -165,23 +164,23 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 				<aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
 					<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-[var(--dashboard-secondary)] px-0 pb-4 rounded-r-2xl">
 						<div className="flex h-16 shrink-0 items-center pl-6">
-							<Skeleton className="h-6 w-24 bg-background/30" />
+							<Skeleton className="h-6 w-24 bg-background/30 rounded-full" />
 						</div>
 						<nav className="flex flex-1 flex-col">
 							<ul role="list" className="flex flex-1 flex-col gap-y-7 overflow-x-hidden">
 								<li>
-									<ul role="list" className="-mx-2 space-y-2 pl-6 gap-4">
+									<ul role="list" className="-mx-2 space-y-6 px-6 gap-4">
 										{[...Array(8)].map((_, i) => (
 											<li key={i}>
-												<Skeleton className="h-14 w-full rounded-l-full bg-background/30" />
+												<Skeleton className="h-10 w-full rounded-full bg-background/30 cursor-pointer" />
 											</li>
 										))}
 									</ul>
 								</li>
 
-								<li className="mt-auto pl-6">
-									<Skeleton className="h-10 w-full rounded-md mt-1 bg-background/30" />
-									<Skeleton className="h-10 w-full rounded-md mt-1 bg-background/30" />
+								<li className="mt-auto px-6">
+									<Skeleton className="h-10 w-full rounded-full mt-1 bg-background/30 cursor-pointer" />
+									<Skeleton className="h-10 w-full rounded-full mt-3 bg-background/30 cursor-pointer" />
 								</li>
 							</ul>
 						</nav>

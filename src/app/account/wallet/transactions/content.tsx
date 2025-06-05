@@ -3,15 +3,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import NProgress from 'nprogress';
-import { ArrowDown, ArrowUp, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, Search as _SearchIcon, Filter as FilterIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, Search as _SearchIcon, Filter as FilterIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { formatDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
 import { AccountTransaction, TransactionApiResponse } from '@/types';
+import { cn } from '@/lib/utils';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -63,7 +64,8 @@ export default function AccountTransactionsPageContent() {
 				setTotalPages(data.data.totalPages);
 				setUniqueTypes(Array.from(new Set(data.data.transactions.map((t) => t.type))).sort());
 			})
-			.catch(() => {
+			.catch((err) => {
+				handleFetchErrorMessage(err);
 				setTransactions([]);
 				setTotalCount(0);
 				setTotalPages(1);
@@ -271,13 +273,27 @@ export default function AccountTransactionsPageContent() {
 									}}
 								>
 									<TableCell className="py-3">
-										{transaction.status === 'Pending' ? (
+										{transaction.status === 'pending' ? (
 											<div className="flex justify-center items-center h-full p-3">
 												<Loader2 className="h-5 w-5 animate-spin text-slate-400" />
 											</div>
 										) : (
-											<div className={`rounded-full p-3 ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}>
-												{transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? <ArrowDown className="h-5 w-5 text-[var(--success-foreground)]" /> : <ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />}
+											<div
+												className={`rounded-full p-3 ${
+													transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+														? 'bg-muted-foreground'
+														: transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit')
+														? 'bg-[var(--success)]'
+														: 'bg-[var(--danger)]'
+												}`}
+											>
+												{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
+													<X className="h-5 w-5 text-[var(--success-foreground)]" />
+												) : transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? (
+													<ArrowDown className="h-5 w-5 text-[var(--success-foreground)]" />
+												) : (
+													<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+												)}
 											</div>
 										)}
 									</TableCell>
@@ -290,13 +306,30 @@ export default function AccountTransactionsPageContent() {
 									</TableCell>
 									<TableCell className="py-3 hidden sm:table-cell">
 										<Badge
-											variant={transaction.status === 'Completed' ? 'default' : 'secondary'}
-											className={`text-xs ${transaction.status === 'Completed' ? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-700/30 dark:text-amber-300'}`}
+											variant={transaction.status.toLowerCase() === 'completed' ? 'default' : 'secondary'}
+											className={cn(
+												transaction.status.toLowerCase() === 'completed'
+													? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300'
+													: transaction.status.toLowerCase() === 'pending'
+													? 'bg-amber-100 text-amber-700 dark:bg-amber-700/30 dark:text-amber-300'
+													: transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+													? 'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300'
+													: 'bg-muted text-muted-foreground',
+												'text-xs capitalize'
+											)}
 										>
-											{transaction.status}
+											{transaction.status.toLowerCase()}
 										</Badge>
 									</TableCell>
-									<TableCell className={`py-3 text-base font-semibold text-right ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+									<TableCell
+										className={`py-3 text-base font-semibold text-right ${
+											transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+												? 'text-muted-foreground'
+												: transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit')
+												? 'text-[var(--success)]'
+												: 'text-[var(--danger)]'
+										}`}
+									>
 										{transaction.amount.toLocaleString(undefined, { style: 'currency', currency: 'NGN', minimumFractionDigits: 2 })}
 									</TableCell>
 								</TableRow>

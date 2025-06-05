@@ -11,6 +11,8 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 export default function P2PNewOrderPageContent() {
 	const router = useRouter();
@@ -25,11 +27,13 @@ export default function P2PNewOrderPageContent() {
 	const [loading, setLoading] = useState(true);
 	const [softError, setSoftError] = useState<string | null>(null);
 	const [preview, setPreview] = useState<any>(null);
+	const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!agentId || !amount || !orderId) {
+			nProgress.start();
+			router.push('/account/wallet/deposit');
 			setSoftError('Missing required order parameters. Please go back and try again.');
-			setLoading(false);
 			return;
 		}
 
@@ -51,7 +55,12 @@ export default function P2PNewOrderPageContent() {
 						rateNGN: Number(data.data.rate),
 						quantityUSDT: Number(data.data.quantity),
 						transactionFeesNGN: Number(data.data.transactionFee),
+						methods: data.data.methods || [],
 					});
+					// Auto-select first method if only one is available
+					if (data.data.methods && data.data.methods.length === 1) {
+						setSelectedMethodId(data.data.methods[0].id);
+					}
 				} else if (data?.error) {
 					const msg = handleFetchErrorMessage(data.error, 'Could not fetch order preview.');
 					setSoftError(msg);
@@ -75,15 +84,35 @@ export default function P2PNewOrderPageContent() {
 		setIsConfirmOrderModalOpen(true);
 	};
 
-	const proceedWithOrderPlacement = () => {
+	const proceedWithOrderPlacement = async () => {
+		if (!selectedMethodId) {
+			toast.error('Please select a payment method.');
+			return;
+		}
 		setIsProcessingOrder(true);
-		setTimeout(() => {
+		try {
 			nProgress.start();
-			const mockTransactionId = `TXN-P2P-${Date.now()}`;
-			toast.success('Order placed successfully! Redirecting...');
-			router.replace(`/account/wallet/transactions/${mockTransactionId}`);
+			const res = await fetch('/api/p2p/trades/confirm', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ agentId, amount, orderId, type, methodId: selectedMethodId }),
+				credentials: 'include',
+			});
+			const data = await res.json();
+			if (res.ok && data?.status === 'success') {
+				toast.success('Order placed successfully! Redirecting...');
+				router.replace(`/account/wallet/transactions/${data.data.escrow_transaction_id}`);
+			} else {
+				const msg = handleFetchErrorMessage(data, 'Failed to confirm order.');
+				toast.error(msg);
+			}
+		} catch (err) {
+			const msg = handleFetchErrorMessage(err, 'Failed to confirm order.');
+			toast.error(msg);
+		} finally {
 			setIsProcessingOrder(false);
-		}, 2000);
+			nProgress.done();
+		}
 	};
 
 	if (loading) {
@@ -134,7 +163,24 @@ export default function P2PNewOrderPageContent() {
 						<OrderDetailItem label="Quantity" value={preview?.quantityUSDT} unit="USDT" />
 						{preview?.transactionFeesNGN === 0 ? <OrderDetailItem label="Transaction Fees" value="No transaction fee" unit="" /> : <OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit="NGN" />}
 					</div>
-					<Button onClick={handleConfirmOrder} size="lg" variant="success" className="w-full group" disabled={isProcessingOrder}>
+					{preview?.methods && preview.methods.length > 0 && (
+						<div className="p-4 rounded-lg bg-background dark:bg-muted border border-border">
+							<h3 className="text-md font-semibold text-foreground mb-2">Select Payment Method</h3>
+							<RadioGroup value={selectedMethodId ?? ''} onValueChange={setSelectedMethodId} className="space-y-2">
+								{preview.methods.map((method: any) => (
+									<Label
+										key={method.id}
+										htmlFor={`method-${method.id}`}
+										className="flex items-center space-x-2 p-3 bg-background rounded-md border border-border has-[[data-state=checked]]:border-[var(--dashboard-accent)] has-[[data-state=checked]]:bg-muted/50 transition-all cursor-pointer"
+									>
+										<RadioGroupItem value={method.id} id={`method-${method.id}`} className="border-border data-[state=checked]:border-[var(--dashboard-accent)] data-[state=checked]:bg-[var(--dashboard-accent)] data-[state=checked]:text-accent-foreground" />
+										<span className="font-medium flex-1">{method.name}</span>
+									</Label>
+								))}
+							</RadioGroup>
+						</div>
+					)}
+					<Button onClick={handleConfirmOrder} size="lg" variant="success" className="w-full group" disabled={isProcessingOrder || !selectedMethodId}>
 						{isProcessingOrder ? 'Processing...' : 'Confirm Order'}
 						{!isProcessingOrder && <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />}
 					</Button>

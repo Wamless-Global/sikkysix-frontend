@@ -50,6 +50,20 @@ export interface Transaction {
 	is_instant?: boolean;
 	duration_seconds?: number; // For non-instant transactions
 	userName?: string; // uuid
+	user_name?: string;
+	user_username?: string;
+}
+
+export interface TransactionResponse {
+	status: string;
+	data: {
+		transactions: Transaction[];
+		hasMore: boolean;
+		currentPage: number;
+		pageSize: number;
+		totalCount: number;
+		totalPages: number;
+	};
 }
 
 export type SortableTransactionKeys = 'date' | 'userName' | 'type' | 'amount' | 'status';

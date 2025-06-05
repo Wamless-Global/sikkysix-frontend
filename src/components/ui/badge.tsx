@@ -17,7 +17,10 @@ const badgeVariants = cva(
 				active: 'bg-[var(--dashboard-accent)] text-[var(--dashboard-accent-foreground)] [a&]:hover:bg-[var(--dashboard-accent-hover)]',
 				warning: 'bg-[var(--warning)] text-[var(--warning-foreground)] [a&]:hover:bg-[var(--warning-hover)]',
 				completed: 'bg-gray-600 text-gray-100',
+				info: 'bg-blue-100 text-blue-800',
+				success: 'bg-green-100 text-green-800',
 			},
+
 			size: {
 				default: 'h-9 px-4 py-2 has-[>svg]:px-3',
 				sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',

@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
+import { currencyFormatter, handleFetchErrorMessage } from '@/lib/helpers';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Investment } from '@/types';
@@ -68,20 +68,21 @@ export default function PortfolioPageContent() {
 
 	return (
 		<div className="space-y-8 pb-16">
+			{/* Portfolio Summary Card */}
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-md rounded-2xl text-[var(--dashboard-secondary-foreground)] md:py-2">
-				<CardContent className="p-1 px-6 md:p-6 flex justify-between items-center">
-					<div>
-						<p className="subtext">{selectedTab === 'active' ? 'Active Portfolio' : 'Completed Portfolio'}</p>
+				<CardContent className="p-1 px-6 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
+					<div className="flex-1">
+						<p className="subtext mb-1">{selectedTab === 'active' ? 'Active Portfolio' : 'Completed Portfolio'}</p>
 						{isLoading ? (
 							<div className="animate-pulse">
 								<div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
 							</div>
 						) : (
-							<p className="amount-heading-extra-large">{formatCurrency(portfolioValue)}</p>
+							<p className="amount-heading-extra-large">{currencyFormatter(portfolioValue)}</p>
 						)}
 					</div>
-					<div className="text-right">
-						<p className="subtext">Total</p>
+					<div className="text-right flex flex-col items-end">
+						<p className="subtext mb-1">Total</p>
 						{isLoading ? (
 							<div className="animate-pulse">
 								<div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-12 ml-auto"></div>
@@ -111,50 +112,73 @@ export default function PortfolioPageContent() {
 
 				<TabsContent value="active" className="mt-6 flex flex-col gap-5">
 					{isLoading ? (
-						Array.from({ length: 2 }).map((_, index) => (
-							<Card key={`skeleton-${index}`} className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0">
-								<CardContent className="p-4 md:p-6">
-									<div className="animate-pulse space-y-4">
-										<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-										<div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-										<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-									</div>
-								</CardContent>
-							</Card>
-						))
-					) : hasInvestments && selectedTab === 'active' ? (
-						investmentsToShow.map((item) => (
-							<CustomLink key={item.id} href={`/account/portfolio/${item.id}`} passHref>
-								<Card className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0 hover:shadow-md transition-shadow duration-200">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							{Array.from({ length: 2 }).map((_, index) => (
+								<Card key={`skeleton-${index}`} className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0">
 									<CardContent className="p-4 md:p-6">
-										<div className="flex justify-between items-start mb-2">
-											<div className="flex items-center justify-center gap-4">
-												<h3 className="text-base md:text-lg font-semibold text-foreground">{item.ticker} Investment</h3>
-												{/* <Badge variant="outline">{formatCurrency(item.profit)}</Badge> */}
+										<div className="animate-pulse space-y-4">
+											<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+											<div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+											<div className="flex items-center gap-2 mt-4 opacity-60">
+												<div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+												<div className="h-3 w-3 bg-gray-200 dark:bg-gray-700 rounded-full" />
 											</div>
-											<p className="text-lg md:text-xl font-bold text-foreground">{formatCurrency(item.current_value)}</p>
-										</div>
-										<div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 mb-3">
-											<div className="text-muted-foreground">
-												<span className="text-xs">Initial Investment: </span>
-												<p className="font-medium text-foreground">{formatCurrency(item.amount_invested)}</p>
-											</div>
-											<div className="text-muted-foreground">
-												<span className="text-xs">Target Value: </span>
-												<p className="font-medium text-foreground">{formatCurrency(item.target_total_value)}</p>
-											</div>
-											<div className="text-muted-foreground">
-												<span className="text-xs">Progress: </span>
-												<p className="font-medium text-foreground">{(item.progress_percentage ?? 0).toFixed(2)}%</p>
-											</div>
-										</div>
-										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2">
-											<div className="bg-[var(--dashboard-accent)] h-1.5 md:h-2 rounded-full" style={{ width: `${item.progress_percentage}%` }}></div>
 										</div>
 									</CardContent>
 								</Card>
-							</CustomLink>
-						))
+							))}
+						</div>
+					) : hasInvestments && selectedTab === 'active' ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							{investmentsToShow.map((item) => (
+								<CustomLink key={item.id} href={`/account/portfolio/${item.id}`} passHref>
+									<Card className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0 hover:shadow-lg hover:border-[var(--dashboard-accent)] group transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-[var(--dashboard-accent)]">
+										<CardContent className="p-4 md:p-6">
+											<div className="flex justify-between items-center mb-2">
+												<div className="flex items-center gap-3">
+													<h3 className="text-base md:text-lg font-semibold text-foreground group-hover:text-[var(--dashboard-accent)] transition-colors duration-200">{item.ticker} Investment</h3>
+													<Badge variant="active" className="text-xs px-2 py-0.5">
+														Active
+													</Badge>
+												</div>
+												<p className="text-lg md:text-xl font-bold text-foreground">{currencyFormatter(item.current_value)}</p>
+											</div>
+											<div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
+												<div className="text-muted-foreground">
+													<span className="text-xs">Initial: </span>
+													<p className="font-medium text-foreground">{currencyFormatter(item.amount_invested)}</p>
+												</div>
+												<div className="text-muted-foreground">
+													<span className="text-xs">Target: </span>
+													<p className="font-medium text-foreground">{currencyFormatter(item.target_total_value)}</p>
+												</div>
+												<div className="text-muted-foreground">
+													<span className="text-xs">Progress: </span>
+													<p className="font-medium text-foreground">{(item.progress_percentage ?? 0).toFixed(2)}%</p>
+												</div>
+												<div className="text-muted-foreground">
+													<span className="text-xs">Profit/Loss: </span>
+													<p className={`font-medium ${item.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{currencyFormatter(item.profit)}</p>
+												</div>
+											</div>
+											<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2">
+												<div className="bg-[var(--dashboard-accent)] h-1.5 md:h-2 rounded-full" style={{ width: `${item.progress_percentage}%` }}></div>
+											</div>
+											<div className="flex items-center gap-2 mt-4 opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+												<span className="text-xs text-muted-foreground">View Details</span>
+												<svg className="w-4 h-4 text-[var(--dashboard-accent)] group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+													<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+												</svg>
+											</div>
+										</CardContent>
+									</Card>
+								</CustomLink>
+							))}
+						</div>
 					) : (
 						<div className="text-center py-10 px-4 flex flex-col items-center mt-8 md:mt-12">
 							<Image src="/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />
@@ -167,50 +191,73 @@ export default function PortfolioPageContent() {
 
 				<TabsContent value="completed" className="mt-6 flex flex-col gap-5">
 					{isLoading ? (
-						Array.from({ length: 2 }).map((_, index) => (
-							<Card key={`skeleton-${index}`} className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0">
-								<CardContent className="p-4 md:p-6">
-									<div className="animate-pulse space-y-4">
-										<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-										<div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-										<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-									</div>
-								</CardContent>
-							</Card>
-						))
-					) : hasInvestments && selectedTab === 'completed' ? (
-						investmentsToShow.map((item) => (
-							<CustomLink key={item.id} href={`/account/portfolio/${item.id}`} passHref>
-								<Card className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0 hover:shadow-md transition-shadow duration-200">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							{Array.from({ length: 2 }).map((_, index) => (
+								<Card key={`skeleton-${index}`} className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0">
 									<CardContent className="p-4 md:p-6">
-										<div className="flex justify-between items-start mb-2">
-											<div className="flex items-center justify-center gap-4">
-												<h3 className="text-base md:text-lg font-semibold text-foreground">{item.ticker} Investment</h3>
-												<Badge variant={item.cancelled ? 'destructive' : 'completed'}>{item.cancelled ? 'Cancelled' : 'Completed'}</Badge>
+										<div className="animate-pulse space-y-4">
+											<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+											<div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+											<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+											<div className="flex items-center gap-2 mt-4 opacity-60">
+												<div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+												<div className="h-3 w-3 bg-gray-200 dark:bg-gray-700 rounded-full" />
 											</div>
-											<p className="text-lg md:text-xl font-bold text-foreground">{formatCurrency(item.details?.realized_value ?? 0)}</p>
-										</div>
-										<div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 mb-3">
-											<div className="text-muted-foreground">
-												<span className="text-xs">Initial Investment: </span>
-												<p className="font-medium text-foreground">{formatCurrency(item.amount_invested)}</p>
-											</div>
-											<div className="text-muted-foreground">
-												<span className="text-xs">Final Profit: </span>
-												<p className="font-medium text-foreground">{formatCurrency(item.details?.realized_value ?? 0)}</p>
-											</div>
-											{/* <div className="text-muted-foreground">
-												<span className="text-xs">Return: </span>
-												<p className="font-medium text-foreground">{item.percentage_change.toFixed(2)}%</p>
-											</div> */}
-										</div>
-										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2 opacity-55">
-											<div className={`${item.cancelled ? 'bg-[var(--danger)]' : 'bg-[var(--success)]'} h-1.5 md:h-2 rounded-full`} style={{ width: '100%' }}></div>
 										</div>
 									</CardContent>
 								</Card>
-							</CustomLink>
-						))
+							))}
+						</div>
+					) : hasInvestments && selectedTab === 'completed' ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							{investmentsToShow.map((item) => {
+								console.log(item);
+
+								return (
+									<CustomLink key={item.id} href={`/account/portfolio/${item.id}`} passHref>
+										<Card className="bg-card dark:bg-gray-800/60 border border-border dark:border-gray-700/50 shadow-sm rounded-xl overflow-hidden p-0 hover:shadow-lg hover:border-[var(--dashboard-accent)] group transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-[var(--dashboard-accent)]">
+											<CardContent className="p-4 md:p-6">
+												<div className="flex justify-between items-center mb-2">
+													<div className="flex items-center gap-3">
+														<h3 className="text-base md:text-lg font-semibold text-foreground group-hover:text-[var(--dashboard-accent)] transition-colors duration-200">{item.ticker} Investment</h3>
+														<Badge variant={item.cancelled ? 'destructive' : 'completed'} className="text-xs px-2 py-0.5">
+															{item.cancelled ? 'Cancelled' : 'Completed'}
+														</Badge>
+													</div>
+													<p className="text-lg md:text-xl font-bold text-foreground">{currencyFormatter(item.details?.realized_value ?? 0)}</p>
+												</div>
+												<div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
+													<div className="text-muted-foreground">
+														<span className="text-xs">Initial: </span>
+														<p className="font-medium text-foreground">{currencyFormatter(item.amount_invested)}</p>
+													</div>
+													<div className="text-muted-foreground">
+														<span className="text-xs">Final: </span>
+														<p className="font-medium text-foreground">{currencyFormatter(item.details?.realized_value ?? 0)}</p>
+													</div>
+													<div className="text-muted-foreground col-span-2">
+														<span className="text-xs">Profit/Loss: </span>
+														<p className={`font-medium ${(item.details?.realized_value ?? 0) - item.amount_invested >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{currencyFormatter((item.details?.realized_value ?? 0) - item.amount_invested)}</p>
+													</div>
+												</div>
+												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2 opacity-55">
+													<div className={`${item.cancelled ? 'bg-[var(--danger)]' : 'bg-[var(--success)]'} h-1.5 md:h-2 rounded-full`} style={{ width: '100%' }}></div>
+												</div>
+												<div className="flex items-center gap-2 mt-4 opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+													<span className="text-xs text-muted-foreground">View Details</span>
+													<svg className="w-4 h-4 text-[var(--dashboard-accent)] group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+													</svg>
+												</div>
+											</CardContent>
+										</Card>
+									</CustomLink>
+								);
+							})}
+						</div>
 					) : (
 						<div className="text-center py-10 px-4 flex flex-col items-center mt-8 md:mt-12">
 							<Image src="/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />

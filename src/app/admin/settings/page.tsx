@@ -37,7 +37,8 @@ function SettingsSkeleton() {
 
 export default function PlatformSettingsPage() {
 	const [platformName, setPlatformName] = useState('SikkySix Invest');
-	const [platformCurrency, setPlatformCurrency] = useState('NGN');
+	const [platformBaseCurrency, setPlatformBaseCurrency] = useState('NGN');
+	const [platformFiatCurrency, setPlatformFiatCurrency] = useState('NGN');
 
 	const [depositFeePercent, setDepositFeePercent] = useState(5);
 	const [withdrawalFeePercent, setWithdrawalFeePercent] = useState(5);
@@ -62,6 +63,8 @@ export default function PlatformSettingsPage() {
 	const [enableAutoWithdrawal, setEnableAutoWithdrawal] = useState(false);
 	const [enableFeesFromNetProfit, setEnableFeesFromNetProfit] = useState(false);
 	const [platformRevenueModel, setPlatformRevenueModel] = useState<'' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS'>('');
+	const [enableBuyingFeesWalletBalance, setEnableBuyingFeesWalletBalance] = useState(false);
+	const [categoriesTerm, setCategoriesTerm] = useState('units');
 
 	const [loading, setLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,16 +78,16 @@ export default function PlatformSettingsPage() {
 				const api = await res.json();
 
 				const settingsArr = api?.data?.settings || [];
-
 				const settings: Record<string, string> = {};
-
 				for (const s of settingsArr) {
 					settings[s.setting_key] = s.setting_value;
 				}
 
 				if (settings.platform_name) setPlatformName(settings.platform_name);
 
-				if (settings.platform_currency) setPlatformCurrency(settings.platform_currency);
+				if (settings.platform_base_currency) setPlatformBaseCurrency(settings.platform_base_currency);
+
+				if (settings.platform_fiat_currency) setPlatformFiatCurrency(settings.platform_fiat_currency);
 
 				if (settings.deposit_fee_percent !== undefined) setDepositFeePercent(Number(settings.deposit_fee_percent));
 
@@ -131,6 +134,10 @@ export default function PlatformSettingsPage() {
 				if (settings.enable_fees_from_net_profit !== undefined) setEnableFeesFromNetProfit(settings.enable_fees_from_net_profit === 'true');
 
 				if (settings.platform_revenue_model) setPlatformRevenueModel(settings.platform_revenue_model as '' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS');
+
+				if (settings.enable_buying_fees_wallet_balance !== undefined) setEnableBuyingFeesWalletBalance(settings.enable_buying_fees_wallet_balance === 'true');
+
+				if (settings.categories_term) setCategoriesTerm(settings.categories_term);
 			} catch (e) {
 				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
@@ -172,7 +179,8 @@ export default function PlatformSettingsPage() {
 	const handleSaveGeneralSettings = async () => {
 		const updates = [
 			{ key: 'platform_name', setting_value: platformName },
-			{ key: 'platform_currency', setting_value: platformCurrency },
+			{ key: 'platform_base_currency', setting_value: platformBaseCurrency },
+			{ key: 'platform_fiat_currency', setting_value: platformFiatCurrency },
 		];
 		await patchSettings(updates, 'General Settings');
 	};
@@ -208,6 +216,8 @@ export default function PlatformSettingsPage() {
 			{ key: 'enable_auto_withdrawal_on_complete_investment', setting_value: enableAutoWithdrawal ? 'true' : 'false' },
 			{ key: 'enable_fees_from_net_profit', setting_value: enableFeesFromNetProfit ? 'true' : 'false' },
 			{ key: 'platform_revenue_model', setting_value: platformRevenueModel },
+			{ key: 'enable_buying_fees_wallet_balance', setting_value: enableBuyingFeesWalletBalance ? 'true' : 'false' },
+			{ key: 'categories_term', setting_value: categoriesTerm },
 		];
 		await patchSettings(updates, 'Investment Settings');
 	};
@@ -237,10 +247,16 @@ export default function PlatformSettingsPage() {
 								<Input disabled={isSubmitting} id="platformName" value={platformName} onChange={(e) => setPlatformName(e.target.value)} className="focus:ring-primary/60" />
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="platformCurrency" className="font-medium">
-									Platform Currency
+								<Label htmlFor="platformBaseCurrency" className="font-medium">
+									Platform Base Currency
 								</Label>
-								<Input disabled={isSubmitting} id="platformCurrency" value={platformCurrency} onChange={(e) => setPlatformCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD" />
+								<Input disabled={isSubmitting} id="platformBaseCurrency" value={platformBaseCurrency} onChange={(e) => setPlatformBaseCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD" />
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="platformFiatCurrency" className="font-medium">
+									Platform Fiat Currency
+								</Label>
+								<Input disabled={isSubmitting} id="platformFiatCurrency" value={platformFiatCurrency} onChange={(e) => setPlatformFiatCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD, EUR (comma separated)" />
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">
@@ -343,6 +359,13 @@ export default function PlatformSettingsPage() {
 									<InfoTooltip content="If enabled, platform fees will be taken from net profit only (not from capital)." />
 								</Label>
 							</div>
+							<div className="flex items-center gap-3">
+								<Switch disabled={isSubmitting} id="buyingFeesWalletBalance" checked={enableBuyingFeesWalletBalance} onCheckedChange={setEnableBuyingFeesWalletBalance} />
+								<Label htmlFor="buyingFeesWalletBalance" className="font-medium cursor-pointer flex items-center gap-1">
+									Buying Fees from Wallet Balance
+									<InfoTooltip content="If enabled, buying fees will be deducted from the user's wallet balance instead of invested amount." />
+								</Label>
+							</div>
 							<div className="space-y-2">
 								<Label htmlFor="revenueModel" className="font-medium">
 									Platform Revenue Model
@@ -356,6 +379,12 @@ export default function PlatformSettingsPage() {
 										<SelectItem value="MODEL_B_POOL_BENEFITS">Model B: Pool Benefits</SelectItem>
 									</SelectContent>
 								</Select>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="categoriesTerm" className="font-medium">
+									Categories Term
+								</Label>
+								<Input disabled={isSubmitting} id="categoriesTerm" value={categoriesTerm} onChange={(e) => setCategoriesTerm(e.target.value)} className="focus:ring-blue-500/60" placeholder="e.g., units, shares, tokens" />
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">

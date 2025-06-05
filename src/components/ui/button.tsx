@@ -19,6 +19,8 @@ const buttonVariants = cva(
 				success: 'bg-[var(--dashboard-accent)] text-[var(--dashboard-accent-foreground)] shadow-xs hover:bg-[var(--dashboard-accent-hover)] font-bold',
 				cta: 'bg-[var(--dashboard-accent)] lg:bg-background text-[var(--dashboard-accent-foreground)] lg:text-foreground shadow-xs hover:bg-[var(--dashboard-accent-hover)] font-bold',
 				'fixed-cta': 'bg-background text-foreground shadow-xs hover:bg-[var(--dashboard-accent-hover)] font-semibold',
+				warning: 'bg-yellow-100 text-yellow-800 shadow-xs hover:bg-yellow-200 font-semibold',
+				info: 'bg-blue-100 text-blue-800 shadow-xs hover:bg-blue-200 font-semibold',
 			},
 			size: {
 				default: 'h-9 px-4 py-2 has-[>svg]:px-3',

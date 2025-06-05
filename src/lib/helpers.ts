@@ -1,4 +1,7 @@
-import { AccountStatus, EmailStatus, Transaction, UserStatus } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { AccountStatus, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
+import { P2PTradeStatus } from '@/types/modules/trade';
+import nProgress from 'nprogress';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
@@ -47,7 +50,7 @@ export const getEmailStatusVariant = (status: EmailStatus): 'default' | 'seconda
 	}
 };
 
-export const getStatusBadgeVariant = (status: Transaction['status']): 'secondary' | 'destructive' | 'outline' | 'default' | 'error' | 'active' | 'completed' | null | undefined => {
+export const getStatusBadgeVariant = (status: Transaction['status'] | Investment['status']): 'secondary' | 'destructive' | 'outline' | 'default' | 'error' | 'active' | 'completed' | null | undefined => {
 	switch (status.toLowerCase()) {
 		case 'completed':
 			return 'completed';
@@ -164,7 +167,6 @@ export function getTransactionTypeLabel(type: string) {
 
 export function handleFetchErrorMessage(err: { message?: string; detail?: unknown } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = ''): string {
 	let errorMessage = defaultMessage || 'An unexpected error occurred.';
-	console.log(err);
 
 	let message: string | undefined;
 	let detail: unknown;
@@ -184,6 +186,7 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 
 	if (message) {
 		const lowerMessage = message.toLowerCase();
+
 		if (lowerMessage.includes('violates foreign key constraint')) {
 			errorMessage = 'This action cannot be completed because it is linked to other records. Please resolve related data first or contact support.';
 		} else if (lowerMessage.includes('failed to fetch')) {
@@ -197,5 +200,41 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 		}
 	}
 
+	if (errorMessage == 'Not authorized, no authentication cookie found' || errorMessage.includes('no authentication cookie') || errorMessage.includes('No active session found')) {
+		nProgress.start();
+		errorMessage = 'You session has expired. Please log in again.';
+		window.location.reload();
+	}
+
 	return errorMessage;
+}
+
+//truncate function
+export function truncateString(str: string, maxLength: number = 20): string {
+	if (str.length <= maxLength) return str;
+	return str.slice(0, maxLength - 3) + '...';
+}
+
+// Helper to map trade status to Badge variant
+export function getAgentStatusBadgeVariant(status: P2PTradeStatus): React.ComponentProps<typeof Badge>['variant'] {
+	switch (status) {
+		case 'completed':
+			return 'success';
+		case 'awaiting_fiat_payment':
+			return 'warning';
+		case 'fiat_payment_confirmed_by_buyer':
+		case 'fiat_received_confirmed_by_seller':
+		case 'platform_ngn_released':
+		case 'dispute_resolved_buyer':
+		case 'dispute_resolved_seller':
+			return 'info';
+		case 'expired':
+			return 'secondary';
+		case 'cancelled_by_buyer':
+		case 'cancelled_by_seller':
+		case 'dispute_opened':
+			return 'destructive';
+		default:
+			return 'outline';
+	}
 }
