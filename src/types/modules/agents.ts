@@ -5,7 +5,7 @@ export interface Agent {
 	is_active: boolean;
 	availability_status: 'available' | 'offline' | 'busy';
 	total_trades_completed: string; // API returns text, convert to number for display
-	total_volume_traded_ngn: string; // API returns text, convert to number for display
+	total_volume_traded_amount: string; // API returns text, convert to number for display
 	positive_feedback_count: string; // API returns text
 	negative_feedback_count: string; // API returns text
 	avg_payment_time_minutes: string | null; // API returns text

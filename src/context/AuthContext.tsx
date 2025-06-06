@@ -148,8 +148,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				return { status: 'error', message: 'Unexpected response from server.' };
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.');
-			return { status: 'error', message: errorMessage };
+			let message = 'An unknown error occurred while checking email status.';
+			if (typeof err === 'object' && err !== null) {
+				if ('message' in err && typeof (err as any).message === 'string') {
+					message = (err as any).message;
+				}
+			}
+			return { status: 'error', message };
 		}
 	};
 
@@ -185,7 +190,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				return { success: false, message: errorMessage };
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.');
+			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.', null, false);
 			return { success: false, message: errorMessage };
 		}
 	};
@@ -221,7 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			}
 		};
 
-		checkUserSession();
+		// checkUserSession();
 	}, []);
 
 	const value = {

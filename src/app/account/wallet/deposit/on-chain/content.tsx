@@ -21,13 +21,15 @@ export default function OnChainDepositPageContent() {
 		<div className="max-w-2xl space-y-8">
 			<Card className="bg-background border-0 shadow-none">
 				<CardHeader>
-					<CardTitle className="sub-page-heading">Deposit USDT {amount ? `(${amount} NGN)` : ''}</CardTitle>
+					<CardTitle className="sub-page-heading">
+						Deposit {process.env.NEXT_PUBLIC_BASE_CURRENCY} {amount ? `(${amount} NGN)` : ''}
+					</CardTitle>
 					<p className="sub-page-heading-sub-text">Scan the QR code or copy the address below to make your deposit.</p>
 				</CardHeader>
 				<CardContent className="space-y-6 pt-6">
 					<div className="flex justify-center my-4">
 						<div className="p-3 bg-background dark:bg-muted rounded-lg inline-block border border-border shadow-sm">
-							<Image src="/qr-code-placeholder.svg" alt="USDT Deposit QR Code" width={180} height={180} className="rounded-sm" />
+							<Image src="/qr-code-placeholder.svg" alt="{process.env,NEXT_PUBLIC_BASE_CURRENCY} Deposit QR Code" width={180} height={180} className="rounded-sm" />
 						</div>
 					</div>
 
@@ -56,7 +58,7 @@ export default function OnChainDepositPageContent() {
 							<AccordionItem value="notice" className="border-b-0">
 								<AccordionTrigger className="flex justify-between items-center py-3 text-sm text-muted-foreground hover:no-underline hover:text-foreground focus:outline-none focus-visible:ring-0">Important Notice</AccordionTrigger>
 								<AccordionContent className="text-sm text-muted-foreground pt-2 pb-0 text-left">
-									Please ensure you are sending USDT on the {MOCK_NETWORK} network. Sending any other asset or using a different network may result in the permanent loss of your funds. Transactions typically confirm within a few minutes.
+									Please ensure you are sending {process.env.NEXT_PUBLIC_BASE_CURRENCY} on the {MOCK_NETWORK} network. Sending any other asset or using a different network may result in the permanent loss of your funds. Transactions typically confirm within a few minutes.
 								</AccordionContent>
 							</AccordionItem>
 						</Accordion>

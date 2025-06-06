@@ -60,7 +60,7 @@ const Breadcrumbs = () => {
 						{item.isLast ? (
 							<span className="font-medium text-foreground">{item.displayName}</span>
 						) : (
-							<CustomLink href={item.href} className="hover:text-primary transition-colors">
+							<CustomLink href={item.href} className="hover:text-[var(--dashboard-accent)] transition-colors">
 								{item.displayName}
 							</CustomLink>
 						)}

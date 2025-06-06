@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -10,17 +10,20 @@ import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export default function P2PNewOrderPageContent() {
+export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'deposit' | 'withdraw' }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const agentId = searchParams.get('agentId');
 	const amount = searchParams.get('amount');
 	const orderId = searchParams.get('orderId');
-	const type = 'buy';
+
+	const currentPage = page === 'deposit' ? 'deposit' : 'withdraw';
+	const type = currentPage === 'deposit' ? 'buy' : 'sell';
 
 	const [isConfirmOrderModalOpen, setIsConfirmOrderModalOpen] = useState(false);
 	const [isProcessingOrder, setIsProcessingOrder] = useState(false);
@@ -32,7 +35,7 @@ export default function P2PNewOrderPageContent() {
 	useEffect(() => {
 		if (!agentId || !amount || !orderId) {
 			nProgress.start();
-			router.push('/account/wallet/deposit');
+			router.push(`/account/wallet/${currentPage}`);
 			setSoftError('Missing required order parameters. Please go back and try again.');
 			return;
 		}
@@ -51,9 +54,9 @@ export default function P2PNewOrderPageContent() {
 
 				if (data?.status === 'success' && data?.data) {
 					setPreview({
-						amountNGN: Number(data.data.amount),
+						amountFiat: Number(data.data.amount),
 						rateNGN: Number(data.data.rate),
-						quantityUSDT: Number(data.data.quantity),
+						tokenQuantity: Number(data.data.quantity),
 						transactionFeesNGN: Number(data.data.transactionFee),
 						methods: data.data.methods || [],
 					});
@@ -135,7 +138,7 @@ export default function P2PNewOrderPageContent() {
 						</svg>
 						<span>{softError}</span>
 					</div>
-					<Button variant="destructive" size="sm" onClick={() => router.push('/account/wallet/deposit')}>
+					<Button variant="destructive" size="sm" onClick={() => router.push(`/account/wallet/${currentPage}`)}>
 						Back
 					</Button>
 				</div>
@@ -149,19 +152,54 @@ export default function P2PNewOrderPageContent() {
 				<CardHeader className="px-0">
 					<CardTitle className="sub-page-heading">Order Preview</CardTitle>
 					<p className="sub-page-heading-sub-text">
-						Buy&nbsp;
-						<span className="font-semibold text-foreground">{preview?.quantityUSDT?.toLocaleString(undefined, { maximumFractionDigits: 6 })} USDT</span>&nbsp; for&nbsp;
-						<span className="font-semibold text-foreground">₦{preview?.amountNGN?.toLocaleString()}</span> at a rate of&nbsp;
-						<span className="font-semibold text-foreground">₦{preview?.rateNGN?.toLocaleString()}</span> per USDT.
+						{type === 'buy' ? (
+							<>
+								Buy&nbsp;
+								<span className="font-semibold text-foreground">{formatBaseurrency(preview?.tokenQuantity)}</span>
+								&nbsp; for{' '}
+								<span className="font-semibold text-foreground">
+									{preview?.amountFiat} {process.env.NEXT_PUBLIC_FIAT_CURRENCY}
+								</span>{' '}
+								at a rate of{' '}
+								<span className="font-semibold text-foreground">
+									{preview?.rateNGN} {process.env.NEXT_PUBLIC_FIAT_CURRENCY}
+								</span>{' '}
+								per {process.env.NEXT_PUBLIC_BASE_CURRENCY}.
+							</>
+						) : (
+							<>
+								Sell&nbsp;
+								<span className="font-semibold text-foreground">{formatBaseurrency(preview?.tokenQuantity)}</span>
+								&nbsp; to receive <span className="font-semibold text-foreground">{formatCurrency(preview?.amountFiat)}</span> at a rate of <span className="font-semibold text-foreground">{formatCurrency(preview?.rateNGN)}</span> per {process.env.NEXT_PUBLIC_BASE_CURRENCY}.
+							</>
+						)}
 					</p>
 				</CardHeader>
 				<CardContent className="space-y-4 pt-6 px-0">
 					<div className="p-4 rounded-lg bg-background dark:bg-muted border border-border space-y-1">
-						<h3 className="text-md font-semibold text-foreground mb-2">Buy USDT</h3>
-						<OrderDetailItem label="Amount" value={preview?.amountNGN} unit="NGN" isBold />
-						<OrderDetailItem label="Rate" value={preview?.rateNGN} unit="NGN" />
-						<OrderDetailItem label="Quantity" value={preview?.quantityUSDT} unit="USDT" />
-						{preview?.transactionFeesNGN === 0 ? <OrderDetailItem label="Transaction Fees" value="No transaction fee" unit="" /> : <OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit="NGN" />}
+						<h3 className="text-md font-semibold text-foreground mb-2">
+							{type === 'buy' ? 'Buy' : 'Sell'} {process.env.NEXT_PUBLIC_BASE_CURRENCY}
+						</h3>
+						{type === 'buy' ? (
+							<>
+								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+								<OrderDetailItem label="Quantity" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							</>
+						) : (
+							<>
+								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} isBold />
+
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+
+								<OrderDetailItem label="Expected Fiat" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
+							</>
+						)}
+						{preview?.transactionFeesNGN === 0 ? (
+							<OrderDetailItem label="Transaction Fees" value="No transaction fee" unit="" />
+						) : (
+							<OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} />
+						)}
 					</div>
 					{preview?.methods && preview.methods.length > 0 && (
 						<div className="p-4 rounded-lg bg-background dark:bg-muted border border-border">
@@ -180,6 +218,24 @@ export default function P2PNewOrderPageContent() {
 							</RadioGroup>
 						</div>
 					)}
+					{type === 'sell' ? (
+						<Alert variant="default" className="border-yellow-500/50 text-yellow-700 dark:border-yellow-500/30 dark:text-yellow-300 [&>svg]:text-yellow-500 dark:[&>svg]:text-yellow-400">
+							<AlertCircle className="h-4 w-4" />
+							<AlertTitle>Important</AlertTitle>
+							<AlertDescription>
+								Once confirmed, the specified amount of {process.env.NEXT_PUBLIC_BASE_CURRENCY} will be held in escrow. <b>Only release the crypto after you have confirmed receipt of the correct fiat amount ({formatCurrency(preview?.amountFiat)}) in your account.</b>
+							</AlertDescription>
+						</Alert>
+					) : (
+						<Alert variant="default" className="border-yellow-500/50 text-yellow-700 dark:border-yellow-500/30 dark:text-yellow-300 [&>svg]:text-yellow-500 dark:[&>svg]:text-yellow-400">
+							<AlertCircle className="h-4 w-4" />
+							<AlertTitle>Important</AlertTitle>
+							<AlertDescription>
+								Once you confirm, the specified amount of {process.env.NEXT_PUBLIC_BASE_CURRENCY} will be held in escrow. <b>Do not mark the order as paid until you have actually sent the correct fiat amount ({formatCurrency(preview?.amountFiat)}) to the agent&apos;s account.</b>{' '}
+								Only after sending the payment should you mark as paid. If you do not complete the payment, your order may be cancelled and you may be penalized.
+							</AlertDescription>
+						</Alert>
+					)}
 					<Button onClick={handleConfirmOrder} size="lg" variant="success" className="w-full group" disabled={isProcessingOrder || !selectedMethodId}>
 						{isProcessingOrder ? 'Processing...' : 'Confirm Order'}
 						{!isProcessingOrder && <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />}
@@ -196,9 +252,9 @@ export default function P2PNewOrderPageContent() {
 				}}
 				onConfirm={proceedWithOrderPlacement}
 				title="Confirm P2P Order"
-				description={`You are about to place an order to buy ${preview?.quantityUSDT?.toLocaleString(undefined, {
+				description={`You are about to place an order to ${type} ${preview?.tokenQuantity?.toLocaleString(undefined, {
 					maximumFractionDigits: 6,
-				})} USDT for ₦${preview?.amountNGN?.toLocaleString()} at a rate of ₦${preview?.rateNGN?.toLocaleString()} per USDT.\nPlease review your order details. Are you sure you want to proceed?`}
+				})} ${process.env.NEXT_PUBLIC_BASE_CURRENCY} for ₦${preview?.amountFiat?.toLocaleString()} at a rate of ₦${preview?.rateNGN?.toLocaleString()} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}.\nPlease review your order details. Are you sure you want to proceed?`}
 				confirmButtonText="Confirm & Place Order"
 				cancelButtonText="Review Order"
 				isLoading={isProcessingOrder}

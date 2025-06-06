@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AgentType } from '@/types';
-import { currencyFormatter, formatCurrency } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
@@ -31,12 +31,14 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, m
 	);
 };
 
-export default function P2PAgentListPageContent() {
+export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: 'deposit' | 'withdraw' }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const amount = searchParams.get('amount');
-
 	const [showAmountError, setShowAmountError] = useState(false);
+
+	const currentPage = page === 'deposit' ? 'deposit' : 'withdraw';
+	const orderType: 'buy' | 'sell' = currentPage === 'deposit' ? 'buy' : 'sell';
 
 	useEffect(() => {
 		if (!amount) {
@@ -67,7 +69,7 @@ export default function P2PAgentListPageContent() {
 
 	const buildApiUrl = (page: number = 1) => {
 		const params = new URLSearchParams();
-		params.append('order_type', 'buy');
+		params.append('order_type', orderType);
 		if (amount) params.append('amount', amount);
 		params.append('page', page.toString());
 		params.append('pageSize', pageSize.toString());
@@ -100,7 +102,7 @@ export default function P2PAgentListPageContent() {
 							name: user?.name || user?.username || 'Unknown',
 							avatar_url: user?.avatar_url,
 							transactions: parseInt(a.agent.total_trades_completed || '0', 10),
-							completionRate: 100, // Placeholder, backend does not provide
+							completionRate: a.agent.completion_rate || 0,
 							rateNGN: firstOrder ? parseFloat(firstOrder.price_per_unit) : 0,
 							rating: a.agent.rating,
 						};
@@ -182,7 +184,7 @@ export default function P2PAgentListPageContent() {
 		nProgress.start();
 
 		setTimeout(() => {
-			router.push(`/account/wallet/deposit/p2p/preview-order?agentId=${selectedAgentForConfirmation.id}&amount=${amount}&orderId=${selectedAgentForConfirmation.orderId}`);
+			router.push(`/account/wallet/${currentPage}/p2p/preview-order?agentId=${selectedAgentForConfirmation.id}&amount=${amount}&orderId=${selectedAgentForConfirmation.orderId}`);
 		}, 2000);
 	};
 
@@ -191,14 +193,14 @@ export default function P2PAgentListPageContent() {
 			{showAmountError ? (
 				<div className="bg-red-50 border border-red-200 text-red-700 rounded p-4 flex items-center justify-between mb-4">
 					<span>Please go back and set the amount before proceeding.</span>
-					<CustomLink href={'/account/wallet/deposit'} variant="destructive" size="sm">
+					<CustomLink href={`/account/wallet/${currentPage}`} variant="destructive" size="sm">
 						Back
 					</CustomLink>
 				</div>
 			) : (
 				<>
 					<div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-						<h1 className="sub-page-heading">P2P Agents {amount ? `(Amount - ${currencyFormatter(+amount)})` : ''}</h1>
+						<h1 className="sub-page-heading">P2P Agents ({`Amount - ${formatBaseurrency(amount || 0)}`})</h1>
 
 						<div className="flex gap-2 items-center">
 							<Button variant="ghost" size="sm" onClick={() => setShowSortOptions(!showSortOptions)} className={`text-muted-foreground hover:text-foreground ${showSortOptions ? 'text-foreground font-bold' : ''}`}>
@@ -318,13 +320,13 @@ export default function P2PAgentListPageContent() {
 													<span className="ml-1 text-xs text-muted-foreground">{agent.rating.toFixed(1)}</span>
 												</div>
 											</div>
-											<span className="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20 ml-auto">Buy</span>
+											<span className="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20 ml-auto capitalize">{orderType}</span>
 										</div>
 										<div className="flex flex-col gap-1 sm:gap-2 mt-2">
 											<div className="flex flex-wrap items-center gap-2 text-sm">
 												<span className="text-muted-foreground">Price:</span>
-												<span className="font-semibold text-base text-foreground">₦{agent.rateNGN.toLocaleString(undefined, { maximumFractionDigits: 5 })}</span>
-												<span className="text-xs text-muted-foreground">per NGN</span>
+												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rateNGN)}</span>
+												<span className="text-xs text-muted-foreground">per {process.env.NEXT_PUBLIC_BASE_CURRENCY}</span>
 											</div>
 											<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
 												<span>{agent.transactions} Transactions</span>
@@ -361,7 +363,7 @@ export default function P2PAgentListPageContent() {
 							}}
 							onConfirm={proceedToNewOrder}
 							title="Confirm Agent Selection"
-							description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? They have a rate of NGN ${selectedAgentForConfirmation.rateNGN.toFixed(5)}.`}
+							description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? They have a rate of ${formatCurrency(selectedAgentForConfirmation.rateNGN)} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}.`}
 							confirmButtonText="Proceed"
 							cancelButtonText="Cancel"
 							isLoading={isRedirecting}

@@ -2,14 +2,15 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2, X } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
-import { useAuthContext } from '@/context/AuthContext';
-import { formatNaira, formatDate, getTransactionTypeLabel } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
+import { cn } from '@/lib/utils';
+import { fetchCurrentUserBalance } from '@/lib/userUtils';
 
 function TransactionSkeletonList({ count = 3 }: { count?: number }) {
 	return (
@@ -31,12 +32,27 @@ function TransactionSkeletonList({ count = 3 }: { count?: number }) {
 }
 
 export default function WalletPageContent() {
-	const { currentUser } = useAuthContext();
 	const LIMIT = 3;
 
 	const [transactions, setTransactions] = useState<ApiTransaction[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [totalCount, setTotalCount] = useState(0);
+	const [balance, setBalance] = useState<number | null>(null);
+	const [isBalanceLoading, setIsBalanceLoading] = useState(true);
+
+	useEffect(() => {
+		setIsBalanceLoading(true);
+		fetchCurrentUserBalance()
+			.then((bal) => {
+				if (typeof bal === 'number') setBalance(bal);
+				else setBalance(0);
+			})
+			.catch((err) => {
+				handleFetchErrorMessage(err);
+				setBalance(0);
+			})
+			.finally(() => setIsBalanceLoading(false));
+	}, []);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -61,7 +77,7 @@ export default function WalletPageContent() {
 				<CardContent className="p-1 px-6 md:p-6 flex justify-center items-center relative">
 					<div className="flex items-center flex-col">
 						<p className="text-sm opacity-80 mb-1">Available Balance</p>
-						<p className="amount-heading-extra-large">{formatNaira(currentUser?.wallet_balance || 0)}</p>
+						{isBalanceLoading ? <Skeleton className="h-10 w-40 rounded-md bg-background/40" /> : <p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>}
 					</div>
 					<div className="opacity-80 dark:opacity-70 absolute right-0">
 						<Image src="/wallet.png" alt="Wallet Graphic" width={80} height={50} className="hidden sm:block" />
@@ -93,13 +109,27 @@ export default function WalletPageContent() {
 						{transactions.slice(0, LIMIT).map((transaction) => (
 							<CustomLink href={`/account/wallet/transactions/${transaction.id}`} key={transaction.id} className="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0 hover:bg-background/100">
 								<div className="flex items-center gap-3">
-									{transaction.status !== 'completed' ? (
+									{transaction.status === 'pending' ? (
 										<div className="flex justify-center items-center h-full p-3">
 											<Loader2 className="h-4 w-4 animate-spin text-slate-400" />
 										</div>
 									) : (
-										<div className={`rounded-full p-3 ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}>
-											{transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? <ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" /> : <ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />}
+										<div
+											className={`rounded-full p-3 ${
+												transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+													? 'bg-muted-foreground'
+													: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
+													? 'bg-[var(--success)]'
+													: 'bg-[var(--danger)]'
+											}`}
+										>
+											{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
+												<X className="h-6 w-6 text-[var(--success-foreground)]" />
+											) : ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
+												<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+											) : (
+												<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+											)}
 										</div>
 									)}
 									<div>
@@ -107,7 +137,19 @@ export default function WalletPageContent() {
 										<p className="text-xs md:text-sm text-muted-foreground">{formatDate(new Date(transaction.created_at))}</p>
 									</div>
 								</div>
-								<p className={`font-semibold text-base md:text-lg ${transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatNaira(transaction.amount)}</p>
+								<p
+									className={cn(
+										`font-semibold text-base md:text-lg ${
+											transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+												? 'text-muted-foreground'
+												: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
+												? 'text-[var(--success)]'
+												: 'text-[var(--danger)]'
+										}`
+									)}
+								>
+									{formatBaseurrency(transaction.amount)}
+								</p>
 							</CustomLink>
 						))}
 						{totalCount > LIMIT && (

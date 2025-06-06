@@ -47,7 +47,7 @@ export default function LoginPage() {
 					}
 					toast.success(`Redirecting to your dashboard...`);
 				}
-				router.push(destination);
+				router.replace(destination);
 			}, 1000);
 		} catch (err) {
 			const errorMessage = handleFetchErrorMessage(err);

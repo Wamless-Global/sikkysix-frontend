@@ -8,7 +8,7 @@ import { fetchP2PMessages, sendP2PMessage } from '@/lib/p2p-messaging';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { useAuthContext } from '@/context/AuthContext';
 import Image from 'next/image';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 // Update Message type to support optional metadata
 interface Message {
@@ -233,8 +233,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 				<CardHeader className="px-4 py-2 border-b border-border flex flex-row items-center justify-between">
 					<div className="flex items-center gap-2">
 						<CardTitle className="text-lg text-foreground">{sellerName}</CardTitle>
-						<span className={`ml-2 text-xs font-semibold flex items-center gap-1 ${counterpartOnline === 'online' ? 'text-green-600' : 'text-muted-foreground'}`} title={counterpartOnline === 'online' ? 'Online' : 'Away'}>
-							<span className={`inline-block w-2 h-2 rounded-full ${counterpartOnline === 'online' ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+						<span className={`ml-2 text-xs font-semibold flex items-center gap-1 ${counterpartOnline === 'online' ? 'text-green-600' : 'text-amber-500 dark:text-amber-400'}`} title={counterpartOnline === 'online' ? 'Online' : 'Away'}>
+							<span className={`inline-block w-2 h-2 rounded-full ${counterpartOnline === 'online' ? 'bg-green-500' : 'bg-amber-400 dark:bg-amber-300'}`}></span>
 							{counterpartOnline === 'online' ? 'Online' : 'Away'}
 						</span>
 					</div>
@@ -282,8 +282,9 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 					{modalImage && (
 						<Dialog open={!!modalImage} onOpenChange={() => setModalImage(null)}>
 							<DialogContent className="flex items-center justify-center bg-black p-0 border-0 shadow-none max-w-none w-screen h-screen max-h-screen">
-								<div className="relative w-screen h-screen">
-									<Image src={modalImage} alt="Enlarged" fill style={{ objectFit: 'contain' }} className="bg-black" sizes="100vw" priority />
+								<div className="relative w-[80vw] h-[80vh]">
+									<DialogTitle className="sr-only">Enlarged chat image</DialogTitle>
+									<Image src={modalImage} alt="Enlarged chat image" fill style={{ objectFit: 'contain' }} className="bg-black rounded" sizes="80vw" priority />
 								</div>
 							</DialogContent>
 						</Dialog>

@@ -95,7 +95,7 @@ export default function SingleAgentPage() {
 	// Mock data for charts and metrics (replace with real data integration later)
 	const mockMetrics = {
 		totalTrades: Number(agent.total_trades_completed ?? 0),
-		totalVolume: Number(agent.total_volume_traded_ngn ?? 0),
+		totalVolume: Number(agent.total_volume_traded_amount ?? 0),
 		positiveFeedback: Number(agent.positive_feedback_count ?? 0),
 		negativeFeedback: Number(agent.negative_feedback_count ?? 0),
 		avgPaymentTime: agent.avg_payment_time_minutes ?? 'N/A',

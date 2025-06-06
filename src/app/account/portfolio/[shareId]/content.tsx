@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import CircularProgressDisplay from '@/components/ui/circular-progress-display';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'sonner';
-import { currencyFormatter, formatRelativeTime, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatRelativeTime, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AuthenticatedUser, Investment, SingleInvestmentResponse, WithdrawalPreviewResponse } from '@/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -129,7 +129,7 @@ export default function PortfolioItemDetailPageContent() {
 
 			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.base_currency_amount });
 
-			toast.success(`Withdrawal successful! ${currencyFormatter(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
+			toast.success(`Withdrawal successful! ${formatBaseurrency(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
 			router.push('/account/portfolio');
 		} catch (err) {
 			// console.error('Error processing withdrawal:', err);
@@ -188,7 +188,7 @@ export default function PortfolioItemDetailPageContent() {
 			</div>
 
 			<div className="flex items-center justify-between gap-6 md:gap-20 w-full my-10">
-				<CircularProgressDisplay active={!investment.completed} value={currencyFormatter(investment.current_value)} percentage={investment.progress_percentage} size={size} />
+				<CircularProgressDisplay active={!investment.completed} value={formatBaseurrency(investment.current_value)} percentage={investment.progress_percentage} size={size} />
 				<div className="flex flex-col sm:flex-col gap-7 md:gap-4 mt-4">
 					<CustomLink href={`/account/category/${generateSlug(investment.ticker)}`} passHref>
 						<Button size={'lg'} className="w-full" variant={'success'} disabled={isWithdrawing}>
@@ -206,22 +206,22 @@ export default function PortfolioItemDetailPageContent() {
 			<div className="w-full space-y-5 mt-6 bg-muted p-6">
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Initial Investment</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.amount_invested)}</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.amount_invested)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Current Value</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.current_value)}</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.current_value)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Price Per Unit at Investment</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.price_per_unit_at_investment, 4)}</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.price_per_unit_at_investment, 4)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Current Price Per Unit</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.current_price ?? 0, 4)}</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.current_price ?? 0, 4)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
@@ -231,7 +231,7 @@ export default function PortfolioItemDetailPageContent() {
 
 				<div className="flex justify-between items-center">
 					<span className="text-muted-foreground">Target Value</span>
-					<span className="font-medium text-foreground">{currencyFormatter(investment.target_total_value)}</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.target_total_value)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
@@ -242,7 +242,7 @@ export default function PortfolioItemDetailPageContent() {
 				{investment.profit !== 0 && (
 					<div className="flex justify-between items-center">
 						<span className="text-muted-foreground">Current Profit</span>
-						<span className={`font-medium ${investment.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{currencyFormatter(investment.profit)}</span>
+						<span className={`font-medium ${investment.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(investment.profit)}</span>
 					</div>
 				)}
 
@@ -268,23 +268,23 @@ export default function PortfolioItemDetailPageContent() {
 								<div className="text-right font-medium">{previewData.units_to_withdraw}</div>
 
 								<div className="text-muted-foreground">Selling Price:</div>
-								<div className="text-right font-medium">{currencyFormatter(previewData.current_market_price_per_unit, 4)}</div>
+								<div className="text-right font-medium">{formatBaseurrency(previewData.current_market_price_per_unit, 4)}</div>
 
 								<div className="text-muted-foreground">Initial Amount:</div>
-								<div className="text-right font-medium">{currencyFormatter(previewData.value_after_profit_cap)}</div>
+								<div className="text-right font-medium">{formatBaseurrency(previewData.value_after_profit_cap)}</div>
 
 								<div className="text-muted-foreground">Fees:</div>
-								<div className={`text-right font-medium ${previewData.fee > 0 ? 'text-destructive' : ''}`}>-{currencyFormatter(previewData.fee)}</div>
+								<div className={`text-right font-medium ${previewData.fee > 0 ? 'text-destructive' : ''}`}>-{formatBaseurrency(previewData.fee)}</div>
 
 								{previewData.penalty && (
 									<>
 										<div className="text-muted-foreground">Penalty:</div>
-										<div className="text-right font-medium text-destructive">-{currencyFormatter(previewData.penalty.amount_deducted)}</div>
+										<div className="text-right font-medium text-destructive">-{formatBaseurrency(previewData.penalty.amount_deducted)}</div>
 									</>
 								)}
 
 								<div className="text-muted-foreground font-medium">Final Amount:</div>
-								<div className="text-right font-bold">{currencyFormatter(previewData.estimated_net_amount_to_user)}</div>
+								<div className="text-right font-bold">{formatBaseurrency(previewData.estimated_net_amount_to_user)}</div>
 							</div>
 
 							{previewData.is_early_withdrawal && (
@@ -314,8 +314,8 @@ export default function PortfolioItemDetailPageContent() {
 				title="Confirm Withdrawal"
 				description={
 					previewData?.is_early_withdrawal
-						? `Are you sure you want to withdraw early? You will receive ${currencyFormatter(previewData.estimated_net_amount_to_user)} after penalties.`
-						: `Are you ready to withdraw? You will receive ${currencyFormatter(previewData?.estimated_net_amount_to_user || 0)}.`
+						? `Are you sure you want to withdraw early? You will receive ${formatBaseurrency(previewData.estimated_net_amount_to_user)} after penalties.`
+						: `Are you ready to withdraw? You will receive ${formatBaseurrency(previewData?.estimated_net_amount_to_user || 0)}.`
 				}
 				confirmButtonText="Withdraw Now"
 				cancelButtonText="Cancel"

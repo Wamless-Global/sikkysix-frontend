@@ -228,7 +228,7 @@ export default function AgentPortalSettingsContent() {
 	return (
 		<div className="max-w-2xl space-y-8 pb-16">
 			<h1 className="sub-page-heading">Agent Settings</h1>
-			<p className="sub-page-heading-sub-text mb-6">Manage your P2P agent profile and payment methods. These details are used for peer-to-peer transactions and payouts.</p>
+			<p className="sub-page-heading-sub-text mb-6">Manage your P2P agent profile and payment methods. The information provided here will be used for peer-to-peer transactions and payouts. Please ensure your payment methods are accurate and up to date to facilitate seamless transactions.</p>
 
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
 				<CardHeader>

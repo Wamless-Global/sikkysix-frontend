@@ -269,7 +269,9 @@ const AgentApplyContent = () => {
 							)}
 						/>
 
-						<Button type="submit">Submit Application</Button>
+						<Button variant={'success'} size={'lg'} type="submit">
+							Submit Application
+						</Button>
 					</form>
 				</Form>
 			)}

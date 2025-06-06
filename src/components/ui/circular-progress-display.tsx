@@ -24,7 +24,7 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 				)}
 			</svg>
 			<div className="absolute flex flex-col items-center justify-center text-white">
-				<span className="text-xl md:text-3xl font-bold">{value}</span>
+				<span className="text-lg md:text-xl font-bold">{value}</span>
 				{percentage !== undefined && (
 					<span className={`text-sm ${percentage > 0 ? 'text-[var(--dashboard-accent)]/90' : 'text-red-400'}`}>
 						{percentage > 0 ? '+' : ''}

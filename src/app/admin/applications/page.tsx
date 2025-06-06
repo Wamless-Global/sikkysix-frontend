@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-import { formatFullDate, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatDateNice, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { Application, ApplicationStatus } from '@/types';
 
 // Define ApplicationFilters type based on API endpoint parameters
@@ -231,12 +231,12 @@ export default function ApplicationsPage() {
 												</CustomLink>
 											</TableCell>
 											<TableCell>{app.user.email}</TableCell>
-											<TableCell>{formatFullDate(new Date(app.created_at))}</TableCell>
+											<TableCell>{formatDateNice(new Date(app.created_at))}</TableCell>
 											<TableCell>
 												<Badge variant={getAgentStatusVariant(app.status)}>{app.status}</Badge>
 											</TableCell>
 											{/* <TableCell>{app.reviewed_by ? app.reviewer?.name : 'N/A'}</TableCell> */}
-											<TableCell>{app.reviewed_at ? formatFullDate(new Date(app.reviewed_at)) : 'N/A'}</TableCell>
+											<TableCell>{app.reviewed_at ? formatDateNice(new Date(app.reviewed_at)) : 'N/A'}</TableCell>
 										</TableRow>
 									))
 								) : (

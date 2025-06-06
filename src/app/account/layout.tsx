@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
 import UserHeader from '@/components/layout/UserHeader';
@@ -56,6 +56,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 	const pathname = usePathname();
 	const router = useRouter();
 	const { logout, currentUser } = useAuthContext();
+	const notifications: string[] = [];
 
 	const toggleMobileSidebar = () => setIsMobileSidebarOpen(!isMobileSidebarOpen);
 	const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
@@ -74,6 +75,17 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 			setIsLogoutLoading(false);
 		}
 	};
+
+	// Add nProgress beforeunload handler for navigation/refresh
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			nProgress.start();
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
+	}, []);
 
 	return (
 		<div className="flex min-h-screen bg-background text-foreground relative">
@@ -191,7 +203,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 			<UserMobileSidebar isOpen={isMobileSidebarOpen} onClose={closeMobileSidebar} />
 
 			<div className="flex flex-1 flex-col lg:pl-72 lg:pr-8 relative">
-				<UserHeader onMenuToggle={toggleMobileSidebar} />
+				<UserHeader onMenuToggle={toggleMobileSidebar} notifications={notifications} />
 
 				<div className="sticky top-0 w-full right-0 z-10 backdrop-blur-sm">
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/80 rounded-full shadow mx-8 mt-6">
@@ -202,12 +214,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 							<button className="p-2 rounded-full hover:bg-muted">
 								<Bell className="h-6 w-6 text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100'" />
 							</button>
-							<span className="absolute -right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-destructive p-0 text-xs text-destructive-foreground">0 </span>
+							{notifications.length > 0 && <span className="absolute -right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-destructive p-0 text-xs text-destructive-foreground">0 </span>}
 						</div>
 					</div>
 				</div>
 
-				<main className="flex-1 overflow-y-auto p-5 pb-24 md:p-10 lg:p-16 gap-10">
+				<main className="flex-1 overflow-y-auto p-5 pb-24 md:p-16 lg:p-16 gap-10">
 					<Breadcrumbs />
 					{children}
 				</main>

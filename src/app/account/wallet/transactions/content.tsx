@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
 import { AccountTransaction, TransactionApiResponse } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -282,14 +282,14 @@ export default function AccountTransactionsPageContent() {
 												className={`rounded-full p-3 ${
 													transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
 														? 'bg-muted-foreground'
-														: transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit')
+														: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
 														? 'bg-[var(--success)]'
 														: 'bg-[var(--danger)]'
 												}`}
 											>
 												{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
 													<X className="h-5 w-5 text-[var(--success-foreground)]" />
-												) : transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit') ? (
+												) : ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
 													<ArrowDown className="h-5 w-5 text-[var(--success-foreground)]" />
 												) : (
 													<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
@@ -325,12 +325,12 @@ export default function AccountTransactionsPageContent() {
 										className={`py-3 text-base font-semibold text-right ${
 											transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
 												? 'text-muted-foreground'
-												: transaction.type.includes('investment_profit_withdrawal') || transaction.type.includes('credit')
+												: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
 												? 'text-[var(--success)]'
 												: 'text-[var(--danger)]'
 										}`}
 									>
-										{transaction.amount.toLocaleString(undefined, { style: 'currency', currency: 'NGN', minimumFractionDigits: 2 })}
+										{formatBaseurrency(transaction.amount)}
 									</TableCell>
 								</TableRow>
 							))

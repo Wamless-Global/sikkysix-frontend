@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea'; // Using Textarea for reason
 import { Loader2 } from 'lucide-react';
-import { formatCurrency } from '@/lib/helpers';
+import { formatBaseurrency } from '@/lib/helpers';
 
 interface AdjustBalanceModalProps {
 	isOpen: boolean;
@@ -79,7 +79,7 @@ export function AdjustBalanceModal({ isOpen, onClose, onSubmit, currentBalance, 
 					<div className="flex flex-col gap-4 py-4">
 						<div className="mb-2">
 							<Label>Current Balance:</Label>
-							<p className="text-lg font-semibold">{formatCurrency(currentBalance)}</p>
+							<p className="text-lg font-semibold">{formatBaseurrency(currentBalance)}</p>
 						</div>
 						<div className="grid grid-cols-4 items-center gap-4">
 							<Label htmlFor="amount" className="text-right">
@@ -103,7 +103,7 @@ export function AdjustBalanceModal({ isOpen, onClose, onSubmit, currentBalance, 
 						</div>
 						<div className="mt-2 text-right col-span-4 flex justify-between items-end">
 							<Label>New Balance After Adjustment:</Label>
-							<p className={`font-semibold ${isNaN(newBalance) ? 'text-muted-foreground' : ''}`}>{isNaN(newBalance) ? 'N/A' : formatCurrency(newBalance)}</p>
+							<p className={`font-semibold ${isNaN(newBalance) ? 'text-muted-foreground' : ''}`}>{isNaN(newBalance) ? 'N/A' : formatBaseurrency(newBalance)}</p>
 						</div>
 						{error && <p className="text-sm text-red-600 col-span-4 text-center">{error}</p>}
 					</div>

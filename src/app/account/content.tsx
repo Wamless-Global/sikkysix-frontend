@@ -40,7 +40,7 @@ export default function AccountPage() {
 					slug: apiCat.ticker,
 					title: apiCat.name,
 					image: apiCat.image,
-					minimum: `Min ${apiCat.minimum_investable}`,
+					minimum: `${apiCat.minimum_investable}`,
 					buttonText: 'View Details',
 					buttonEnabled: Boolean(apiCat.is_launched) && !Boolean(apiCat.is_locked),
 					description: apiCat.description,

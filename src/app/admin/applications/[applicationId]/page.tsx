@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { Application, ApplicationStatus, ApplicationResponse } from '@/types/modules/applications';
 import { toast } from 'sonner';
-import { formatFullDate, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatDateNice, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -184,10 +184,10 @@ export default function SingleApplicationPage() {
 							<b>Status:</b> {!isLoading ? <Badge variant={getAgentStatusVariant(status)}>{status.replace(/_/g, ' ')}</Badge> : <span className="text-muted-foreground">Loading...</span>}
 						</div>
 						<div>
-							<b>Submitted:</b> {application ? formatFullDate(new Date(application.created_at)) : <span className="text-muted-foreground">Loading...</span>}
+							<b>Submitted:</b> {application ? formatDateNice(new Date(application.created_at)) : <span className="text-muted-foreground">Loading...</span>}
 						</div>
 						<div>
-							<b>Last Updated:</b> {application ? formatFullDate(new Date(application.updated_at)) : <span className="text-muted-foreground">Loading...</span>}
+							<b>Last Updated:</b> {application ? formatDateNice(new Date(application.updated_at)) : <span className="text-muted-foreground">Loading...</span>}
 						</div>
 						{application?.reviewed_by && (
 							<div>
@@ -200,7 +200,7 @@ export default function SingleApplicationPage() {
 						)}
 						{application?.reviewed_at && (
 							<div>
-								<b>Reviewed At:</b> {formatFullDate(new Date(application.reviewed_at))}
+								<b>Reviewed At:</b> {formatDateNice(new Date(application.reviewed_at))}
 							</div>
 						)}
 					</div>
@@ -209,7 +209,7 @@ export default function SingleApplicationPage() {
 							<b>Full Legal Name:</b> {application_data?.fullName || <span className="text-muted-foreground">Loading...</span>}
 						</div>
 						<div>
-							<b>Date of Birth:</b> {formatFullDate(application_data?.dateOfBirth) || <span className="text-muted-foreground">Loading...</span>}
+							<b>Date of Birth:</b> {formatDateNice(application_data?.dateOfBirth) || <span className="text-muted-foreground">Loading...</span>}
 						</div>
 						<div>
 							<b>ID Document Type:</b> {application_data?.idDocumentType || <span className="text-muted-foreground">Loading...</span>}

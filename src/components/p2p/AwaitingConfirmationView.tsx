@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,15 +13,38 @@ interface AwaitingConfirmationViewProps {
 	orderDetails: {
 		amountNGN: number;
 		rateNGN: number;
-		quantityUSDT: number;
+		tokenQuantity: number;
 	};
 	sellerInfo: {
 		name: string;
 	};
+	isBuyer?: boolean;
+	description: string;
 	onToggleMessageScreen: () => void;
+	onSellerConfirmPayment?: () => void;
+	isProcessingSellerConfirm?: boolean;
+	onBuyerConfirmPayment?: () => void;
+	isProcessingBuyerConfirm?: boolean;
+	onRaiseDispute?: () => void;
+	isProcessingDispute?: boolean;
 }
 
-const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({ transactionId, timeLeft, formatTime, orderDetails, sellerInfo, onToggleMessageScreen }) => {
+const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({
+	transactionId,
+	timeLeft,
+	formatTime,
+	orderDetails,
+	sellerInfo,
+	isBuyer,
+	description,
+	onToggleMessageScreen,
+	onSellerConfirmPayment,
+	isProcessingSellerConfirm,
+	onBuyerConfirmPayment,
+	isProcessingBuyerConfirm,
+	onRaiseDispute,
+	isProcessingDispute,
+}) => {
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, []);
@@ -35,21 +60,31 @@ const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({ tra
 			<p className="sub-page-heading-sub-text text-left -mt-2">
 				Transaction ID: <span className="font-mono bg-muted text-muted-foreground p-1 rounded-sm">{transactionId}</span>
 				<br />
-				Please wait for the agent to confirm the payment. This may take a few minutes.
+				{description}
 			</p>
 			<Card className="bg-background border-0 shadow-none">
 				<CardHeader className="px-0">
 					<CardTitle className="text-lg text-foreground">Order Summary</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-1 px-0">
-					<OrderDetailItem label="Amount Paid" value={orderDetails.amountNGN} unit="NGN" isBold />
-					<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
-					<OrderDetailItem label="Quantity to Receive" value={orderDetails.quantityUSDT} unit="USDT" />
+					{isBuyer ? (
+						<>
+							<OrderDetailItem label="Amount Paid" value={orderDetails.amountNGN} unit="NGN" isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
+							<OrderDetailItem label="Quantity to Receive" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+						</>
+					) : (
+						<>
+							<OrderDetailItem label="Amount to Receive" value={orderDetails.amountNGN} unit="NGN" isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
+							<OrderDetailItem label="Quantity to Sell" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+						</>
+					)}
 				</CardContent>
 			</Card>
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm px-0">
 				<CardHeader className="flex flex-row justify-between items-center px-4">
-					<CardTitle className="text-lg text-foreground">Seller&apos;s Information</CardTitle>
+					<CardTitle className="text-lg text-foreground">{isBuyer ? `Seller's Information` : `Buyer's Information`}</CardTitle>
 					<Button variant="ghost" className="text-muted-foreground hover:text-foreground" onClick={onToggleMessageScreen}>
 						<MessageCircle className="h-10 w-10" />
 					</Button>
@@ -61,7 +96,27 @@ const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({ tra
 					</div>
 				</CardContent>
 			</Card>
-			<p className="text-center text-muted-foreground">Your payment is being confirmed. You will be notified once the transaction is complete.</p>
+			{isBuyer && <p className="w-full flex-grow text-muted-foreground">Your payment is being confirmed. You will be notified once the transaction is complete.</p>}
+			<div className="flex flex-col sm:flex-row gap-2 mt-4 ">
+				{!isBuyer && onSellerConfirmPayment && (
+					<Button onClick={onSellerConfirmPayment} disabled={isProcessingSellerConfirm} variant="success" size="lg">
+						{isProcessingSellerConfirm ? 'Confirming...' : 'Confirm Payment Received'}
+					</Button>
+				)}
+				{/* Buyer can raise dispute if allowed */}
+				{isBuyer && onRaiseDispute && (
+					<Button onClick={onRaiseDispute} disabled={isProcessingDispute} variant="destructive" size="lg">
+						{isProcessingDispute ? 'Raising Dispute...' : 'Raise Dispute'}
+					</Button>
+				)}
+
+				{/* Seller can raise dispute if allowed */}
+				{!isBuyer && onRaiseDispute && (
+					<Button onClick={onRaiseDispute} disabled={isProcessingDispute} variant="destructive" size="lg">
+						{isProcessingDispute ? 'Raising Dispute...' : 'Raise Dispute'}
+					</Button>
+				)}
+			</div>
 		</>
 	);
 };

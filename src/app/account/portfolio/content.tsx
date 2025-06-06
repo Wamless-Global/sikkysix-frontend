@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { currencyFormatter, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Investment } from '@/types';
@@ -78,7 +78,7 @@ export default function PortfolioPageContent() {
 								<div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
 							</div>
 						) : (
-							<p className="amount-heading-extra-large">{currencyFormatter(portfolioValue)}</p>
+							<p className="amount-heading-extra-large">{formatBaseurrency(portfolioValue)}</p>
 						)}
 					</div>
 					<div className="text-right flex flex-col items-end">
@@ -145,16 +145,16 @@ export default function PortfolioPageContent() {
 														Active
 													</Badge>
 												</div>
-												<p className="text-lg md:text-xl font-bold text-foreground">{currencyFormatter(item.current_value)}</p>
+												<p className="text-lg md:text-xl font-bold text-foreground">{formatBaseurrency(item.current_value)}</p>
 											</div>
 											<div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
 												<div className="text-muted-foreground">
 													<span className="text-xs">Initial: </span>
-													<p className="font-medium text-foreground">{currencyFormatter(item.amount_invested)}</p>
+													<p className="font-medium text-foreground">{formatBaseurrency(item.amount_invested)}</p>
 												</div>
 												<div className="text-muted-foreground">
 													<span className="text-xs">Target: </span>
-													<p className="font-medium text-foreground">{currencyFormatter(item.target_total_value)}</p>
+													<p className="font-medium text-foreground">{formatBaseurrency(item.target_total_value)}</p>
 												</div>
 												<div className="text-muted-foreground">
 													<span className="text-xs">Progress: </span>
@@ -162,7 +162,7 @@ export default function PortfolioPageContent() {
 												</div>
 												<div className="text-muted-foreground">
 													<span className="text-xs">Profit/Loss: </span>
-													<p className={`font-medium ${item.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{currencyFormatter(item.profit)}</p>
+													<p className={`font-medium ${item.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(item.profit)}</p>
 												</div>
 											</div>
 											<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2">
@@ -227,20 +227,20 @@ export default function PortfolioPageContent() {
 															{item.cancelled ? 'Cancelled' : 'Completed'}
 														</Badge>
 													</div>
-													<p className="text-lg md:text-xl font-bold text-foreground">{currencyFormatter(item.details?.realized_value ?? 0)}</p>
+													<p className="text-lg md:text-xl font-bold text-foreground">{formatBaseurrency(item.details?.realized_value ?? 0)}</p>
 												</div>
 												<div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
 													<div className="text-muted-foreground">
 														<span className="text-xs">Initial: </span>
-														<p className="font-medium text-foreground">{currencyFormatter(item.amount_invested)}</p>
+														<p className="font-medium text-foreground">{formatBaseurrency(item.amount_invested)}</p>
 													</div>
 													<div className="text-muted-foreground">
 														<span className="text-xs">Final: </span>
-														<p className="font-medium text-foreground">{currencyFormatter(item.details?.realized_value ?? 0)}</p>
+														<p className="font-medium text-foreground">{formatBaseurrency(item.details?.realized_value ?? 0)}</p>
 													</div>
 													<div className="text-muted-foreground col-span-2">
 														<span className="text-xs">Profit/Loss: </span>
-														<p className={`font-medium ${(item.details?.realized_value ?? 0) - item.amount_invested >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{currencyFormatter((item.details?.realized_value ?? 0) - item.amount_invested)}</p>
+														<p className={`font-medium ${(item.details?.realized_value ?? 0) - item.amount_invested >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency((item.details?.realized_value ?? 0) - item.amount_invested)}</p>
 													</div>
 												</div>
 												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 md:h-2 opacity-55">

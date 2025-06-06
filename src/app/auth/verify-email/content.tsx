@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -10,83 +10,34 @@ import appSettings from '@/config/app';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
 
-export default function VerifyEmailContent() {
+export default function VerifyEmailContent({ email, initialStatus }: { email?: string; initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
-	const searchParams = useSearchParams();
-	const { checkEmailVerificationStatus, resendVerificationEmail } = useAuthContext();
-	const [statusMessage, setStatusMessage] = useState('Checking email verification status, please wait...');
-	const [isLoading, setIsLoading] = useState(true);
+	const { resendVerificationEmail } = useAuthContext();
+	const [statusMessage, setStatusMessage] = useState(initialStatus.message || '');
 	const [isResending, setIsResending] = useState(false);
-	const [errorOccurred, setErrorOccurred] = useState(false);
-	const [allowResend, setAllowResend] = useState(false);
+	const [allowResend, setAllowResend] = useState(initialStatus.status === 'not_verified');
 
 	useEffect(() => {
-		const email = searchParams.get('email');
-
-		if (!email) {
-			const msg = 'No email provided to check status.';
-			setStatusMessage(msg);
-			toast.error(msg);
-			setIsLoading(false);
-			setErrorOccurred(true);
-			setTimeout(() => router.push('/auth/login'), 3000);
-			return;
+		if (initialStatus.status === 'verified') {
+			nProgress.start();
+			toast.success(initialStatus.message || 'Email is verified.');
+			setTimeout(() => router.push('/auth/login'), 2000);
+		} else if (initialStatus.status === 'not_found' || initialStatus.status === 'error') {
+			nProgress.start();
+			toast.error(initialStatus.message || 'Email address not found.');
+			setTimeout(() => router.push('/auth/login'), 2000); // Add delay so toast can show
 		}
-
-		const processCheck = async () => {
-			setIsLoading(true);
-			setErrorOccurred(false);
-			setAllowResend(false);
-			setStatusMessage(`Checking verification status for ${email}...`);
-
-			try {
-				const result = await checkEmailVerificationStatus(email);
-				setStatusMessage(result.message || 'Status check complete.');
-
-				if (result.status === 'verified') {
-					toast.success(result.message || 'Email is verified.');
-					setTimeout(() => router.push('/auth/login'), 2000);
-				} else if (result.status === 'not_verified') {
-					toast.info(result.message || 'Email is not verified.');
-					setAllowResend(true);
-					setErrorOccurred(false);
-				} else if (result.status === 'not_found') {
-					toast.error(result.message || 'Email address not found.');
-					setErrorOccurred(true);
-					setTimeout(() => router.push('/auth/login'), 3000);
-				} else {
-					toast.error(result.message || 'Failed to check email status. Please try again.');
-					setErrorOccurred(true);
-					setTimeout(() => router.push('/auth/login'), 3000);
-				}
-			} catch (err: unknown) {
-				const errorMessage = handleFetchErrorMessage(err, null, 'A critical error occurred while checking email status.');
-				setStatusMessage(errorMessage);
-				toast.error(errorMessage);
-				setErrorOccurred(true);
-				nProgress.start();
-				setTimeout(() => router.push('/auth/login'), 3000);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		processCheck();
-	}, [searchParams, router, checkEmailVerificationStatus]);
+	}, [initialStatus, router]);
 
 	const handleResendEmail = async () => {
-		const emailToResend = searchParams.get('email');
-
-		if (!emailToResend) {
+		if (!email) {
 			toast.error('Could not determine email for resending verification.');
 			return;
 		}
-
 		setIsResending(true);
-		setStatusMessage(`Resending verification email to ${emailToResend}...`);
+		setStatusMessage(`Resending verification email to ${email}...`);
 		try {
-			const result = await resendVerificationEmail(emailToResend);
-
+			const result = await resendVerificationEmail(email);
 			if (result.success) {
 				toast.success(result.message || 'Verification email resent successfully!');
 				setStatusMessage(result.message || 'Verification email resent. Please check your inbox.');
@@ -111,13 +62,13 @@ export default function VerifyEmailContent() {
 				<h2 className="mb-2 text-2xl font-semibold">Check Email Verification</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>
 
-				{(isLoading || isResending) && (
+				{isResending && (
 					<div className="flex justify-center items-center mb-5">
-						<p>{isResending ? 'Resending...' : 'Loading...'}</p>
+						<p>Resending...</p>
 					</div>
 				)}
 
-				{!isLoading && !isResending && (errorOccurred || allowResend) && (
+				{!isResending && allowResend && (
 					<>
 						<Button size="lg" variant="success" onClick={() => router.push('/auth/login')} className="w-full cursor-pointer mb-5">
 							Go to Login

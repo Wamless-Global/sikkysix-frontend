@@ -84,7 +84,7 @@ const fetchAgents = async (filters: AgentFilters, page: number): Promise<{ agent
 			is_active: agent.is_active,
 			availability_status: agent.availability_status,
 			total_trades_completed: agent.total_trades_completed,
-			total_volume_traded_ngn: agent.total_volume_traded_ngn,
+			total_volume_traded_amount: agent.total_volume_traded_amount,
 			positive_feedback_count: agent.positive_feedback_count,
 			negative_feedback_count: agent.negative_feedback_count,
 			avg_payment_time_minutes: agent.avg_payment_time_minutes,
@@ -381,7 +381,7 @@ export default function AgentsPage() {
 												<Badge variant={getStatusVariant(agent.is_active ? 'active' : 'suspended')}>{agent.is_active ? 'Active' : 'Inactive'}</Badge>
 											</TableCell>
 											<TableCell>{agent.total_trades_completed}</TableCell>
-											<TableCell>${parseFloat(agent.total_volume_traded_ngn).toLocaleString()}</TableCell>
+											<TableCell>${parseFloat(agent.total_volume_traded_amount).toLocaleString()}</TableCell>
 										</TableRow>
 									))
 								) : (

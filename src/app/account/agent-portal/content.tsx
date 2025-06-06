@@ -12,7 +12,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import type { P2PTradeStatus } from '@/types/modules/trade';
 import { Badge } from '@/components/ui/badge';
 
@@ -315,8 +315,8 @@ const AgentPortalContent = () => {
 												>
 													<TableCell className="font-mono text-base font-semibold text-blue-700 dark:text-blue-300">{trade.id.slice(0, 8)}…</TableCell>
 													<TableCell className="capitalize font-semibold text-base">{trade.buyer_id === trade.order_creator_id ? 'Buy' : 'Sell'}</TableCell>
-													<TableCell className="font-semibold text-base">USDT</TableCell>
-													<TableCell className="font-semibold text-base text-green-700 dark:text-green-300">₦{Number(trade.fiat_amount).toLocaleString()}</TableCell>
+													<TableCell className="font-semibold text-base">{process.env.NEXT_PUBLIC_BASE_CURRENCY}</TableCell>
+													<TableCell className="font-semibold text-base text-green-700 dark:text-green-300">{formatCurrency(trade.fiat_amount)}</TableCell>
 													<TableCell>
 														<Badge variant={getStatusBadgeVariant(trade.status)} tabIndex={-1} aria-label={trade.status}>
 															{trade.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}

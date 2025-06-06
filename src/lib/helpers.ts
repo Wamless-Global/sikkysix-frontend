@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { AccountStatus, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
-import { P2PTradeStatus } from '@/types/modules/trade';
+import { P2PTradeStatus, TradeResponse } from '@/types/modules/trade';
 import nProgress from 'nprogress';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
@@ -30,12 +30,72 @@ export const currencyFormatter = (value: number | string, units = 2, currency = 
  * @param amount The number to format.
  * @returns The formatted currency string or '$0.00'.
  */
-export const formatCurrency = (amount: number | null | undefined): string => {
-	if (amount === null || amount === undefined || isNaN(amount)) {
-		// Return $0.00 for invalid inputs in a currency context
-		return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(0);
+/**
+ * Formats a number as a currency string for any currency.
+ * Falls back to NGN if the currency is invalid.
+ * Optionally returns the currency symbol or code.
+ * @param amount The number to format.
+ * @param currency The currency code (e.g., 'USD', 'NGN'). Defaults to 'USD'.
+ * @param options Optional: { symbol?: boolean, code?: boolean }
+ * @returns The formatted currency string, symbol, or code.
+ */
+export const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN', options?: { symbol?: boolean; code?: boolean; symbolPosition?: 'before' | 'after' }): string => {
+	const fallbackCurrency = process.env.NEXT_PUBLIC_FIAT_CURRENCY || 'NGN';
+	const validCurrency = (() => {
+		try {
+			new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(0);
+			return currency;
+		} catch {
+			return fallbackCurrency;
+		}
+	})();
+
+	if (options?.symbol && !options?.code) {
+		// Get the currency symbol
+		const parts = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0);
+		const symbolPart = parts.find((p) => p.type === 'currency');
+		return symbolPart?.value || validCurrency;
 	}
-	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+
+	if (options?.code && !options?.symbol) {
+		return validCurrency;
+	}
+
+	if (amount === null || amount === undefined || isNaN(amount)) {
+		amount = 0;
+	}
+
+	const formatted = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+
+	const symbol = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find((p) => p.type === 'currency')?.value || validCurrency;
+
+	// If both code and symbol are true, show both with amount
+	if (options?.code && options?.symbol) {
+		if (options?.symbolPosition === 'after') {
+			return `${formatted} ${symbol} ${validCurrency}`;
+		}
+		return `${symbol}${formatted} ${validCurrency}`;
+	}
+
+	// Default: show amount with symbol or code
+	if (options?.code) {
+		if (options?.symbolPosition === 'after') {
+			return `${formatted} ${validCurrency}`;
+		}
+		return `${validCurrency} ${formatted}`;
+	}
+
+	if (options?.symbolPosition === 'after') {
+		return `${formatted} ${symbol}`;
+	}
+	// Default is 'before'
+	return `${symbol}${formatted}`;
+};
+
+export const formatBaseurrency = (amount: number | null | string, units = 2): string => {
+	const amountStr = typeof amount === 'string' ? amount : amount !== null && amount !== undefined ? amount.toLocaleString(undefined, { maximumFractionDigits: units }) : 'N/A';
+
+	return `${amountStr} ${process.env.NEXT_PUBLIC_BASE_CURRENCY || 'NGN'}`;
 };
 
 // Helper function to determine badge variant based on status
@@ -128,7 +188,7 @@ export const formatDate = (date: Date, showTime: boolean = true): string => {
  * Returns 'N/A' if input is invalid.
  * @param date Date object or date string
  */
-export function formatFullDate(date: Date | string | null | undefined): string {
+export function formatDateNice(date: Date | string | null | undefined): string {
 	if (!date) return 'N/A';
 	const d = typeof date === 'string' ? new Date(date) : date;
 	if (isNaN(d.getTime())) return 'N/A';
@@ -165,7 +225,7 @@ export function getTransactionTypeLabel(type: string) {
 	return TRANSACTION_TYPE_LABELS[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function handleFetchErrorMessage(err: { message?: string; detail?: unknown } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = ''): string {
+export function handleFetchErrorMessage(err: { message?: string; detail?: unknown } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = '', redirect: boolean = true): string {
 	let errorMessage = defaultMessage || 'An unexpected error occurred.';
 
 	let message: string | undefined;
@@ -201,9 +261,11 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 	}
 
 	if (errorMessage == 'Not authorized, no authentication cookie found' || errorMessage.includes('no authentication cookie') || errorMessage.includes('No active session found')) {
-		nProgress.start();
 		errorMessage = 'You session has expired. Please log in again.';
-		window.location.reload();
+		if (redirect) {
+			nProgress.start();
+			window.location.reload();
+		}
 	}
 
 	return errorMessage;
@@ -237,4 +299,81 @@ export function getAgentStatusBadgeVariant(status: P2PTradeStatus): React.Compon
 		default:
 			return 'outline';
 	}
+}
+
+// Helper: determine the current view and actions based on trade status
+export const getTradeViewState = (trade: TradeResponse, isUserFlow: boolean, isExpired: boolean, isAgentFlow: boolean) => {
+	if (!trade) return { title: '', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+	switch (trade.status) {
+		case 'awaiting_fiat_payment':
+			return { title: isUserFlow ? 'Make Payment' : 'Wait for Payment', showTimer: !isExpired, showPayment: isUserFlow && !isExpired, showCancel: isUserFlow && !isExpired, showDispute: false, showConfirm: false };
+		case 'fiat_payment_confirmed_by_buyer':
+			return { title: 'Awaiting Confirmation', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'fiat_received_confirmed_by_seller':
+			return { title: 'Payment Confirmed', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'platform_ngn_released':
+			return { title: 'NGN Released', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'completed':
+			return { title: 'Trade Completed', showTimer: false, showPayment: false, showCancel: false, showDispute: true, showConfirm: false };
+		case 'expired':
+			return { title: 'Expired', showTimer: false, showPayment: false, showCancel: false, showDispute: true, showConfirm: false };
+		case 'cancelled_by_buyer':
+			return { title: isUserFlow ? 'Cancelled by You' : 'Cancelled by Buyer', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'cancelled_by_seller':
+			return { title: isAgentFlow ? 'Cancelled by Seller' : 'Cancelled by You', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'dispute_opened':
+			return { title: 'Dispute Opened', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		case 'dispute_resolved_buyer':
+		case 'dispute_resolved_seller':
+			return { title: 'Dispute Resolved', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+		default:
+			return { title: 'Trade Details', showTimer: false, showPayment: false, showCancel: false, showDispute: false, showConfirm: false };
+	}
+};
+
+export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, isAnAgent?: boolean): string =>
+	isBuyer
+		? trade?.status === 'awaiting_fiat_payment'
+			? "Send the exact sum to the agent to receive assets in your wallet. Ensure the seller's name matches and keep communication within the platform for dispute resolution."
+			: trade?.status === 'fiat_payment_confirmed_by_buyer'
+			? "You've marked payment as sent. Please wait for the agent to confirm receipt. If there are issues, use the chat or raise a dispute after the timer expires."
+			: trade?.status === 'completed'
+			? 'Trade completed. Your assets have been delivered. If you have any issues, you may raise a dispute.'
+			: trade?.status === 'expired'
+			? 'This trade has expired. If you made payment, please contact support or raise a dispute.'
+			: trade?.status?.startsWith('cancelled')
+			? 'This trade was cancelled. If this was a mistake, please contact support.'
+			: trade?.status?.startsWith('dispute')
+			? 'A dispute is open for this trade. Our team will review and contact you.'
+			: 'Check the trade status and follow the instructions above.'
+		: trade?.status === 'awaiting_fiat_payment'
+		? 'Please monitor payment status and confirm receipt as needed. You may also raise a dispute if there is an issue.'
+		: trade?.status === 'fiat_payment_confirmed_by_buyer'
+		? 'The buyer has marked payment as sent. Please confirm receipt before releasing assets. If you have not received payment, use the chat or raise a dispute.'
+		: trade?.status === 'completed'
+		? 'Trade completed. Assets have been released. If there are any issues, you may raise a dispute.'
+		: trade?.status === 'expired'
+		? 'This trade has expired. If you have not received payment, no further action is needed. If you did, please contact support or raise a dispute.'
+		: trade?.status?.startsWith('cancelled')
+		? 'This trade was cancelled. No further action is required.'
+		: trade?.status?.startsWith('dispute')
+		? 'A dispute is open for this trade. Our team will review and contact you.'
+		: 'Check the trade status and follow the instructions above.';
+
+export function getTradeStatusToast(updatedTrade: { status: string }) {
+	const status = updatedTrade.status;
+	const statusMap: Record<string, { type: 'success' | 'error'; message: string }> = {
+		completed: { type: 'success', message: 'Trade completed successfully.' },
+		fiat_payment_confirmed_by_buyer: { type: 'success', message: 'Buyer has confirmed payment.' },
+		fiat_received_confirmed_by_seller: { type: 'success', message: 'Seller has confirmed receipt of payment.' },
+		platform_ngn_released: { type: 'success', message: 'Funds have been released.' },
+		dispute_resolved_buyer: { type: 'success', message: 'Dispute resolved in favor of buyer.' },
+		dispute_resolved_seller: { type: 'success', message: 'Dispute resolved in favor of seller.' },
+		cancelled_by_buyer: { type: 'error', message: 'Trade was cancelled by the buyer.' },
+		cancelled_by_seller: { type: 'error', message: 'Trade was cancelled by the seller.' },
+		cancelled: { type: 'error', message: 'Trade was cancelled.' },
+		expired: { type: 'error', message: 'Trade has expired.' },
+		dispute_opened: { type: 'error', message: 'A dispute has been opened for this trade.' },
+	};
+	return { status, statusMap };
 }

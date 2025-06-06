@@ -37,7 +37,7 @@ export default function AgentOrdersContent() {
 		total_asset_amount: '',
 		price_per_unit: '',
 		payment_window_minutes: '',
-		order_terms: '',
+		order_terms: 'Please ensure payment is made from an account with your name. No third-party payments allowed. Release will be made after confirmation.',
 	});
 	const [apiLoading, setApiLoading] = useState(false);
 
@@ -85,7 +85,7 @@ export default function AgentOrdersContent() {
 			total_asset_amount: '',
 			price_per_unit: '',
 			payment_window_minutes: '',
-			order_terms: '',
+			order_terms: 'Please ensure payment is made from an account in your name. No third-party payments allowed. Release will be made after confirmation.',
 		});
 		setModalOpen(true);
 	};
@@ -106,6 +106,7 @@ export default function AgentOrdersContent() {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ ...form, status: 'active' }),
 			});
+
 			if (res.ok) {
 				toast.success('Order created');
 				setModalOpen(false);
@@ -115,7 +116,7 @@ export default function AgentOrdersContent() {
 				throw new Error(error.message || 'Failed to upload avatar');
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, null, 'Failed to create order');
+			const errorMessage = handleFetchErrorMessage(err, 'Failed to create order');
 			toast.error(errorMessage);
 		} finally {
 			setApiLoading(false);

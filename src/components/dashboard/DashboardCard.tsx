@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { formatBaseurrency } from '@/lib/helpers';
 
 interface DashboardCardProps {
 	title: string;
@@ -24,7 +25,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, image, minimum, bu
 					</div>
 					<div className="flex flex-col items-end">
 						<span className="subtext">Amount</span>
-						<p className="text-lg font-bold text-foreground lg:text-[var(--dashboard-secondary-foreground)]">{minimum}</p>
+						<p className="text-lg font-bold text-foreground lg:text-[var(--dashboard-secondary-foreground)]">Min {formatBaseurrency(minimum)}</p>
 					</div>
 				</div>
 				<div className="mt-auto pt">

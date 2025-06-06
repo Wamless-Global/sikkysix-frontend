@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatNaira, formatNumber, formatRelativeTime, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
+import { formatBaseurrency, formatNumber, formatRelativeTime, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
 import { AuthenticatedUser, Category, Investment, InvestmentsResponse, Transaction, TransactionResponse, UserSingleCategoryResponse } from '@/types';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
@@ -146,10 +146,10 @@ export default function SingleCategoryContent() {
 			return 'Category data not loaded.';
 		}
 		if (categoryData.minimum_investable !== null && amount < categoryData.minimum_investable) {
-			return `Amount must be at least ${formatNaira(categoryData.minimum_investable)}.`;
+			return `Amount must be at least ${formatBaseurrency(categoryData.minimum_investable)}.`;
 		}
 		if (categoryData.maximum_investable !== null && amount > categoryData.maximum_investable) {
-			return `Amount cannot exceed ${formatNaira(categoryData.maximum_investable)}.`;
+			return `Amount cannot exceed ${formatBaseurrency(categoryData.maximum_investable)}.`;
 		}
 		if (balance === undefined) {
 			return 'Could not verify your balance. Please try again.';
@@ -295,7 +295,7 @@ export default function SingleCategoryContent() {
 						{categoryData.name} ({categoryData.ticker})
 					</h1>
 					<div className="flex items-center space-x-2 text-sm mb-2">
-						<span>{formatNaira(categoryData.current_price_per_unit)}</span>
+						<span>{formatBaseurrency(categoryData.current_price_per_unit)}</span>
 						{categoryData.price_change_24h !== null && categoryData.price_change_24h !== undefined && (
 							<span className={`flex items-center ${categoryData.price_change_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
 								{categoryData.price_change_24h >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
@@ -325,12 +325,12 @@ export default function SingleCategoryContent() {
 				</CardHeader>
 				<CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-0">
 					{[
-						{ label: 'Total Value', value: formatNaira(categoryData.market_cap ?? categoryData.total_liquidity) },
+						{ label: 'Total Value', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
 						{ label: 'Holders', value: formatNumber(categoryData.holders) },
 						{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply ?? categoryData.quantity) },
-						{ label: '24h Volume', value: formatNaira(categoryData.volume_24h) },
-						{ label: 'Min Investable', value: formatNaira(categoryData.minimum_investable) },
-						{ label: 'Max Investable', value: formatNaira(categoryData.maximum_investable) },
+						{ label: '24h Volume', value: formatBaseurrency(categoryData.volume_24h ?? 0) },
+						{ label: 'Min Investable', value: formatBaseurrency(categoryData.minimum_investable) },
+						{ label: 'Max Investable', value: formatBaseurrency(categoryData.maximum_investable) },
 					]
 						.filter((metric) => metric.value !== 'N/A' && metric.value !== undefined && metric.value !== null)
 						.map((metric) => (
@@ -414,7 +414,7 @@ export default function SingleCategoryContent() {
 												<p className="text-sm text-muted-foreground">{formatRelativeTime(transaction.created_at)}</p>
 											</div>
 										</div>
-										<span className={`font-semibold ${isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatNaira(transaction.amount)}</span>
+										<span className={`font-semibold ${isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(transaction.amount)}</span>
 									</div>
 								);
 							})}
@@ -466,7 +466,7 @@ export default function SingleCategoryContent() {
 											<div className="grid grid-cols-2 gap-2 text-sm mt-2">
 												<div>
 													<span className="text-muted-foreground">Initial</span>
-													<div className="font-medium">{formatNaira(inv.amount_invested)}</div>
+													<div className="font-medium">{formatBaseurrency(inv.amount_invested)}</div>
 												</div>
 												<div>
 													<span className="text-muted-foreground">Units</span>
@@ -474,11 +474,11 @@ export default function SingleCategoryContent() {
 												</div>
 												<div>
 													<span className="text-muted-foreground">Current Value</span>
-													<div className="font-medium">{formatNaira(currentValue)}</div>
+													<div className="font-medium">{formatBaseurrency(currentValue)}</div>
 												</div>
 												<div>
 													<span className="text-muted-foreground">Profit/Loss</span>
-													<div className={`font-medium ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatNaira(profit)}</div>
+													<div className={`font-medium ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatBaseurrency(profit)}</div>
 												</div>
 											</div>
 											<Button size="sm" variant="outline" className="mt-2">

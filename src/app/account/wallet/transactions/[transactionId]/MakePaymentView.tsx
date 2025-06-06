@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import OrderDetailItem from '@/components/p2p/OrderDetailItem';
 
 interface MakePaymentViewProps {
 	orderDetails: any;

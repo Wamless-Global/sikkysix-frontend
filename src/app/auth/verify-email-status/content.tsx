@@ -12,50 +12,27 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 
-export default function VerifyEmailStatusPageContent() {
+export default function VerifyEmailStatusPageContent({ initialStatus }: { initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
 	const { resendVerificationEmail } = useAuthContext();
 
-	const [pageStatus, setPageStatus] = useState<'loading' | 'success' | 'error' | 'expired'>('loading');
-	const [statusMessage, setStatusMessage] = useState('Checking verification outcome...');
-	const [title, setTitle] = useState('Email Verification Status');
+	const pageStatus = initialStatus.status === 'success' ? 'success' : initialStatus.status === 'expired' ? 'expired' : initialStatus.status === 'error' ? 'error' : 'loading';
+	const [statusMessage, setStatusMessage] = useState(initialStatus.message || '');
+	const title = initialStatus.status === 'success' ? 'Email Verified Successfully!' : initialStatus.status === 'expired' ? 'Verification Link Expired' : initialStatus.status === 'error' ? 'Email Verification Failed' : 'Email Verification Status';
 
 	const [emailForResend, setEmailForResend] = useState('');
 	const [isResending, setIsResending] = useState(false);
 
 	useEffect(() => {
-		const hash = window.location.hash;
-		if (hash) {
-			const params = new URLSearchParams(hash.substring(1));
-			const error = params.get('error');
-			const errorDesc = params.get('error_description');
-
-			if (error) {
-				const detailedMessage = errorDesc || 'An unknown error occurred during verification.';
-				setStatusMessage(detailedMessage);
-				toast.error(detailedMessage);
-				if (errorDesc?.toLowerCase().includes('expired') || error === 'access_denied') {
-					setPageStatus('expired');
-					setTitle('Verification Link Expired');
-				} else {
-					setPageStatus('error');
-					setTitle('Email Verification Failed');
-				}
-			} else {
-				setPageStatus('success');
-				setTitle('Email Verified Successfully!');
-				setStatusMessage('Your email address has been successfully verified.');
-				toast.success('Email verified successfully!');
-				setTimeout(() => router.push('/auth/login'), 3000);
-			}
-		} else {
-			setPageStatus('success');
-			setTitle('Email Verified Successfully!');
-			setStatusMessage('Your email address has been successfully verified. You can now log in.');
-			toast.success('Email verified successfully! Redirecting to login...');
+		if (initialStatus.status === 'success') {
+			toast.success(initialStatus.message || 'Email verified successfully!');
 			setTimeout(() => router.push('/auth/login'), 3000);
+		} else if (initialStatus.status === 'expired') {
+			toast.error(initialStatus.message || 'Verification link expired.');
+		} else if (initialStatus.status === 'error') {
+			toast.error(initialStatus.message || 'Email verification failed.');
 		}
-	}, [router]);
+	}, [initialStatus, router]);
 
 	const handleResendSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();

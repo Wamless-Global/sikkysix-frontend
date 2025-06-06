@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COUNTRIES } from '@/lib/countries';
 import { format } from 'date-fns';
-import { formatCurrency, getEmailStatusVariant, getStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, getEmailStatusVariant, getStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { AdjustBalanceModal } from '@/components/modals/AdjustBalanceModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, UserStatus } from '@/types';
@@ -452,10 +452,10 @@ export default function UserDetailPage() {
 					{/* Column 1 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Wallet className="w-4 h-4" /> <span>Wallet Balance:</span> <span className="font-semibold text-foreground">{formatCurrency(currentUser.wallet_balance ?? 0)}</span>
+							<Wallet className="w-4 h-4" /> <span>Wallet Balance:</span> <span className="font-semibold text-foreground">{formatBaseurrency(currentUser.wallet_balance ?? 0)}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<DollarSign className="w-4 h-4" /> <span>Total Invested:</span> <span className="font-semibold text-foreground">{formatCurrency(currentUser.totalInvested ?? 0)}</span>
+							<DollarSign className="w-4 h-4" /> <span>Total Invested:</span> <span className="font-semibold text-foreground">{formatBaseurrency(currentUser.totalInvested ?? 0)}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
 							<Activity className="w-4 h-4" /> <span>Active Investments:</span> <span className="font-semibold text-foreground">{currentUser.investmentCount ?? 0}</span>
