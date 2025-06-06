@@ -204,7 +204,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				if (!response.ok) {
 					if (response.status === 401) {
 						nProgress.start();
-						router.push('/auth/login?redirect_to=' + encodeURIComponent(window.location.pathname));
+						router.refresh();
+						return; // User is not authenticated, no need to set currentUser
 					} else {
 						console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
 					}
@@ -226,7 +227,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			}
 		};
 
-		// checkUserSession();
+		checkUserSession();
 	}, []);
 
 	const value = {
