@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useAuthContext } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 // Order type definition
 interface Order {
@@ -19,6 +20,7 @@ interface Order {
 	agent_id?: string;
 	order_type: 'BUY_PLATFORM_CURRENCY' | 'SELL_PLATFORM_CURRENCY';
 	fiat_currency: string;
+	asset_currency: string;
 	total_asset_amount: string;
 	price_per_unit: string;
 	payment_window_minutes: string;
@@ -52,13 +54,14 @@ export default function AgentOrdersContent() {
 		if (!currentUser?.agent_id) return;
 		setLoading(true);
 		try {
-			const res = await fetch(`/api/p2p/orders/agent/${currentUser.agent_id}`);
+			const res = await fetchWithAuth(`/api/p2p/orders/agent/${currentUser.agent_id}`);
 			const data = await res.json();
 			const ordersRaw = data?.data?.orders || [];
 			const mappedOrders: Order[] = ordersRaw.map((o: any) => ({
 				id: o.id,
 				order_type: o.order_type,
 				fiat_currency: o.fiat_currency,
+				asset_currency: o.asset_currency,
 				total_asset_amount: o.total_asset_amount,
 				price_per_unit: o.price_per_unit,
 				payment_window_minutes: o.payment_window_minutes,
@@ -101,7 +104,7 @@ export default function AgentOrdersContent() {
 		}
 		setApiLoading(true);
 		try {
-			const res = await fetch('/api/p2p/orders', {
+			const res = await fetchWithAuth('/api/p2p/orders', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ ...form, status: 'active' }),
@@ -124,7 +127,8 @@ export default function AgentOrdersContent() {
 	};
 
 	const handleEditClick = (order: Order) => {
-		setEditForm(order);
+		// Set total_asset_amount to zero when opening the edit modal
+		setEditForm({ ...order, total_asset_amount: '0' });
 		setEditModalOpen(true);
 	};
 
@@ -139,7 +143,7 @@ export default function AgentOrdersContent() {
 		}
 		setApiLoading(true);
 		try {
-			const res = await fetch(`/api/p2p/orders/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/p2p/orders/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(editForm),
@@ -203,7 +207,7 @@ export default function AgentOrdersContent() {
 											<span className="font-medium text-foreground capitalize">{order.order_type === 'BUY_PLATFORM_CURRENCY' ? 'Buy' : 'Sell'} order</span>
 											<span className="ml-2 text-xs text-muted-foreground">{order.created_at}</span>
 											<div className="text-sm text-muted-foreground mt-1">
-												<span className="font-semibold">{order.total_asset_amount}</span> {order.fiat_currency} @ <span className="font-semibold">₦{order.price_per_unit}</span>
+												<span className="font-semibold">{order.total_asset_amount}</span> {order.asset_currency} @ <span className="font-semibold">₦{order.price_per_unit}</span>
 											</div>
 											<div className="text-xs text-muted-foreground mt-1">Window: {order.payment_window_minutes} min</div>
 											<div className="text-xs text-muted-foreground mt-1">Terms: {order.order_terms}</div>
@@ -297,7 +301,7 @@ export default function AgentOrdersContent() {
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-total_asset_amount">Total Asset Amount</Label>
-							<Input id="edit-total_asset_amount" type="number" min="0" value={editForm?.total_asset_amount || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, total_asset_amount: e.target.value } : f))} required className="account-input w-full" />
+							<Input id="edit-total_asset_amount" type="number" value={editForm?.total_asset_amount || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, total_asset_amount: e.target.value } : f))} required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-price_per_unit">Price Per Unit</Label>

@@ -4,16 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CustomLink } from '@/components/ui/CustomLink';
-
-// Placeholder SVG for Logo - Using CSS Vars
-const LogoPlaceholder = () => (
-	<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<rect width="40" height="40" rx="8" fill="var(--lp-green-primary)" />
-		<text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="var(--primary-foreground)" fontSize="14" fontWeight="bold">
-			SS
-		</text>
-	</svg>
-);
+import LogoPlaceholder from '@/components/ui/logo';
 
 // Placeholder SVG for Icons/Images - Using muted color
 const IconPlaceholder = ({ className = 'w-10 h-10' }: { className?: string }) => (

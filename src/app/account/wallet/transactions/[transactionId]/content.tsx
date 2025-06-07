@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
 import { Transaction } from '@/types';
 import P2PContent from './p2p-content';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function TransactionDetailsPageContent() {
 	const params = useParams();
@@ -19,7 +20,7 @@ export default function TransactionDetailsPageContent() {
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
-		fetch(`/api/transactions/${transactionId}`)
+		fetchWithAuth(`/api/transactions/${transactionId}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch transaction');
 				return res.json();

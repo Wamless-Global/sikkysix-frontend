@@ -20,6 +20,8 @@ import { AuthenticatedUser, Category, Investment, InvestmentsResponse, Transacti
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
 import { useAuthContext } from '@/context/AuthContext';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 export default function SingleCategoryContent() {
 	const paramsFromHook = useParams<{ slug: string }>();
@@ -51,7 +53,7 @@ export default function SingleCategoryContent() {
 		setCategoryData(null);
 
 		try {
-			const response = await fetch(`/api/categories/${identifier}`);
+			const response = await fetchWithAuth(`/api/categories/${identifier}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
@@ -85,7 +87,7 @@ export default function SingleCategoryContent() {
 	const fetchTransactions = useCallback(async (categoryId: string, page: number = 1) => {
 		setIsLoadingTransactions(true);
 		try {
-			const response = await fetch(`/api/categories/${categoryId}/transactions?page=${page}`);
+			const response = await fetchWithAuth(`/api/categories/${categoryId}/transactions?page=${page}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch transactions');
 			}
@@ -104,7 +106,7 @@ export default function SingleCategoryContent() {
 	const fetchActiveInvestments = useCallback(async (page: number = 1) => {
 		setIsLoadingInvestments(true);
 		try {
-			const response = await fetch(`/api/investments/?status=active&page=${page}`);
+			const response = await fetchWithAuth(`/api/investments/?status=active&page=${page}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch active investments');
 			}
@@ -155,7 +157,7 @@ export default function SingleCategoryContent() {
 			return 'Could not verify your balance. Please try again.';
 		}
 		if (amount > balance) {
-			console.log(balance, amount);
+			logger.log(balance, amount);
 
 			return 'Insufficient balance.';
 		}
@@ -202,7 +204,7 @@ export default function SingleCategoryContent() {
 				category_id: categoryData?.id,
 			};
 
-			const response = await fetch('/api/investments/new', {
+			const response = await fetchWithAuth('/api/investments/new', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -215,12 +217,12 @@ export default function SingleCategoryContent() {
 				nProgress.start();
 
 				const balance = await response.json();
-				console.log(balance);
+				logger.log(balance);
 
 				setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) - amount });
 
 				toast.success(`New shares bought successfully!`);
-				router.push('/account/portfolio');
+				router.push('/account/my-savings');
 			} else {
 				let errorMessage = `Failed to create category. Status: ${response.status}`;
 				try {
@@ -321,16 +323,16 @@ export default function SingleCategoryContent() {
 			{/* --- Key Metrics --- */}
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm border border-border/60">
 				<CardHeader className="px-0">
-					<CardTitle className="text-lg text-foreground">Key Metrics</CardTitle>
+					<CardTitle className="text-lg text-foreground"> CLUB INFORMATION </CardTitle>
 				</CardHeader>
 				<CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-0">
 					{[
-						{ label: 'Total Value', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
-						{ label: 'Holders', value: formatNumber(categoryData.holders) },
-						{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply ?? categoryData.quantity) },
+						{ label: 'Total Contribution', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
+						{ label: 'Club Members', value: formatNumber(categoryData.holders) },
+						{ label: 'Funds Circulation', value: formatNumber(categoryData.circulating_supply ?? categoryData.quantity) },
 						{ label: '24h Volume', value: formatBaseurrency(categoryData.volume_24h ?? 0) },
-						{ label: 'Min Investable', value: formatBaseurrency(categoryData.minimum_investable) },
-						{ label: 'Max Investable', value: formatBaseurrency(categoryData.maximum_investable) },
+						{ label: 'Minimum Contribution', value: formatBaseurrency(categoryData.minimum_investable) },
+						{ label: 'Maximum Contribution', value: formatBaseurrency(categoryData.maximum_investable) },
 					]
 						.filter((metric) => metric.value !== 'N/A' && metric.value !== undefined && metric.value !== null)
 						.map((metric) => (
@@ -347,7 +349,7 @@ export default function SingleCategoryContent() {
 				<CardContent className="px-2 flex flex-col sm:flex-row justify-between items-start gap-4">
 					<div className="flex-grow w-full sm:w-auto space-y-2">
 						<Label htmlFor="amount" className="text-sm text-muted-foreground">
-							Amount to Invest (NGN)
+							Amount to Contribute ({process.env.NEXT_PUBLIC_BASE_CURRENCY})
 						</Label>
 						<div className="flex flex-col md:flex-row gap-1 md:gap-4">
 							<Input
@@ -367,7 +369,7 @@ export default function SingleCategoryContent() {
 										Processing...
 									</>
 								) : (
-									'Buy Now'
+									'Save Now'
 								)}
 							</Button>
 						</div>
@@ -379,10 +381,10 @@ export default function SingleCategoryContent() {
 			<Tabs defaultValue="activity" className="w-full">
 				<TabsList className="bg-transparent p-0 h-auto gap-4 pb-2 mb-4">
 					<TabsTrigger value="activity" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
-						Activity
+						Club Activity
 					</TabsTrigger>
 					<TabsTrigger value="positions" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
-						Open Positions
+						My Active Savings
 					</TabsTrigger>
 				</TabsList>
 
@@ -452,11 +454,11 @@ export default function SingleCategoryContent() {
 								const currentValue = inv.current_value;
 								const profit = currentValue - inv.amount_invested;
 								return (
-									<CustomLink key={inv.id} href={`/account/portfolio/${inv.id}`} className="block">
+									<CustomLink key={inv.id} href={`/account/my-savings/${inv.id}`} className="block">
 										<div className="relative bg-card hover:bg-muted/50 transition-colors duration-200 rounded-lg p-4 space-y-3 border-l-4 border-blue-500 shadow-sm">
 											<div className="flex justify-between items-center">
 												<div>
-													<h3 className="font-semibold text-foreground">Investment ID: {truncateString(inv.id)}</h3>
+													<h3 className="font-semibold text-foreground">Contribution ID: {truncateString(inv.id)}</h3>
 													<p className="text-xs text-muted-foreground">Started: {new Date(inv.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
 												</div>
 												<Badge variant={inv.status === 'active' ? 'active' : 'outline'} className="ml-2 capitalize">
@@ -465,11 +467,11 @@ export default function SingleCategoryContent() {
 											</div>
 											<div className="grid grid-cols-2 gap-2 text-sm mt-2">
 												<div>
-													<span className="text-muted-foreground">Initial</span>
+													<span className="text-muted-foreground">Savings</span>
 													<div className="font-medium">{formatBaseurrency(inv.amount_invested)}</div>
 												</div>
 												<div>
-													<span className="text-muted-foreground">Units</span>
+													<span className="text-muted-foreground">Units Contributed</span>
 													<div className="font-medium">{formatNumber(inv.units_purchased)}</div>
 												</div>
 												<div>
@@ -506,7 +508,7 @@ export default function SingleCategoryContent() {
 					) : (
 						<div className="text-center py-10 text-muted-foreground flex flex-col items-center">
 							<img src="/wallet.png" alt="No positions" className="h-20 w-20 mb-4 opacity-60" />
-							No active positions in this category.
+							No active savings in this club.
 						</div>
 					)}
 				</TabsContent>

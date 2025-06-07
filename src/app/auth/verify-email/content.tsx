@@ -9,6 +9,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import appSettings from '@/config/app';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
+import LogoPlaceholder from '@/components/ui/logo';
 
 export default function VerifyEmailContent({ email, initialStatus }: { email?: string; initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
@@ -57,7 +58,11 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
+			<CustomLink href={'/'}>
+				{/* <h1 className="mb-12 text-4xl font-bold">LOGO</h1> */}
+				<LogoPlaceholder size="xl" />
+			</CustomLink>
+
 			<div className="w-full max-w-md text-center">
 				<h2 className="mb-2 text-2xl font-semibold">Check Email Verification</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>

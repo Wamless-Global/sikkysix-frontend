@@ -13,6 +13,7 @@ import nProgress from 'nprogress';
 import { toast } from 'sonner';
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
@@ -63,7 +64,7 @@ export default function EditP2PPage() {
 	useEffect(() => {
 		if (!id) return;
 		setLoading(true);
-		fetch(`/api/p2p/payment-methods/${id}`)
+		fetchWithAuth(`/api/p2p/payment-methods/${id}`)
 			.then(async (res) => {
 				if (!res.ok) throw new Error('Failed to fetch payment method');
 				const data = await res.json();
@@ -127,7 +128,7 @@ export default function EditP2PPage() {
 		}
 		formData.append('fields_required', JSON.stringify(data.fields_required));
 		try {
-			const response = await fetch(`/api/p2p/payment-methods/${id}`, {
+			const response = await fetchWithAuth(`/api/p2p/payment-methods/${id}`, {
 				method: 'PUT',
 				body: formData,
 				credentials: 'include',

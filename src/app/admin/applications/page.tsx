@@ -15,6 +15,8 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { formatDateNice, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { Application, ApplicationStatus } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 // Define ApplicationFilters type based on API endpoint parameters
 interface ApplicationFilters {
@@ -45,14 +47,14 @@ const fetchApplications = async (filters: ApplicationFilters, page: number): Pro
 	const url = `/api/agents/applications?${queryParams.toString()}`;
 
 	try {
-		const response = await fetch(url);
+		const response = await fetchWithAuth(url);
 		if (!response.ok) {
 			const errorData = await response.json();
 			throw new Error(errorData.message || `Error fetching applications: ${response.statusText}`);
 		}
 		const result = await response.json();
 
-		console.log(result.data.applications);
+		logger.log(result.data.applications);
 
 		const fetchedApplications: Application[] = result.data.applications.map((app: any) => ({
 			id: app.id,
@@ -102,7 +104,7 @@ export default function ApplicationsPage() {
 			setError(null);
 			try {
 				const { applications: fetchedApplications, totalCount: fetchedTotalCount } = await fetchApplications(filters, currentPage);
-				console.log(fetchedApplications);
+				logger.log(fetchedApplications);
 
 				setApplications(fetchedApplications);
 				setTotalCount(fetchedTotalCount);

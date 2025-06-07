@@ -13,6 +13,8 @@ import { ApiPaymentMethod, PaymentMethod } from '@/types';
 import { useAuthContext } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 export default function AgentPortalSettingsContent() {
 	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -35,10 +37,10 @@ export default function AgentPortalSettingsContent() {
 	async function fetchMethods() {
 		setLoading(true);
 		try {
-			const res = await fetch('/api/p2p/payment-methods');
+			const res = await fetchWithAuth('/api/p2p/payment-methods');
 			const data = await res.json();
 			if (data.status === 'success') {
-				console.log(data);
+				logger.log(data);
 
 				setAvailableMethods(data.data.filter((m: ApiPaymentMethod) => m.is_active));
 			}
@@ -88,7 +90,7 @@ export default function AgentPortalSettingsContent() {
 		async function fetchAgentPaymentOptions() {
 			setLoading(true);
 			try {
-				const res = await fetch(`/api/agents/payment-options/agent/${agentId}`);
+				const res = await fetchWithAuth(`/api/agents/payment-options/agent/${agentId}`);
 				const data = await res.json();
 				if (!ignore) {
 					if (res.ok && data.status === 'success') {
@@ -123,7 +125,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Saving payment method...');
 		try {
-			const res = await fetch('/api/agents/payment-options', {
+			const res = await fetchWithAuth('/api/agents/payment-options', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -168,7 +170,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Updating payment method...');
 		try {
-			const res = await fetch(`/api/agents/payment-options/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/agents/payment-options/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -192,7 +194,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Deleting payment method...');
 		try {
-			const res = await fetch(`/api/agents/payment-options/${id}`, {
+			const res = await fetchWithAuth(`/api/agents/payment-options/${id}`, {
 				method: 'DELETE',
 			});
 			if (res.ok) {

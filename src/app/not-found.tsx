@@ -8,10 +8,14 @@ import { useState } from 'react';
 import nProgress from 'nprogress';
 
 const DUMMY_RESULTS = [
+	{ title: 'Home', href: '/' },
 	{ title: 'Dashboard', href: '/account' },
 	{ title: 'Profile', href: '/account/profile' },
 	{ title: 'Wallet', href: '/account/wallet' },
-	{ title: 'Support', href: '/support' },
+	{ title: 'My Savings', href: '/account/my-savings' },
+	{ title: 'Games', href: '/account/games' },
+	{ title: 'Referrals', href: '/account/referrals' },
+	{ title: 'reports', href: '/account/report' },
 	{ title: 'Terms of Service', href: '/terms' },
 	{ title: 'Privacy Policy', href: '/privacy' },
 ];
@@ -49,7 +53,7 @@ export default function NotFound() {
 					<ul className="absolute left-0 right-0 z-10 mt-2 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
 						{filteredResults.map((item) => (
 							<li key={item.href}>
-								<button type="button" className="w-full text-left px-5 py-3 hover:bg-[var(--dashboard-accent)] hover:text-white transition rounded-lg" onClick={() => handleResultClick(item.href)}>
+								<button type="button" className="w-full text-left px-5 py-3 hover:bg-[var(--dashboard-accent)] hover:text-white transition rounded-lg cursor-pointer" onClick={() => handleResultClick(item.href)}>
 									{item.title}
 								</button>
 							</li>

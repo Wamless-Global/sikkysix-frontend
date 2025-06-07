@@ -16,6 +16,7 @@ import { AlertCircle } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAuthContext } from '@/context/AuthContext';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function PortfolioItemDetailPageContent() {
 	const router = useRouter();
@@ -41,7 +42,7 @@ export default function PortfolioItemDetailPageContent() {
 			setError(null);
 
 			try {
-				const response = await fetch(`/api/investments/${investmentId}`);
+				const response = await fetchWithAuth(`/api/investments/${investmentId}`);
 				if (!response.ok) {
 					throw new Error('Failed to fetch investment details');
 				}
@@ -64,7 +65,7 @@ export default function PortfolioItemDetailPageContent() {
 	const handleWithdrawClick = async () => {
 		setIsWithdrawing(true);
 		try {
-			const response = await fetch(`/api/investments/${investmentId}/withdraw-preview`, {
+			const response = await fetchWithAuth(`/api/investments/${investmentId}/withdraw-preview`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ export default function PortfolioItemDetailPageContent() {
 		const toastId = toast.loading('Processing withdrawal...');
 
 		try {
-			const response = await fetch(`/api/investments/${investmentId}/withdraw`, {
+			const response = await fetchWithAuth(`/api/investments/${investmentId}/withdraw`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ export default function PortfolioItemDetailPageContent() {
 			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.base_currency_amount });
 
 			toast.success(`Withdrawal successful! ${formatBaseurrency(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
-			router.push('/account/portfolio');
+			router.push('/account/my-savings');
 		} catch (err) {
 			// console.error('Error processing withdrawal:', err);
 			toast.error('Failed to process withdrawal. Please try again.', { id: toastId });
@@ -170,7 +171,7 @@ export default function PortfolioItemDetailPageContent() {
 			<div className="flex flex-col items-center justify-center min-h-[50vh] bg-background text-foreground p-4">
 				<Alert variant="destructive" className="mb-6 max-w-md">
 					<AlertCircle className="h-6 w-6 mr-2" />
-					<AlertTitle>Investment Not Found</AlertTitle>
+					<AlertTitle>Savings Not Found</AlertTitle>
 					<AlertDescription>{error || `The investment with ID "${investmentId}" could not be found.`}</AlertDescription>
 				</Alert>
 				<Button onClick={() => router.back()} variant="outline">
@@ -183,16 +184,16 @@ export default function PortfolioItemDetailPageContent() {
 	return (
 		<div className="max-w-2xl">
 			<div>
-				<h1 className="sub-page-heading">Investment Details</h1>
-				<p className="sub-page-heading-sub-text">Created {formatRelativeTime(investment.created_at)}</p>
+				<h1 className="sub-page-heading">Savings Details</h1>
+				<p className="sub-page-heading-sub-text">Contributed {formatRelativeTime(investment.created_at)}</p>
 			</div>
 
 			<div className="flex items-center justify-between gap-6 md:gap-20 w-full my-10">
 				<CircularProgressDisplay active={!investment.completed} value={formatBaseurrency(investment.current_value)} percentage={investment.progress_percentage} size={size} />
 				<div className="flex flex-col sm:flex-col gap-7 md:gap-4 mt-4">
-					<CustomLink href={`/account/category/${generateSlug(investment.ticker)}`} passHref>
+					<CustomLink href={`/account/club/${generateSlug(investment.ticker)}`} passHref>
 						<Button size={'lg'} className="w-full" variant={'success'} disabled={isWithdrawing}>
-							Show Category
+							Show Club
 						</Button>
 					</CustomLink>
 					{!investment.completed && (
@@ -205,7 +206,7 @@ export default function PortfolioItemDetailPageContent() {
 
 			<div className="w-full space-y-5 mt-6 bg-muted p-6">
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Initial Investment</span>
+					<span className="text-muted-foreground">Initial Savings</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.amount_invested)}</span>
 				</div>
 
@@ -215,8 +216,8 @@ export default function PortfolioItemDetailPageContent() {
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Price Per Unit at Investment</span>
-					<span className="font-medium text-foreground">{formatBaseurrency(investment.price_per_unit_at_investment, 4)}</span>
+					<span className="text-muted-foreground">Price During Savings</span>
+					<span className="font-medium text-foreground">{formatBaseurrency(investment.price_per_unit_at_investment, 2)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
@@ -225,12 +226,12 @@ export default function PortfolioItemDetailPageContent() {
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Units Purchased</span>
+					<span className="text-muted-foreground"> Units Contributed</span>
 					<span className="font-medium text-foreground">{`${investment.units_purchased.toFixed(5)} ${investment.ticker.toLocaleUpperCase()}`}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Target Value</span>
+					<span className="text-muted-foreground">Savings Goal</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.target_total_value)}</span>
 				</div>
 

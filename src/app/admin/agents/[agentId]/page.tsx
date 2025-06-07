@@ -1,27 +1,25 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, Loader2, User as UserIcon, Mail, Phone, Calendar, Clock, Users, HelpCircle, TrendingUp, TrendingDown, DollarSign, PlusCircle, MinusCircle, Activity, Edit } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, Clock, Users, HelpCircle, TrendingUp, TrendingDown, DollarSign, Activity, Edit } from 'lucide-react';
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
 import InvestmentTrendChart from '@/components/charts/InvestmentTrendChart';
 import UserGrowthChart from '@/components/charts/UserGrowthChart';
 import { Agent } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function SingleAgentPage() {
 	const params = useParams<{ agentId: string }>();
-	const router = useRouter();
 	const [agent, setAgent] = useState<Agent | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [showSuspend, setShowSuspend] = useState(false);
-	const [showRemove, setShowRemove] = useState(false);
 	const [showEdit, setShowEdit] = useState(false);
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 	const [confirmAction, setConfirmAction] = useState<'suspend' | 'remove' | null>(null);
@@ -32,7 +30,7 @@ export default function SingleAgentPage() {
 			setIsLoading(true);
 			setError(null);
 			try {
-				const response = await fetch(`/api/agents/${params.agentId}`);
+				const response = await fetchWithAuth(`/api/agents/${params.agentId}`);
 				if (!response.ok) throw new Error('Failed to fetch agent');
 				const result = await response.json();
 				if (result.status !== 'success') throw new Error(result.message || 'API error');

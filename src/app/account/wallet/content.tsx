@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
 import { cn } from '@/lib/utils';
 import { fetchCurrentUserBalance } from '@/lib/userUtils';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 function TransactionSkeletonList({ count = 3 }: { count?: number }) {
 	return (
@@ -56,7 +57,7 @@ export default function WalletPageContent() {
 
 	useEffect(() => {
 		setIsLoading(true);
-		fetch(`/api/transactions?page=1&pageSize=${LIMIT}`)
+		fetchWithAuth(`/api/transactions?page=1&pageSize=${LIMIT}`)
 			.then((res) => res.json())
 			.then((data) => {
 				setTransactions(data.data.transactions || []);
@@ -101,7 +102,7 @@ export default function WalletPageContent() {
 				</CustomLink>
 			</div>
 			<div className="sm:mt-20">
-				<h2 className="text-lg font-semibold text-foreground my-4 text-center">Transaction History</h2>
+				<h2 className="text-lg font-semibold text-foreground my-4 text-center">All Contribution & Savings History</h2>
 				{isLoading ? (
 					<TransactionSkeletonList count={LIMIT} />
 				) : hasTransactions ? (
@@ -118,14 +119,14 @@ export default function WalletPageContent() {
 											className={`rounded-full p-3 ${
 												transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
 													? 'bg-muted-foreground'
-													: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
+													: ['deposit', 'credit', 'investment_profit_withdrawal'].some((type) => transaction.type.toLowerCase().includes(type))
 													? 'bg-[var(--success)]'
 													: 'bg-[var(--danger)]'
 											}`}
 										>
 											{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
 												<X className="h-6 w-6 text-[var(--success-foreground)]" />
-											) : ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
+											) : ['deposit', 'credit', 'investment_profit_withdrawal'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
 												<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
 											) : (
 												<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
@@ -156,7 +157,7 @@ export default function WalletPageContent() {
 							<div className="mt-20 text-center">
 								<CustomLink href="/account/wallet/transactions">
 									<Button variant="success" className="w-full sm:w-auto" size={'lg'}>
-										View More Transactions
+										View More history
 										<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
 									</Button>
 								</CustomLink>
@@ -166,7 +167,7 @@ export default function WalletPageContent() {
 				) : (
 					<div className="text-center py-10 px-4 flex flex-col items-center">
 						<Image src="/box.png" alt="Empty Box" width={80} height={80} className="mb-6" />
-						<p className="text-muted-foreground mb-6 leading-8">You haven&apos;t made any transaction yet.</p>
+						<p className="text-muted-foreground mb-6 leading-8">You haven&apos;t made any contribution yet.</p>
 					</div>
 				)}
 			</div>

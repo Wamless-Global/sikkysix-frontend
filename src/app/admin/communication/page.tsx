@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Send } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
+import { logger } from '@/lib/logger';
 
 export default function CommunicationCenterPage() {
 	const [messageTitle, setMessageTitle] = useState('');
@@ -19,7 +20,7 @@ export default function CommunicationCenterPage() {
 			alert('Message content cannot be empty.');
 			return;
 		}
-		console.log('Sending Broadcast:', { title: messageTitle, content: messageContent });
+		logger.log('Sending Broadcast:', { title: messageTitle, content: messageContent });
 		setMessageTitle('');
 		setMessageContent('');
 		alert('Broadcast Sent (Placeholder)! Check logger.');

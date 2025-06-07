@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { AmmParameterFields } from '@/components/admin/AmmParameterFields';
 import Image from 'next/image';
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/config/app';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 const ammModelTypes = ['adjusted_l_s', 'constant_product', 'linear_bonding_curve', 'exponential_bonding_curve'] as const;
 
@@ -178,11 +180,11 @@ export default function CreateCategoryPage() {
 		}
 
 		// for (let [key, value] of formData.entries()) {
-		// 	console.log(`${key}: ${value}`);
+		// logger.log(`${key}: ${value}`);
 		// }
 
 		try {
-			const response = await fetch('/api/categories', {
+			const response = await fetchWithAuth('/api/categories', {
 				method: 'POST',
 				body: formData,
 				credentials: 'include',

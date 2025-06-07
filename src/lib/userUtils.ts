@@ -1,5 +1,7 @@
 import { EmailStatus, Role, User, UserStatus, UserUpdateApiResponse } from '@/types';
 import { toast } from 'sonner';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from './logger';
 
 export const ALL_EMAIL_STATUSES: EmailStatus[] = ['Active', 'Inactive'];
 export const ALL_STATUSES: UserStatus[] = ['Active', 'Suspended', 'Deleted'];
@@ -8,9 +10,10 @@ export const ALL_ROLES: Role[] = ['user', 'figure-head', 'agent', 'admin'];
 /**
  * Fetches a single user from the backend API by username.
  * @param username The username of the user to fetch.
+ * @param token Optional authentication token.
  * @returns A Promise resolving to the User object if found, or null if not found or an error occurs.
  */
-export const fetchUserByUsername = async (username: string): Promise<User | null> => {
+export const fetchUserByUsername = async (username: string, token?: string): Promise<User | null> => {
 	if (!username) {
 		console.error('fetchUserByUsername called with no username.');
 		return null;
@@ -20,22 +23,26 @@ export const fetchUserByUsername = async (username: string): Promise<User | null
 	const targetUrl = `/api/users/username/${username}`;
 
 	try {
-		// console.log(`Fetching user ${username} directly from backend: ${targetUrl}`); // Debug log
-		const response = await fetch(targetUrl, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				// Add Authorization or other necessary headers if required by your backend
+		logger.log(`Fetching user ${username} directly from backend: ${targetUrl}`); // Debug log
+		const response = await fetchWithAuth(
+			targetUrl,
+			{
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					// Add Authorization or other necessary headers if required by your backend
+				},
+				credentials: 'include', // Include if your backend uses cookies/sessions for auth
 			},
-			credentials: 'include', // Include if your backend uses cookies/sessions for auth
-		});
+			token
+		);
 
 		if (response.ok) {
 			// Assuming the backend returns the User object directly
 			const userData: User = await response.json();
 			return userData;
 		} else if (response.status === 404) {
-			// console.log(`User ${username} not found via backend API.`); // Debug log
+			// logger.log(`User ${username} not found via backend API.`); // Debug log
 			return null; // User not found
 		} else {
 			// Handle other backend errors
@@ -59,13 +66,41 @@ export const fetchUserByUsername = async (username: string): Promise<User | null
 	}
 };
 
+export async function getUserByUsername(username: string): Promise<User | null> {
+	if (!username) return null;
+	try {
+		const response = await fetchWithAuth(`/api/users/username/${encodeURIComponent(username)}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const errorMsg = errorData?.message || `Failed to fetch user: ${response.statusText}`;
+			// console.error('getUserByUsername error:', errorMsg);
+			return null;
+		}
+		const data = await response.json();
+		if (data?.status === 'success' && data?.data) {
+			return data.data as User;
+		} else {
+			// console.error('getUserByUsername: Unexpected API response', data);
+			return null;
+		}
+	} catch (err) {
+		// console.error('getUserByUsername: Network or server error', err);
+		return null;
+	}
+}
+
 /**
  * Updates a user&apos;s data via the backend API.
  * @param userId The ID of the user to update.
  * @param userData The partial user data containing the fields to update.
+ * @param token Optional authentication token.
  * @returns A Promise resolving to the updated User object if successful, or null otherwise.
  */
-export const updateUser = async (userId: string, userData: Partial<User>): Promise<User | null> => {
+export const updateUser = async (userId: string, userData: Partial<User>, token?: string): Promise<User | null> => {
 	if (!userId) {
 		console.error('updateUser called with no userId.');
 		toast.error('User ID is missing. Cannot update user.');
@@ -75,14 +110,18 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 	const targetUrl = `/api/users/${userId}`;
 
 	try {
-		const response = await fetch(targetUrl, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': 'application/json',
+		const response = await fetchWithAuth(
+			targetUrl,
+			{
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(userData),
+				credentials: 'include',
 			},
-			body: JSON.stringify(userData),
-			credentials: 'include',
-		});
+			token
+		);
 
 		if (response.ok) {
 			const apiResponse: UserUpdateApiResponse = await response.json();
@@ -134,9 +173,10 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 /**
  * Deletes a user via the backend API.
  * @param userId The ID of the user to delete.
+ * @param token Optional authentication token.
  * @returns A Promise resolving to true if successful, or false otherwise.
  */
-export const deleteUser = async (userId: string): Promise<boolean> => {
+export const deleteUser = async (userId: string, token?: string): Promise<boolean> => {
 	if (!userId) {
 		console.error('deleteUser called with no userId.');
 		toast.error('User ID is missing. Cannot delete user.');
@@ -146,10 +186,14 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 	const targetUrl = `/api/users/${userId}`;
 
 	try {
-		const response = await fetch(targetUrl, {
-			method: 'DELETE',
-			credentials: 'include',
-		});
+		const response = await fetchWithAuth(
+			targetUrl,
+			{
+				method: 'DELETE',
+				credentials: 'include',
+			},
+			token
+		);
 
 		if (response.ok) {
 			if (response.status === 204) {
@@ -180,20 +224,25 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 /**
  * Fetches the current authenticated user&apos;s account balance.
  * This is a placeholder and should be replaced with a real API call.
+ * @param token Optional authentication token.
  * @returns A Promise resolving to the user&apos;s balance, or null if an error occurs.
  */
-export const fetchCurrentUserBalance = async (): Promise<number | null> => {
+export const fetchCurrentUserBalance = async (token?: string): Promise<number | null> => {
 	const targetUrl = '/api/users/me/balance';
 
 	try {
-		console.log(`Fetching current user balance from: ${targetUrl}`);
-		const response = await fetch(targetUrl, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
+		logger.log(`Fetching current user balance from: ${targetUrl}`);
+		const response = await fetchWithAuth(
+			targetUrl,
+			{
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
 			},
-			credentials: 'include',
-		});
+			token
+		);
 
 		if (response.ok) {
 			const { data } = await response.json();

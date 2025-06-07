@@ -17,15 +17,9 @@ export async function sendP2PMessage({ sender_id, recipient_id, content, message
 	formData.append('content', content);
 	formData.append('message_type', message_type);
 	formData.append('related_transaction_id', related_transaction_id);
-	if (metadata)
-		//  formData.append('metadata', JSON.stringify(metadata));
-		console.log(metadata);
+	if (metadata) console.log(metadata);
 
 	if (imageFile) formData.append('image', imageFile);
-
-	// for (let [key, value] of formData.entries()) {
-	// 	console.log(`${key}: ${value}`);
-	// }
 
 	const res = await fetch('/api/messages', {
 		method: 'POST',

@@ -9,6 +9,7 @@ import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
 import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function AccountPage() {
 	const [categories, setCategories] = useState<UserDisplayCategory[]>([]);
@@ -21,7 +22,7 @@ export default function AccountPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch('/api/categories');
+			const response = await fetchWithAuth('/api/categories');
 
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
@@ -41,7 +42,7 @@ export default function AccountPage() {
 					title: apiCat.name,
 					image: apiCat.image,
 					minimum: `${apiCat.minimum_investable}`,
-					buttonText: 'View Details',
+					buttonText: 'View Club Details',
 					buttonEnabled: Boolean(apiCat.is_launched) && !Boolean(apiCat.is_locked),
 					description: apiCat.description,
 				}));
@@ -77,8 +78,8 @@ export default function AccountPage() {
 		<div className="space-y-6">
 			<div>
 				<p className="account-page-title mt-0 mb-4">Home</p>
-				<h2 className="text-2xl font-semibold text-text-primary mb-1">Welcome, {currentUser?.name || 'User'}</h2>
-				<p className="text-text-secondary">Get the opportunity to own shares in a unique category</p>
+				<h2 className="text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
+				<p className="text-text-secondary">Pick any club of choice and start saving towards your goal.</p>
 			</div>
 
 			{isLoading && (
@@ -109,7 +110,7 @@ export default function AccountPage() {
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
 					{categories.map((category) =>
 						category.buttonEnabled ? (
-							<CustomLink key={category.id} href={`/account/category/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
+							<CustomLink key={category.id} href={`/account/club/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
 								<DashboardCard title={category.title} image={category.image || '/Variety-fruits-vegetables.png'} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
 							</CustomLink>
 						) : (

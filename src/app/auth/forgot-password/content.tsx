@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomLink } from '@/components/ui/CustomLink'; // Import CustomLink
 import { toast } from 'sonner';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import LogoPlaceholder from '@/components/ui/logo';
 
 const formSchema = z.object({
 	email: z.string().email({
@@ -35,7 +37,7 @@ export default function ForgotPasswordPageContent() {
 		setLoading(true);
 
 		try {
-			const response = await fetch('/api/auth/request-password-reset', {
+			const response = await fetchWithAuth('/api/auth/request-password-reset', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -60,7 +62,10 @@ export default function ForgotPasswordPageContent() {
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+			<CustomLink href={'/'}>
+				{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
+				<LogoPlaceholder size="xl" />
+			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">
 					<CardTitle className="text-2xl font-semibold">Forgot Password?</CardTitle>

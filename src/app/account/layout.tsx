@@ -28,11 +28,11 @@ type desktopNavItemsType = {
 
 const desktopNavItems: desktopNavItemsType = [
 	{ href: '/account', label: 'Home', icon: Home, for: 'user' },
-	{ href: '/account/portfolio', label: 'Portfolio', icon: Briefcase, for: 'user' },
+	{ href: '/account/my-savings', label: 'My Savings', icon: Briefcase, for: 'user' },
 	{ href: '/account/wallet', label: 'Wallet', icon: Wallet, for: 'user' },
 	{ href: '/account/games', label: 'Games', icon: Gamepad2, for: 'user' },
 	{ href: '/account/profile', label: 'Profile', icon: UserIcon, for: 'user' },
-	{ href: '/account/figure-heads', label: 'Figure Heads', icon: Network, for: 'user' },
+	// { href: '/account/figure-heads', label: 'Figure Heads', icon: Network, for: 'user' },
 	{ href: '/account/agents-apply', label: 'Become an Agent', icon: BookUp, for: 'user', hideFor: 'agent' },
 	{
 		href: '/account/agent-portal',
@@ -75,17 +75,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 			setIsLogoutLoading(false);
 		}
 	};
-
-	// Add nProgress beforeunload handler for navigation/refresh
-	useEffect(() => {
-		const handleBeforeUnload = () => {
-			nProgress.start();
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-		};
-	}, []);
 
 	return (
 		<div className="flex min-h-screen bg-background text-foreground relative">

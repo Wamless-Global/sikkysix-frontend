@@ -15,6 +15,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 function SettingsSkeleton() {
 	return (
@@ -73,7 +74,7 @@ export default function PlatformSettingsPage() {
 		async function fetchSettings() {
 			try {
 				setLoading(true);
-				const res = await fetch('/api/admin/settings');
+				const res = await fetchWithAuth('/api/admin/settings');
 				if (!res.ok) throw new Error('Failed to fetch settings');
 				const api = await res.json();
 
@@ -152,7 +153,7 @@ export default function PlatformSettingsPage() {
 	async function patchSettings(updates: { key: string; setting_value: string }[], section: string) {
 		const toastId = toast.loading(`Saving ${section}...`);
 		try {
-			const res = await fetch('/api/admin/settings', {
+			const res = await fetchWithAuth('/api/admin/settings', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ updates }),
@@ -331,7 +332,7 @@ export default function PlatformSettingsPage() {
 						</CardFooter>
 					</Card>
 
-					{/* Investment Settings */}
+					{/* Savings Settings */}
 					<Card className="border">
 						<CardHeader className="flex flex-row items-center gap-2 pb-2">
 							<Banknote className="w-5 h-5 text-blue-500" />
@@ -389,7 +390,7 @@ export default function PlatformSettingsPage() {
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">
 							<Button disabled={isSubmitting} onClick={handleSaveInvestmentSettings} className="bg-blue-500 hover:bg-blue-600 transition">
-								Save Investment Settings
+								Save Savings Settings
 							</Button>
 						</CardFooter>
 					</Card>

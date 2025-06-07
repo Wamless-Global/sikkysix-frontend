@@ -15,6 +15,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import type { P2PTradeStatus } from '@/types/modules/trade';
 import { Badge } from '@/components/ui/badge';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const AgentPortalContent = () => {
 	const router = useRouter();
@@ -51,7 +52,7 @@ const AgentPortalContent = () => {
 	useEffect(() => {
 		if (!statsLoaded && currentUser?.agent_id) {
 			const agentId = currentUser.agent_id;
-			fetch(`/api/p2p/agent/${agentId}/stats`)
+			fetchWithAuth(`/api/p2p/agent/${agentId}/stats`)
 				.then((res) => res.json())
 				.then((data) => {
 					if (data.status === 'success' && data.data) {
@@ -83,7 +84,7 @@ const AgentPortalContent = () => {
 		});
 		if (statusFilter) params.append('status', statusFilter);
 		if (debouncedSearchTerm) params.append('searchTerm', debouncedSearchTerm);
-		fetch(`/api/p2p/trades/agent/${agentId}?${params.toString()}`)
+		fetchWithAuth(`/api/p2p/trades/agent/${agentId}?${params.toString()}`)
 			.then((res) => res.json())
 			.then((data) => {
 				if (data.status === 'success' && data.data?.trades) {

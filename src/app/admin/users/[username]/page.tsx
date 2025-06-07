@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useUserContext } from '@/context/UserContext';
 import NProgress from 'nprogress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -12,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { MoreHorizontal, Loader2, User as UserIcon, Mail, Phone, MapPin, Calendar, Clock, Link as LinkIcon, Users, CheckCircle, XCircle, HelpCircle, Wallet, TrendingUp, TrendingDown, DollarSign, MinusCircle, PlusCircle, Activity, Edit } from 'lucide-react';
-import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil } from '@/lib/userUtils';
+import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil, getUserByUsername } from '@/lib/userUtils';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COUNTRIES } from '@/lib/countries';
@@ -21,6 +20,9 @@ import { formatBaseurrency, getEmailStatusVariant, getStatusVariant, handleFetch
 import { AdjustBalanceModal } from '@/components/modals/AdjustBalanceModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, UserStatus } from '@/types';
+import { useAuthContext } from '@/context/AuthContext';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 export default function UserDetailPage() {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -32,47 +34,36 @@ export default function UserDetailPage() {
 	const [dialogDetails, setDialogDetails] = useState({ title: '', description: '', actionText: '' });
 	const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
 	const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
+	const [isImpersonating, setIsImpersonating] = useState(false);
 
 	const params = useParams();
 	const router = useRouter();
-	const { getUserByUsername } = useUserContext();
+	const { setToken } = useAuthContext();
 
 	const username = params?.username as string;
 
 	useEffect(() => {
-		if (!username) {
-			setIsLoading(false);
-			notFound();
-			return;
-		}
-
-		setIsLoading(true);
-		setCurrentUser(null);
-
-		const userFromContext = getUserByUsername(username);
-
-		if (userFromContext) {
-			setCurrentUser(userFromContext);
-			setIsLoading(false);
-		} else {
-			const loadUser = async () => {
-				setIsLoading(true);
-				const fetchedUser = await fetchUserByUsername(username);
-				if (fetchedUser) {
-					setCurrentUser(fetchedUser);
-				} else {
-					setCurrentUser(null);
-					toast.error(`User '${username}' not found or failed to load.`);
-				}
+		const fetchUser = async () => {
+			if (!username) {
 				setIsLoading(false);
-			};
+				notFound();
+				return;
+			}
 
-			loadUser();
-		}
-		if (userFromContext) {
+			setIsLoading(true);
+			setCurrentUser(null);
+
+			const fetchedUser = await fetchUserByUsername(username);
+			if (fetchedUser) {
+				setCurrentUser(fetchedUser);
+			} else {
+				setCurrentUser(null);
+				toast.error(`User '${username}' not found or failed to load.`);
+			}
 			setIsLoading(false);
-		}
-	}, [username, getUserByUsername]);
+		};
+		fetchUser();
+	}, [username]);
 
 	if (isLoading) {
 		return (
@@ -238,7 +229,7 @@ export default function UserDetailPage() {
 		setIsAdjustingBalance(true);
 
 		try {
-			const response = await fetch(`/api/users/${currentUser.id}/wallet`, {
+			const response = await fetchWithAuth(`/api/users/${currentUser.id}/wallet`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ amount, reason }),
@@ -251,7 +242,7 @@ export default function UserDetailPage() {
 				throw new Error(result.message || 'Failed to adjust balance');
 			}
 
-			console.log(result.data);
+			logger.log(result.data);
 
 			// Update local state with the new balance confirmed by the API
 			setCurrentUser((prevUser) => (prevUser ? { ...prevUser, wallet_balance: result.data.newBalance } : null));
@@ -262,6 +253,36 @@ export default function UserDetailPage() {
 			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred.');
 			toast.error(errorMessage);
 			setIsAdjustingBalance(false);
+		}
+	};
+
+	const loginAsUser = async () => {
+		if (!currentUser) return;
+		setIsImpersonating(true);
+		try {
+			const response = await fetchWithAuth(`/api/users/${currentUser.id}/impersonate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+			});
+
+			const data = await response.json();
+			if (!response.ok) {
+				throw new Error(data.message || 'Failed to impersonate user.');
+			}
+
+			if (data.status === 'success' && data.data?.token && data.data?.user) {
+				setToken(data.data.token);
+				setCurrentUser(data.data.user);
+				toast.success('Impersonation token received and user context updated.');
+			} else {
+				throw new Error('No token or user received from impersonation endpoint.');
+			}
+		} catch (err) {
+			const errorMessage = handleFetchErrorMessage(err, 'Failed to impersonate user.');
+			toast.error(errorMessage);
+		} finally {
+			setIsImpersonating(false);
 		}
 	};
 
@@ -303,7 +324,7 @@ export default function UserDetailPage() {
 
 					{/* Right Side: Actions Dropdown */}
 					<div className="flex-shrink-0 self-start md:self-center">
-						<DropdownMenu>
+						<DropdownMenu open={isImpersonating ? true : undefined}>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline" size="sm" className="ml-auto">
 									<span className="sr-only">Open menu</span>
@@ -323,9 +344,6 @@ export default function UserDetailPage() {
 									Edit Profile
 								</DropdownMenuItem>
 
-								{/* TODO: Add Activate/Deactivate Action */}
-								{/* TODO: Add Verify/Unverify Email Action */}
-								{/* TODO: Add Change Role Action */}
 								<DropdownMenuItem onClick={handleToggleSuspendUser} className="cursor-pointer" disabled={isSuspending || isDeleting}>
 									{isSuspending ? (
 										<>
@@ -348,14 +366,14 @@ export default function UserDetailPage() {
 								>
 									Edit Profile
 								</DropdownMenuItem>
-								<DropdownMenuItem
-									onClick={() => {
-										NProgress.start();
-										router.push(`/admin/communication?userId=${currentUser.id}`);
-									}}
-									className="cursor-pointer"
-								>
-									Send Message
+								<DropdownMenuItem onClick={loginAsUser} className="cursor-pointer" disabled={isImpersonating}>
+									{isImpersonating ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Impersonating...
+										</>
+									) : (
+										'Login As User'
+									)}
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									onClick={() => {
@@ -464,7 +482,7 @@ export default function UserDetailPage() {
 					{/* Column 2 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<TrendingUp className="w-4 h-4" /> <span>Current Investment Value:</span> <span className="font-semibold text-foreground">{/* TODO: Calculate */} TBD</span>
+							<TrendingUp className="w-4 h-4" /> <span>Current Savings Value:</span> <span className="font-semibold text-foreground">{/* TODO: Calculate */} TBD</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
 							<TrendingDown className="w-4 h-4" /> <span>Total Withdrawn:</span> <span className="font-semibold text-foreground">{/* TODO: Calculate */} TBD</span>

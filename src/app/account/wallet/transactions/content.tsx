@@ -13,6 +13,9 @@ import { Badge } from '@/components/ui/badge';
 import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
 import { AccountTransaction, TransactionApiResponse } from '@/types';
 import { cn } from '@/lib/utils';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,6 +26,7 @@ export default function AccountTransactionsPageContent() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingButton, setLoadingButton] = useState<'previous' | 'next' | null>(null);
 	const [showFilters, setShowFilters] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	// Filters
 	const [filterStatus, setFilterStatus] = useState<'Completed' | 'Pending' | 'all'>('all');
@@ -41,15 +45,28 @@ export default function AccountTransactionsPageContent() {
 	const [totalPages, setTotalPages] = useState(1);
 	const [uniqueTypes, setUniqueTypes] = useState<string[]>([]);
 
-	// Fetch transactions from API
+	// Fetch transactions from API (live fetch on filter/sort/page change)
 	useEffect(() => {
 		setIsLoading(true);
+		setError(null);
 		const params = new URLSearchParams({
 			page: currentPage.toString(),
 			pageSize: ITEMS_PER_PAGE.toString(),
 		});
-		fetch(`/api/transactions?${params}`)
-			.then((res) => res.json())
+		if (filterStatus !== 'all') params.append('status', filterStatus);
+		if (filterType !== 'all') params.append('type', filterType);
+		if (filterStartDate) params.append('startDate', filterStartDate);
+		if (filterEndDate) params.append('endDate', filterEndDate);
+		if (filterMinAmount) params.append('minAmount', filterMinAmount);
+		if (filterMaxAmount) params.append('maxAmount', filterMaxAmount);
+		if (sortColumn) params.append('sortBy', sortColumn);
+		if (sortDirection) params.append('sortOrder', sortDirection);
+
+		fetchWithAuth(`/api/transactions?${params}`)
+			.then((res) => {
+				if (!res.ok) throw new Error('Failed to fetch transactions');
+				return res.json();
+			})
 			.then((data: TransactionApiResponse) => {
 				const txs = data.data.transactions.map((t) => ({
 					id: t.id,
@@ -63,15 +80,16 @@ export default function AccountTransactionsPageContent() {
 				setTotalCount(data.data.totalCount);
 				setTotalPages(data.data.totalPages);
 				setUniqueTypes(Array.from(new Set(data.data.transactions.map((t) => t.type))).sort());
+				setError(null);
 			})
 			.catch((err) => {
-				handleFetchErrorMessage(err);
 				setTransactions([]);
 				setTotalCount(0);
 				setTotalPages(1);
+				setError(handleFetchErrorMessage(err, 'An error occurred while fetching transactions.'));
 			})
 			.finally(() => setTimeout(() => setIsLoading(false), 300));
-	}, [currentPage]);
+	}, [currentPage, filterStatus, filterType, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount, sortColumn, sortDirection]);
 
 	// Filtering
 	const filteredData = useMemo(() => {
@@ -168,6 +186,53 @@ export default function AccountTransactionsPageContent() {
 		setCurrentPage(1);
 	};
 
+	// Retry handler for error message
+	const handleRetry = () => {
+		setError(null);
+		setIsLoading(true);
+		// Trigger the same effect as filter/sort/page change
+		const params = new URLSearchParams({
+			page: currentPage.toString(),
+			pageSize: ITEMS_PER_PAGE.toString(),
+		});
+		if (filterStatus !== 'all') params.append('status', filterStatus);
+		if (filterType !== 'all') params.append('type', filterType);
+		if (filterStartDate) params.append('startDate', filterStartDate);
+		if (filterEndDate) params.append('endDate', filterEndDate);
+		if (filterMinAmount) params.append('minAmount', filterMinAmount);
+		if (filterMaxAmount) params.append('maxAmount', filterMaxAmount);
+		if (sortColumn) params.append('sortBy', sortColumn);
+		if (sortDirection) params.append('sortOrder', sortDirection);
+
+		fetchWithAuth(`/api/transactions?${params}`)
+			.then((res) => {
+				if (!res.ok) throw new Error('Failed to fetch transactions');
+				return res.json();
+			})
+			.then((data: TransactionApiResponse) => {
+				const txs = data.data.transactions.map((t) => ({
+					id: t.id,
+					type: t.type,
+					originalType: t.type,
+					date: new Date(t.created_at),
+					amount: t.amount,
+					status: t.status === 'completed' ? 'Completed' : t.status === 'pending' ? 'Pending' : t.status,
+				}));
+				setTransactions(txs);
+				setTotalCount(data.data.totalCount);
+				setTotalPages(data.data.totalPages);
+				setUniqueTypes(Array.from(new Set(data.data.transactions.map((t) => t.type))).sort());
+				setError(null);
+			})
+			.catch((err) => {
+				setTransactions([]);
+				setTotalCount(0);
+				setTotalPages(1);
+				setError(handleFetchErrorMessage(err, 'An error occurred while fetching transactions.'));
+			})
+			.finally(() => setTimeout(() => setIsLoading(false), 300));
+	};
+
 	const SortableHeader = ({ columnKey, label, className }: { columnKey: SortableAccountTransactionKeys; label: string; className: string }) => (
 		<TableHead onClick={() => handleSort(columnKey)} className={`cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors ${className}`}>
 			<div className="flex items-center py-2">
@@ -216,7 +281,7 @@ export default function AccountTransactionsPageContent() {
 									<SelectItem value="all">All Types</SelectItem>
 									{uniqueTypes.map((type) => (
 										<SelectItem key={type} value={type}>
-											{type}
+											{getTransactionTypeLabel(type)}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -245,104 +310,110 @@ export default function AccountTransactionsPageContent() {
 				</div>
 			)}
 			<div className="rounded-lg border border-slate-200 dark:border-slate-700">
-				<Table>
-					<TableHeader className="bg-slate-50 dark:bg-slate-800">
-						<TableRow>
-							<TableHead className="w-[50px] py-2"></TableHead>
-							<SortableHeader className="hidden sm:table-cell" columnKey="date" label="Date" />
-							<SortableHeader className="" columnKey="type" label="Type" />
-							<SortableHeader className="hidden sm:table-cell" columnKey="status" label="Status" />
-							<TableHead className="text-right py-2">Amount</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading && paginatedTransactions.length === 0 ? (
+				{error && !isLoading ? (
+					<ErrorMessage message={error} onRetry={handleRetry} />
+				) : (
+					<Table>
+						<TableHeader className="bg-slate-50 dark:bg-slate-800">
 							<TableRow>
-								<TableCell colSpan={5} className="h-36 text-center">
-									<Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" />
-								</TableCell>
+								<TableHead className="w-[50px] py-2"></TableHead>
+								<SortableHeader className="hidden sm:table-cell" columnKey="date" label="Date" />
+								<SortableHeader className="" columnKey="type" label="Type" />
+								<SortableHeader className="hidden sm:table-cell" columnKey="status" label="Status" />
+								<TableHead className="text-right py-2">Amount</TableHead>
 							</TableRow>
-						) : paginatedTransactions.length > 0 ? (
-							paginatedTransactions.map((transaction) => (
-								<TableRow
-									key={transaction.id}
-									className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
-									onClick={() => {
-										NProgress.start();
-										router.push(`/account/wallet/transactions/${transaction.id}`);
-									}}
-								>
-									<TableCell className="py-3">
-										{transaction.status === 'pending' ? (
-											<div className="flex justify-center items-center h-full p-3">
-												<Loader2 className="h-5 w-5 animate-spin text-slate-400" />
-											</div>
-										) : (
-											<div
-												className={`rounded-full p-3 ${
-													transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
-														? 'bg-muted-foreground'
-														: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
-														? 'bg-[var(--success)]'
-														: 'bg-[var(--danger)]'
-												}`}
-											>
-												{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
-													<X className="h-5 w-5 text-[var(--success-foreground)]" />
-												) : ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
-													<ArrowDown className="h-5 w-5 text-[var(--success-foreground)]" />
-												) : (
-													<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
-												)}
-											</div>
-										)}
-									</TableCell>
-									<TableCell className="py-3 hidden sm:table-cell">
-										<div className="text-sm font-medium text-foreground">{formatDate(transaction.date)}</div>
-									</TableCell>
-									<TableCell className="py-3 text-sm text-foreground ">
-										<span className="block max-w-[100px] sm:max-w-none">{getTransactionTypeLabel(transaction.originalType)}</span>
-										<div className="text-xs font-medium text-foreground sm:hidden">{formatDate(transaction.date)}</div>
-									</TableCell>
-									<TableCell className="py-3 hidden sm:table-cell">
-										<Badge
-											variant={transaction.status.toLowerCase() === 'completed' ? 'default' : 'secondary'}
-											className={cn(
-												transaction.status.toLowerCase() === 'completed'
-													? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300'
-													: transaction.status.toLowerCase() === 'pending'
-													? 'bg-amber-100 text-amber-700 dark:bg-amber-700/30 dark:text-amber-300'
-													: transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
-													? 'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300'
-													: 'bg-muted text-muted-foreground',
-												'text-xs capitalize'
-											)}
-										>
-											{transaction.status.toLowerCase()}
-										</Badge>
-									</TableCell>
-									<TableCell
-										className={`py-3 text-base font-semibold text-right ${
-											transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
-												? 'text-muted-foreground'
-												: ['deposit', 'credit'].some((type) => transaction.type.toLowerCase().includes(type))
-												? 'text-[var(--success)]'
-												: 'text-[var(--danger)]'
-										}`}
-									>
-										{formatBaseurrency(transaction.amount)}
+						</TableHeader>
+						<TableBody>
+							{isLoading && transactions.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={5} className="h-36 text-center">
+										<Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" />
 									</TableCell>
 								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={5} className="h-36 text-center text-muted-foreground">
-									No transactions found matching your criteria.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
+							) : transactions.length > 0 ? (
+								transactions.map((transaction) => {
+									return (
+										<TableRow
+											key={transaction.id}
+											className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+											onClick={() => {
+												NProgress.start();
+												router.push(`/account/wallet/transactions/${transaction.id}`);
+											}}
+										>
+											<TableCell className="py-3">
+												{transaction.status === 'pending' ? (
+													<div className="flex justify-center items-center h-full p-3">
+														<Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+													</div>
+												) : (
+													<div
+														className={`rounded-full p-3 ${
+															transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+																? 'bg-muted-foreground'
+																: ['deposit', 'credit', 'investment_profit_withdrawal'].some((type) => transaction.type.toLowerCase().includes(type))
+																? 'bg-[var(--success)]'
+																: 'bg-[var(--danger)]'
+														}`}
+													>
+														{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
+															<X className="h-5 w-5 text-[var(--success-foreground)]" />
+														) : ['deposit', 'credit', 'investment_profit_withdrawal'].some((type) => transaction.type.toLowerCase().includes(type)) ? (
+															<ArrowDown className="h-5 w-5 text-[var(--success-foreground)]" />
+														) : (
+															<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+														)}
+													</div>
+												)}
+											</TableCell>
+											<TableCell className="py-3 hidden sm:table-cell">
+												<div className="text-sm font-medium text-foreground">{formatDate(transaction.date)}</div>
+											</TableCell>
+											<TableCell className="py-3 text-sm text-foreground ">
+												<span className="block max-w-[100px] sm:max-w-none">{getTransactionTypeLabel(transaction.originalType)}</span>
+												<div className="text-xs font-medium text-foreground sm:hidden">{formatDate(transaction.date)}</div>
+											</TableCell>
+											<TableCell className="py-3 hidden sm:table-cell">
+												<Badge
+													variant={transaction.status.toLowerCase() === 'completed' ? 'default' : 'secondary'}
+													className={cn(
+														transaction.status.toLowerCase() === 'completed'
+															? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300'
+															: transaction.status.toLowerCase() === 'pending'
+															? 'bg-amber-100 text-amber-700 dark:bg-amber-700/30 dark:text-amber-300'
+															: transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+															? 'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300'
+															: 'bg-muted text-muted-foreground',
+														'text-xs capitalize'
+													)}
+												>
+													{transaction.status.toLowerCase()}
+												</Badge>
+											</TableCell>
+											<TableCell
+												className={`py-3 text-base font-semibold text-right ${
+													transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
+														? 'text-muted-foreground'
+														: ['deposit', 'credit', 'investment_profit_withwithdrawal'].some((type) => transaction.type.toLowerCase().includes(type))
+														? 'text-[var(--success)]'
+														: 'text-[var(--danger)]'
+												}`}
+											>
+												{formatBaseurrency(transaction.amount)}
+											</TableCell>
+										</TableRow>
+									);
+								})
+							) : (
+								<TableRow>
+									<TableCell colSpan={5} className="h-36 text-center text-muted-foreground">
+										No transactions found matching your criteria.
+									</TableCell>
+								</TableRow>
+							)}
+						</TableBody>
+					</Table>
+				)}
 			</div>
 			{totalPages > 0 && (
 				<div className="flex flex-col items-center sm:flex-row sm:justify-between space-y-2 sm:space-y-0 sm:space-x-2 py-4">

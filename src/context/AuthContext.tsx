@@ -2,26 +2,33 @@
 
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
 import { createContext, useState, useContext, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+	const [token, setToken] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
 
 	const logout = async (): Promise<void> => {
 		try {
-			const response = await fetch(`/api/auth/logout`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetchWithAuth(
+				`/api/auth/logout`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					credentials: 'include',
 				},
-				credentials: 'include',
-			});
+				token
+			);
 
 			setCurrentUser(null);
 
@@ -35,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				throw new Error(errorMessage);
 			}
 
-			console.log('AuthContext: Logout successful via API.');
+			logger.log('AuthContext: Logout successful via API.');
 		} catch (err) {
 			// console.error('AuthContext: Error during logout:', err);
 			setCurrentUser(null);
@@ -46,14 +53,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 	const login = async (email: string, password: string): Promise<AuthenticatedUser> => {
 		try {
-			const response = await fetch(`/api/auth/login`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetchWithAuth(
+				`/api/auth/login`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					credentials: 'include',
+					body: JSON.stringify({ email, password }),
 				},
-				credentials: 'include',
-				body: JSON.stringify({ email, password }),
-			});
+				token
+			);
 
 			const responseData = await response.json();
 
@@ -66,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			if (responseData.status === 'success' && responseData.data?.user) {
 				const authenticatedUser = responseData.data.user as AuthenticatedUser;
 				setCurrentUser(authenticatedUser);
-				console.log('AuthContext: Login successful.');
+				logger.log('AuthContext: Login successful.');
 				return authenticatedUser;
 			} else {
 				console.error('AuthContext Login Error: Unexpected success response format', responseData);
@@ -89,13 +100,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		}
 
 		try {
-			const response = await fetch(`/api/auth/register`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetchWithAuth(
+				`/api/auth/register`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ name, email, password, confirmPassword, roles }),
 				},
-				body: JSON.stringify({ name, email, password, confirmPassword, roles }),
-			});
+				token
+			);
 
 			const responseData = await response.json();
 
@@ -105,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				throw new Error(errorMessage);
 			}
 
-			console.log('AuthContext: Signup request successful.', responseData);
+			logger.log('AuthContext: Signup request successful.', responseData);
 		} catch (err) {
 			// console.error('AuthContext: Error during signup:', err);
 			throw err;
@@ -118,13 +133,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			return { status: 'error', message: 'No email provided to check status.' };
 		}
 		try {
-			const response = await fetch(`/api/auth/check-email-verification?email=${encodeURIComponent(email)}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetchWithAuth(
+				`/api/auth/check-email-verification?email=${encodeURIComponent(email)}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					credentials: 'include',
 				},
-				credentials: 'include',
-			});
+				token
+			);
 
 			const responseData = await response.json();
 
@@ -164,14 +183,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			return { success: false, message: 'No email provided for resending verification.' };
 		}
 		try {
-			const response = await fetch('/api/auth/resend-email-verification', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetchWithAuth(
+				'/api/auth/resend-email-verification',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ email }),
+					credentials: 'include',
 				},
-				body: JSON.stringify({ email }),
-				credentials: 'include',
-			});
+				token
+			);
 
 			const responseData = await response.json();
 
@@ -182,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			}
 
 			if (responseData.status === 'success') {
-				console.log('AuthContext: Resend verification email request successful for', email);
+				logger.log('AuthContext: Resend verification email request successful for', email);
 				return { success: true, message: responseData.message || 'Verification email resent successfully.' };
 			} else {
 				const errorMessage = responseData?.message || 'Backend indicated an issue with resending the email.';
@@ -198,9 +221,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	useEffect(() => {
 		const checkUserSession = async () => {
 			try {
-				const response = await fetch('/api/auth/verify-me', {
+				const fetchOptions: RequestInit = {
 					credentials: 'include',
-				});
+					headers: {
+						...(token ? { authorization: `Bearer ${token}` } : {}),
+					},
+				};
+				const response = await fetchWithAuth('/api/auth/verify-me', fetchOptions, token);
 				if (!response.ok) {
 					if (response.status === 401) {
 						nProgress.start();
@@ -232,8 +259,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 	const value = {
 		currentUser,
-		setCurrentUser,
+		token,
 		isLoading,
+		setCurrentUser,
+		setToken,
 		login,
 		logout,
 		signup,

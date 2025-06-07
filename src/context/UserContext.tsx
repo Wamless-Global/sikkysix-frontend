@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { FetchUsersApiResponse, User, UserContextType, UserFilters, UserProviderProps } from '@/types';
 import { createContext, useState, useContext, useCallback, useEffect } from 'react';
 
@@ -36,7 +37,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 			const apiUrl = `/api/users/all?${params.toString()}`;
 
-			const response = await fetch(apiUrl, {
+			const response = await fetchWithAuth(apiUrl, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',

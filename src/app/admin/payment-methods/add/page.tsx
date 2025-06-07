@@ -15,6 +15,7 @@ import NProgress from 'nprogress';
 import nProgress from 'nprogress';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import Image from 'next/image';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
@@ -106,7 +107,7 @@ export default function AddP2PPage() {
 		formData.append('fields_required', JSON.stringify(data.fields_required));
 
 		try {
-			const response = await fetch('/api/p2p/payment-methods', {
+			const response = await fetchWithAuth('/api/p2p/payment-methods', {
 				method: 'POST',
 				body: formData,
 				credentials: 'include',

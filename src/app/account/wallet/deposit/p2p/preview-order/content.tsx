@@ -14,6 +14,7 @@ import { formatBaseurrency, formatCurrency, handleFetchErrorMessage } from '@/li
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'deposit' | 'withdraw' }) {
 	const router = useRouter();
@@ -44,7 +45,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 			setLoading(true);
 			setSoftError(null);
 			try {
-				const res = await fetch('/api/p2p/orders/preview', {
+				const res = await fetchWithAuth('/api/p2p/orders/preview', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ agentId, amount, orderId, type }),
@@ -94,27 +95,25 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 		}
 		setIsProcessingOrder(true);
 		try {
-			nProgress.start();
-			const res = await fetch('/api/p2p/trades/confirm', {
+			const res = await fetchWithAuth('/api/p2p/trades/confirm', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ agentId, amount, orderId, type, methodId: selectedMethodId }),
-				credentials: 'include',
 			});
 			const data = await res.json();
 			if (res.ok && data?.status === 'success') {
+				nProgress.start();
 				toast.success('Order placed successfully! Redirecting...');
 				router.replace(`/account/wallet/transactions/${data.data.escrow_transaction_id}`);
 			} else {
 				const msg = handleFetchErrorMessage(data, 'Failed to confirm order.');
 				toast.error(msg);
+				setIsProcessingOrder(false);
 			}
 		} catch (err) {
 			const msg = handleFetchErrorMessage(err, 'Failed to confirm order.');
 			toast.error(msg);
-		} finally {
 			setIsProcessingOrder(false);
-			nProgress.done();
 		}
 	};
 

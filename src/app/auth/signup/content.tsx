@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nprogress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import LogoPlaceholder from '@/components/ui/logo';
 
 export default function SignupPageContent() {
 	const [name, setName] = useState('');
@@ -69,7 +70,10 @@ export default function SignupPageContent() {
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+			<CustomLink href={'/'}>
+				{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
+				<LogoPlaceholder size="xl" />
+			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">
 					<CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
@@ -106,7 +110,7 @@ export default function SignupPageContent() {
 						</div>
 						{error && <p className="text-sm text-red-500 text-center">{error}</p>}
 						<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
-							{isLoading ? 'Signing up...' : 'Sign up'}
+							{isLoading ? 'Joining Community...' : 'Join Community'}
 						</Button>
 					</form>
 					<div className="mt-6 text-center text-sm w-full space-y-2">

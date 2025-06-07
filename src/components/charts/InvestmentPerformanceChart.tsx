@@ -63,7 +63,7 @@ const InvestmentPerformanceChart: React.FC = () => {
 								<SelectValue placeholder="Select Data Series" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="Total Investment Value">Total Investment Value</SelectItem>
+								<SelectItem value="Total Savings Value">Total Savings Value</SelectItem>
 								<SelectItem value="Number of Investors">Number of Investors</SelectItem>
 								<SelectItem value="Cumulative Profit Distributed">Cumulative Profit Distributed</SelectItem>
 							</SelectContent>

@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<Card>
 					<CardHeader>
-						<CardTitle>Recent Investment Trends</CardTitle>
+						<CardTitle>Recent Savings Trends</CardTitle>
 						<CardDescription>Volume over the last 30 days.</CardDescription>
 					</CardHeader>
 					<CardContent className="h-[300px] p-0">

@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
+import { logger } from '@/lib/logger';
 
 // Mock initial preferences - in a real app, this would come from user data/context
 const initialPreferences = {
@@ -52,7 +53,7 @@ export default function PreferencesPageContent() {
 
 	const handleLanguageChange = (value: string) => {
 		setPreferences((prev) => ({ ...prev, language: value }));
-		console.log('Language changed to:', value);
+		logger.log('Language changed to:', value);
 	};
 
 	const handleTimezoneChange = (value: string) => {
@@ -76,7 +77,7 @@ export default function PreferencesPageContent() {
 	};
 
 	const handleSaveChanges = () => {
-		console.log('Saving preferences:', preferences);
+		logger.log('Saving preferences:', preferences);
 	};
 
 	return (

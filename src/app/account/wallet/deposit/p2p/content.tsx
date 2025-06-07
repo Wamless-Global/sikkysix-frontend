@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AgentType } from '@/types';
 import { formatBaseurrency, formatCurrency } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
@@ -84,7 +85,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 		setLoading(true);
 		setError(null);
 		const url = buildApiUrl(apiPage);
-		fetch(url)
+		fetchWithAuth(url)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch agents');
 				return res.json();

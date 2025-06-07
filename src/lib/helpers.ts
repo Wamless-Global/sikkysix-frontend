@@ -204,7 +204,7 @@ export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
 	deposit: 'Deposit',
 	withdrawal: 'Withdrawal',
 	investment: 'Investment',
-	investment_profit_withdrawal: 'Investment Profit',
+	investment_profit_withdrawal: 'Savings Target',
 	referral_bonus: 'Referral Bonus',
 	fee: 'Fee',
 	penalty: 'Penalty',
@@ -217,8 +217,8 @@ export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
 	withdrawal_fee_revenue: 'Withdrawal Fee',
 	early_withdrawal_penalty_revenue: 'Early Withdrawal Penalty',
 	profit_cap_retained_revenue: 'Profit Cap Retained',
-	investment_fee_revenue: 'Investment Fee',
-	selling_units_fee_revenue: 'Selling Shares Fee',
+	investment_fee_revenue: 'Savings Fee',
+	selling_units_fee_revenue: 'Removing Savings Fee',
 };
 
 export function getTransactionTypeLabel(type: string) {

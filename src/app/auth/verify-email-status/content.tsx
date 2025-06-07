@@ -11,6 +11,7 @@ import appSettings from '@/config/app';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import LogoPlaceholder from '@/components/ui/logo';
 
 export default function VerifyEmailStatusPageContent({ initialStatus }: { initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
@@ -26,7 +27,7 @@ export default function VerifyEmailStatusPageContent({ initialStatus }: { initia
 	useEffect(() => {
 		if (initialStatus.status === 'success') {
 			toast.success(initialStatus.message || 'Email verified successfully!');
-			setTimeout(() => router.push('/auth/login'), 3000);
+			setTimeout(() => router.replace('/auth/login'), 3000);
 		} else if (initialStatus.status === 'expired') {
 			toast.error(initialStatus.message || 'Verification link expired.');
 		} else if (initialStatus.status === 'error') {
@@ -64,7 +65,9 @@ export default function VerifyEmailStatusPageContent({ initialStatus }: { initia
 	if (pageStatus === 'loading') {
 		return (
 			<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
+				<CustomLink href={'/'}>
+					<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+				</CustomLink>
 				<div className="w-full max-w-md text-center">
 					<h2 className="mb-2 text-2xl font-semibold">Verifying...</h2>
 					<p className="mb-8 text-gray-300">{statusMessage}</p>
@@ -75,7 +78,10 @@ export default function VerifyEmailStatusPageContent({ initialStatus }: { initia
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
+			<CustomLink href={'/'}>
+				{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
+				<LogoPlaceholder size="xl" />
+			</CustomLink>
 			<div className="w-full max-w-md text-center">
 				<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>

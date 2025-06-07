@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import appSettings from '@/config/app';
 import { VerifyResetTokenResult } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import LogoPlaceholder from '@/components/ui/logo';
 
 const formSchema = z
 	.object({
@@ -50,7 +52,7 @@ export default function UpdatePasswordPageContent() {
 
 		async function verifyToken(token: string) {
 			try {
-				const res = await fetch(`/api/auth/verify-reset-token`, {
+				const res = await fetchWithAuth(`/api/auth/verify-reset-token`, {
 					method: 'POST',
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -116,7 +118,7 @@ export default function UpdatePasswordPageContent() {
 		setLoading(true);
 
 		try {
-			const response = await fetch('/api/auth/update-password', {
+			const response = await fetchWithAuth('/api/auth/update-password', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -151,7 +153,10 @@ export default function UpdatePasswordPageContent() {
 	if (pageStatus === 'loading') {
 		return (
 			<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-				<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
+				<CustomLink href={'/'}>
+					{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
+					<LogoPlaceholder size="xl" />
+				</CustomLink>
 				<div className="w-full max-w-md text-center">
 					<div className="flex items-center gap-4 justify-center mb-8">
 						<Loader2 className="h-5 w-5 animate-spin" />
@@ -164,7 +169,9 @@ export default function UpdatePasswordPageContent() {
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<h1 className="mb-12 text-4xl font-bold">LOGO</h1>
+			<CustomLink href={'/'}>
+				<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">
 					<CardTitle className={`text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</CardTitle>

@@ -1,5 +1,7 @@
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import VerifyEmailContent from './content';
 import { cookies } from 'next/headers';
+import { logger } from '@/lib/logger';
 
 async function checkEmailVerificationStatusServer(email: string) {
 	try {
@@ -8,9 +10,9 @@ async function checkEmailVerificationStatusServer(email: string) {
 		const baseUrl = process.env.API_BASE_URL;
 		const url = `${baseUrl}/auth/check-email-verification?email=${encodeURIComponent(email)}`;
 
-		console.log(url);
+		logger.log(url);
 
-		const res = await fetch(url, {
+		const res = await fetchWithAuth(url, {
 			headers: { Cookie: cookieHeader },
 			cache: 'no-store',
 		});

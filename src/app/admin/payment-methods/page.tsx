@@ -16,6 +16,7 @@ import ErrorMessage from '@/components/ui/ErrorMessage';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { P2PMethod } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function P2PManagementPage() {
 	const [methods, setMethods] = useState<P2PMethod[]>([]);
@@ -28,7 +29,7 @@ export default function P2PManagementPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/p2p/payment-methods?page=${page}&limit=${appSettings.itemsPerPage}`);
+			const response = await fetchWithAuth(`/api/p2p/payment-methods?page=${page}&limit=${appSettings.itemsPerPage}`);
 
 			if (!response.ok) throw new Error('Failed to fetch payment methods');
 			const result = await response.json();
@@ -69,7 +70,7 @@ export default function P2PManagementPage() {
 		const toastId = toast.loading('Deleting payment method...');
 
 		try {
-			const response = await fetch(`/api/p2p/payment-methods/${id}`, { method: 'DELETE' });
+			const response = await fetchWithAuth(`/api/p2p/payment-methods/${id}`, { method: 'DELETE' });
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(errorData.message || 'Failed to delete payment method');

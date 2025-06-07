@@ -15,6 +15,7 @@ import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Category, PaginatedCategoriesResponse } from '@/types';
 import Image from 'next/image';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 // Helper function to determine badge variant based on lock status
 const getLockStatusVariant = (isLocked: boolean): 'destructive' | 'default' => {
@@ -33,7 +34,7 @@ export default function CategoryManagementPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
+			const response = await fetchWithAuth(`/api/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {

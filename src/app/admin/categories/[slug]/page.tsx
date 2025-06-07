@@ -16,6 +16,8 @@ import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanc
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { formatNumber, formatUSD, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 // TODO: Replace with actual transaction data fetching for the category
 const _assetTransactionHistoryMock = [
@@ -41,7 +43,7 @@ export default function AdminSingleCategoriesPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/categories/${identifier}`);
+			const response = await fetchWithAuth(`/api/categories/${identifier}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
@@ -55,7 +57,7 @@ export default function AdminSingleCategoriesPage() {
 				const fetchedCategory = result.data;
 				const circulatingSupply = fetchedCategory.circulating_supply ?? fetchedCategory.quantity;
 
-				console.log(result.data);
+				logger.log(result.data);
 
 				setCategoryData({
 					...fetchedCategory,
@@ -137,7 +139,7 @@ export default function AdminSingleCategoriesPage() {
 				const formData = new FormData();
 				formData.append('is_locked', newLockedStatus.toString());
 
-				response = await fetch(`/api/categories/${categoryData.id}`, {
+				response = await fetchWithAuth(`/api/categories/${categoryData.id}`, {
 					method: 'PUT',
 					body: formData,
 				});
@@ -150,7 +152,7 @@ export default function AdminSingleCategoriesPage() {
 				toastMessage = `Category "${categoryData.name}" has been ${newLockedStatus ? 'locked' : 'unlocked'}.`;
 				toast.success(toastMessage);
 			} else if (confirmAction === 'delete') {
-				response = await fetch(`/api/categories/${categoryData.id}`, {
+				response = await fetchWithAuth(`/api/categories/${categoryData.id}`, {
 					method: 'DELETE',
 				});
 				if (!response.ok) {

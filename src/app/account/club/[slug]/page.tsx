@@ -9,8 +9,8 @@ export async function generateMetadata(props: { params: Params; searchParams: Se
 	const slug = params.slug;
 
 	return {
-		title: `Category: ${slug}`,
-		description: `Details for the category: ${slug}`,
+		title: `Club : ${slug.toLocaleUpperCase()}`,
+		description: `Details for the club: ${slug.toLocaleUpperCase()}`,
 	};
 }
 

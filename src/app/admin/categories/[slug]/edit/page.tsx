@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -94,7 +95,7 @@ export default function EditCategoryPage() {
 			setIsLoadingData(true);
 			NProgress.start();
 			try {
-				const response = await fetch(`/api/categories/${id}`);
+				const response = await fetchWithAuth(`/api/categories/${id}`);
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({}));
 					throw new Error(errorData.message || `Failed to fetch category details: ${response.statusText}`);
@@ -171,7 +172,7 @@ export default function EditCategoryPage() {
 		formData.set('is_launched', String(data.is_launched));
 
 		try {
-			const response = await fetch(`/api/categories/${categoryId}`, {
+			const response = await fetchWithAuth(`/api/categories/${categoryId}`, {
 				method: 'PUT',
 				body: formData,
 				credentials: 'include',

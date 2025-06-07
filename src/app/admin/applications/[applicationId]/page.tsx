@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { MoreHorizontal } from 'lucide-react';
 import nProgress from 'nprogress';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const STATUS_OPTIONS: ApplicationStatus[] = ['pending', 'approved', 'rejected', 'needs_more_info'];
 
@@ -33,7 +34,7 @@ export default function SingleApplicationPage() {
 	async function fetchApplication() {
 		setIsLoading(true);
 		try {
-			const res = await fetch(`/api/agents/application/${params.applicationId}`, {
+			const res = await fetchWithAuth(`/api/agents/application/${params.applicationId}`, {
 				credentials: 'include',
 			});
 
@@ -66,7 +67,7 @@ export default function SingleApplicationPage() {
 		}
 		setIsSubmitting(true);
 		try {
-			const res = await fetch(`/api/agents/application/${application.id}`, {
+			const res = await fetchWithAuth(`/api/agents/application/${application.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status, admin_remarks: adminRemarks }),
@@ -98,7 +99,7 @@ export default function SingleApplicationPage() {
 		if (!application) return;
 		setIsSubmitting(true);
 		try {
-			const res = await fetch(`/api/agents/application/${application.id}`, {
+			const res = await fetchWithAuth(`/api/agents/application/${application.id}`, {
 				method: 'DELETE',
 				credentials: 'include',
 			});

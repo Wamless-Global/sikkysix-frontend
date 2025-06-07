@@ -17,6 +17,8 @@ import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/config/app';
 import { useAuthContext } from '@/context/AuthContext';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { useRouter } from 'next/navigation';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 const kycFormSchema = z.object({
 	fullName: z.string().min(1, { message: 'Full legal name is required.' }),
@@ -48,7 +50,7 @@ const AgentApplyContent = () => {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/agents/application/user/${currentUser?.id}`, {
+			const response = await fetchWithAuth(`/api/agents/application/user/${currentUser?.id}`, {
 				method: 'GET',
 				credentials: 'include',
 			});
@@ -56,7 +58,7 @@ const AgentApplyContent = () => {
 			if (response.ok) {
 				const { data } = await response.json();
 
-				console.log(data);
+				logger.log(data);
 
 				const status = data.length > 0 ? (data[0].status ? data[0].status : '') : '';
 
@@ -113,7 +115,7 @@ const AgentApplyContent = () => {
 		});
 
 		try {
-			const response = await fetch('/api/agents/apply', {
+			const response = await fetchWithAuth('/api/agents/apply', {
 				method: 'POST',
 				body: formData,
 				credentials: 'include',

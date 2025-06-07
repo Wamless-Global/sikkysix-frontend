@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { updateUser } from '@/lib/userUtils';
 import type { AuthenticatedUser } from '@/types';
 import { handleFetchErrorMessage } from '@/lib/helpers';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function EditProfilePageContent() {
 	const { currentUser, setCurrentUser } = useAuthContext();
@@ -63,7 +64,7 @@ export default function EditProfilePageContent() {
 			if (avatarFile) {
 				const formData = new FormData();
 				formData.append('image', avatarFile);
-				const res = await fetch('/api/profile', {
+				const res = await fetchWithAuth('/api/profile', {
 					method: 'PUT',
 					body: formData,
 					credentials: 'include',
