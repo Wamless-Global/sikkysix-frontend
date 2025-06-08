@@ -1,4 +1,3 @@
-import { Metadata, ResolvingMetadata } from 'next';
 import Content from './content';
 
 type Params = Promise<{ slug: string }>;
@@ -14,8 +13,7 @@ export async function generateMetadata(props: { params: Params; searchParams: Se
 	};
 }
 
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-	const { slug } = await params;
+export default async function Page() {
 	return (
 		<>
 			<Content />

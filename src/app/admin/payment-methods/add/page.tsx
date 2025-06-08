@@ -120,9 +120,20 @@ export default function AddP2PPage() {
 				let errorMessage = `Failed to create payment method. Status: ${response.status}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = errorData.message || errorData.detail || errorMessage;
-				} catch (_e) {}
-				toast.error(errorMessage, { id: toastId });
+					console.log('Error response data:', errorData);
+
+					if (Array.isArray(errorData.errors)) {
+						errorData.errors.forEach((err: any) => {
+							if (err.message) toast.error(err.message, { id: toastId });
+						});
+						errorMessage = errorData.message || errorMessage;
+					} else {
+						errorMessage = errorData.message || errorData.detail || errorMessage;
+						toast.error(errorMessage, { id: toastId });
+					}
+				} catch (_e) {
+					toast.error(errorMessage, { id: toastId });
+				}
 			}
 		} catch {
 			toast.error('An unexpected error occurred. Please try again.', { id: toastId });
@@ -218,7 +229,15 @@ export default function AddP2PPage() {
 													}}
 												/>
 											</FormControl>
-											{imagePreview && <Image layout="fill" src={imagePreview} alt="Preview" className="h-16 w-16 object-cover rounded mt-2" />}
+											{imagePreview && (
+												<Image
+													src={imagePreview}
+													alt="Preview"
+													width={64}
+													height={64}
+													className="h-16 w-16 object-cover rounded mt-2"
+												/>
+											)}
 											<FormMessage />
 										</FormItem>
 									)}

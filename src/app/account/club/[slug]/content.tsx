@@ -330,7 +330,7 @@ export default function SingleCategoryContent() {
 						{ label: 'Total Contribution', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
 						{ label: 'Club Members', value: formatNumber(categoryData.holders) },
 						{ label: 'Funds Circulation', value: formatNumber(categoryData.circulating_supply ?? categoryData.quantity) },
-						{ label: '24h Volume', value: formatBaseurrency(categoryData.volume_24h ?? 0) },
+						{ label: '24h Contribution', value: formatBaseurrency(categoryData.volume_24h ?? 0) },
 						{ label: 'Minimum Contribution', value: formatBaseurrency(categoryData.minimum_investable) },
 						{ label: 'Maximum Contribution', value: formatBaseurrency(categoryData.maximum_investable) },
 					]

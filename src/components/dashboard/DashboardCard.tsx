@@ -20,7 +20,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, image, minimum, bu
 			<div className="p-1 flex w-full flex-col">
 				<div className="flex justify-between items-center mb-4">
 					<div>
-						<span className="subtext">Category</span>
+						<span className="subtext">Club</span>
 						<h3 className="text-base font-semibold text-foreground lg:text-[var(--dashboard-secondary-foreground)]">{title}</h3>
 					</div>
 					<div className="flex flex-col items-end">

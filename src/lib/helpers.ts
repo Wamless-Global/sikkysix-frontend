@@ -203,7 +203,7 @@ export function formatDateNice(date: Date | string | null | undefined): string {
 export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
 	deposit: 'Deposit',
 	withdrawal: 'Withdrawal',
-	investment: 'Investment',
+	investment: 'Savings',
 	investment_profit_withdrawal: 'Savings Target',
 	referral_bonus: 'Referral Bonus',
 	fee: 'Fee',

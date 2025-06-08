@@ -8,7 +8,7 @@ const UserFooter: React.FC = () => {
 
 	const navItems = [
 		{ href: '/account', label: 'Home', icon: Home },
-		{ href: '/account/my-savings', label: 'Portfolio', icon: Briefcase },
+		{ href: '/account/my-savings', label: 'My Savings', icon: Briefcase },
 		{ href: '/account/wallet', label: 'Wallet', icon: Wallet },
 		{ href: '/account/games', label: 'Games', icon: Gamepad2 },
 		{ href: '/account/profile', label: 'Profile', icon: User },

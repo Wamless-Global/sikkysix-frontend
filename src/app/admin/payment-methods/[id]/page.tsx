@@ -234,7 +234,15 @@ export default function EditP2PPage() {
 													}}
 												/>
 											</FormControl>
-											{(imagePreview || logoUrl) && <Image layout="fill" src={imagePreview ?? logoUrl!} alt="Preview" className="h-16 w-16 object-cover rounded mt-2" />}
+											{(imagePreview || logoUrl) && (
+												<Image
+													src={imagePreview ?? logoUrl!}
+													alt="Preview"
+													width={64}
+													height={64}
+													className="h-16 w-16 object-cover rounded mt-2"
+												/>
+											)}
 											<FormMessage />
 										</FormItem>
 									)}

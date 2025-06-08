@@ -14,7 +14,6 @@ import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErro
 import { AccountTransaction, TransactionApiResponse } from '@/types';
 import { cn } from '@/lib/utils';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { logger } from '@/lib/logger';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
 const ITEMS_PER_PAGE = 10;

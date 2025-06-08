@@ -98,7 +98,7 @@ export async function middleware(request: NextRequest) {
 	const adminDashboardUrl = new URL('/admin', request.url);
 
 	const isAdminPath = pathname.startsWith('/admin');
-	const isAccountPath = pathname.startsWith('/account') && !pathname.startsWith('/account/wallet/transactions');
+	const isAccountPath = pathname.startsWith('/account');
 	const isAuthLoginPath = pathname === '/auth/login';
 	const isUnauthorizedPagePath = pathname === '/unauthorized';
 	const isAgentPortalPath = pathname.startsWith('/account/agent-portal');
@@ -194,6 +194,8 @@ export async function middleware(request: NextRequest) {
 			return NextResponse.redirect(agentPortalUrl);
 		}
 	}
+
+	logger.log(`Middleware: No specific route handling matched for path "${pathname}". Proceeding with default behavior.`);
 
 	return NextResponse.next(); // Allow other requests
 }
