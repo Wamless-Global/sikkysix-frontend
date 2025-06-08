@@ -19,8 +19,8 @@ const navItems = [
 		icon: FileText,
 	},
 	{
-		href: '/admin/categories',
-		label: 'Investment Categories',
+		href: '/admin/clubs',
+		label: 'Clubs',
 		icon: FolderKanban,
 	},
 	{ href: '/admin/transactions', label: 'Transactions', icon: ArrowLeftRight },

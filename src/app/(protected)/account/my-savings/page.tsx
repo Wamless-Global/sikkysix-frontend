@@ -1,14 +1,15 @@
-import NotFound from '@/components/layout/NotFound';
+import Content from './content';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-	title: 'Not Found',
+	title: 'My Savings',
+	description: 'View and manage your investment portfolio.',
 };
 
 export default function Page() {
 	return (
 		<>
-			<NotFound />
+			<Content />
 		</>
 	);
 }

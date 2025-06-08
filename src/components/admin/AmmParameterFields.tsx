@@ -70,11 +70,11 @@ export function AmmParameterFields({ ammModelType, isSubmitting, control }: AmmP
 						name="amm_parameters.initial_ngn_pool_balance"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Initial NGN Balance</FormLabel>
+								<FormLabel>Initial {process.env.NEXT_PUBLIC_BASE_CURRENCY} Balance</FormLabel>
 								<FormControl>
 									<Input type="number" min="0" step="any" placeholder="e.g., 1000" {...field} disabled={isSubmitting} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
 								</FormControl>
-								<FormDescription>Initial NGN pool balance.</FormDescription>
+								<FormDescription>Initial {process.env.NEXT_PUBLIC_BASE_CURRENCY} pool balance.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}

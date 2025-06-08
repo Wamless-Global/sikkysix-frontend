@@ -24,7 +24,9 @@ export type TransactionsType =
 	| 'early_withdrawal_penalty_revenue'
 	| 'profit_cap_retained_revenue'
 	| 'investment_fee_revenue'
-	| 'selling_units_fee_revenue';
+	| 'selling_units_fee_revenue'
+	| 'locked_funds_for_order'
+	| 'unlocked_funds_from_order';
 export type TransactionsPaymentMethod = 'p2p' | 'wallet_balance' | 'crypto' | 'internal';
 export type TransactionStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'failed' | 'cancelled';
 

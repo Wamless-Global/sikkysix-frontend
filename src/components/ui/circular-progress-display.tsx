@@ -1,4 +1,4 @@
-const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { value: string; percentage?: number; size?: number; active: boolean }) => {
+const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { value: string | React.ReactElement; percentage?: number; size?: number; active: boolean }) => {
 	const strokeWidth = 15;
 	const radius = (size - strokeWidth) / 2;
 	const circumference = 2 * Math.PI * radius;

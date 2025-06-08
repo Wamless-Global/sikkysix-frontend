@@ -1,14 +1,14 @@
-import NotFound from '@/components/layout/NotFound';
 import { Metadata } from 'next';
+import Content from './content';
 
 export const metadata: Metadata = {
-	title: 'Not Found',
+	title: 'Update Password',
 };
 
 export default function Page() {
 	return (
 		<>
-			<NotFound />
+			<Content />
 		</>
 	);
 }

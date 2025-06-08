@@ -427,3 +427,7 @@ html::-webkit-scrollbar-track {
 .animation-delay-200 {
 	animation-delay: 0.2s;
 }
+
+.money {
+	@apply font-mono;
+}

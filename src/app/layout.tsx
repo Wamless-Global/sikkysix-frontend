@@ -24,7 +24,10 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-	title: appSettings.appName,
+	title: {
+		default: appSettings.appName,
+		template: `%s | ${appSettings.appName}`,
+	},
 	description: appSettings.metaDescription,
 };
 
@@ -37,13 +40,11 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning style={{ fontSize: appSettings.baseFontSize }}>
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<AuthProvider>
-						<Suspense>
-							<ProgressBar />
-							{children}
-							<Toaster richColors />
-						</Suspense>
-					</AuthProvider>
+					<Suspense>
+						<ProgressBar />
+						{children}
+						<Toaster richColors />
+					</Suspense>
 				</ThemeProvider>
 			</body>
 		</html>

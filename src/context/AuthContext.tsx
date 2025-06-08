@@ -3,32 +3,29 @@
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { useRouter } from 'next/navigation';
-import nProgress from 'nprogress';
+import { useRouter, usePathname } from 'next/navigation';
+import nProgress, { set } from 'nprogress';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { logger } from '@/lib/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
-	const [token, setToken] = useState<string | null>(null);
+	const [is404, setIs404] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
+	const pathname = usePathname();
 
 	const logout = async (): Promise<void> => {
 		try {
-			const response = await fetchWithAuth(
-				`/api/auth/logout`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					credentials: 'include',
+			const response = await fetchWithAuth(`/api/auth/logout`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				token
-			);
+				credentials: 'include',
+			});
 
 			setCurrentUser(null);
 
@@ -53,18 +50,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 	const login = async (email: string, password: string): Promise<AuthenticatedUser> => {
 		try {
-			const response = await fetchWithAuth(
-				`/api/auth/login`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					credentials: 'include',
-					body: JSON.stringify({ email, password }),
+			const response = await fetchWithAuth(`/api/auth/login`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				token
-			);
+				credentials: 'include',
+				body: JSON.stringify({ email, password }),
+			});
 
 			const responseData = await response.json();
 
@@ -100,17 +93,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		}
 
 		try {
-			const response = await fetchWithAuth(
-				`/api/auth/register`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ name, email, password, confirmPassword, roles }),
+			const response = await fetchWithAuth(`/api/auth/register`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				token
-			);
+				body: JSON.stringify({ name, email, password, confirmPassword, roles }),
+			});
 
 			const responseData = await response.json();
 
@@ -133,17 +122,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			return { status: 'error', message: 'No email provided to check status.' };
 		}
 		try {
-			const response = await fetchWithAuth(
-				`/api/auth/check-email-verification?email=${encodeURIComponent(email)}`,
-				{
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					credentials: 'include',
+			const response = await fetchWithAuth(`/api/auth/check-email-verification?email=${encodeURIComponent(email)}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				token
-			);
+				credentials: 'include',
+			});
 
 			const responseData = await response.json();
 
@@ -183,18 +168,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			return { success: false, message: 'No email provided for resending verification.' };
 		}
 		try {
-			const response = await fetchWithAuth(
-				'/api/auth/resend-email-verification',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ email }),
-					credentials: 'include',
+			const response = await fetchWithAuth('/api/auth/resend-email-verification', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				token
-			);
+				body: JSON.stringify({ email }),
+				credentials: 'include',
+			});
 
 			const responseData = await response.json();
 
@@ -219,20 +200,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	};
 
 	useEffect(() => {
+		// Only run checkUserSession if not on 404 page (using is404 prop)
+		if (is404) {
+			setIsLoading(false);
+			return;
+		}
 		const checkUserSession = async () => {
 			try {
 				const fetchOptions: RequestInit = {
 					credentials: 'include',
-					headers: {
-						...(token ? { authorization: `Bearer ${token}` } : {}),
-					},
 				};
-				const response = await fetchWithAuth('/api/auth/verify-me', fetchOptions, token);
+				const response = await fetchWithAuth('/api/auth/verify-me', fetchOptions);
 				if (!response.ok) {
 					if (response.status === 401) {
 						nProgress.start();
 						router.refresh();
-						return; // User is not authenticated, no need to set currentUser
+						return;
 					} else {
 						console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
 					}
@@ -250,19 +233,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			} catch {
 				setCurrentUser(null);
 			} finally {
+				nProgress.done();
 				setIsLoading(false);
 			}
 		};
 
-		checkUserSession();
-	}, []);
+		!is404 && checkUserSession();
+	}, [pathname, is404]);
 
 	const value = {
 		currentUser,
-		token,
 		isLoading,
 		setCurrentUser,
-		setToken,
+		setIs404,
 		login,
 		logout,
 		signup,

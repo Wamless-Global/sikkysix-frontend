@@ -37,7 +37,7 @@ export default function LandingPage() {
 				</div>
 				<nav className="hidden md:flex items-center space-x-6">
 					<a href="#" className="hover:text-[var(--lp-green-primary)]">
-						Categories
+						Clubs
 					</a>
 					<a href="#" className="hover:text-[var(--lp-green-primary)]">
 						Investments
@@ -69,7 +69,7 @@ export default function LandingPage() {
 				// Use CSS variable for background
 				<div className="md:hidden fixed inset-0 w-full h-screen bg-[var(--lp-dark-bg)] z-40 flex flex-col items-center justify-center space-y-6">
 					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
-						Categories
+						Clubs
 					</a>
 					<a href="#" className="text-2xl hover:text-[var(--lp-green-primary)]" onClick={toggleMobileMenu}>
 						Investments
@@ -93,7 +93,7 @@ export default function LandingPage() {
 				<div className="absolute bottom-20 right-10 w-10 h-10 border border-[var(--lp-green-primary)] opacity-30 transform rotate-45"></div>
 				<h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight text-foreground">
 					{/* Use foreground */}
-					Invest Smarter with <br className="hidden md:block" /> Dynamic Categories
+					Invest Smarter with <br className="hidden md:block" /> Dynamic Clubs
 				</h1>
 				<p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Join our revolutionary investment platform that rewards early investors. Choose from various categories, earn up to 2x your investment, and benefit from our transparent, fee-based system.</p>
 				<div className="flex justify-center space-x-4 mb-16">
@@ -174,14 +174,14 @@ export default function LandingPage() {
 			</section>
 			<section className="container mx-auto px-4 py-16 md:py-24">
 				<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">Key Platform Features</h2>
-				<p className="text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">Discover our innovative investment categories and transparent profit-sharing system</p>
+				<p className="text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">Discover our innovative investment clubs and transparent profit-sharing system</p>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 					<div className="text-center">
 						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
 							<IconPlaceholder className="w-8 h-8 text-[var(--lp-green-primary)]" />
 						</div>
-						<h3 className="text-xl font-semibold mb-2 text-foreground">Dynamic Categories</h3>
-						<p className="text-muted-foreground">Invest in various preset categories like foodstuffs, accessories, accommodation, and lifestyle. Categories can be dynamically managed by admin for optimal performance.</p>
+						<h3 className="text-xl font-semibold mb-2 text-foreground">Dynamic Clubs</h3>
+						<p className="text-muted-foreground">Invest in various preset categories like foodstuffs, accessories, accommodation, and lifestyle. Clubs can be dynamically managed by admin for optimal performance.</p>
 					</div>
 					<div className="text-center">
 						<div className="inline-block p-3 bg-[var(--lp-green-primary)]/20 rounded-full mb-4">
@@ -260,10 +260,10 @@ export default function LandingPage() {
 						<div className="space-y-6">
 							<div className="pb-4 border-b border-[var(--lp-border)]">
 								<h3 className="text-xl font-semibold mb-2 flex justify-between items-center text-foreground">
-									Dynamic Investment Categories
+									Dynamic Investment Clubs
 									<span className="text-[var(--lp-green-primary)]">^</span>
 								</h3>
-								<p className="text-muted-foreground">Choose from various preset categories like foodstuffs, accessories, accommodation, and lifestyle. Categories are actively managed to ensure optimal returns.</p>
+								<p className="text-muted-foreground">Choose from various preset categories like foodstuffs, accessories, accommodation, and lifestyle. Clubs are actively managed to ensure optimal returns.</p>
 							</div>
 							<div className="pb-4 border-b border-[var(--lp-border)]">
 								<h3 className="text-xl font-semibold text-muted-foreground flex justify-between items-center">
@@ -387,7 +387,7 @@ export default function LandingPage() {
 								</li>
 								<li>
 									<a href="#" className="hover:text-foreground">
-										Investment Categories
+										Investment Clubs
 									</a>
 								</li>
 								<li>
