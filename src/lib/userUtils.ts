@@ -39,8 +39,8 @@ export const fetchUserByUsername = async (username: string, token?: string): Pro
 
 		if (response.ok) {
 			// Assuming the backend returns the User object directly
-			const userData: User = await response.json();
-			return userData;
+			const { data } = await response.json();
+			return data as User; // Cast to User type
 		} else if (response.status === 404) {
 			// logger.log(`User ${username} not found via backend API.`); // Debug log
 			return null; // User not found

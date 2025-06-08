@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { MoreHorizontal, Loader2, User as UserIcon, Mail, Phone, MapPin, Calendar, Clock, Link as LinkIcon, Users, CheckCircle, XCircle, HelpCircle, Wallet, TrendingUp, TrendingDown, DollarSign, MinusCircle, PlusCircle, Activity, Edit } from 'lucide-react';
-import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil, getUserByUsername } from '@/lib/userUtils';
+import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil } from '@/lib/userUtils';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COUNTRIES } from '@/lib/countries';
