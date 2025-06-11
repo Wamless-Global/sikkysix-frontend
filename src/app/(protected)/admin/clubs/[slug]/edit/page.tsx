@@ -19,6 +19,7 @@ import Image from 'next/image';
 import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -103,6 +104,7 @@ export default function EditCategoryPage() {
 				const result: SingleCategoryResponse = await response.json();
 				if (result.status === 'success' && result.data) {
 					setInitialCategoryData(result.data);
+					logger.log(result.data);
 					reset({
 						name: result.data.name,
 						ticker: result.data.ticker,
@@ -175,7 +177,6 @@ export default function EditCategoryPage() {
 			const response = await fetchWithAuth(`/api/categories/${categoryId}`, {
 				method: 'PUT',
 				body: formData,
-				credentials: 'include',
 			});
 
 			if (response.ok) {
@@ -198,6 +199,8 @@ export default function EditCategoryPage() {
 			NProgress.done();
 		}
 	}
+
+	const showConditionalFields = initialCategoryData && initialCategoryData.amm_model_type && initialCategoryData.amm_model_type !== 'constant_product';
 
 	if (isLoadingData) {
 		return (
@@ -325,35 +328,45 @@ export default function EditCategoryPage() {
 									)}
 								/>
 
-								{/* Quantity */}
-								<FormField
-									control={form.control}
-									name="quantity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Quantity</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{/* Conditionally render Quantity */}
+								{showConditionalFields && (
+									<FormField
+										control={form.control}
+										name="quantity"
+										rules={{ required: true }}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													Quantity <span className="text-destructive">*</span>
+												</FormLabel>
+												<FormControl>
+													<Input type="number" min="0" step="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 
-								{/* Total Liquidity */}
-								<FormField
-									control={form.control}
-									name="total_liquidity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Total Liquidity</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{/* Conditionally render Total Liquidity */}
+								{showConditionalFields && (
+									<FormField
+										control={form.control}
+										name="total_liquidity"
+										rules={{ required: true }}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													Total Liquidity <span className="text-destructive">*</span>
+												</FormLabel>
+												<FormControl>
+													<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 
 								{/* Admin Target Multiplier */}
 								<FormField
@@ -386,51 +399,26 @@ export default function EditCategoryPage() {
 									)}
 								/>
 
-								{/* Volatility Factor */}
-								<FormField
-									control={form.control}
-									name="volatility_factor"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Volatility Factor</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
-											</FormControl>
-											<FormDescription>Optional: Factor for market volatility.</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								{/* Minimum Investable Amount */}
-								<FormField
-									control={form.control}
-									name="minimum_investable"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Minimum Investable Amount</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" placeholder="e.g., 100" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
-											</FormControl>
-											<FormDescription>Minimum amount a user can invest in this category.</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								{/* Maximum Investable Amount */}
-								<FormField
-									control={form.control}
-									name="maximum_investable"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Maximum Investable Amount</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" placeholder="e.g., 10000" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
-											</FormControl>
-											<FormDescription>{'Maximum amount a user can invest in this category. Must be >= minimum.'}</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{/* Conditionally render Volatility Factor */}
+								{showConditionalFields && (
+									<FormField
+										control={form.control}
+										name="volatility_factor"
+										rules={{ required: true }}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													Volatility Factor <span className="text-destructive">*</span>
+												</FormLabel>
+												<FormControl>
+													<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+												</FormControl>
+												<FormDescription>Optional: Factor for market volatility.</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 							</div>
 
 							{/* Switches: Is Locked & Is Launched */}

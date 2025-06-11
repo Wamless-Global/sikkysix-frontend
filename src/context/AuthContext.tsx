@@ -24,7 +24,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				credentials: 'include',
 			});
 
 			setCurrentUser(null);
@@ -55,7 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				credentials: 'include',
+
 				body: JSON.stringify({ email, password }),
 			});
 
@@ -127,7 +126,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				credentials: 'include',
 			});
 
 			const responseData = await response.json();
@@ -174,7 +172,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({ email }),
-				credentials: 'include',
 			});
 
 			const responseData = await response.json();
@@ -207,10 +204,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 		const checkUserSession = async () => {
 			try {
-				const fetchOptions: RequestInit = {
-					credentials: 'include',
-				};
-				const response = await fetchWithAuth('/api/auth/verify-me', fetchOptions);
+				const response = await fetchWithAuth('/api/auth/verify-me');
 				if (!response.ok) {
 					if (response.status === 401) {
 						nProgress.start();

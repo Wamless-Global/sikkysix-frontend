@@ -1,5 +1,7 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 export async function fetchP2PMessages(tradeId: string) {
-	const res = await fetch(`/api/messages/related/${tradeId}`);
+	const res = await fetchWithAuth(`/api/messages/related/${tradeId}`);
 	if (!res.ok) throw new Error('Failed to fetch messages');
 	const { data } = await res.json();
 	return data;
@@ -21,9 +23,8 @@ export async function sendP2PMessage({ sender_id, recipient_id, content, message
 
 	if (imageFile) formData.append('image', imageFile);
 
-	const res = await fetch('/api/messages', {
+	const res = await fetchWithAuth('/api/messages', {
 		method: 'POST',
-		credentials: 'include',
 		body: formData,
 	});
 	if (!res.ok) throw new Error('Failed to send message');

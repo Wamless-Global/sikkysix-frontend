@@ -32,7 +32,6 @@ export const fetchUserByUsername = async (username: string, token?: string): Pro
 					'Content-Type': 'application/json',
 					// Add Authorization or other necessary headers if required by your backend
 				},
-				credentials: 'include', // Include if your backend uses cookies/sessions for auth
 			},
 			token
 		);
@@ -118,7 +117,6 @@ export const updateUser = async (userId: string, userData: Partial<User>, token?
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify(userData),
-				credentials: 'include',
 			},
 			token
 		);
@@ -190,7 +188,6 @@ export const deleteUser = async (userId: string, token?: string): Promise<boolea
 			targetUrl,
 			{
 				method: 'DELETE',
-				credentials: 'include',
 			},
 			token
 		);
@@ -239,7 +236,6 @@ export const fetchCurrentUserBalance = async (token?: string): Promise<number | 
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				credentials: 'include',
 			},
 			token
 		);

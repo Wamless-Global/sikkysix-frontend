@@ -200,7 +200,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 							<h1 className="text-2xl font-nico font-semibold text-[var(--dashboard-secondary-foreground)]">{appSettings.appName}</h1>
 						</div>
 						<div className="relative">
-							<button className="p-2 rounded-full hover:bg-muted">
+							<button className="p-2 rounded-full hover:bg-white/60 cursor-pointer">
 								<Bell className="h-6 w-6 text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100'" />
 							</button>
 							{notifications.length > 0 && <span className="absolute -right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-destructive p-0 text-xs text-destructive-foreground">0 </span>}

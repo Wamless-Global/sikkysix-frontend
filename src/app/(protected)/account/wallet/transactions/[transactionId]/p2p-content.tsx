@@ -240,7 +240,6 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: isBuyer ? 'cancelled_by_buyer' : 'cancelled_by_seller' }),
-				credentials: 'include',
 			});
 			if (!res.ok) throw new Error('Failed to cancel trade');
 			toast.success('Trade cancelled successfully.');

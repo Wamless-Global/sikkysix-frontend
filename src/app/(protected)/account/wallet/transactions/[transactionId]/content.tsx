@@ -8,6 +8,7 @@ import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErro
 import { Transaction } from '@/types';
 import P2PContent from './p2p-content';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 export default function TransactionDetailsPageContent() {
 	const params = useParams();
@@ -126,7 +127,9 @@ export default function TransactionDetailsPageContent() {
 						{transaction.related_transaction_id && (
 							<div>
 								<p className="text-muted-foreground text-xs mb-1">Related Transaction</p>
-								<p className="font-mono text-xs bg-muted text-muted-foreground px-2 py-1 rounded">{transaction.related_transaction_id}</p>
+								<CustomLink href={`/account/wallet/transactions/${transaction.related_transaction_id}`} className="block">
+									<p className="font-mono text-xs bg-muted text-muted-foreground px-2 py-1 rounded">{transaction.related_transaction_id}</p>
+								</CustomLink>
 							</div>
 						)}
 						{transaction.is_instant !== undefined && !transaction.is_instant && transaction.duration_seconds && (

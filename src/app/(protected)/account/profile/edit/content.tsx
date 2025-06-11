@@ -67,7 +67,6 @@ export default function EditProfilePageContent() {
 				const res = await fetchWithAuth('/api/profile', {
 					method: 'PUT',
 					body: formData,
-					credentials: 'include',
 				});
 				if (!res.ok) {
 					const error = await res.json().catch(() => ({}));

@@ -34,9 +34,7 @@ export default function SingleApplicationPage() {
 	async function fetchApplication() {
 		setIsLoading(true);
 		try {
-			const res = await fetchWithAuth(`/api/agents/application/${params.applicationId}`, {
-				credentials: 'include',
-			});
+			const res = await fetchWithAuth(`/api/agents/application/${params.applicationId}`);
 
 			if (!res.ok) throw new Error('Failed to fetch application');
 			const data: ApplicationResponse = await res.json();
@@ -71,7 +69,6 @@ export default function SingleApplicationPage() {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status, admin_remarks: adminRemarks }),
-				credentials: 'include',
 			});
 
 			if (!res.ok) {
@@ -101,7 +98,6 @@ export default function SingleApplicationPage() {
 		try {
 			const res = await fetchWithAuth(`/api/agents/application/${application.id}`, {
 				method: 'DELETE',
-				credentials: 'include',
 			});
 
 			if (!res.ok) {

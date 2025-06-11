@@ -52,7 +52,6 @@ const AgentApplyContent = () => {
 		try {
 			const response = await fetchWithAuth(`/api/agents/application/user/${currentUser?.id}`, {
 				method: 'GET',
-				credentials: 'include',
 			});
 
 			if (response.ok) {
@@ -118,7 +117,6 @@ const AgentApplyContent = () => {
 			const response = await fetchWithAuth('/api/agents/apply', {
 				method: 'POST',
 				body: formData,
-				credentials: 'include',
 			});
 
 			if (response.ok) {

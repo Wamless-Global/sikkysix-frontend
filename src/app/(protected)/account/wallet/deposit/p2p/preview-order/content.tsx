@@ -49,7 +49,6 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ agentId, amount, orderId, type }),
-					credentials: 'include',
 				});
 				const data = await res.json();
 

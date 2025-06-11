@@ -232,7 +232,6 @@ export default function UserDetailPage() {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ amount, reason }),
-				credentials: 'include',
 			});
 
 			const result = await response.json();
@@ -262,7 +261,6 @@ export default function UserDetailPage() {
 			const response = await fetchWithAuth(`/api/users/${currentUser.id}/impersonate`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				credentials: 'include',
 			});
 
 			const data = await response.json();

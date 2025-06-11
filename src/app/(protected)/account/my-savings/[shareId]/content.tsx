@@ -173,7 +173,7 @@ export default function PortfolioItemDetailPageContent() {
 				<Alert variant="destructive" className="mb-6 max-w-md">
 					<AlertCircle className="h-6 w-6 mr-2" />
 					<AlertTitle>Savings Not Found</AlertTitle>
-					<AlertDescription>{error || `The investment with ID "${investmentId}" could not be found.`}</AlertDescription>
+					<AlertDescription>{error || `The savings with ID "${investmentId}" could not be found.`}</AlertDescription>
 				</Alert>
 				<Button onClick={() => router.back()} variant="outline">
 					Go Back

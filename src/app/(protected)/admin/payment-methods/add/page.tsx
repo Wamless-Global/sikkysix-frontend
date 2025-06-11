@@ -110,7 +110,6 @@ export default function AddP2PPage() {
 			const response = await fetchWithAuth('/api/p2p/payment-methods', {
 				method: 'POST',
 				body: formData,
-				credentials: 'include',
 			});
 			if (response.ok) {
 				const { data: respData } = await response.json();
@@ -229,15 +228,7 @@ export default function AddP2PPage() {
 													}}
 												/>
 											</FormControl>
-											{imagePreview && (
-												<Image
-													src={imagePreview}
-													alt="Preview"
-													width={64}
-													height={64}
-													className="h-16 w-16 object-cover rounded mt-2"
-												/>
-											)}
+											{imagePreview && <Image src={imagePreview} alt="Preview" width={64} height={64} className="h-16 w-16 object-cover rounded mt-2" />}
 											<FormMessage />
 										</FormItem>
 									)}

@@ -45,8 +45,8 @@ const categoryFormSchema = z
 		is_locked: z.boolean().default(false),
 		is_launched: z.boolean().default(false),
 		current_price_per_unit: z.coerce.number({ invalid_type_error: 'Price must be a number.' }).nonnegative({ message: 'Price must be non-negative.' }).default(0.0),
-		quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }).default(1000000000),
-		total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }).default(0),
+		quantity: z.coerce.number({ invalid_type_error: 'Quantity must be a number.' }).int({ message: 'Quantity must be an integer.' }).nonnegative({ message: 'Quantity must be non-negative.' }).optional(),
+		total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }).optional(),
 		admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).default(2),
 		fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
 		volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
@@ -95,6 +95,31 @@ const categoryFormSchema = z
 	.refine((data) => data.maximum_investable >= data.minimum_investable, {
 		message: 'Maximum investable amount cannot be less than minimum investable amount.',
 		path: ['maximum_investable'],
+	})
+	.superRefine((data, ctx) => {
+		if (data.amm_model_type !== 'constant_product') {
+			if (data.total_liquidity === undefined || data.total_liquidity === null || isNaN(data.total_liquidity)) {
+				ctx.addIssue({
+					path: ['total_liquidity'],
+					code: z.ZodIssueCode.custom,
+					message: 'Total liquidity is required for this AMM type',
+				});
+			}
+			if (data.quantity === undefined || data.quantity === null || isNaN(data.quantity)) {
+				ctx.addIssue({
+					path: ['quantity'],
+					code: z.ZodIssueCode.custom,
+					message: 'Quantity is required for this AMM type',
+				});
+			}
+			if (data.volatility_factor === undefined || data.volatility_factor === null || isNaN(data.volatility_factor)) {
+				ctx.addIssue({
+					path: ['volatility_factor'],
+					code: z.ZodIssueCode.custom,
+					message: 'Volatility factor is required for this AMM type',
+				});
+			}
+		}
 	});
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema> & {
@@ -150,6 +175,7 @@ export default function CreateCategoryPage() {
 	}, [imageFile]);
 
 	const ammModelType = form.watch('amm_model_type');
+	const showConditionalFields = ammModelType && ammModelType !== 'constant_product';
 
 	async function onSubmit(data: CategoryFormValues) {
 		NProgress.start();
@@ -187,7 +213,6 @@ export default function CreateCategoryPage() {
 			const response = await fetchWithAuth('/api/categories', {
 				method: 'POST',
 				body: formData,
-				credentials: 'include',
 			});
 
 			if (response.ok) {
@@ -298,32 +323,43 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="total_liquidity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Total Liquidity</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="quantity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Quantity</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{/* Conditionally render Total Liquidity and Quantity */}
+								{showConditionalFields && (
+									<>
+										<FormField
+											control={form.control}
+											name="total_liquidity"
+											rules={{ required: true }}
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>
+														Total Liquidity <span className="text-destructive">*</span>
+													</FormLabel>
+													<FormControl>
+														<Input type="number" min="0" step="any" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} disabled={isSubmitting} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="quantity"
+											rules={{ required: true }}
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>
+														Quantity <span className="text-destructive">*</span>
+													</FormLabel>
+													<FormControl>
+														<Input type="number" min="0" step="1" {...field} onChange={(e) => field.onChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</>
+								)}
 								<FormField
 									control={form.control}
 									name="amm_model_type"
@@ -483,20 +519,26 @@ export default function CreateCategoryPage() {
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name="volatility_factor"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Volatility Factor</FormLabel>
-											<FormControl>
-												<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
-											</FormControl>
-											<FormDescription>Optional: Factor to adjust for market volatility.</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{/* Conditionally render Volatility Factor */}
+								{showConditionalFields && (
+									<FormField
+										control={form.control}
+										name="volatility_factor"
+										rules={{ required: true }}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													Volatility Factor <span className="text-destructive">*</span>
+												</FormLabel>
+												<FormControl>
+													<Input type="number" min="0" step="any" placeholder="e.g., 0.1" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+												</FormControl>
+												<FormDescription>Factor to adjust for market volatility.</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 								<FormField
 									control={form.control}
 									name="is_locked"

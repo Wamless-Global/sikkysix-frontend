@@ -212,7 +212,6 @@ export default function SingleCategoryContent() {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify(bodyData),
-				credentials: 'include',
 			});
 
 			if (response.ok) {

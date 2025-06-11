@@ -115,6 +115,7 @@
 	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-secondary: #d8fcec;
+	--dashboard-muted-secondary: oklch(96.108% 0.04284 166.96 / 0.705);
 	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-subtext: #6a6a6a;
@@ -219,6 +220,7 @@
 	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-secondary: #d8fcec;
+	--dashboard-muted-secondary: oklch(96.108% 0.04284 166.96 / 0.705);
 	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-subtext: #6a6a6a;
@@ -237,30 +239,23 @@
 	--warning-hover: #fde047;
 }
 
-/* Global custom scrollbar styles */
-html {
-	scrollbar-width: thin;
-	scrollbar-color: var(--dashboard-secondary-foreground) var(--dashboard-secondary);
-}
-html::-webkit-scrollbar {
+::-webkit-scrollbar {
 	width: 8px;
 }
-html::-webkit-scrollbar-thumb {
-	background: var(--dashboard-secondary-foreground);
-	border-radius: 8px;
-}
-html::-webkit-scrollbar-track {
-	background: var(--dashboard-secondary);
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: var(--background);
 }
 
-/* For dark mode, ensure colors adapt */
-.dark html {
-	scrollbar-color: var(--dashboard-secondary-foreground) var(--dashboard-secondary);
+/* Handle */
+::-webkit-scrollbar-thumb {
+	border-radius: 100px;
+	background: var(--dashboard-muted-secondary);
 }
-.dark html::-webkit-scrollbar-thumb {
-	background: var(--dashboard-secondary-foreground);
-}
-.dark html::-webkit-scrollbar-track {
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
 	background: var(--dashboard-secondary);
 }
 

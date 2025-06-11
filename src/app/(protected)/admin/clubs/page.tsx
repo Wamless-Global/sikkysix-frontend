@@ -186,8 +186,8 @@ export default function CategoryManagementPage() {
 												<Badge variant={getLockStatusVariant(category.is_locked)}>{category.is_locked ? 'Locked' : 'Unlocked'}</Badge>
 											</TableCell>
 											<TableCell className="text-right font-mono">{formatBaseurrency(category.current_price_per_unit)}</TableCell>
-											<TableCell className="text-right font-mono">{category.minimum_investable !== undefined ? `${formatBaseurrency(category.minimum_investable)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
-											<TableCell className="text-right font-mono">{category.maximum_investable !== undefined ? `${formatBaseurrency(category.maximum_investable)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
+											<TableCell className="text-right font-mono">{category.minimum_investable !== undefined ? `${formatBaseurrency(category.minimum_investable, 2, false)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
+											<TableCell className="text-right font-mono">{category.maximum_investable !== undefined ? `${formatBaseurrency(category.maximum_investable, 2, false)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 											<TableCell className="text-right font-mono">{category.market_cap ? `$${formatBaseurrency(category.market_cap)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 											<TableCell className="text-right">{category.holders !== undefined ? category.holders.toLocaleString() : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 											<TableCell className="text-center">

@@ -42,7 +42,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				credentials: 'include',
 			});
 
 			if (!response.ok) {
