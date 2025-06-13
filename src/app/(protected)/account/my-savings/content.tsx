@@ -73,7 +73,7 @@ export default function PortfolioPageContent() {
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-md rounded-2xl text-[var(--dashboard-secondary-foreground)] md:py-2">
 				<CardContent className="p-1 px-6 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
 					<div className="flex-1">
-						<p className="subtext mb-1">{selectedTab === 'active' ? 'Active Savings' : 'Completed Savings'}</p>
+						<p className="subtext mb-1 text-center md:text-left">{selectedTab === 'active' ? 'Active Savings' : 'Completed Savings'}</p>
 						{isLoading ? (
 							<div className="animate-pulse">
 								<div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>

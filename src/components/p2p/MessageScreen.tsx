@@ -9,6 +9,8 @@ import { handleFetchErrorMessage } from '@/lib/helpers';
 import { useAuthContext } from '@/context/AuthContext';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import OnlineBadge from '../ui/online-badge';
+import { useOnlineContext } from '@/context/OnlineContext';
 
 // Update Message type to support optional metadata
 interface Message {
@@ -38,16 +40,16 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessages, tradeId, currentUserId, recipientId, currentTimeLeft, formatTime, onSendMessage, onToggleScreen, isExpired, setImageFile, setMessages: setMessagesProp }) => {
+const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessages, tradeId, currentUserId, recipientId, currentTimeLeft, formatTime, onToggleScreen, isExpired, setImageFile, setMessages: setMessagesProp }) => {
 	const [messages, setMessagesState] = useState<Message[]>(initialMessages);
 	const [currentMessage, setCurrentMessage] = useState('');
 	const [isSending, setIsSending] = useState(false);
-	const [counterpartOnline, setCounterpartOnline] = useState<'online' | 'away'>('away');
 	const [imageFile, _setImageFile] = useState<File | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 	const [modalImage, setModalImage] = useState<string | null>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const { currentUser } = useAuthContext();
+	const { isUserOnline } = useOnlineContext();
 
 	// Only set messages from initialMessages on mount
 	useEffect(() => {
@@ -145,31 +147,6 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 		};
 	}, [tradeId, currentUserId, messages]);
 
-	// Presence: subscribe to presence for this trade
-	useEffect(() => {
-		if (!tradeId || !currentUserId) return;
-		const channel = supabase.channel(`presence-messages-${tradeId}`, {
-			config: { presence: { key: currentUserId } },
-		});
-
-		channel.on('presence', { event: 'sync' }, () => {
-			const state = channel.presenceState();
-			// All user IDs present in the channel
-			const userIds = Object.keys(state);
-			// Counterpart is anyone except currentUserId
-			const others = userIds.filter((id) => id !== currentUserId);
-			setCounterpartOnline(others.length > 0 ? 'online' : 'away');
-		});
-
-		channel.subscribe();
-		// Track our own presence
-		channel.track({ online_at: Date.now() });
-
-		return () => {
-			channel.unsubscribe();
-		};
-	}, [tradeId, currentUserId]);
-
 	// 1. Only optimistically add the message if sending succeeds
 	const handleSend = async () => {
 		if (isExpired || isSending || (!currentMessage.trim() && !imageFile)) return;
@@ -223,6 +200,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 		if (tradeId && currentUserId) fetchMessages();
 	}, [tradeId, currentUserId]);
 
+	const counterpartOnline = isUserOnline(recipientId);
+
 	return (
 		<div className="max-w-2xl space-y-6 mb-0 sm:mb-10 md:mb-16">
 			<div className="flex flex-row justify-between items-center gap-4">
@@ -233,10 +212,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 				<CardHeader className="px-4 py-2 border-b border-border flex flex-row items-center justify-between">
 					<div className="flex items-center gap-2">
 						<CardTitle className="text-lg text-foreground">{sellerName}</CardTitle>
-						<span className={`ml-2 text-xs font-semibold flex items-center gap-1 ${counterpartOnline === 'online' ? 'text-green-600' : 'text-amber-500 dark:text-amber-400'}`} title={counterpartOnline === 'online' ? 'Online' : 'Away'}>
-							<span className={`inline-block w-2 h-2 rounded-full ${counterpartOnline === 'online' ? 'bg-green-500' : 'bg-amber-400 dark:bg-amber-300'}`}></span>
-							{counterpartOnline === 'online' ? 'Online' : 'Away'}
-						</span>
+						<OnlineBadge online={counterpartOnline} />
 					</div>
 					{!isExpired && (
 						<Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" onClick={() => toast.info('Call feature coming soon!')}>

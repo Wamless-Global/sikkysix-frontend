@@ -144,37 +144,51 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 	// --- Realtime subscription for p2p_trades table ---
 	useEffect(() => {
 		if (!trade?.id) return;
+		let channel: any;
+		let reconnectTimeout: NodeJS.Timeout | null = null;
 
-		const channel = supabase.channel(`p2p-trades-${trade.id}`);
+		const subscribe = () => {
+			channel = supabase.channel(`p2p-trades-${trade.id}`);
 
-		channel.on(
-			'postgres_changes',
-			{
-				event: 'UPDATE',
-				schema: 'public',
-				table: 'p2p_trades',
-				filter: `id=eq.${trade.id}`,
-			},
-			(payload) => {
-				const updatedTrade = payload.new as TradeResponse;
-				setTrade((prev) => ({ ...prev, ...updatedTrade }));
-				setNewTran((prev) => ({ ...prev, ...updatedTrade }));
+			channel.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'p2p_trades',
+					filter: `id=eq.${trade.id}`,
+				},
+				(payload: { new: TradeResponse }) => {
+					const updatedTrade = payload.new as TradeResponse;
+					setTrade((prev) => ({ ...prev, ...updatedTrade }));
+					setNewTran((prev) => ({ ...prev, ...updatedTrade }));
 
-				const { status, statusMap } = getTradeStatusToast(updatedTrade);
-				if (status && statusMap[status]) {
-					const { type, message } = statusMap[status];
-					if (type === 'success') {
-						toast.success(message);
-					} else {
-						toast.error(message);
+					const { status, statusMap } = getTradeStatusToast(updatedTrade);
+					if (status && statusMap[status]) {
+						const { type, message } = statusMap[status];
+						if (type === 'success') {
+							toast.success(message);
+						} else {
+							toast.error(message);
+						}
 					}
 				}
-			}
-		);
+			);
 
-		channel.subscribe();
+			channel.on('close', {}, () => {
+				reconnectTimeout = setTimeout(() => {
+					subscribe();
+				}, 2000);
+			});
+
+			channel.subscribe();
+		};
+
+		subscribe();
+
 		return () => {
-			channel.unsubscribe();
+			if (channel) channel.unsubscribe();
+			if (reconnectTimeout) clearTimeout(reconnectTimeout);
 		};
 	}, [trade?.id]);
 

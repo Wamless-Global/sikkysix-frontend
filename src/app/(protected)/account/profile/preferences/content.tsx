@@ -84,7 +84,7 @@ export default function PreferencesPageContent() {
 		<div className="max-w-2xl space-y-8">
 			<h1 className="sub-page-heading">Application Preferences</h1>
 
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+			{/* <Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
 				<CardHeader>
 					<CardTitle className="text-lg text-foreground">Theme Settings</CardTitle>
 				</CardHeader>
@@ -109,7 +109,7 @@ export default function PreferencesPageContent() {
 						<Switch id="theme-dark" checked={preferences.theme === 'dark'} onCheckedChange={() => handleThemeChange('dark')} />
 					</div>
 				</CardContent>
-			</Card>
+			</Card> */}
 
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
 				<CardHeader>
@@ -120,19 +120,19 @@ export default function PreferencesPageContent() {
 						<Label htmlFor="email-updates" className="text-foreground">
 							Product Updates
 						</Label>
-						<Switch id="email-updates" checked={preferences.emailNotifications.updates} onCheckedChange={(checked) => handleNotificationChange('updates', checked)} />
+						<Switch id="email-updates" checked={preferences.emailNotifications.updates} onCheckedChange={(checked) => handleNotificationChange('updates', checked)} disabled={true} />
 					</div>
 					<div className="flex items-center justify-between">
 						<Label htmlFor="email-newsletter" className="text-foreground">
 							Newsletter
 						</Label>
-						<Switch id="email-newsletter" checked={preferences.emailNotifications.newsletter} onCheckedChange={(checked) => handleNotificationChange('newsletter', checked)} />
+						<Switch id="email-newsletter" checked={preferences.emailNotifications.newsletter} onCheckedChange={(checked) => handleNotificationChange('newsletter', checked)} disabled={true} />
 					</div>
 					<div className="flex items-center justify-between">
 						<Label htmlFor="email-marketing" className="text-foreground">
 							Marketing & Promotional
 						</Label>
-						<Switch id="email-marketing" checked={preferences.emailNotifications.marketing} onCheckedChange={(checked) => handleNotificationChange('marketing', checked)} />
+						<Switch id="email-marketing" checked={preferences.emailNotifications.marketing} onCheckedChange={(checked) => handleNotificationChange('marketing', checked)} disabled={true} />
 					</div>
 				</CardContent>
 			</Card>
@@ -148,89 +148,10 @@ export default function PreferencesPageContent() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="en">English</SelectItem>
-							<SelectItem value="es">Español (Spanish)</SelectItem>
-							<SelectItem value="fr">Français (French)</SelectItem>
+							{/* <SelectItem value="es">Español (Spanish)</SelectItem>
+							<SelectItem value="fr">Français (French)</SelectItem> */}
 						</SelectContent>
 					</Select>
-				</CardContent>
-			</Card>
-
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
-				<CardHeader>
-					<CardTitle className="text-lg text-foreground">Timezone</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Select value={preferences.timezone} onValueChange={handleTimezoneChange}>
-						<SelectTrigger className="w-full bg-background border-border">
-							<SelectValue placeholder="Select timezone" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="local">Local</SelectItem>
-							<SelectItem value="UTC">UTC</SelectItem>
-							<SelectItem value="America/New_York">New York (EST)</SelectItem>
-							<SelectItem value="Europe/London">London (GMT)</SelectItem>
-							<SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-						</SelectContent>
-					</Select>
-				</CardContent>
-			</Card>
-
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
-				<CardHeader>
-					<CardTitle className="text-lg text-foreground">Date & Time Format</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Select value={preferences.dateFormat} onValueChange={handleDateFormatChange}>
-						<SelectTrigger className="w-full bg-background border-border">
-							<SelectValue placeholder="Select format" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="24h">24-hour</SelectItem>
-							<SelectItem value="12h">12-hour (AM/PM)</SelectItem>
-						</SelectContent>
-					</Select>
-				</CardContent>
-			</Card>
-
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
-				<CardHeader>
-					<CardTitle className="text-lg text-foreground">Privacy</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="flex items-center justify-between">
-						<Label htmlFor="show-profile-public" className="text-foreground">
-							Show Profile Publicly
-						</Label>
-						<Switch id="show-profile-public" checked={preferences.showProfilePublic} onCheckedChange={handleShowProfilePublicChange} />
-					</div>
-				</CardContent>
-			</Card>
-
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
-				<CardHeader>
-					<CardTitle className="text-lg text-foreground">Security</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="flex items-center justify-between">
-						<Label htmlFor="enable-2fa" className="text-foreground">
-							Enable Two-Factor Authentication (2FA)
-						</Label>
-						<Switch id="enable-2fa" checked={preferences.enable2FA} onCheckedChange={handle2FAChange} />
-					</div>
-				</CardContent>
-			</Card>
-
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
-				<CardHeader>
-					<CardTitle className="text-lg text-foreground">Accessibility</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="flex items-center justify-between">
-						<Label htmlFor="reduce-motion" className="text-foreground">
-							Reduce Motion
-						</Label>
-						<Switch id="reduce-motion" checked={preferences.reduceMotion} onCheckedChange={handleReduceMotionChange} />
-					</div>
 				</CardContent>
 			</Card>
 

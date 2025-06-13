@@ -23,6 +23,8 @@ import { User, UserStatus } from '@/types';
 import { useAuthContext } from '@/context/AuthContext';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
+import { useOnlineContext } from '@/context/OnlineContext';
+import OnlineBadge from '@/components/ui/online-badge';
 
 export default function UserDetailPage() {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -35,6 +37,7 @@ export default function UserDetailPage() {
 	const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
 	const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
 	const [isImpersonating, setIsImpersonating] = useState(false);
+	const { isUserOnline } = useOnlineContext();
 
 	const params = useParams();
 	const router = useRouter();
@@ -282,6 +285,8 @@ export default function UserDetailPage() {
 		}
 	};
 
+	const userOnline = isUserOnline(currentUser.id);
+
 	return (
 		<div className="space-y-6">
 			<Breadcrumbs />
@@ -299,7 +304,10 @@ export default function UserDetailPage() {
 							)}
 						</div>
 						<div className="flex-1 space-y-1">
-							<CardTitle className="text-2xl">{currentUser.name}</CardTitle>
+							<div className="flex gap-2 items-center">
+								<CardTitle className="text-2xl">{currentUser.name}</CardTitle>
+								<OnlineBadge online={userOnline} />
+							</div>
 							<CardDescription className="flex items-center gap-1.5 text-sm">
 								<UserIcon className="w-3.5 h-3.5" /> {currentUser.username}
 							</CardDescription>

@@ -18,11 +18,15 @@ import { Role, User, UserFilters, UserStatus } from '@/types';
 import { ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
 import { getStatusVariant } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
+import { useOnlineContext } from '@/context/OnlineContext';
+import OnlineBadge from '@/components/ui/online-badge';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function UserManagementPage() {
 	const { users, fetchUsers, isLoading, totalCount, error } = useUserContext();
+
+	const { isUserOnline } = useOnlineContext();
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterRole, setFilterRole] = useState<Role | 'all'>('all');
@@ -211,6 +215,7 @@ export default function UserManagementPage() {
 									<TableHead>Roles</TableHead>
 									<TableHead>Registered</TableHead>
 									<TableHead>Investments</TableHead>
+									<TableHead>Online</TableHead>
 									<TableHead>Total Invested</TableHead>
 									<TableHead>Status</TableHead>
 									<TableHead>Country</TableHead>
@@ -237,6 +242,9 @@ export default function UserManagementPage() {
 												<Skeleton className="h-4 w-[50px]" />
 											</TableCell>
 											<TableCell>
+												<Skeleton className="h-4 w-[50px]" />
+											</TableCell>
+											<TableCell>
 												<Skeleton className="h-4 w-[80px]" />
 											</TableCell>
 											<TableCell>
@@ -248,25 +256,31 @@ export default function UserManagementPage() {
 										</TableRow>
 									))
 								) : users.length > 0 ? (
-									users.map((user: User) => (
-										<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-											<TableCell className="font-medium">
-												<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
-													{user.avatar_url && <Image src={user.avatar_url} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
-													<span>{user.name}</span>
-												</CustomLink>
-											</TableCell>
-											<TableCell>{user.email}</TableCell>
-											<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
-											<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
-											<TableCell>{user.investmentCount}</TableCell>
-											<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
-											<TableCell>
-												<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
-											</TableCell>
-											<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
-										</TableRow>
-									))
+									users.map((user: User) => {
+										const userOnline = isUserOnline(user.id);
+										return (
+											<TableRow key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+												<TableCell className="font-medium">
+													<CustomLink href={`/admin/users/${user.username}`} className="flex items-center gap-3 text-primary">
+														{user.avatar_url && <Image src={user.avatar_url} alt={`${user.name}&apos;s profile picture`} width={40} height={40} className="rounded-full" />}
+														<span>{user.name}</span>
+													</CustomLink>
+												</TableCell>
+												<TableCell>{user.email}</TableCell>
+												<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
+												<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
+												<TableCell>{user.investmentCount}</TableCell>
+												<TableCell>
+													<OnlineBadge online={userOnline} />
+												</TableCell>
+												<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
+												<TableCell>
+													<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+												</TableCell>
+												<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
+											</TableRow>
+										);
+									})
 								) : (
 									<TableRow>
 										<TableCell colSpan={8} className="h-24 text-center">

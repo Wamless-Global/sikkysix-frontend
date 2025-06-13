@@ -12,10 +12,15 @@ import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
-import type { P2PTradeStatus } from '@/types/modules/trade';
-import { Badge } from '@/components/ui/badge';
+import { formatCurrency, getAgentStatusBadgeVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
+import { Badge } from '@/components/ui/badge';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const AgentPortalContent = () => {
 	const router = useRouter();
@@ -36,10 +41,12 @@ const AgentPortalContent = () => {
 	const [sortBy, setSortBy] = useState<'created_at' | 'fiat_amount' | 'status'>('created_at');
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 	const [statusFilter, setStatusFilter] = useState<string>('');
-	// const [searchTerm, setSearchTerm] = useState('');
 	const [searchTerm, setSearchTerm] = useState('');
 	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 	const { currentUser } = useAuthContext();
+
+	// Add filter toggle for mobile
+	const [showFilters, setShowFilters] = useState(typeof window !== 'undefined' && window.innerWidth >= 640 ? true : false);
 
 	// Debounce searchTerm
 	useEffect(() => {
@@ -73,8 +80,13 @@ const AgentPortalContent = () => {
 		}
 	}, [currentUser, statsLoaded]);
 
+	// Only set isLoading to false if agentId exists and data is loaded
 	useEffect(() => {
 		const agentId = currentUser?.agent_id;
+		if (!agentId) {
+			setIsLoading(true);
+			return;
+		}
 		setIsLoading(true);
 		const params = new URLSearchParams({
 			page: String(page),
@@ -88,7 +100,14 @@ const AgentPortalContent = () => {
 			.then((res) => res.json())
 			.then((data) => {
 				if (data.status === 'success' && data.data?.trades) {
-					setTrades(data.data.trades);
+					// Deduplicate here
+					const seen = new Set();
+					const deduped = data.data.trades.filter((t: any) => {
+						if (seen.has(t.id)) return false;
+						seen.add(t.id);
+						return true;
+					});
+					setTrades(deduped);
 					setTotalCount(data.data.count || 0);
 				}
 			})
@@ -96,32 +115,66 @@ const AgentPortalContent = () => {
 				handleFetchErrorMessage(err);
 			})
 			.finally(() => setIsLoading(false));
-	}, [page, pageSize, sortBy, sortOrder, statusFilter, debouncedSearchTerm]);
+	}, [currentUser, page, pageSize, sortBy, sortOrder, statusFilter, debouncedSearchTerm]);
 
-	// Helper to map trade status to Badge variant
-	function getStatusBadgeVariant(status: P2PTradeStatus): React.ComponentProps<typeof Badge>['variant'] {
-		switch (status) {
-			case 'completed':
-				return 'success';
-			case 'awaiting_fiat_payment':
-				return 'warning';
-			case 'fiat_payment_confirmed_by_buyer':
-			case 'fiat_received_confirmed_by_seller':
-			case 'platform_ngn_released':
-			case 'dispute_resolved_buyer':
-			case 'dispute_resolved_seller':
-				return 'info';
-			case 'expired':
-				return 'secondary';
-			case 'cancelled_by_buyer':
-			case 'cancelled_by_seller':
-			case 'dispute_opened':
-				return 'destructive';
-			default:
-				return 'outline';
+	// Real-time subscription for p2p_trades table (insert and update)
+	useEffect(() => {
+		const agentId = currentUser?.agent_id;
+		if (!agentId) return;
+		let channel: any;
+		let reconnectTimeout: NodeJS.Timeout | null = null;
+
+		// Utility to deduplicate trades by id
+		function dedupeTrades(trades: any[]) {
+			const seen = new Set();
+			return trades.filter((t) => {
+				if (seen.has(t.id)) return false;
+				seen.add(t.id);
+				return true;
+			});
 		}
-	}
 
+		const subscribe = () => {
+			logger.log('Subscribing to agent trades channel for agentId:', agentId);
+			channel = supabase.channel(`agent-trades-${agentId}`);
+			// Listen for INSERT and UPDATE events for trades belonging to this agent
+			channel.on(
+				'postgres_changes',
+				{
+					event: '*', // both INSERT and UPDATE
+					schema: 'public',
+					table: 'p2p_trades',
+					filter: `order_creator_id=eq.${agentId}`,
+				},
+				(payload: { new: any }) => {
+					setTrades((prev) => {
+						const idx = prev.findIndex((t) => t.id === payload.new.id);
+						let updated;
+						if (idx !== -1) {
+							updated = [...prev];
+							updated[idx] = { ...updated[idx], ...payload.new };
+						} else {
+							updated = [payload.new, ...prev];
+						}
+						return dedupeTrades(updated);
+					});
+				}
+			);
+			channel.on('close', {}, () => {
+				reconnectTimeout = setTimeout(() => {
+					subscribe();
+				}, 2000);
+			});
+			channel.subscribe();
+		};
+
+		subscribe();
+
+		return () => {
+			if (channel) channel.unsubscribe();
+			if (reconnectTimeout) clearTimeout(reconnectTimeout);
+		};
+	}, [currentUser]);
 	return (
 		<div className="space-y-8 pb-16">
 			<h1 className="sub-page-heading">P2P Agent Portal</h1>
@@ -152,12 +205,17 @@ const AgentPortalContent = () => {
 
 			{/* Trades Table */}
 			<div className="mt-10">
-				<h2 className="text-lg font-semibold mb-4 text-foreground">Recent Trades</h2>
-				<Card className="bg-card border border-border shadow-sm rounded-xl">
+				<div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+					<h2 className="text-lg font-semibold text-foreground">Recent Trades</h2>
+					<Button variant="outline" className="sm:hidden text-sm font-semibold text-blue-700 hover:bg-blue-50 transition" onClick={() => setShowFilters((prev) => !prev)} type="button">
+						{showFilters ? 'Hide Filters' : 'Show Filters'}
+					</Button>
+				</div>
+				<Card className="bg-card border border-border shadow-sm rounded-xl py-0">
 					<CardContent className="p-0">
-						<div className="overflow-x-auto">
+						<div className="">
 							{/* Filter and sort controls above the table */}
-							<div className="flex flex-wrap gap-4 items-end mb-4 bg-muted/40 rounded-lg px-4 shadow-sm">
+							<div className={cn('flex flex-wrap gap-4 items-end mb-4 bg-muted/40 rounded-lg px-4 shadow-sm pt-4', showFilters ? '' : 'hidden')}>
 								<div className="flex flex-col min-w-[200px]">
 									<Label className="block text-sm font-semibold mb-1 text-muted-foreground">Search</Label>
 									<input
@@ -290,11 +348,31 @@ const AgentPortalContent = () => {
 								</TableHeader>
 								<TableBody>
 									{isLoading ? (
-										<TableRow>
-											<TableCell colSpan={7} className="text-center">
-												<Skeleton className="h-6 w-3/4 mx-auto" />
-											</TableCell>
-										</TableRow>
+										// Use table skeleton rows for smooth loading
+										<>
+											{Array.from({ length: pageSize }).map((_, i) => (
+												<TableRow key={i}>
+													<TableCell>
+														<Skeleton className="h-4 w-24 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-12 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-10 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-16 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-20 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-24 rounded" />
+													</TableCell>
+												</TableRow>
+											))}
+										</>
 									) : trades.length === 0 ? (
 										<TableRow>
 											<TableCell colSpan={7} className="text-center text-muted-foreground">
@@ -319,7 +397,7 @@ const AgentPortalContent = () => {
 													<TableCell className="font-semibold text-base">{process.env.NEXT_PUBLIC_BASE_CURRENCY}</TableCell>
 													<TableCell className="font-semibold text-base text-green-700 dark:text-green-300">{formatCurrency(trade.fiat_amount)}</TableCell>
 													<TableCell>
-														<Badge variant={getStatusBadgeVariant(trade.status)} tabIndex={-1} aria-label={trade.status}>
+														<Badge variant={getAgentStatusBadgeVariant(trade.status)} tabIndex={-1} aria-label={trade.status}>
 															{trade.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
 														</Badge>
 													</TableCell>

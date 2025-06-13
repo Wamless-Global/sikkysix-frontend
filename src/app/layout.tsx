@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { AuthProvider } from '@/context/AuthContext';
 import appSettings from '@/config/app';
 import { ProgressBar } from '@/components/layout/ProgressBar';
 import { Toaster } from '@/components/ui/sonner';

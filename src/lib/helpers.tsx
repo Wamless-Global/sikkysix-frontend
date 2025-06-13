@@ -230,11 +230,12 @@ export function getTransactionTypeLabel(type: string) {
 	return TRANSACTION_TYPE_LABELS[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function handleFetchErrorMessage(err: { message?: string; detail?: unknown } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = '', redirect: boolean = true): string {
+export function handleFetchErrorMessage(err: { message?: string; detail?: unknown; errors?: any[] } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = '', redirect: boolean = true): string {
 	let errorMessage = defaultMessage || 'An unexpected error occurred.';
 
 	let message: string | undefined;
 	let detail: unknown;
+	let errors: any[] | undefined;
 
 	if (typeof err === 'string') {
 		message = err;
@@ -244,6 +245,17 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 		}
 		if ('detail' in err) {
 			detail = (err as any).detail;
+		}
+		if ('errors' in err && Array.isArray((err as any).errors)) {
+			errors = (err as any).errors;
+		}
+	}
+
+	// If errors array exists, join all error messages
+	if (errors && errors.length > 0) {
+		const errorMsgs = errors.map((e) => e.message || '').filter(Boolean);
+		if (errorMsgs.length > 0) {
+			errorMessage = errorMsgs.join('; ');
 		}
 	}
 
@@ -260,7 +272,7 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 			errorMessage = 'An internal error occurred, please contact support.';
 		} else if (err instanceof SyntaxError || lowerMessage.includes('json') || lowerMessage.includes('token')) {
 			errorMessage = JSONErr || 'Server unavailable. Please try again later.';
-		} else {
+		} else if (!errors || errors.length === 0) {
 			errorMessage = message;
 		}
 	}
@@ -336,7 +348,7 @@ export const getTradeViewState = (trade: TradeResponse, isUserFlow: boolean, isE
 	}
 };
 
-export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, isAnAgent?: boolean): string =>
+export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, _isAnAgent?: boolean): string =>
 	isBuyer
 		? trade?.status === 'awaiting_fiat_payment'
 			? "Send the exact sum to the agent to receive assets in your wallet. Ensure the seller's name matches and keep communication within the platform for dispute resolution."

@@ -1,13 +1,3 @@
-// filepath: src/lib/logger.ts
-/**
- * Custom logger utility for consistent logging across client and server.
- * Usage: import { logger } from '@/lib/logger';
- * logger.log('message', ...args);
- * logger.error('error', ...args);
- * logger.warn('warning', ...args);
- * logger.info('info', ...args);
- */
-
 const ENABLE_LOGS = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_ENABLE_LOGS === 'true') || (typeof window !== 'undefined' && (window as any).NEXT_PUBLIC_ENABLE_LOGS === 'true');
 
 export const logger = {

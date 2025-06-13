@@ -62,6 +62,7 @@ export interface UserUpdateApiResponse {
 export interface AuthenticatedUser {
 	id: string;
 	name: string;
+	username: string;
 	email: string;
 	avatar_url: string | null;
 	roles: Role[]; // Array of roles
@@ -107,6 +108,12 @@ export interface UserContextType {
 	getUserById: (id: string) => User | undefined;
 	getUserByUsername: (username: string) => User | undefined;
 	fetchUsers: (filters: UserFilters, page?: number) => Promise<void>;
+}
+
+export interface OnlineContextType {
+	online: boolean;
+	setOnline: (online: boolean) => void;
+	isUserOnline: (online: string) => boolean;
 }
 
 export interface UserProviderProps {

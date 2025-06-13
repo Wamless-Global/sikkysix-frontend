@@ -4,7 +4,7 @@ import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { useRouter, usePathname } from 'next/navigation';
-import nProgress, { set } from 'nprogress';
+import nProgress from 'nprogress';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { logger } from '@/lib/logger';
 
@@ -83,7 +83,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 	};
 
-	const signup = async (name: string, email: string, password: string, confirmPassword: string, roles: Array<string> = ['user']): Promise<void> => {
+	const signup = async (name: string, email: string, password: string, confirmPassword: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
+		logger.log('AuthContext: Starting signup process with', { name, email, referralId, roles });
 		if (password !== confirmPassword) {
 			throw new Error('Passwords do not match.');
 		}
@@ -97,13 +98,13 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ name, email, password, confirmPassword, roles }),
+				body: JSON.stringify({ name, email, password, confirmPassword, roles, referralId }),
 			});
 
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = responseData.message || `Signup API failed: ${response.statusText || 'Unknown error'}`;
+				const errorMessage = handleFetchErrorMessage(responseData || `Signup API failed: ${response.statusText || 'Unknown error'}`);
 				console.error('AuthContext Signup Error:', errorMessage, responseData);
 				throw new Error(errorMessage);
 			}
@@ -152,8 +153,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		} catch (err: unknown) {
 			let message = 'An unknown error occurred while checking email status.';
 			if (typeof err === 'object' && err !== null) {
-				if ('message' in err && typeof (err as any).message === 'string') {
-					message = (err as any).message;
+				if ('message' in err && typeof err.message === 'string') {
+					message = err.message;
 				}
 			}
 			return { status: 'error', message };
@@ -202,6 +203,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			setIsLoading(false);
 			return;
 		}
+
 		const checkUserSession = async () => {
 			try {
 				const response = await fetchWithAuth('/api/auth/verify-me');
@@ -232,7 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			}
 		};
 
-		!is404 && checkUserSession();
+		checkUserSession();
 	}, [pathname, is404]);
 
 	const value = {

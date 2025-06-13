@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import _Content from './content';
-import { ComingSoon } from '@/components/ui/coming-soon';
 
 export const metadata: Metadata = {
 	title: 'Account Referrals',
@@ -10,7 +9,7 @@ export const metadata: Metadata = {
 export default function Page() {
 	return (
 		<>
-			<ComingSoon />
+			<_Content />
 		</>
 	);
 }

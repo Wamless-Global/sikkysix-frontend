@@ -180,20 +180,20 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 						</h3>
 						{type === 'buy' ? (
 							<>
-								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
-								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
 								<OrderDetailItem label="Quantity" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
 							</>
 						) : (
 							<>
-								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} isBold />
-
 								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
 
 								<OrderDetailItem label="Expected Fiat" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
+
+								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} isBold />
 							</>
 						)}
-						{preview?.transactionFeesNGN === 0 ? (
+						{preview?.transactionFeesNGN <= 0 ? (
 							<OrderDetailItem label="Transaction Fees" value="No transaction fee" unit="" />
 						) : (
 							<OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} />
