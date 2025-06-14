@@ -47,6 +47,7 @@ const AgentApplyContent = () => {
 	const router = useRouter();
 
 	const fetchApplicationStatus = async () => {
+		if (!currentUser?.id) return;
 		setIsLoading(true);
 		setError(null);
 		try {
@@ -56,8 +57,6 @@ const AgentApplyContent = () => {
 
 			if (response.ok) {
 				const { data } = await response.json();
-
-				logger.log(data);
 
 				const status = data.length > 0 ? (data[0].status ? data[0].status : '') : '';
 
@@ -82,7 +81,7 @@ const AgentApplyContent = () => {
 
 	useEffect(() => {
 		fetchApplicationStatus();
-	}, []);
+	}, [currentUser?.id]);
 
 	const form = useForm<KycFormValues>({
 		resolver: zodResolver(kycFormSchema),
@@ -124,12 +123,12 @@ const AgentApplyContent = () => {
 				toast.success(`Application submitted successfully`);
 				setIsSubmitted(true);
 			} else {
-				let errorMessage = `Failed to submit application. Status: ${response.status}`;
+				let errorMsg = `Failed to submit application. Status: ${response.status}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = errorData.message || errorData.detail || errorMessage;
+					errorMsg = handleFetchErrorMessage(errorData, errorMsg);
 				} catch (_e) {}
-				toast.error(errorMessage);
+				toast.error(errorMsg);
 			}
 		} catch (error) {
 			console.error('Error creating category:', error);
@@ -158,8 +157,8 @@ const AgentApplyContent = () => {
 			{error && <ErrorMessage message={error} onRetry={fetchApplicationStatus} />}
 
 			{!isLoading && !error && applicationStatus === 'pending' && (
-				<div className="">
-					<p className="text-xl">Your agent application is currently pending review.</p>
+				<div className="text-green-600">
+					<p className="text-xl">Your application is under review.</p>
 					<p>We will notify you once your application status has been updated.</p>
 				</div>
 			)}

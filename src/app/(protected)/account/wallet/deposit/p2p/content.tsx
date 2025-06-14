@@ -15,6 +15,7 @@ import { AgentType } from '@/types';
 import { formatBaseurrency, formatCurrency } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({ rating, maxStars = 5 }) => {
 	const fullStars = Math.floor(rating);
@@ -80,7 +81,6 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 		return `/api/agents/active-with-orders/?${params.toString()}`;
 	};
 
-	// Fetch agents from API, always with filters/sorts if pagination is available
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
@@ -97,6 +97,8 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 					.map((a: any) => {
 						const user = a.agent.user;
 						const firstOrder = a.orders[0];
+						logger.info(user, 'User data from agent orders:', a.orders);
+
 						return {
 							id: a.agent.id,
 							orderId: firstOrder.id,
@@ -104,8 +106,9 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 							avatar_url: user?.avatar_url,
 							transactions: parseInt(a.agent.total_trades_completed || '0', 10),
 							completionRate: a.agent.completion_rate || 0,
-							rateNGN: firstOrder ? parseFloat(firstOrder.price_per_unit) : 0,
+							rate: firstOrder ? parseFloat(firstOrder.price_per_unit) : 0,
 							rating: a.agent.rating,
+							fee: firstOrder ? firstOrder.order_fee : 0,
 						};
 					});
 				setAgents(mapped);
@@ -119,7 +122,6 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 				setError('Failed to load agents');
 			})
 			.finally(() => setLoading(false));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [amount, appliedMinRating, appliedMinTransactions, sortBy, apiPage]);
 
 	const handleApplyFilters = () => {
@@ -143,7 +145,6 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 		setApiPage(1);
 	};
 
-	// If pagination, use agents as-is. If not, filter/sort in-memory.
 	const displayAgents = useMemo(() => {
 		if (hasPagination) return agents;
 		let agentsList = [...agents];
@@ -155,7 +156,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 		}
 		switch (sortBy) {
 			case 'price_desc':
-				agentsList.sort((a, b) => b.rateNGN - a.rateNGN);
+				agentsList.sort((a, b) => b.rate - a.rate);
 				break;
 			case 'completion_desc':
 				agentsList.sort((a, b) => b.completionRate - a.completionRate);
@@ -326,7 +327,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 										<div className="flex flex-col gap-1 sm:gap-2 mt-2">
 											<div className="flex flex-wrap items-center gap-2 text-sm">
 												<span className="text-muted-foreground">Price:</span>
-												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rateNGN)}</span>
+												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rate)}</span>
 												<span className="text-xs text-muted-foreground">per {process.env.NEXT_PUBLIC_BASE_CURRENCY}</span>
 											</div>
 											<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -364,7 +365,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 							}}
 							onConfirm={proceedToNewOrder}
 							title="Confirm Agent Selection"
-							description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? They have a rate of ${formatCurrency(selectedAgentForConfirmation.rateNGN)} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}.`}
+							description={`Are you sure you want to proceed with ${selectedAgentForConfirmation.name}? ${selectedAgentForConfirmation.fee ? `They have a ${selectedAgentForConfirmation.fee}% fee.` : ''}`}
 							confirmButtonText="Proceed"
 							cancelButtonText="Cancel"
 							isLoading={isRedirecting}

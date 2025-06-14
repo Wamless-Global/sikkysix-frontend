@@ -3,22 +3,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { ChevronRight } from 'lucide-react';
-import { useAuthContext } from '@/context/AuthContext'; // Import the hook
+import { useAuthContext } from '@/context/AuthContext';
 import { Card } from '@/components/ui/card';
 
 export default function ProfilePageContent() {
-	const { currentUser } = useAuthContext(); // Use the hook
-
-	// Optional: Add a loading state or skeleton while currentUser is loading
-	// if (isLoading) {
-	//   return <div>Loading profile...</div>; // Or a skeleton component
-	// }
+	const { currentUser } = useAuthContext();
 
 	const profileActions = [
-		{ label: 'Bank Details', href: '/account/profile/bank-details' },
+		{ label: 'Payment Options', href: '/account/profile/payment-options' },
 		{ label: 'Change Password', href: '/account/profile/change-password' },
-		// { label: 'Figure Heads', href: '/account/profile/figure-heads' },
-		// { label: 'Preferences', href: '/account/profile/preferences' }, // Remove old one
 		{ label: 'Preferences', href: '/account/profile/preferences' },
 	];
 

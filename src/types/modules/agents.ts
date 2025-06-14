@@ -42,6 +42,7 @@ export interface AgentType {
 	avatar_url?: string;
 	transactions: number;
 	completionRate: number;
-	rateNGN: number;
+	rate: number;
+	fee?: string;
 	rating: number; // Now typed as number, not placeholder
 }

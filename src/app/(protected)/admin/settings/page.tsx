@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { Columns, Info, Banknote, Bitcoin, Percent, Users } from 'lucide-react';
+import { Info, Banknote, Percent, Users } from 'lucide-react';
 import InfoTooltip from '@/components/ui/info-tooltip';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,10 +39,10 @@ function SettingsSkeleton() {
 export default function PlatformSettingsPage() {
 	const [platformName, setPlatformName] = useState('SikkySix Invest');
 	const [platformBaseCurrency, setPlatformBaseCurrency] = useState('NGN');
-	const [platformFiatCurrency, setPlatformFiatCurrency] = useState('NGN');
+	const [platformFiatRate, setPlatformFiatRate] = useState('1');
 
-	const [depositFeePercent, setDepositFeePercent] = useState(5);
-	const [withdrawalFeePercent, setWithdrawalFeePercent] = useState(5);
+	const [agentMaxDepositFeePercent, setagentMaxDepositFeePercent] = useState(5);
+	const [agentMaxWithdrawalFeePercent, setagentMaxWithdrawalFeePercent] = useState(5);
 
 	const [globalMaxMultiplier, setGlobalMaxMultiplier] = useState(2);
 	const [promoMaxMultiplier, setPromoMaxMultiplier] = useState(3);
@@ -54,11 +54,6 @@ export default function PlatformSettingsPage() {
 	const [bonusFromWithdrawal, setBonusFromWithdrawal] = useState(true);
 	const [referralThreshold, setReferralThreshold] = useState(10);
 	const [higherEarningsMultiplier, setHigherEarningsMultiplier] = useState(4);
-
-	const [enabledBankCountries, setEnabledBankCountries] = useState<Set<string>>(new Set(['NG']));
-
-	const [cryptoMinDeposit, setCryptoMinDeposit] = useState(100);
-	const [cryptoAllowedCategories, setCryptoAllowedCategories] = useState<Set<string>>(new Set(['cat_1', 'cat_4']));
 
 	const [enableProfitCapping, setEnableProfitCapping] = useState(false);
 	const [enableAutoWithdrawal, setEnableAutoWithdrawal] = useState(false);
@@ -88,11 +83,11 @@ export default function PlatformSettingsPage() {
 
 				if (settings.platform_base_currency) setPlatformBaseCurrency(settings.platform_base_currency);
 
-				if (settings.platform_fiat_currency) setPlatformFiatCurrency(settings.platform_fiat_currency);
+				if (settings.platform_fiat_rate) setPlatformFiatRate(settings.platform_fiat_rate);
 
-				if (settings.deposit_fee_percent !== undefined) setDepositFeePercent(Number(settings.deposit_fee_percent));
+				if (settings.agent_max_deposit_fee_percent !== undefined) setagentMaxDepositFeePercent(Number(settings.agent_max_deposit_fee_percent));
 
-				if (settings.withdrawal_fee_percent !== undefined) setWithdrawalFeePercent(Number(settings.withdrawal_fee_percent));
+				if (settings.agent_max_withdrawal_fee_percent !== undefined) setagentMaxWithdrawalFeePercent(Number(settings.agent_max_withdrawal_fee_percent));
 
 				if (settings.global_max_multiplier !== undefined) setGlobalMaxMultiplier(Number(settings.global_max_multiplier));
 
@@ -111,22 +106,6 @@ export default function PlatformSettingsPage() {
 				if (settings.referral_threshold !== undefined) setReferralThreshold(Number(settings.referral_threshold));
 
 				if (settings.higher_earnings_multiplier !== undefined) setHigherEarningsMultiplier(Number(settings.higher_earnings_multiplier));
-
-				if (settings.enabled_bank_countries !== undefined) {
-					try {
-						const arr = JSON.parse(settings.enabled_bank_countries.replace(/'/g, '"'));
-						setEnabledBankCountries(new Set(arr));
-					} catch {}
-				}
-
-				if (settings.crypto_min_deposit !== undefined) setCryptoMinDeposit(Number(settings.crypto_min_deposit));
-
-				if (settings.crypto_allowed_categories !== undefined) {
-					try {
-						const arr = JSON.parse(settings.crypto_allowed_categories.replace(/'/g, '"'));
-						setCryptoAllowedCategories(new Set(arr));
-					} catch {}
-				}
 
 				if (settings.enable_profit_capping !== undefined) setEnableProfitCapping(settings.enable_profit_capping === 'true');
 
@@ -151,6 +130,7 @@ export default function PlatformSettingsPage() {
 
 	// --- PATCH helpers ---
 	async function patchSettings(updates: { key: string; setting_value: string }[], section: string) {
+		setIsSubmitting(true);
 		const toastId = toast.loading(`Saving ${section}...`);
 		try {
 			const res = await fetchWithAuth('/api/admin/settings', {
@@ -173,6 +153,8 @@ export default function PlatformSettingsPage() {
 
 			toast.error(errorMessage, { id: toastId });
 			return false;
+		} finally {
+			setIsSubmitting(false);
 		}
 	}
 
@@ -181,14 +163,14 @@ export default function PlatformSettingsPage() {
 		const updates = [
 			{ key: 'platform_name', setting_value: platformName },
 			{ key: 'platform_base_currency', setting_value: platformBaseCurrency },
-			{ key: 'platform_fiat_currency', setting_value: platformFiatCurrency },
+			{ key: 'platform_fiat_rate', setting_value: platformFiatRate },
 		];
 		await patchSettings(updates, 'General Settings');
 	};
 	const handleSaveFeeSettings = async () => {
 		const updates = [
-			{ key: 'deposit_fee_percent', setting_value: depositFeePercent.toString() },
-			{ key: 'withdrawal_fee_percent', setting_value: withdrawalFeePercent.toString() },
+			{ key: 'agent_max_deposit_fee_percent', setting_value: agentMaxDepositFeePercent.toString() },
+			{ key: 'agent_max_withdrawal_fee_percent', setting_value: agentMaxWithdrawalFeePercent.toString() },
 		];
 		await patchSettings(updates, 'Fee Settings');
 	};
@@ -254,10 +236,10 @@ export default function PlatformSettingsPage() {
 								<Input disabled={isSubmitting} id="platformBaseCurrency" value={platformBaseCurrency} onChange={(e) => setPlatformBaseCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD" />
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="platformFiatCurrency" className="font-medium">
-									Platform Fiat Currency
+								<Label htmlFor="platformFiatRate" className="font-medium">
+									Platform Fiat Rate (NGN)
 								</Label>
-								<Input disabled={isSubmitting} id="platformFiatCurrency" value={platformFiatCurrency} onChange={(e) => setPlatformFiatCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD, EUR (comma separated)" />
+								<Input disabled={isSubmitting} id="platformFiatRate" value={platformFiatRate} onChange={(e) => setPlatformFiatRate(e.target.value)} className="focus:ring-primary/60" placeholder="The rate of currency to Naira" />
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">
@@ -276,15 +258,15 @@ export default function PlatformSettingsPage() {
 						<CardContent className="space-y-6">
 							<div className="space-y-2">
 								<Label htmlFor="depositFee" className="font-medium">
-									Deposit Fee (%)
+									Maximum Agent Deposit Fee (%)
 								</Label>
-								<Input disabled={isSubmitting} id="depositFee" type="number" min="0" max="100" step="0.1" value={depositFeePercent} onChange={(e) => setDepositFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
+								<Input disabled={isSubmitting} id="depositFee" type="number" min="0" max="100" step="0.1" value={agentMaxDepositFeePercent} onChange={(e) => setagentMaxDepositFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
 							</div>
 							<div className="space-y-2">
 								<Label htmlFor="withdrawalFee" className="font-medium">
-									Withdrawal Fee (%)
+									Maximum Agent Withdrawal Fee (%)
 								</Label>
-								<Input disabled={isSubmitting} id="withdrawalFee" type="number" min="0" max="100" step="0.1" value={withdrawalFeePercent} onChange={(e) => setWithdrawalFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
+								<Input disabled={isSubmitting} id="withdrawalFee" type="number" min="0" max="100" step="0.1" value={agentMaxWithdrawalFeePercent} onChange={(e) => setagentMaxWithdrawalFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">

@@ -3,6 +3,7 @@ export interface P2PMethod {
 	name: string;
 	description?: string;
 	country_code: string;
+	country_name: string;
 	logo_url?: string;
 	fields_required?: string;
 	is_active: boolean;
@@ -12,6 +13,8 @@ export interface PaymentMethod {
 	id: string;
 	type: string;
 	details: string;
+	payment_method_id?: string;
+	country_code?: string;
 }
 
 export interface ApiPaymentMethod {
@@ -19,6 +22,7 @@ export interface ApiPaymentMethod {
 	name: string;
 	description: string;
 	country_code: string;
+	country_name?: string;
 	logo_url: string;
 	fields_required: string;
 	is_active: boolean;

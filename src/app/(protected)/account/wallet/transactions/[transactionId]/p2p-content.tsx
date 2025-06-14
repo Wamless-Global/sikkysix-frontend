@@ -392,10 +392,11 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 
 	// Extract order and user info from the live trade data
 	const orderDetails = {
-		amountNGN: trade?.fiat_amount ? parseFloat(trade.fiat_amount) : 0,
-		rateNGN: trade?.price_per_unit ? parseFloat(trade.price_per_unit) : 0,
+		amount: trade?.fiat_amount ? parseFloat(trade.fiat_amount) : 0,
+		rate: trade?.price_per_unit ? parseFloat(trade.price_per_unit) : 0,
 		tokenQuantity: trade?.platform_currency_amount ? parseFloat(trade.platform_currency_amount) : 0,
-		transactionFeesNGN: 0,
+		transactionFees: trade?.fee ? parseFloat(trade?.fee) : 0,
+		fiat_currency: trade.fiat_currency,
 	};
 
 	// Helper to check if transaction is a non-empty object
@@ -513,10 +514,10 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 							<CardTitle className="text-lg text-foreground">Order Details</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-1 px-0">
-							<OrderDetailItem label={isBuyer ? 'Amount to Pay' : 'Amount to Receive'} value={orderDetails.amountNGN} unit="NGN" isBold />
-							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
+							<OrderDetailItem label={isBuyer ? 'Amount to Pay' : 'Amount to Receive'} value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
 							<OrderDetailItem label={isBuyer ? (isAnAgent ? 'Quantity to Receive' : 'Quantity to Buy') : 'Quantity to Sell'} value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
-							<OrderDetailItem label="Fees" value={orderDetails.transactionFeesNGN} unit="NGN" />
+							<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />
 						</CardContent>
 					</Card>
 

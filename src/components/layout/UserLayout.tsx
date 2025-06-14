@@ -202,7 +202,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 			<UserMobileSidebar isOpen={isMobileSidebarOpen} onClose={closeMobileSidebar} />
 
 			<div className="flex flex-1 flex-col lg:pl-72 lg:pr-8 relative overflow-x-hidden">
-				<UserHeader onMenuToggle={toggleMobileSidebar} notifications={notifications} />
+				<UserHeader onMenuToggle={toggleMobileSidebar} notifications={notifications} unreadNotifications={unreadNotifications} />
 
 				<div className="!sticky top-0 w-full right-0 z-10 backdrop-blur-sm">
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/80 rounded-full shadow mx-8 mt-6">

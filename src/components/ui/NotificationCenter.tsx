@@ -196,13 +196,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 									<div className="flex items-center justify-between mb-1">
 										<CustomLink href={`${n.action_link ? `${n.action_link}` : '#'}`} onClick={onClose} className="flex items-center gap-2 min-w-0">
 											{!n.is_read && <span className="inline-block w-2 h-2 rounded-full bg-[var(--dashboard-accent)] animate-pulse flex-shrink-0" title="New" />}
-											<span className="font-semibold text-[var(--dashboard-accent-muted)] text-base truncate max-w-[180px] lg:max-w-[240px]">{n.title}</span>
+											<span className="font-semibold text-[var(--dashboard-accent-muted)] text-base truncate lg:max-w-[240px]">{n.title}</span>
 										</CustomLink>
 										<Button variant="ghost" size="icon" onClick={() => handleDeleteNotification(n.id)} className="opacity-60 hover:opacity-100 text-destructive ml-2 focus:outline-none" title="Delete notification">
 											<Trash2Icon className="h-4 w-4" />
 										</Button>
 									</div>
-									<div className="notification-center-item-body text-[var(--foreground)] text-sm mb-1 break-words whitespace-pre-line leading-relaxed">{n.message}</div>
+									<div className="notification-center-item-body text-[var(--foreground)] text-sm mb-1 break-words whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: n.message }}></div>
 									<div className="notification-center-item-date text-xs text-[var(--muted-foreground)] text-right">{formatRelativeTime(n.created_at)}</div>
 								</div>
 							))}

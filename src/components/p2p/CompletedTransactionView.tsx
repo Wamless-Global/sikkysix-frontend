@@ -24,14 +24,18 @@ const CompletedTransactionView: React.FC<CompletedTransactionViewProps> = ({ tra
 
 	// Transaction summary
 	const orderDetails = {
-		amountNGN: trade.fiat_amount ? parseFloat(trade.fiat_amount) : 0,
-		rateNGN: trade.price_per_unit ? parseFloat(trade.price_per_unit) : 0,
+		amount: trade.fiat_amount ? parseFloat(trade.fiat_amount) : 0,
+		rate: trade.price_per_unit ? parseFloat(trade.price_per_unit) : 0,
 		tokenQuantity: trade.platform_currency_amount ? parseFloat(trade.platform_currency_amount) : 0,
+		transactionFees: trade?.fee || 0,
+		fiat_currency: trade.fiat_currency,
 	};
 
 	// Time details
-	const initiated = trade.created_at ? new Date(trade.created_at).toLocaleString() : '-';
-	const finished = trade.platform_currency_released_at ? new Date(trade.platform_currency_released_at).toLocaleString() : '-';
+
+	const initiated = trade.created_at;
+	const finished = trade.platform_currency_released_at;
+
 	const duration =
 		trade.platform_currency_released_at && trade.created_at
 			? (() => {
@@ -100,17 +104,18 @@ const CompletedTransactionView: React.FC<CompletedTransactionViewProps> = ({ tra
 				<CardContent className="space-y-1 px-0">
 					{isBuyer ? (
 						<>
-							<OrderDetailItem label="Amount Paid" value={orderDetails.amountNGN} unit="NGN" isBold />
-							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
-							<OrderDetailItem label="Quantity Received" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							<OrderDetailItem label="Amount Paid" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
+							<OrderDetailItem label="Quantity Received" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} className="money" isBold />
 						</>
 					) : (
 						<>
-							<OrderDetailItem label="Amount Received" value={orderDetails.amountNGN} unit="NGN" isBold />
-							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
-							<OrderDetailItem label="Quantity Sold" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							<OrderDetailItem label="Amount Received" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
+							<OrderDetailItem label="Quantity Sold" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} className="money" isBold />
 						</>
 					)}
+					<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />
 					<div className="pt-4 space-y-2 text-sm text-muted-foreground">
 						<div className="flex justify-between">
 							<p>Initiated:</p> <p>{formatDateNice(initiated)}</p>

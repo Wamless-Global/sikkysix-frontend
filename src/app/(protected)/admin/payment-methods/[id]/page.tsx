@@ -14,11 +14,13 @@ import { toast } from 'sonner';
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
 	description: z.string().optional(),
-	country_code: z.string().min(2, 'Country code is required'),
+	country: z.string().min(2, 'Country code is required'),
 	image: z.instanceof(File).optional().nullable(),
 	logo_url: z.string().optional(),
 	is_active: z.boolean(),
@@ -42,13 +44,15 @@ export default function EditP2PPage() {
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const [countries, setCountries] = useState<{ code: string; name: string; id: string }[]>([]);
+	const [countriesLoading, setCountriesLoading] = useState(true);
 
 	const form = useForm<PaymentMethodForm>({
 		resolver: zodResolver(paymentMethodSchema),
 		defaultValues: {
 			name: '',
 			description: '',
-			country_code: '',
+			country: '',
 			image: undefined,
 			logo_url: '',
 			is_active: false,
@@ -62,6 +66,32 @@ export default function EditP2PPage() {
 	const logoUrl = watch('logo_url');
 
 	useEffect(() => {
+		const fetchCountries = async () => {
+			setCountriesLoading(true);
+			try {
+				const res = await fetchWithAuth('/api/countries');
+				const data = await res.json();
+
+				if (!res.ok) {
+					let errorMsg = `Unable to load countries. Status: ${res.status}`;
+					try {
+						const errorData = await res.json();
+						errorMsg = handleFetchErrorMessage(errorData, errorMsg);
+					} catch (_e) {}
+					toast.error(errorMsg);
+					throw new Error(errorMsg);
+				}
+				setCountries(data.countries || []);
+			} catch {
+				setCountries([]);
+			} finally {
+				setCountriesLoading(false);
+			}
+		};
+		fetchCountries();
+	}, []);
+
+	useEffect(() => {
 		if (!id) return;
 		setLoading(true);
 		fetchWithAuth(`/api/p2p/payment-methods/${id}`)
@@ -71,7 +101,7 @@ export default function EditP2PPage() {
 				const method = data.data;
 				setValue('name', method.name || '');
 				setValue('description', method.description || '');
-				setValue('country_code', method.country_code || '');
+				setValue('country', method.country || '');
 				setValue('logo_url', method.logo_url || '');
 				setValue('is_active', !!method.is_active);
 				let fields = [];
@@ -121,7 +151,7 @@ export default function EditP2PPage() {
 		const formData = new FormData();
 		formData.append('name', data.name);
 		formData.append('description', data.description || '');
-		formData.append('country_code', data.country_code);
+		formData.append('country', data.country);
 		formData.append('is_active', String(data.is_active));
 		if (data.image instanceof File) {
 			formData.append('image', data.image);
@@ -198,14 +228,25 @@ export default function EditP2PPage() {
 								/>
 								<FormField
 									control={form.control}
-									name="country_code"
+									name="country"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>
-												Country Code <span className="text-destructive">*</span>
+												Country <span className="text-destructive">*</span>
 											</FormLabel>
 											<FormControl>
-												<Input {...field} required />
+												<Select value={field.value} onValueChange={field.onChange} disabled={countriesLoading}>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder={countriesLoading ? 'Loading...' : 'Select country'} />
+													</SelectTrigger>
+													<SelectContent>
+														{countries.map((country) => (
+															<SelectItem key={country.id} value={country.id}>
+																{country.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</FormItem>

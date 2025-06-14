@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -16,11 +16,13 @@ import nProgress from 'nprogress';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import Image from 'next/image';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
+import { handleFetchErrorMessage } from '@/lib/helpers';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
 	description: z.string().optional(),
-	country_code: z.string().min(2, 'Country code is required'),
+	country: z.string().min(2, 'Country code is required'),
 	image: z.instanceof(File).optional().nullable(),
 	is_active: z.boolean(),
 	fields_required: z
@@ -37,15 +39,21 @@ const paymentMethodSchema = z.object({
 type PaymentMethodForm = z.infer<typeof paymentMethodSchema>;
 
 export default function AddP2PPage() {
+	const [countries, setCountries] = useState<{ code: string; name: string; id: string }[]>([]);
+	const [countriesLoading, setCountriesLoading] = useState(true);
+
+	const [error, setError] = useState('');
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+
 	const router = useRouter();
 	const form = useForm<PaymentMethodForm>({
 		resolver: zodResolver(paymentMethodSchema),
 		defaultValues: {
 			name: '',
 			description: '',
-			country_code: '',
+			country: '',
 			image: undefined,
-			is_active: false,
+			is_active: true,
 			fields_required: [{ name: '', label: '', type: 'text' }],
 		},
 		mode: 'onChange',
@@ -57,13 +65,36 @@ export default function AddP2PPage() {
 		watch,
 	} = form;
 
-	const [error, setError] = useState('');
-	const [imagePreview, setImagePreview] = useState<string | null>(null);
-
 	const fieldsRequired = watch('fields_required');
 	const imageFile = watch('image');
 
-	React.useEffect(() => {
+	useEffect(() => {
+		const fetchCountries = async () => {
+			setCountriesLoading(true);
+			try {
+				const res = await fetchWithAuth('/api/countries');
+				const data = await res.json();
+
+				if (!res.ok) {
+					let errorMsg = `Unable to load countries. Status: ${res.status}`;
+					try {
+						const errorData = await res.json();
+						errorMsg = handleFetchErrorMessage(errorData, errorMsg);
+					} catch (_e) {}
+					toast.error(errorMsg);
+					throw new Error(errorMsg);
+				}
+				setCountries(data.countries || []);
+			} catch {
+				setCountries([]);
+			} finally {
+				setCountriesLoading(false);
+			}
+		};
+		fetchCountries();
+	}, []);
+
+	useEffect(() => {
 		if (imageFile && imageFile instanceof File) {
 			const objectUrl = URL.createObjectURL(imageFile);
 			setImagePreview(objectUrl);
@@ -97,7 +128,7 @@ export default function AddP2PPage() {
 		const formData = new FormData();
 		formData.append('name', data.name);
 		formData.append('description', data.description || '');
-		formData.append('country_code', data.country_code);
+		formData.append('country', data.country);
 		formData.append('is_active', String(data.is_active));
 
 		if (data.image instanceof File) {
@@ -191,14 +222,25 @@ export default function AddP2PPage() {
 
 								<FormField
 									control={form.control}
-									name="country_code"
+									name="country"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>
-												Country Code <span className="text-destructive">*</span>
+												Country <span className="text-destructive">*</span>
 											</FormLabel>
 											<FormControl>
-												<Input {...field} required disabled={isSubmitting} />
+												<Select value={field.value} onValueChange={field.onChange} disabled={isSubmitting || countriesLoading}>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder={countriesLoading ? 'Loading...' : 'Select country'} />
+													</SelectTrigger>
+													<SelectContent>
+														{countries.map((country) => (
+															<SelectItem key={country.id} value={country.id}>
+																{country.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</FormItem>

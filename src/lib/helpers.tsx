@@ -1,8 +1,8 @@
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { AccountStatus, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
+import { AccountStatus, ApiPaymentMethod, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
 import { P2PTradeStatus, TradeResponse } from '@/types/modules/trade';
 import nProgress from 'nprogress';
-import React from 'react';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
@@ -396,3 +396,14 @@ export function getTradeStatusToast(updatedTrade: { status: string }) {
 }
 
 export const positiveTransactionTypes: string[] = ['deposit', 'credit', 'investment_profit_withdrawal', 'unlocked_funds_from_order'];
+
+export function getFieldLabel(paymentMethodId: string, fieldName: string, availableMethods: ApiPaymentMethod[]): string {
+	const method = availableMethods.find((m) => m.id === paymentMethodId);
+	if (!method) return fieldName;
+	try {
+		const fields = JSON.parse(method.fields_required) as { name: string; label: string }[];
+		return fields.find((f) => f.name === fieldName)?.label || fieldName;
+	} catch {
+		return fieldName;
+	}
+}

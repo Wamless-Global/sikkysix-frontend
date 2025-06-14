@@ -2,7 +2,7 @@ import Content from './content';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-	title: 'Account Bank Details',
+	title: 'Payment Options',
 	description: 'Manage your bank details for your account profile.',
 };
 

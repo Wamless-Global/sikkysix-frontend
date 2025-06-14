@@ -15,9 +15,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
-import { getFieldLabel } from '@/lib/helpers';
+import { getFieldLabel, handleFetchErrorMessage } from '@/lib/helpers';
+import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
 
-export default function AgentPortalSettingsContent() {
+export default function ProfilePaymentOptionsContent() {
 	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [form, setForm] = useState<{ type: string; details: Record<string, string> }>({ type: '', details: {} });
@@ -40,9 +42,8 @@ export default function AgentPortalSettingsContent() {
 		try {
 			const res = await fetchWithAuth('/api/p2p/payment-methods');
 			const data = await res.json();
+			logger.info('Payment methods fetched', { data });
 			if (data.status === 'success') {
-				logger.log(data);
-
 				setAvailableMethods(data.data.filter((m: ApiPaymentMethod) => m.is_active));
 			}
 		} catch (e) {
@@ -73,14 +74,15 @@ export default function AgentPortalSettingsContent() {
 	}, [form.type, availableMethods]);
 
 	useEffect(() => {
-		const agentId = currentUser?.agent_id;
-		if (!agentId) return;
+		const userId = currentUser?.id;
+		if (!userId) return;
 		let ignore = false;
-		async function fetchAgentPaymentOptions() {
+		async function fetchUserPaymentOptions() {
 			setLoading(true);
 			try {
-				const res = await fetchWithAuth(`/api/agents/payment-options/agent/${agentId}`);
+				const res = await fetchWithAuth(`/api/users/payment-options`);
 				const data = await res.json();
+
 				if (!ignore) {
 					if (res.ok && data.status === 'success') {
 						setPaymentMethods(data.data);
@@ -94,25 +96,25 @@ export default function AgentPortalSettingsContent() {
 				if (!ignore) setLoading(false);
 			}
 		}
-		fetchAgentPaymentOptions();
+		fetchUserPaymentOptions();
 		return () => {
 			ignore = true;
 		};
-	}, [currentUser?.agent_id]);
+	}, [currentUser?.id]);
 
 	const handleAddPaymentMethod = async () => {
 		if (!form.type) {
 			toast.error('Please select a payment method type');
 			return;
 		}
-		// Prevent adding duplicate payment method for the same type
+
 		if ((paymentMethods as any[]).some((pm) => pm.payment_method_id === form.type)) {
 			const method = availableMethods.find((m) => m.id === form.type);
 			toast.error(method?.name ? `${method.name} is already added. You cannot add the same payment method twice.` : 'This payment method is already added.');
 			return;
 		}
 		const payload = {
-			agent_id: currentUser?.agent_id,
+			user_id: currentUser?.id,
 			payment_method_id: form.type,
 			account_details: form.details,
 		};
@@ -120,7 +122,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Saving payment method...');
 		try {
-			const res = await fetchWithAuth('/api/agents/payment-options', {
+			const res = await fetchWithAuth('/api/users/payment-options', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -139,9 +141,11 @@ export default function AgentPortalSettingsContent() {
 				setModalOpen(false);
 				toast.success('Payment method added', { id: toastId });
 			} else {
-				toast.error(data.message || 'Failed to add payment method', { id: toastId });
+				const errorMessage = handleFetchErrorMessage(data, 'Failed to add payment method');
+				toast.error(errorMessage, { id: toastId });
 			}
 		} catch (e) {
+			logger.error('Error adding payment method', e);
 			toast.error('Error adding payment method', { id: toastId });
 		} finally {
 			setApiLoading(false);
@@ -165,12 +169,13 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Updating payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/agents/payment-options/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/users/payment-options/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
 			});
 			const data = await res.json();
+
 			if (res.ok && data.status === 'success') {
 				setPaymentMethods(paymentMethods.map((pm) => (pm.id === editForm.id ? { ...pm, ...data.data, payment_method_id: editForm.type, account_details: editForm.details } : pm)));
 				setEditModalOpen(false);
@@ -189,14 +194,16 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Deleting payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/agents/payment-options/${id}`, {
+			const res = await fetchWithAuth(`/api/users/payment-options/${id}`, {
 				method: 'DELETE',
 			});
 			if (res.ok) {
 				setPaymentMethods(paymentMethods.filter((pm) => pm.id !== id));
 				toast.success('Payment method deleted', { id: toastId });
 			} else {
-				toast.error('Failed to delete payment method', { id: toastId });
+				const err = await res.json();
+				const errorMessage = handleFetchErrorMessage(err, 'Failed to delete payment method');
+				toast.error(errorMessage, { id: toastId });
 			}
 		} catch (e) {
 			toast.error('Error deleting payment method', { id: toastId });
@@ -224,16 +231,16 @@ export default function AgentPortalSettingsContent() {
 
 	return (
 		<div className="max-w-2xl space-y-8 pb-16">
-			<h1 className="sub-page-heading">Agent Settings</h1>
-			<p className="sub-page-heading-sub-text mb-6">Manage your P2P agent profile and payment methods. The information provided here will be used for peer-to-peer transactions and payouts. Please ensure your payment methods are accurate and up to date to facilitate seamless transactions.</p>
+			<h1 className="sub-page-heading text-2xl font-bold tracking-tight">Payment Options</h1>
+			<p className="sub-page-heading-sub-text mb-6 text-base text-muted-foreground">Manage your payment methods for peer-to-peer transactions and payouts. Please ensure your payment methods are accurate and up to date to facilitate seamless transactions.</p>
 
-			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
+			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm rounded-2xl border border-border">
 				<CardHeader>
 					<CardTitle className="text-lg text-foreground flex items-center justify-between">
 						Payment Methods
-						<Button size="sm" variant="outline" onClick={() => setModalOpen(true)} disabled={loading || apiLoading}>
+						<Button size="sm" variant="outline" onClick={() => setModalOpen(true)} disabled={loading || apiLoading} className="gap-1 font-medium">
 							{loading ? (
-								<Skeleton className="h-4 w-16 rounded" />
+								<Skeleton className="h-4 w-16 rounded bg-muted/60" />
 							) : (
 								<>
 									<Plus className="h-4 w-4 mr-1" /> Add
@@ -259,43 +266,61 @@ export default function AgentPortalSettingsContent() {
 						<p className="text-muted-foreground text-sm">No payment methods added yet.</p>
 					) : (
 						<ul className="space-y-3">
-							{paymentMethods.map((pm: any) => (
-								<li key={pm.id} className="flex items-center justify-between bg-background rounded-lg px-4 py-3 border border-border">
-									<div className="space-y-3">
-										<div className="font-medium text-foreground">
-											{/* Show payment method name if available */}
-											{availableMethods.find((m) => m.id === pm.payment_method_id)?.name || pm.type}
+							{paymentMethods.map((pm: any) => {
+								const method = availableMethods.find((m) => m.id === pm.payment_method_id);
+								return (
+									<li key={pm.id} className="flex items-center justify-between bg-background rounded-xl px-4 py-4 border border-border shadow-sm hover:shadow-md transition-shadow">
+										<div className="flex items-center gap-4 min-w-0">
+											{method?.logo_url ? (
+												<div className="flex-shrink-0">
+													<Image src={method.logo_url} alt={method.name} width={44} height={44} className="w-11 h-11 object-contain border border-muted bg-white dark:bg-muted/30  shadow-sm" style={{ minWidth: 44, minHeight: 44 }} />
+												</div>
+											) : (
+												<div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground border border-muted">{method?.name?.[0] || '?'}</div>
+											)}
+											<div className="space-y-1 min-w-0">
+												<div className="font-semibold text-foreground flex items-center gap-2 truncate">
+													{method?.name || pm.type}
+													{method?.country_name && (
+														<Badge variant={'info'} size={'sm'} className="text-xs font-medium">
+															{method.country_name}
+														</Badge>
+													)}
+												</div>
+												{method?.description && <div className="text-xs text-muted-foreground truncate max-w-xs">{method.description}</div>}
+												<ul className="text-sm text-muted-foreground break-all list-disc list-inside mt-1">
+													{Object.entries(pm.account_details || {}).map(([k, v]) => (
+														<li key={k} className="truncate">
+															<span className="font-medium text-foreground">{getFieldLabel(pm.payment_method_id, k, availableMethods)}:</span> <span className="text-muted-foreground">{String(v)}</span>
+														</li>
+													))}
+												</ul>
+											</div>
 										</div>
-										<ul className="text-sm text-muted-foreground break-all list-disc list-inside">
-											{Object.entries(pm.account_details || {}).map(([k, v]) => (
-												<li key={k}>
-													<span className="font-medium">{getFieldLabel(pm.payment_method_id, k, availableMethods)}:</span> {String(v)}
-												</li>
-											))}
-										</ul>
-									</div>
-									<div className="flex gap-2">
-										<Button size="icon" variant="ghost" onClick={() => handleEditClick(pm)} aria-label="Edit" disabled={apiLoading}>
-											<svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-												<path d="M12 20h9" />
-												<path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z" />
-											</svg>
-										</Button>
-										<Button
-											size="icon"
-											variant="ghost"
-											onClick={() => {
-												setSelectedForDelete(pm);
-												setConfirmOpen(true);
-											}}
-											aria-label="Remove"
-											disabled={apiLoading}
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									</div>
-								</li>
-							))}
+										<div className="flex gap-2 items-center">
+											<Button size="icon" variant="ghost" onClick={() => handleEditClick(pm)} aria-label="Edit" disabled={apiLoading} className="hover:bg-accent">
+												<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+													<path d="M12 20h9" />
+													<path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z" />
+												</svg>
+											</Button>
+											<Button
+												size="icon"
+												variant="ghost"
+												onClick={() => {
+													setSelectedForDelete(pm);
+													setConfirmOpen(true);
+												}}
+												aria-label="Remove"
+												disabled={apiLoading}
+												className="hover:bg-destructive/10"
+											>
+												<X className="h-4 w-4 text-destructive" />
+											</Button>
+										</div>
+									</li>
+								);
+							})}
 						</ul>
 					)}
 				</CardContent>
@@ -324,7 +349,12 @@ export default function AgentPortalSettingsContent() {
 									</SelectTrigger>
 									<SelectContent className="account-input w-full">
 										{availableMethods.map((m) => (
-											<SelectItem key={m.id} value={m.id} className="bg-background text-foreground dark:bg-[oklch(var(--dashboard-muted-bg))] dark:text-foreground">
+											<SelectItem key={m.id} value={m.id} className="flex items-center gap-2 bg-background text-foreground dark:bg-[oklch(var(--dashboard-muted-bg))] dark:text-foreground">
+												{m.logo_url && (
+													<span className="inline-block w-5 h-5 mr-2 align-middle">
+														<Image src={m.logo_url} alt={m.name} width={20} height={20} className="object-contain border border-muted bg-white dark:bg-muted/30" />
+													</span>
+												)}
 												{m.name}
 											</SelectItem>
 										))}

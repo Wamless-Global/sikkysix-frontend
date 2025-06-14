@@ -75,7 +75,9 @@ export interface AuthenticatedUser {
 	accountBalance?: number;
 	isEmailVerified?: boolean;
 	agent_id?: string | null;
-	figure_head_id?: string | null;
+	fiat_name?: string | null;
+	fiat_code?: string | null;
+	fiat_symbol?: string | null;
 }
 
 export interface UserFilters {

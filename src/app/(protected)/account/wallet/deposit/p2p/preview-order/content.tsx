@@ -53,6 +53,19 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 				const data = await res.json();
 
 				if (data?.status === 'success' && data?.data) {
+					if (!data.data.methods || data.data.methods.length === 0) {
+						toast.error('No payment methods available for this order. Please try a different order or contact support.');
+						setPreview({
+							amountFiat: Number(data.data.amount),
+							rateNGN: Number(data.data.rate),
+							tokenQuantity: Number(data.data.quantity),
+							transactionFeesNGN: Number(data.data.transactionFee),
+							methods: [],
+						});
+						setSelectedMethodId(null);
+						setLoading(false);
+						return;
+					}
 					setPreview({
 						amountFiat: Number(data.data.amount),
 						rateNGN: Number(data.data.rate),
@@ -216,6 +229,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							</RadioGroup>
 						</div>
 					)}
+					{preview?.methods && preview.methods.length === 0 && <p className="text-center text-destructive font-medium">No payment methods available for this order.</p>}
 					{type === 'sell' ? (
 						<Alert variant="default" className="border-yellow-500/50 text-yellow-700 dark:border-yellow-500/30 dark:text-yellow-300 [&>svg]:text-yellow-500 dark:[&>svg]:text-yellow-400">
 							<AlertCircle className="h-4 w-4" />
@@ -234,7 +248,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							</AlertDescription>
 						</Alert>
 					)}
-					<Button onClick={handleConfirmOrder} size="lg" variant="success" className="w-full group" disabled={isProcessingOrder || !selectedMethodId}>
+					<Button onClick={handleConfirmOrder} size="lg" variant="success" className="w-full group" disabled={isProcessingOrder || !selectedMethodId || (preview?.methods && preview.methods.length === 0)}>
 						{isProcessingOrder ? 'Processing...' : 'Confirm Order'}
 						{!isProcessingOrder && <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />}
 					</Button>
@@ -252,7 +266,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 				title="Confirm P2P Order"
 				description={`You are about to place an order to ${type} ${preview?.tokenQuantity?.toLocaleString(undefined, {
 					maximumFractionDigits: 6,
-				})} ${process.env.NEXT_PUBLIC_BASE_CURRENCY} for ₦${preview?.amountFiat?.toLocaleString()} at a rate of ₦${preview?.rateNGN?.toLocaleString()} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}.\nPlease review your order details. Are you sure you want to proceed?`}
+				})} ${process.env.NEXT_PUBLIC_BASE_CURRENCY} for ₦${preview?.amountFiat?.toLocaleString()}.\nPlease review your order details. Are you sure you want to proceed?`}
 				confirmButtonText="Confirm & Place Order"
 				cancelButtonText="Review Order"
 				isLoading={isProcessingOrder}

@@ -11,23 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useAuthContext } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatDateNice, handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-
-// Order type definition
-interface Order {
-	id: string;
-	agent_id?: string;
-	order_type: 'BUY_PLATFORM_CURRENCY' | 'SELL_PLATFORM_CURRENCY';
-	fiat_currency: string;
-	asset_currency: string;
-	total_asset_amount: string;
-	price_per_unit: string;
-	payment_window_minutes: string;
-	order_terms: string;
-	status: 'active' | 'paused';
-	created_at: string;
-}
+import { Order } from '@/types';
+import { logger } from '@/lib/logger';
 
 export default function AgentOrdersContent() {
 	const [orders, setOrders] = useState<Order[]>([]);
@@ -37,7 +24,7 @@ export default function AgentOrdersContent() {
 		order_type: '',
 		fiat_currency: '',
 		total_asset_amount: '',
-		price_per_unit: '',
+		order_fee: '',
 		payment_window_minutes: '',
 		order_terms: 'Please ensure payment is made from an account with your name. No third-party payments allowed. Release will be made after confirmation.',
 	});
@@ -63,7 +50,7 @@ export default function AgentOrdersContent() {
 				fiat_currency: o.fiat_currency,
 				asset_currency: o.asset_currency,
 				total_asset_amount: o.total_asset_amount,
-				price_per_unit: o.price_per_unit,
+				order_fee: o.order_fee,
 				payment_window_minutes: o.payment_window_minutes,
 				order_terms: o.order_terms,
 				status: o.status,
@@ -86,7 +73,7 @@ export default function AgentOrdersContent() {
 			order_type: '',
 			fiat_currency: '',
 			total_asset_amount: '',
-			price_per_unit: '',
+			order_fee: '',
 			payment_window_minutes: '',
 			order_terms: 'Please ensure payment is made from an account in your name. No third-party payments allowed. Release will be made after confirmation.',
 		});
@@ -97,7 +84,7 @@ export default function AgentOrdersContent() {
 		e.preventDefault();
 
 		for (const key of Object.keys(form)) {
-			if (!form[key as keyof typeof form]) {
+			if (!form[key as keyof typeof form] && key !== 'fiat_currency') {
 				toast.error('Please fill all fields');
 				return;
 			}
@@ -127,7 +114,6 @@ export default function AgentOrdersContent() {
 	};
 
 	const handleEditClick = (order: Order) => {
-		// Set total_asset_amount to zero when opening the edit modal
 		setEditForm({ ...order, total_asset_amount: '0' });
 		setEditModalOpen(true);
 	};
@@ -135,7 +121,7 @@ export default function AgentOrdersContent() {
 	const handleEditOrder = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!editForm) return;
-		for (const key of ['order_type', 'fiat_currency', 'total_asset_amount', 'price_per_unit', 'payment_window_minutes', 'order_terms']) {
+		for (const key of ['order_type', 'fiat_currency', 'total_asset_amount', 'order_fee', 'payment_window_minutes', 'order_terms']) {
 			if (!(editForm as any)[key]) {
 				toast.error('Please fill all fields');
 				return;
@@ -205,12 +191,16 @@ export default function AgentOrdersContent() {
 									<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
 										<div>
 											<span className="font-medium text-foreground capitalize">{order.order_type === 'BUY_PLATFORM_CURRENCY' ? 'Buy' : 'Sell'} order</span>
-											<span className="ml-2 text-xs text-muted-foreground">{order.created_at}</span>
+											<span className="ml-2 text-xs text-muted-foreground">{formatDateNice(order.created_at)}</span>
 											<div className="text-sm text-muted-foreground mt-1">
-												<span className="font-semibold">{order.total_asset_amount}</span> {order.asset_currency} @ <span className="font-semibold">₦{order.price_per_unit}</span>
+												<span className="font-semibold">{formatBaseurrency(order.total_asset_amount)}</span>
 											</div>
-											<div className="text-xs text-muted-foreground mt-1">Window: {order.payment_window_minutes} min</div>
-											<div className="text-xs text-muted-foreground mt-1">Terms: {order.order_terms}</div>
+											<div className="text-sm text-muted-foreground mt-1">
+												<span className="font-semibold">Fee </span>
+												<span className="font-semibold"> {order.order_fee}%</span>
+											</div>
+											<div className="text-sm text-muted-foreground mt-1">Window: {order.payment_window_minutes} min</div>
+											<div className="text-sm text-muted-foreground mt-1">Terms: {order.order_terms}</div>
 										</div>
 										<div className="flex items-center gap-2 mt-2 sm:mt-0">
 											<span className={`px-2 py-0.5 rounded text-xs font-medium ${order.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-muted text-muted-foreground'}`}>{order.status}</span>
@@ -248,15 +238,15 @@ export default function AgentOrdersContent() {
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="fiat_currency">Fiat Currency</Label>
-							<Input id="fiat_currency" value={form.fiat_currency} onChange={(e) => setForm((f) => ({ ...f, fiat_currency: e.target.value }))} placeholder="e.g. NGN" required className="account-input w-full" />
+							<Input id="edit-fiat_currency" value={currentUser?.fiat_code || ''} required className="account-input w-full" disabled={true} />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="total_asset_amount">Total Asset Amount</Label>
 							<Input id="total_asset_amount" type="number" min="0" value={form.total_asset_amount} onChange={(e) => setForm((f) => ({ ...f, total_asset_amount: e.target.value }))} placeholder="Enter total asset amount" required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
-							<Label htmlFor="price_per_unit">Price Per Unit</Label>
-							<Input id="price_per_unit" type="number" min="0" step="any" value={form.price_per_unit} onChange={(e) => setForm((f) => ({ ...f, price_per_unit: e.target.value }))} placeholder="Enter price per unit" required className="account-input w-full" />
+							<Label htmlFor="order_fee">Fee (%)</Label>
+							<Input id="order_fee" type="number" min="0" max={10} step="any" value={form.order_fee} onChange={(e) => setForm((f) => ({ ...f, order_fee: e.target.value }))} placeholder="Enter your fee for the order" required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="payment_window_minutes">Payment Window (minutes)</Label>
@@ -297,15 +287,15 @@ export default function AgentOrdersContent() {
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-fiat_currency">Fiat Currency</Label>
-							<Input id="edit-fiat_currency" value={editForm?.fiat_currency || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, fiat_currency: e.target.value } : f))} required className="account-input w-full" />
+							<Input id="edit-fiat_currency" value={editForm?.fiat_currency || ''} required className="account-input w-full" disabled={true} />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-total_asset_amount">Total Asset Amount</Label>
 							<Input id="edit-total_asset_amount" type="number" value={editForm?.total_asset_amount || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, total_asset_amount: e.target.value } : f))} required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
-							<Label htmlFor="edit-price_per_unit">Price Per Unit</Label>
-							<Input id="edit-price_per_unit" type="number" min="0" step="any" value={editForm?.price_per_unit || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, price_per_unit: e.target.value } : f))} required className="account-input w-full" />
+							<Label htmlFor="edit-order_fee">Fee (%)</Label>
+							<Input id="edit-order_fee" type="number" min="0" step="any" value={editForm?.order_fee || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, order_fee: e.target.value } : f))} required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-payment_window_minutes">Payment Window (minutes)</Label>

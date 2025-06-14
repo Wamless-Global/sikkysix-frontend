@@ -10,6 +10,7 @@ import appSettings from '@/config/app';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
 import LogoPlaceholder from '@/components/ui/logo';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function VerifyEmailContent({ email, initialStatus }: { email?: string; initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
@@ -26,7 +27,7 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 		} else if (initialStatus.status === 'not_found' || initialStatus.status === 'error') {
 			nProgress.start();
 			toast.error(initialStatus.message || 'Email address not found.');
-			setTimeout(() => router.push('/auth/login'), 2000); // Add delay so toast can show
+			setTimeout(() => router.push('/auth/login'), 2000);
 		}
 	}, [initialStatus, router]);
 
@@ -59,37 +60,40 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				{/* <h1 className="mb-12 text-4xl font-bold">LOGO</h1> */}
 				<LogoPlaceholder size="xl" />
 			</CustomLink>
 
-			<div className="w-full max-w-md text-center">
-				<h2 className="mb-2 text-2xl font-semibold">Check Email Verification</h2>
-				<p className="mb-8 text-gray-300">{statusMessage}</p>
+			<Card className="auth-card w-full max-w-md">
+				<CardHeader className="space-y-1 text-center">
+					<CardTitle className="text-2xl font-semibold">Check Email Verification</CardTitle>
+				</CardHeader>
+				<CardContent className="text-center">
+					<p className="mb-8 text-gray-300">{statusMessage}</p>
 
-				{isResending && (
-					<div className="flex justify-center items-center mb-5">
-						<p>Resending...</p>
-					</div>
-				)}
+					{isResending && (
+						<div className="flex justify-center items-center mb-5">
+							<p>Resending...</p>
+						</div>
+					)}
 
-				{!isResending && allowResend && (
-					<>
-						<Button size="lg" variant="success" onClick={() => router.push('/auth/login')} className="w-full cursor-pointer mb-5">
-							Go to Login
-						</Button>
-
-						{allowResend && (
-							<Button size="lg" variant="outline" onClick={handleResendEmail} className="w-full cursor-pointer disabled:opacity-50 mb-5" disabled={isResending}>
-								{isResending ? 'Resending...' : 'Resend Verification Email'}
+					{!isResending && allowResend && (
+						<>
+							<Button size="lg" variant="success" onClick={() => router.push('/auth/login')} className="w-full cursor-pointer mb-5">
+								Go to Login
 							</Button>
-						)}
-						<CustomLink href={`mailto:${appSettings.supportemail}`} className="mb-6 text-sm text-gray-400">
-							Need help? Contact support.
-						</CustomLink>
-					</>
-				)}
-			</div>
+
+							{allowResend && (
+								<Button size="lg" variant="outline" onClick={handleResendEmail} className="w-full cursor-pointer disabled:opacity-50 mb-5" disabled={isResending}>
+									{isResending ? 'Resending...' : 'Resend Verification Email'}
+								</Button>
+							)}
+							<CustomLink href={`mailto:${appSettings.supportemail}`} className="mb-6 text-sm text-gray-400">
+								Need help? Contact support.
+							</CustomLink>
+						</>
+					)}
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

@@ -9,3 +9,4 @@ export * from './modules/applications';
 export * from './modules/agents';
 export * from './modules/payment-methods';
 export * from './modules/referrals';
+export * from './modules/order';

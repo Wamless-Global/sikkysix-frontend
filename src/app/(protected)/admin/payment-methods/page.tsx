@@ -31,8 +31,11 @@ export default function P2PManagementPage() {
 		try {
 			const response = await fetchWithAuth(`/api/p2p/payment-methods?page=${page}&limit=${appSettings.itemsPerPage}`);
 
-			if (!response.ok) throw new Error('Failed to fetch payment methods');
 			const result = await response.json();
+			if (!response.ok) {
+				setError(handleFetchErrorMessage(result, 'Failed to fetch payment methods'));
+				throw new Error('Failed to fetch payment methods');
+			}
 
 			setMethods(result.data);
 
@@ -46,7 +49,6 @@ export default function P2PManagementPage() {
 			setIsLoading(false);
 			nProgress.done();
 		} catch (err) {
-			setError(handleFetchErrorMessage(err, 'An unexpected error occurred while fetching payment methods.'));
 			setMethods([]);
 			setIsLoading(false);
 		}
@@ -152,7 +154,7 @@ export default function P2PManagementPage() {
 												)}
 											</TableCell>
 											<TableCell className="font-medium">{method.name}</TableCell>
-											<TableCell className="text-muted-foreground">{method.country_code}</TableCell>
+											<TableCell className="text-muted-foreground">{method.country_name}</TableCell>
 											<TableCell className="text-sm text-muted-foreground max-w-xs truncate" title={method.description || undefined}>
 												{method.description || <span className="text-gray-400 italic">No description</span>}
 											</TableCell>

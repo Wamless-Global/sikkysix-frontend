@@ -11,9 +11,11 @@ interface AwaitingConfirmationViewProps {
 	timeLeft: number;
 	formatTime: (seconds: number) => string;
 	orderDetails: {
-		amountNGN: number;
-		rateNGN: number;
+		amount: number;
+		rate: number;
 		tokenQuantity: number;
+		transactionFees: number;
+		fiat_currency: string | undefined;
 	};
 	sellerInfo: {
 		name: string;
@@ -69,17 +71,18 @@ const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({
 				<CardContent className="space-y-1 px-0">
 					{isBuyer ? (
 						<>
-							<OrderDetailItem label="Amount Paid" value={orderDetails.amountNGN} unit="NGN" isBold />
-							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
+							<OrderDetailItem label="Amount Paid" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
 							<OrderDetailItem label="Quantity to Receive" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
 						</>
 					) : (
 						<>
-							<OrderDetailItem label="Amount to Receive" value={orderDetails.amountNGN} unit="NGN" isBold />
-							<OrderDetailItem label="Exchange Rate" value={orderDetails.rateNGN} unit="NGN" />
+							<OrderDetailItem label="Amount to Receive" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
+							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
 							<OrderDetailItem label="Quantity to Sell" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
 						</>
 					)}
+					<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />
 				</CardContent>
 			</Card>
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm px-0">

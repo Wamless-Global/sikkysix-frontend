@@ -167,14 +167,15 @@ export default function SignupPageContent({ referralData }: SignupPageContentPro
 							</CustomLink>
 						</div>
 						<div className="text-xs text-gray-400">
-							By signing in, you agree to our
+							By signing in, you agree to our &nbsp;
 							<CustomLink href="/terms" className="link-success underline">
 								Terms & Conditions
 							</CustomLink>
-							and
+							&nbsp; and &nbsp;
 							<CustomLink href="/privacy" className="link-success underline">
 								Privacy Policy
 							</CustomLink>
+							&nbsp;
 						</div>
 					</div>
 				</CardContent>

@@ -62,6 +62,9 @@ export interface TradeResponse {
 	seller_user: TradeUser;
 	initiator_user: TradeInitiatorUser;
 	agent_details: TradeAgentDetails;
+	fee: string | null;
+	asset_currency: string;
+	fiat_currency?: string;
 }
 
 export interface TradeApiResponse {
