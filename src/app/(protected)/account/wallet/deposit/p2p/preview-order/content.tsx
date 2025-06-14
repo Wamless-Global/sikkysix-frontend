@@ -243,8 +243,9 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							<AlertCircle className="h-4 w-4" />
 							<AlertTitle>Important</AlertTitle>
 							<AlertDescription>
-								Once you confirm, the specified amount of {process.env.NEXT_PUBLIC_BASE_CURRENCY} will be held in escrow. <b>Do not mark the order as paid until you have actually sent the correct fiat amount ({formatCurrency(preview?.amountFiat)}) to the agent&apos;s account.</b>{' '}
-								Only after sending the payment should you mark as paid. If you do not complete the payment, your order may be cancelled and you may be penalized.
+								The {process.env.NEXT_PUBLIC_BASE_CURRENCY} amount entered will be taken out for you from the agent&apos;s account once you click on CONFIRM ORDER.
+								<b>Make sure you transfer the correct amount ({formatCurrency(preview?.amountFiat)}) to the agent&apos;s account first before you click on “MADE PAYMENT”</b>
+								DO NOT mark “Paid” until you complete the transfer is complete. Marking as paid without sending money will lead to cancellation and penalties.
 							</AlertDescription>
 						</Alert>
 					)}

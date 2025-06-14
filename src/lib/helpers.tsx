@@ -351,7 +351,8 @@ export const getTradeViewState = (trade: TradeResponse, isUserFlow: boolean, isE
 export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, _isAnAgent?: boolean): string =>
 	isBuyer
 		? trade?.status === 'awaiting_fiat_payment'
-			? "Send the exact sum to the agent to receive assets in your wallet. Ensure the seller's name matches and keep communication within the platform for dispute resolution."
+			? `Send the exact amount to the agent's account to receive your ${process.env.NEXT_PUBLIC_BASE_CURRENCY} tokens. \n
+			Before sending, confirm that the account name matches the agent's name. For your safety, only chat with the agent through the platform so we can help resolve any issues if needed.`
 			: trade?.status === 'fiat_payment_confirmed_by_buyer'
 			? "You've marked payment as sent. Please wait for the agent to confirm receipt. If there are issues, use the chat or raise a dispute after the timer expires."
 			: trade?.status === 'completed'
