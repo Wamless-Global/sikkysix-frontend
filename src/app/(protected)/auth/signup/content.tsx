@@ -161,7 +161,7 @@ export default function SignupPageContent({ referralData }: SignupPageContentPro
 					</form>
 					<div className="mt-6 text-center text-sm w-full space-y-2">
 						<div>
-							Already have an account?&apos;
+							Already have an account?&nbsp;
 							<CustomLink href="/auth/login" className="link-success font-medium">
 								Login
 							</CustomLink>
