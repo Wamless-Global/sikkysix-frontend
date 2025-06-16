@@ -231,7 +231,7 @@ export default function UserDetailPage() {
 		setIsAdjustingBalance(true);
 
 		try {
-			const response = await fetchWithAuth(`/api/proxy/users/${currentUser.id}/wallet`, {
+			const response = await fetchWithAuth(`/api/users/${currentUser.id}/wallet`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ amount, reason }),
@@ -261,7 +261,7 @@ export default function UserDetailPage() {
 		if (!currentUser) return;
 		setIsImpersonating(true);
 		try {
-			const response = await fetchWithAuth(`/api/proxy/users/${currentUser.id}/impersonate`, {
+			const response = await fetchWithAuth(`/api/users/${currentUser.id}/impersonate`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 			});

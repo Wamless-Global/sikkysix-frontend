@@ -43,7 +43,7 @@ export default function AdminSingleCategoriesPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetchWithAuth(`/api/proxy/categories/${identifier}`);
+			const response = await fetchWithAuth(`/api/categories/${identifier}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
@@ -139,7 +139,7 @@ export default function AdminSingleCategoriesPage() {
 				const formData = new FormData();
 				formData.append('is_locked', newLockedStatus.toString());
 
-				response = await fetchWithAuth(`/api/proxy/categories/${categoryData.id}`, {
+				response = await fetchWithAuth(`/api/categories/${categoryData.id}`, {
 					method: 'PUT',
 					body: formData,
 				});
@@ -152,7 +152,7 @@ export default function AdminSingleCategoriesPage() {
 				toastMessage = `Category "${categoryData.name}" has been ${newLockedStatus ? 'locked' : 'unlocked'}.`;
 				toast.success(toastMessage);
 			} else if (confirmAction === 'delete') {
-				response = await fetchWithAuth(`/api/proxy/categories/${categoryData.id}`, {
+				response = await fetchWithAuth(`/api/categories/${categoryData.id}`, {
 					method: 'DELETE',
 				});
 				if (!response.ok) {

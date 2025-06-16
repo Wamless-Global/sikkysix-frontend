@@ -69,7 +69,7 @@ export default function EditP2PPage() {
 		const fetchCountries = async () => {
 			setCountriesLoading(true);
 			try {
-				const res = await fetchWithAuth('/api/proxy/countries');
+				const res = await fetchWithAuth('/api/countries');
 				const data = await res.json();
 
 				if (!res.ok) {
@@ -94,7 +94,7 @@ export default function EditP2PPage() {
 	useEffect(() => {
 		if (!id) return;
 		setLoading(true);
-		fetchWithAuth(`/api/proxy/p2p/payment-methods/${id}`)
+		fetchWithAuth(`/api/p2p/payment-methods/${id}`)
 			.then(async (res) => {
 				if (!res.ok) throw new Error('Failed to fetch payment method');
 				const data = await res.json();
@@ -158,7 +158,7 @@ export default function EditP2PPage() {
 		}
 		formData.append('fields_required', JSON.stringify(data.fields_required));
 		try {
-			const response = await fetchWithAuth(`/api/proxy/p2p/payment-methods/${id}`, {
+			const response = await fetchWithAuth(`/api/p2p/payment-methods/${id}`, {
 				method: 'PUT',
 				body: formData,
 			});

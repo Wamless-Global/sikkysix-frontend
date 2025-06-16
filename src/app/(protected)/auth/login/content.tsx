@@ -95,7 +95,7 @@ export default function LoginPage() {
 						</Button>
 						<div className="mt-6 text-center text-sm w-full space-y-2">
 							<div>
-								Don&apos;`t have an account?
+								Don&apos;`t have an account?&apos;
 								<CustomLink href="/auth/signup" className="link-success font-medium">
 									Sign up
 								</CustomLink>

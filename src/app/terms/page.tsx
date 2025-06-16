@@ -1,9 +1,11 @@
 import { CustomLink } from '@/components/ui/CustomLink';
+import LogoPlaceholder from '@/components/ui/logo';
 
 export default function TermsPage() {
 	return (
 		<div className="static-page flex min-h-screen flex-col items-center p-8">
-			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+			<LogoPlaceholder size="xl" />
+
 			<div className="static-card w-full max-w-4xl p-8">
 				<h2 className="mb-6 text-3xl font-semibold">Terms & Conditions</h2>
 				<p className="mb-4">Welcome to our service. Please read these terms and conditions carefully before using our application.</p>
@@ -18,7 +20,7 @@ export default function TermsPage() {
 				<p className="mt-8 text-sm text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
 				<div className="mt-8 text-center">
 					<CustomLink href="/auth/signup" className="link-success font-medium">
-						You&apos;re one step away from joining a thriving community of investors, start investing and build your portfolio.
+						Back to Sign Up
 					</CustomLink>
 				</div>
 			</div>

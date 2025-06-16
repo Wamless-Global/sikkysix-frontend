@@ -72,7 +72,7 @@ export default function AddP2PPage() {
 		const fetchCountries = async () => {
 			setCountriesLoading(true);
 			try {
-				const res = await fetchWithAuth('/api/proxy/countries');
+				const res = await fetchWithAuth('/api/countries');
 				const data = await res.json();
 
 				if (!res.ok) {
@@ -138,7 +138,7 @@ export default function AddP2PPage() {
 		formData.append('fields_required', JSON.stringify(data.fields_required));
 
 		try {
-			const response = await fetchWithAuth('/api/proxy/p2p/payment-methods', {
+			const response = await fetchWithAuth('/api/p2p/payment-methods', {
 				method: 'POST',
 				body: formData,
 			});

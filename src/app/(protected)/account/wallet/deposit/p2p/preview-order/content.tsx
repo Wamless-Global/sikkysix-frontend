@@ -45,7 +45,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 			setLoading(true);
 			setSoftError(null);
 			try {
-				const res = await fetchWithAuth('/api/proxy/p2p/orders/preview', {
+				const res = await fetchWithAuth('/api/p2p/orders/preview', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ agentId, amount, orderId, type }),
@@ -107,7 +107,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 		}
 		setIsProcessingOrder(true);
 		try {
-			const res = await fetchWithAuth('/api/proxy/p2p/trades/confirm', {
+			const res = await fetchWithAuth('/api/p2p/trades/confirm', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ agentId, amount, orderId, type, methodId: selectedMethodId }),

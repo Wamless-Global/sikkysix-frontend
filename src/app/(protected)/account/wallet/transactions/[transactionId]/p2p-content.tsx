@@ -75,7 +75,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 		}
 		setLoading(true);
 		setError(null);
-		fetchWithAuth(`/api/proxy/p2p/trades/${transactionId}`)
+		fetchWithAuth(`/api/p2p/trades/${transactionId}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch trade details');
 				return res.json();
@@ -123,7 +123,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 				}
 
 				try {
-					const res = await fetchWithAuth(`/api/proxy/p2p/trades/${transactionId}`, {
+					const res = await fetchWithAuth(`/api/p2p/trades/${transactionId}`, {
 						method: 'PUT',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ status: 'expired' }),
@@ -208,7 +208,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 		nProgress.start();
 		toast.info('Processing payment confirmation...');
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/trades/${transactionId}`, {
+			const res = await fetchWithAuth(`/api/p2p/trades/${transactionId}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: 'fiat_payment_confirmed_by_buyer' }),
@@ -217,7 +217,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 			if (!res.ok) throw new Error('Failed to update payment status');
 
 			// Refetch the latest trade data after status update
-			const tradeRes = await fetchWithAuth(`/api/proxy/p2p/trades/${transactionId}`);
+			const tradeRes = await fetchWithAuth(`/api/p2p/trades/${transactionId}`);
 			if (!tradeRes.ok) throw new Error('Failed to fetch updated trade details');
 			const { data: updatedTrade } = await tradeRes.json();
 			setTrade(updatedTrade);
@@ -250,7 +250,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 	const handleCancelTrade = async () => {
 		setIsCancelling(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/trades/${transactionId}`, {
+			const res = await fetchWithAuth(`/api/p2p/trades/${transactionId}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: isBuyer ? 'cancelled_by_buyer' : 'cancelled_by_seller' }),
@@ -278,7 +278,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 		setIsProcessingSellerConfirm(true);
 		nProgress.start();
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/trades/${trade.id}`, {
+			const res = await fetchWithAuth(`/api/p2p/trades/${trade.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: 'fiat_received_confirmed_by_seller', isSellerAgent: isAnAgent }),
@@ -301,7 +301,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 		setIsProcessingBuyerConfirm(true);
 		nProgress.start();
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/trades/${trade.id}`, {
+			const res = await fetchWithAuth(`/api/p2p/trades/${trade.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: 'fiat_payment_confirmed_by_buyer' }),
@@ -322,7 +322,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 	const handleRaiseDispute = async () => {
 		setIsProcessingDispute(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
+			const res = await fetchWithAuth(`/api/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
 			if (res.ok) {
 				toast.success('Dispute raised successfully. Our team will review this trade.');
 				setIsDisputeModalOpen(false);
@@ -548,7 +548,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 							onConfirm={async () => {
 								setIsRaisingDispute(true);
 								try {
-									const res = await fetchWithAuth(`/api/proxy/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
+									const res = await fetchWithAuth(`/api/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
 									if (res.ok) {
 										toast.success('Dispute raised successfully. Our team will review this trade.');
 										setIsDisputeModalOpen(false);
@@ -590,7 +590,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 					onConfirm={async () => {
 						setIsRaisingDispute(true);
 						try {
-							const res = await fetchWithAuth(`/api/proxy/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
+							const res = await fetchWithAuth(`/api/p2p/trades/${newTran?.escrow_transaction_id}/dispute`, { method: 'POST' });
 							if (res.ok) {
 								toast.success('Dispute raised successfully. Our team will review this trade.');
 								setIsDisputeModalOpen(false);

@@ -43,7 +43,7 @@ export default function PortfolioItemDetailPageContent() {
 			setError(null);
 
 			try {
-				const response = await fetchWithAuth(`/api/proxy/investments/${investmentId}`);
+				const response = await fetchWithAuth(`/api/investments/${investmentId}`);
 				if (!response.ok) {
 					throw new Error('Failed to fetch investment details');
 				}
@@ -66,7 +66,7 @@ export default function PortfolioItemDetailPageContent() {
 	const handleWithdrawClick = async () => {
 		setIsWithdrawing(true);
 		try {
-			const response = await fetchWithAuth(`/api/proxy/investments/${investmentId}/withdraw-preview`, {
+			const response = await fetchWithAuth(`/api/investments/${investmentId}/withdraw-preview`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export default function PortfolioItemDetailPageContent() {
 		const toastId = toast.loading('Processing withdrawal...');
 
 		try {
-			const response = await fetchWithAuth(`/api/proxy/investments/${investmentId}/withdraw`, {
+			const response = await fetchWithAuth(`/api/investments/${investmentId}/withdraw`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

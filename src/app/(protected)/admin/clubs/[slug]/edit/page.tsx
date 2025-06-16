@@ -96,7 +96,7 @@ export default function EditCategoryPage() {
 			setIsLoadingData(true);
 			NProgress.start();
 			try {
-				const response = await fetchWithAuth(`/api/proxy/categories/${id}`);
+				const response = await fetchWithAuth(`/api/categories/${id}`);
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({}));
 					throw new Error(errorData.message || `Failed to fetch category details: ${response.statusText}`);
@@ -174,7 +174,7 @@ export default function EditCategoryPage() {
 		formData.set('is_launched', String(data.is_launched));
 
 		try {
-			const response = await fetchWithAuth(`/api/proxy/categories/${categoryId}`, {
+			const response = await fetchWithAuth(`/api/categories/${categoryId}`, {
 				method: 'PUT',
 				body: formData,
 			});

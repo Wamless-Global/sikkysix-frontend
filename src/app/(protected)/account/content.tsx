@@ -22,7 +22,7 @@ export default function AccountPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetchWithAuth('/api/proxy/categories');
+			const response = await fetchWithAuth('/api/categories');
 
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;

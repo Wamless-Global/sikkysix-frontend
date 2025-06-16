@@ -68,7 +68,7 @@ export const fetchUserByUsername = async (username: string, token?: string): Pro
 export async function getUserByUsername(username: string): Promise<User | null> {
 	if (!username) return null;
 	try {
-		const response = await fetchWithAuth(`/api/proxy/users/username/${encodeURIComponent(username)}`, {
+		const response = await fetchWithAuth(`/api/users/username/${encodeURIComponent(username)}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		});

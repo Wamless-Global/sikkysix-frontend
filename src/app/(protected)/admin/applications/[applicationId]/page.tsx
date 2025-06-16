@@ -34,7 +34,7 @@ export default function SingleApplicationPage() {
 	async function fetchApplication() {
 		setIsLoading(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/agents/application/${params.applicationId}`);
+			const res = await fetchWithAuth(`/api/agents/application/${params.applicationId}`);
 
 			if (!res.ok) throw new Error('Failed to fetch application');
 			const data: ApplicationResponse = await res.json();
@@ -65,7 +65,7 @@ export default function SingleApplicationPage() {
 		}
 		setIsSubmitting(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/agents/application/${application.id}`, {
+			const res = await fetchWithAuth(`/api/agents/application/${application.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status, admin_remarks: adminRemarks }),
@@ -96,7 +96,7 @@ export default function SingleApplicationPage() {
 		if (!application) return;
 		setIsSubmitting(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/agents/application/${application.id}`, {
+			const res = await fetchWithAuth(`/api/agents/application/${application.id}`, {
 				method: 'DELETE',
 			});
 

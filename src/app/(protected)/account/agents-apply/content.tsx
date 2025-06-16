@@ -51,7 +51,7 @@ const AgentApplyContent = () => {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetchWithAuth(`/api/proxy/agents/application/user/${currentUser?.id}`, {
+			const response = await fetchWithAuth(`/api/agents/application/user/${currentUser?.id}`, {
 				method: 'GET',
 			});
 
@@ -113,7 +113,7 @@ const AgentApplyContent = () => {
 		});
 
 		try {
-			const response = await fetchWithAuth('/api/proxy/agents/apply', {
+			const response = await fetchWithAuth('/api/agents/apply', {
 				method: 'POST',
 				body: formData,
 			});

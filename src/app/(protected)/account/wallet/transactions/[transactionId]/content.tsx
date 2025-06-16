@@ -21,7 +21,7 @@ export default function TransactionDetailsPageContent() {
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
-		fetchWithAuth(`/api/proxy/transactions/${transactionId}`)
+		fetchWithAuth(`/api/transactions/${transactionId}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch transaction');
 				return res.json();

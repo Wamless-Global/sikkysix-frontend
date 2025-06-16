@@ -57,7 +57,7 @@ export default function CommunicationCenterPage() {
 			setLoading(true);
 			setError(null);
 			try {
-				const res = await fetchWithAuth(`/api/proxy/notifications/sent?page=${historyPage}&pageSize=${HISTORY_PAGE_SIZE}`);
+				const res = await fetchWithAuth(`/api/notifications/sent?page=${historyPage}&pageSize=${HISTORY_PAGE_SIZE}`);
 				const data = await res.json();
 				if (data.status === 'error') {
 					setError(data.message || 'Failed to fetch sent messages.');
@@ -100,7 +100,7 @@ export default function CommunicationCenterPage() {
 		async function searchUsers() {
 			setUserSearchLoading(true);
 			try {
-				const res = await fetchWithAuth(`/api/proxy/users/all?searchTerm=${encodeURIComponent(userSearch)}`);
+				const res = await fetchWithAuth(`/api/users/all?searchTerm=${encodeURIComponent(userSearch)}`);
 				const { data } = await res.json();
 				logger.log('User search results:', data);
 				if (!ignore) setUserSearchResults(data.users || []);
@@ -139,7 +139,7 @@ export default function CommunicationCenterPage() {
 			if (!sendToAll) {
 				payload.recipient_id = selectedUsers.map((u) => u.id);
 			}
-			const res = await fetchWithAuth('/api/proxy/notifications/new', {
+			const res = await fetchWithAuth('/api/notifications/new', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),

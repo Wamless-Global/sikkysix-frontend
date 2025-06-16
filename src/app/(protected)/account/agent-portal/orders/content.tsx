@@ -41,7 +41,7 @@ export default function AgentOrdersContent() {
 		if (!currentUser?.agent_id) return;
 		setLoading(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/orders/agent/${currentUser.agent_id}`);
+			const res = await fetchWithAuth(`/api/p2p/orders/agent/${currentUser.agent_id}`);
 			const data = await res.json();
 			const ordersRaw = data?.data?.orders || [];
 			const mappedOrders: Order[] = ordersRaw.map((o: any) => ({
@@ -91,7 +91,7 @@ export default function AgentOrdersContent() {
 		}
 		setApiLoading(true);
 		try {
-			const res = await fetchWithAuth('/api/proxy/p2p/orders', {
+			const res = await fetchWithAuth('/api/p2p/orders', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ ...form, status: 'active' }),
@@ -129,7 +129,7 @@ export default function AgentOrdersContent() {
 		}
 		setApiLoading(true);
 		try {
-			const res = await fetchWithAuth(`/api/proxy/p2p/orders/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/p2p/orders/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(editForm),

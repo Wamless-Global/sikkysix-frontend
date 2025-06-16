@@ -59,7 +59,7 @@ const AgentPortalContent = () => {
 	useEffect(() => {
 		if (!statsLoaded && currentUser?.agent_id) {
 			const agentId = currentUser.agent_id;
-			fetchWithAuth(`/api/proxy/p2p/agent/${agentId}/stats`)
+			fetchWithAuth(`/api/p2p/agent/${agentId}/stats`)
 				.then((res) => res.json())
 				.then((data) => {
 					if (data.status === 'success' && data.data) {
@@ -96,7 +96,7 @@ const AgentPortalContent = () => {
 		});
 		if (statusFilter) params.append('status', statusFilter);
 		if (debouncedSearchTerm) params.append('searchTerm', debouncedSearchTerm);
-		fetchWithAuth(`/api/proxy/p2p/trades/agent/${agentId}?${params.toString()}`)
+		fetchWithAuth(`/api/p2p/trades/agent/${agentId}?${params.toString()}`)
 			.then((res) => res.json())
 			.then((data) => {
 				if (data.status === 'success' && data.data?.trades) {

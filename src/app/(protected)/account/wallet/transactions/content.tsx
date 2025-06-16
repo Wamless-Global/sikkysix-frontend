@@ -61,7 +61,7 @@ export default function AccountTransactionsPageContent() {
 		if (sortColumn) params.append('sortBy', sortColumn);
 		if (sortDirection) params.append('sortOrder', sortDirection);
 
-		fetchWithAuth(`/api/proxy/transactions?${params}`)
+		fetchWithAuth(`/api/transactions?${params}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch transactions');
 				return res.json();
@@ -203,7 +203,7 @@ export default function AccountTransactionsPageContent() {
 		if (sortColumn) params.append('sortBy', sortColumn);
 		if (sortDirection) params.append('sortOrder', sortDirection);
 
-		fetchWithAuth(`/api/proxy/transactions?${params}`)
+		fetchWithAuth(`/api/transactions?${params}`)
 			.then((res) => {
 				if (!res.ok) throw new Error('Failed to fetch transactions');
 				return res.json();

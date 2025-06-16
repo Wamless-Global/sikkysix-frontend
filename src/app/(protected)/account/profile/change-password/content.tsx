@@ -39,7 +39,7 @@ export default function ChangePasswordPageContent() {
 	async function onSubmit(values: ChangePasswordFormValues) {
 		setLoading(true);
 		try {
-			const response = await fetchWithAuth('/api/proxy/users/me/update-password', {
+			const response = await fetchWithAuth('/api/users/me/update-password', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

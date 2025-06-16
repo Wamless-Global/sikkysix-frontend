@@ -1,9 +1,12 @@
+import { CustomLink } from '@/components/ui/CustomLink';
+import LogoPlaceholder from '@/components/ui/logo';
 import Link from 'next/link';
 
 export default function PrivacyPage() {
 	return (
 		<div className="static-page flex min-h-screen flex-col items-center p-8">
-			<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
+			<LogoPlaceholder size="xl" />
+
 			<div className="static-card w-full max-w-4xl p-8">
 				<h2 className="mb-6 text-3xl font-semibold">Privacy Policy</h2>
 				<p className="mb-4">Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application.</p>
@@ -15,9 +18,9 @@ export default function PrivacyPage() {
 				<p className="mb-4">We implement a variety of security measures to maintain the safety of your personal information when you enter, submit, or access your personal information.</p>
 				<p className="mt-8 text-sm text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
 				<div className="mt-8 text-center">
-					<Link href="/auth/signup" className="link-success font-medium">
+					<CustomLink href="/auth/signup" className="link-success font-medium">
 						Back to Sign Up
-					</Link>
+					</CustomLink>
 				</div>
 			</div>
 		</div>
