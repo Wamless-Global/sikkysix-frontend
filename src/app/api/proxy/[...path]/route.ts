@@ -1,6 +1,5 @@
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { getClientIp } from '@/lib/helpers';
-import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:5002/api';
@@ -10,10 +9,9 @@ async function proxy(req: NextRequest, path: string[]) {
 	const targetUrl = `${API_BASE_URL}/${path.join('/')}`;
 
 	const headers = new Headers(req.headers);
-	headers.set('x-forwarded-for', getClientIp(req));
-
-	logger.log(`Current IP: ${req.headers.get('x-forwarded-for')}`);
-	logger.log(`Gotten IP of user: ${getClientIp(req)}`);
+	const clientIp = getClientIp(req);
+	headers.set('x-forwarded-for', clientIp);
+	headers.set('x-client-ip', clientIp);
 
 	const backendRes = await fetchWithAuth(targetUrl, {
 		method: req.method,
