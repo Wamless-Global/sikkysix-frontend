@@ -208,13 +208,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			try {
 				const response = await fetchWithAuth('/api/proxy/auth/verify-me');
 				if (!response.ok) {
-					if (response.status === 401) {
-						nProgress.start();
-						router.refresh();
-						return;
-					} else {
-						console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
-					}
+					console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
+
 					setCurrentUser(null);
 					return;
 				}
