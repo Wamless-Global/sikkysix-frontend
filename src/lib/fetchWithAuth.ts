@@ -1,3 +1,4 @@
+import { normalizeUrl, sanitizeUrl } from './helpers';
 import { logger } from './logger';
 
 /**
@@ -19,10 +20,10 @@ export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}, 
 	const cleanedInput = typeof input === 'string' ? input.replace(/^\/?api\/proxy\/?/i, '') : input;
 	const formattedURL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${cleanedInput}`;
 
-	logger.info(`Formatted URL: ${formattedURL}`);
+	const url = normalizeUrl(sanitizeUrl(formattedURL, process.env.NEXT_PUBLIC_API_BASE_URL!));
 
 	const method = init.method ? init.method.toUpperCase() : 'GET';
-	return fetch(formattedURL, {
+	return fetch(url, {
 		...init,
 		headers,
 		method,

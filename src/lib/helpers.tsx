@@ -418,3 +418,18 @@ export function getClientIp(req: NextRequest): string {
 
 	return req.headers.get('x-real-ip') ?? req.headers.get('cf-connecting-ip') ?? '';
 }
+
+export function sanitizeUrl(url: string, base: string): string {
+	const cleanBase = base.replace(/\/+$/, '');
+
+	const regex = new RegExp(`(${cleanBase})+`, 'g');
+
+	if (url.startsWith(cleanBase)) {
+		return cleanBase + url.slice(cleanBase.length).replace(regex, '');
+	}
+	return url;
+}
+
+export function normalizeUrl(url: string): string {
+	return url.replace(/([^:]\/)\/+/g, '$1');
+}

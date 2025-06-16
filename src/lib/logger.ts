@@ -2,9 +2,9 @@ const ENABLE_LOGS = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_E
 
 export const logger = {
 	log: (...args: any[]) => {
-		if (!ENABLE_LOGS) return;
 		if (typeof window !== 'undefined') {
 			// Client-side: styled log
+			if (!ENABLE_LOGS) return;
 			console.log('%c[LOG]', 'color: #4F8A10; font-weight: bold;', ...args);
 		} else {
 			// Server-side: plain log
@@ -13,8 +13,8 @@ export const logger = {
 		}
 	},
 	info: (...args: any[]) => {
-		if (!ENABLE_LOGS) return;
 		if (typeof window !== 'undefined') {
+			if (!ENABLE_LOGS) return;
 			console.info('%c[INFO]', 'color: #00529B; font-weight: bold;', ...args);
 		} else {
 			// eslint-disable-next-line no-console
@@ -22,8 +22,8 @@ export const logger = {
 		}
 	},
 	warn: (...args: any[]) => {
-		if (!ENABLE_LOGS) return;
 		if (typeof window !== 'undefined') {
+			if (!ENABLE_LOGS) return;
 			console.warn('%c[WARN]', 'color: #9F6000; font-weight: bold;', ...args);
 		} else {
 			// eslint-disable-next-line no-console
@@ -31,8 +31,8 @@ export const logger = {
 		}
 	},
 	error: (...args: any[]) => {
-		if (!ENABLE_LOGS) return;
 		if (typeof window !== 'undefined') {
+			if (!ENABLE_LOGS) return;
 			console.error('%c[ERROR]', 'color: #D8000C; font-weight: bold;', ...args);
 		} else {
 			// eslint-disable-next-line no-console

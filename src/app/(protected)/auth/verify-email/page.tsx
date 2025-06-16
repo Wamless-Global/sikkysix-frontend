@@ -15,7 +15,7 @@ async function checkEmailVerificationStatusServer(email: string) {
 		const baseUrl = process.env.API_BASE_URL;
 		const url = `${baseUrl}/auth/check-email-verification?email=${encodeURIComponent(email)}`;
 
-		logger.log(url);
+		logger.log('Check email verification URL: ', url);
 
 		const res = await fetchWithAuth(url, {
 			headers: { Cookie: cookieHeader },
