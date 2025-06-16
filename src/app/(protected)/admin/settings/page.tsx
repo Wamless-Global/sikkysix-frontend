@@ -69,7 +69,7 @@ export default function PlatformSettingsPage() {
 		async function fetchSettings() {
 			try {
 				setLoading(true);
-				const res = await fetchWithAuth('/api/admin/settings');
+				const res = await fetchWithAuth('/api/proxy/admin/settings');
 				if (!res.ok) throw new Error('Failed to fetch settings');
 				const api = await res.json();
 
@@ -133,7 +133,7 @@ export default function PlatformSettingsPage() {
 		setIsSubmitting(true);
 		const toastId = toast.loading(`Saving ${section}...`);
 		try {
-			const res = await fetchWithAuth('/api/admin/settings', {
+			const res = await fetchWithAuth('/api/proxy/admin/settings', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ updates }),

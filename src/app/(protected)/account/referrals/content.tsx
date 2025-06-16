@@ -42,7 +42,7 @@ export default function ReferralsPageContent() {
 			try {
 				const params = new URLSearchParams();
 				if (debouncedSearchTerm) params.append('searchTerm', debouncedSearchTerm);
-				const res = await fetchWithAuth(`/api/referrals?${params.toString()}`);
+				const res = await fetchWithAuth(`/api/proxy/referrals?${params.toString()}`);
 				if (!res.ok) throw new Error('Failed to fetch referrals');
 				const data = await res.json();
 				logger.info('Fetched referrals:', data);
@@ -60,7 +60,7 @@ export default function ReferralsPageContent() {
 	useEffect(() => {
 		const fetchAllReferrals = async () => {
 			try {
-				const res = await fetchWithAuth('/api/referrals');
+				const res = await fetchWithAuth('/api/proxy/referrals');
 				if (!res.ok) throw new Error('Failed to fetch all referrals');
 				const data = await res.json();
 				setAllReferrals(data.referrals || []);

@@ -64,7 +64,7 @@ export default function EditProfilePageContent() {
 			if (avatarFile) {
 				const formData = new FormData();
 				formData.append('image', avatarFile);
-				const res = await fetchWithAuth('/api/profile', {
+				const res = await fetchWithAuth('/api/proxy/profile', {
 					method: 'PUT',
 					body: formData,
 				});

@@ -52,7 +52,7 @@ export default function UpdatePasswordPageContent() {
 
 		async function verifyToken(token: string) {
 			try {
-				const res = await fetchWithAuth(`/api/auth/verify-reset-token`, {
+				const res = await fetchWithAuth(`/api/proxy/auth/verify-reset-token`, {
 					method: 'POST',
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -118,7 +118,7 @@ export default function UpdatePasswordPageContent() {
 		setLoading(true);
 
 		try {
-			const response = await fetchWithAuth('/api/auth/update-password', {
+			const response = await fetchWithAuth('/api/proxy/auth/update-password', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

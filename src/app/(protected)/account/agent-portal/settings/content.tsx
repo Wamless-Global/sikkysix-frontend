@@ -38,7 +38,7 @@ export default function AgentPortalSettingsContent() {
 	async function fetchMethods() {
 		setLoading(true);
 		try {
-			const res = await fetchWithAuth('/api/p2p/payment-methods');
+			const res = await fetchWithAuth('/api/proxy/p2p/payment-methods');
 			const data = await res.json();
 			if (data.status === 'success') {
 				logger.log(data);
@@ -79,7 +79,7 @@ export default function AgentPortalSettingsContent() {
 		async function fetchAgentPaymentOptions() {
 			setLoading(true);
 			try {
-				const res = await fetchWithAuth(`/api/agents/payment-options/agent/${agentId}`);
+				const res = await fetchWithAuth(`/api/proxy/agents/payment-options/agent/${agentId}`);
 				const data = await res.json();
 				if (!ignore) {
 					if (res.ok && data.status === 'success') {
@@ -120,7 +120,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Saving payment method...');
 		try {
-			const res = await fetchWithAuth('/api/agents/payment-options', {
+			const res = await fetchWithAuth('/api/proxy/agents/payment-options', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -165,7 +165,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Updating payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/agents/payment-options/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/proxy/agents/payment-options/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -189,7 +189,7 @@ export default function AgentPortalSettingsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Deleting payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/agents/payment-options/${id}`, {
+			const res = await fetchWithAuth(`/api/proxy/agents/payment-options/${id}`, {
 				method: 'DELETE',
 			});
 			if (res.ok) {

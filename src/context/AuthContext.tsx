@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 	const logout = async (): Promise<void> => {
 		try {
-			const response = await fetchWithAuth(`/api/auth/logout`, {
+			const response = await fetchWithAuth(`/api/proxy/auth/logout`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 	const login = async (email: string, password: string): Promise<AuthenticatedUser> => {
 		try {
-			const response = await fetchWithAuth(`/api/auth/login`, {
+			const response = await fetchWithAuth(`/api/proxy/auth/login`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 
 		try {
-			const response = await fetchWithAuth(`/api/auth/register`, {
+			const response = await fetchWithAuth(`/api/proxy/auth/register`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			return { status: 'error', message: 'No email provided to check status.' };
 		}
 		try {
-			const response = await fetchWithAuth(`/api/auth/check-email-verification?email=${encodeURIComponent(email)}`, {
+			const response = await fetchWithAuth(`/api/proxy/auth/check-email-verification?email=${encodeURIComponent(email)}`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			return { success: false, message: 'No email provided for resending verification.' };
 		}
 		try {
-			const response = await fetchWithAuth('/api/auth/resend-email-verification', {
+			const response = await fetchWithAuth('/api/proxy/auth/resend-email-verification', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -199,14 +199,14 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 	useEffect(() => {
 		// Only run checkUserSession if not on 404 page (using is404 prop)
-		if (is404) {
+		if (is404 || !currentUser) {
 			setIsLoading(false);
 			return;
 		}
 
 		const checkUserSession = async () => {
 			try {
-				const response = await fetchWithAuth('/api/auth/verify-me');
+				const response = await fetchWithAuth('/api/proxy/auth/verify-me');
 				if (!response.ok) {
 					if (response.status === 401) {
 						nProgress.start();
@@ -229,7 +229,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			} catch {
 				setCurrentUser(null);
 			} finally {
-				nProgress.done();
 				setIsLoading(false);
 			}
 		};

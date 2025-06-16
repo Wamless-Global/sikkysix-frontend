@@ -30,7 +30,7 @@ export default function SingleAgentPage() {
 			setIsLoading(true);
 			setError(null);
 			try {
-				const response = await fetchWithAuth(`/api/agents/${params.agentId}`);
+				const response = await fetchWithAuth(`/api/proxy/agents/${params.agentId}`);
 				if (!response.ok) throw new Error('Failed to fetch agent');
 				const result = await response.json();
 				if (result.status !== 'success') throw new Error(result.message || 'API error');

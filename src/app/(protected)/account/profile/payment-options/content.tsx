@@ -40,7 +40,7 @@ export default function ProfilePaymentOptionsContent() {
 	async function fetchMethods() {
 		setLoading(true);
 		try {
-			const res = await fetchWithAuth('/api/p2p/payment-methods');
+			const res = await fetchWithAuth('/api/proxy/p2p/payment-methods');
 			const data = await res.json();
 			logger.info('Payment methods fetched', { data });
 			if (data.status === 'success') {
@@ -80,7 +80,7 @@ export default function ProfilePaymentOptionsContent() {
 		async function fetchUserPaymentOptions() {
 			setLoading(true);
 			try {
-				const res = await fetchWithAuth(`/api/users/payment-options`);
+				const res = await fetchWithAuth(`/api/proxy/users/payment-options`);
 				const data = await res.json();
 
 				if (!ignore) {
@@ -122,7 +122,7 @@ export default function ProfilePaymentOptionsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Saving payment method...');
 		try {
-			const res = await fetchWithAuth('/api/users/payment-options', {
+			const res = await fetchWithAuth('/api/proxy/users/payment-options', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -169,7 +169,7 @@ export default function ProfilePaymentOptionsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Updating payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/users/payment-options/${editForm.id}`, {
+			const res = await fetchWithAuth(`/api/proxy/users/payment-options/${editForm.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
@@ -194,7 +194,7 @@ export default function ProfilePaymentOptionsContent() {
 		setApiLoading(true);
 		const toastId = toast.loading('Deleting payment method...');
 		try {
-			const res = await fetchWithAuth(`/api/users/payment-options/${id}`, {
+			const res = await fetchWithAuth(`/api/proxy/users/payment-options/${id}`, {
 				method: 'DELETE',
 			});
 			if (res.ok) {

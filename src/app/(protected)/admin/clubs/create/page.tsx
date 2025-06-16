@@ -210,7 +210,7 @@ export default function CreateCategoryPage() {
 		// }
 
 		try {
-			const response = await fetchWithAuth('/api/categories', {
+			const response = await fetchWithAuth('/api/proxy/categories', {
 				method: 'POST',
 				body: formData,
 			});

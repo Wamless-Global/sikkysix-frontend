@@ -34,7 +34,7 @@ export default function CategoryManagementPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetchWithAuth(`/api/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
+			const response = await fetchWithAuth(`/api/proxy/categories?page=${page}&limit=${appSettings.itemsPerPage}`);
 			if (!response.ok) {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {

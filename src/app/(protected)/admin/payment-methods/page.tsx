@@ -29,7 +29,7 @@ export default function P2PManagementPage() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetchWithAuth(`/api/p2p/payment-methods?page=${page}&limit=${appSettings.itemsPerPage}`);
+			const response = await fetchWithAuth(`/api/proxy/p2p/payment-methods?page=${page}&limit=${appSettings.itemsPerPage}`);
 
 			const result = await response.json();
 			if (!response.ok) {
@@ -72,7 +72,7 @@ export default function P2PManagementPage() {
 		const toastId = toast.loading('Deleting payment method...');
 
 		try {
-			const response = await fetchWithAuth(`/api/p2p/payment-methods/${id}`, { method: 'DELETE' });
+			const response = await fetchWithAuth(`/api/proxy/p2p/payment-methods/${id}`, { method: 'DELETE' });
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(errorData.message || 'Failed to delete payment method');
