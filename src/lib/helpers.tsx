@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { AccountStatus, ApiPaymentMethod, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
 import { P2PTradeStatus, TradeResponse } from '@/types/modules/trade';
 import nProgress from 'nprogress';
+import { NextRequest } from 'next/server';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
@@ -407,4 +408,13 @@ export function getFieldLabel(paymentMethodId: string, fieldName: string, availa
 	} catch {
 		return fieldName;
 	}
+}
+
+export function getClientIp(req: NextRequest): string {
+	const xff = req.headers.get('x-forwarded-for');
+	if (xff) {
+		return xff.split(',')[0].trim();
+	}
+
+	return req.headers.get('x-real-ip') ?? req.headers.get('cf-connecting-ip') ?? '';
 }

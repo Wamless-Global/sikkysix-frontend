@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 /**
  * Fetch utility that adds Authorization header if token is present.
  * Falls back to cookies if no token is provided.
@@ -14,8 +16,13 @@ export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}, 
 		headers.set('Authorization', `Bearer ${authToken}`);
 	}
 
+	const cleanedInput = typeof input === 'string' ? input.replace(/^\/?api\/proxy\/?/i, '') : input;
+	const formattedURL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${cleanedInput}`;
+
+	logger.info(`Formatted URL: ${formattedURL}`);
+
 	const method = init.method ? init.method.toUpperCase() : 'GET';
-	return fetch(input, {
+	return fetch(formattedURL, {
 		...init,
 		headers,
 		method,

@@ -1,4 +1,5 @@
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { getClientIp } from '@/lib/helpers';
 import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -9,7 +10,7 @@ async function proxy(req: NextRequest, path: string[]) {
 	const targetUrl = `${API_BASE_URL}/${path.join('/')}`;
 
 	const headers = new Headers(req.headers);
-	headers.set('x-forwarded-for', req.headers.get('x-forwarded-for') ?? '');
+	headers.set('x-forwarded-for', getClientIp(req));
 
 	logger.log(`Current IP: ${req.headers.get('x-forwarded-for')}`);
 
