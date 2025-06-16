@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,28 +12,78 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import LogoPlaceholder from '@/components/ui/logo';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VerifyEmailStatusPageContent({ initialStatus }: { initialStatus: { status: string; message: string } }) {
+function parseFragmentParams() {
+	if (typeof window === 'undefined') return {};
+	const hash = window.location.hash.substring(1); // Remove '#'
+	return Object.fromEntries(new URLSearchParams(hash));
+}
+
+function ProjectSkeletonLoader() {
+	return (
+		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4 space-y-4">
+			<LogoPlaceholder size="xl" />
+			<div className="w-full max-w-md text-center space-y-2 mt-5">
+				<Skeleton className="mb-2 h-8 w-full md:w-96 mx-auto" />
+				<Skeleton className="mb-2 h-8 w-full md:w-98 mx-auto" />
+				<Skeleton className="mb-8 h-4 w-64 mx-auto" />
+			</div>
+		</div>
+	);
+}
+
+export default function VerifyEmailStatusPageContent() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const { resendVerificationEmail } = useAuthContext();
 
-	const pageStatus = initialStatus.status === 'success' ? 'success' : initialStatus.status === 'expired' ? 'expired' : initialStatus.status === 'error' ? 'error' : 'loading';
-	const [statusMessage, setStatusMessage] = useState(initialStatus.message || '');
-	const title = initialStatus.status === 'success' ? 'Email Verified Successfully!' : initialStatus.status === 'expired' ? 'Verification Link Expired' : initialStatus.status === 'error' ? 'Email Verification Failed' : 'Email Verification Status';
-
+	const [pageStatus, setPageStatus] = useState<'loading' | 'success' | 'expired' | 'error'>('loading');
+	const [statusMessage, setStatusMessage] = useState('');
 	const [emailForResend, setEmailForResend] = useState('');
 	const [isResending, setIsResending] = useState(false);
+	const [showContent, setShowContent] = useState(false);
 
 	useEffect(() => {
-		if (initialStatus.status === 'success') {
-			toast.success(initialStatus.message || 'Email verified successfully!');
-			setTimeout(() => router.replace('/auth/login'), 3000);
-		} else if (initialStatus.status === 'expired') {
-			toast.error(initialStatus.message || 'Verification link expired.');
-		} else if (initialStatus.status === 'error') {
-			toast.error(initialStatus.message || 'Email verification failed.');
+		const params = Object.fromEntries(searchParams.entries());
+		let error = params.error;
+		let errorDesc = params.error_description;
+		let errorCode = params.error_code;
+
+		if (!error && typeof window !== 'undefined' && window.location.hash) {
+			const fragParams = parseFragmentParams();
+			error = fragParams.error;
+			errorDesc = fragParams.error_description;
+			errorCode = fragParams.error_code;
+			if (error || errorDesc || errorCode) {
+				const query = new URLSearchParams(fragParams).toString();
+				router.replace(`${window.location.pathname}?${query}`);
+			}
 		}
-	}, [initialStatus, router]);
+
+		if (error) {
+			const desc = errorDesc || 'An unknown error occurred during verification.';
+			if (desc.toLowerCase().includes('expired') || error === 'access_denied' || errorCode === 'otp_expired' || desc.toLowerCase().includes('invalid')) {
+				setPageStatus('expired');
+				setStatusMessage(desc);
+				toast.error(desc);
+			} else {
+				setPageStatus('error');
+				setStatusMessage(desc);
+				toast.error(desc);
+			}
+		} else {
+			setPageStatus('success');
+			setStatusMessage('Your email address has been successfully verified. You can now log in.');
+			toast.success('Email verified successfully!');
+			setTimeout(() => router.replace('/auth/login'), 3000);
+		}
+		// Prevent content flash
+		setTimeout(() => setShowContent(true), 400);
+		// eslint-disable-next-line
+	}, [searchParams, router]);
+
+	const title = pageStatus === 'success' ? 'Email Verified Successfully!' : pageStatus === 'expired' ? 'Verification Link Expired' : pageStatus === 'error' ? 'Email Verification Failed' : 'Email Verification Status';
 
 	const handleResendSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
@@ -62,27 +112,20 @@ export default function VerifyEmailStatusPageContent({ initialStatus }: { initia
 		}
 	};
 
+	if (!showContent) {
+		return <ProjectSkeletonLoader />;
+	}
+
 	if (pageStatus === 'loading') {
-		return (
-			<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-				<CustomLink href={'/'}>
-					<h1 className="mb-8 text-4xl font-bold">LOGO</h1>
-				</CustomLink>
-				<div className="w-full max-w-md text-center">
-					<h2 className="mb-2 text-2xl font-semibold">Verifying...</h2>
-					<p className="mb-8 text-gray-300">{statusMessage}</p>
-				</div>
-			</div>
-		);
+		return <ProjectSkeletonLoader />;
 	}
 
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
 				<LogoPlaceholder size="xl" />
 			</CustomLink>
-			<div className="w-full max-w-md text-center">
+			<div className="w-full max-w-md text-center mt-5">
 				<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>
 				<p className="mb-8 text-gray-300">{statusMessage}</p>
 
@@ -115,17 +158,13 @@ export default function VerifyEmailStatusPageContent({ initialStatus }: { initia
 				)}
 
 				{pageStatus !== 'success' && (
-					<Button
-						size="lg"
-						variant="outline"
-						onClick={() => {
-							nProgress.start();
-							router.push('/auth/login');
-						}}
-						className="w-full cursor-pointer mb-5"
-					>
-						Back to Login
-					</Button>
+					<>
+						<CustomLink href={'/auth/login'} className="w-full cursor-pointer mb-5">
+							Back to Login
+						</CustomLink>
+						<br />
+						<br />
+					</>
 				)}
 
 				<CustomLink href={`mailto:${appSettings.supportemail}`} className="text-sm text-gray-400 hover:underline">
