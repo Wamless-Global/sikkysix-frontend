@@ -199,7 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 	useEffect(() => {
 		// Only run checkUserSession if not on 404 page (using is404 prop)
-		if (is404 || !currentUser) {
+		if (is404) {
 			setIsLoading(false);
 			return;
 		}
@@ -209,7 +209,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				const response = await fetchWithAuth('/api/proxy/auth/verify-me');
 				if (!response.ok) {
 					console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
-
 					setCurrentUser(null);
 					return;
 				}
