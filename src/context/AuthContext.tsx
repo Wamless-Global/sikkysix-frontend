@@ -3,8 +3,7 @@
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { useRouter, usePathname } from 'next/navigation';
-import nProgress from 'nprogress';
+import { usePathname } from 'next/navigation';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { logger } from '@/lib/logger';
 
@@ -14,7 +13,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
 	const [is404, setIs404] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const router = useRouter();
 	const pathname = usePathname();
 
 	const logout = async (): Promise<void> => {

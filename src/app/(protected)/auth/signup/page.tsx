@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Content from './content';
 import { cookies } from 'next/headers';
-import { logger } from '@/lib/logger';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 export const metadata: Metadata = {
 	title: 'Sign Up',
@@ -18,10 +18,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
 	const baseUrl = process.env.API_BASE_URL;
 
 	let referralData = null;
+	let countries = [];
 
+	// Fetch referral data if referralId is present
 	if (referralId) {
 		const url = `${baseUrl}/auth/referral/${encodeURIComponent(referralId)}`;
-
 		try {
 			const res = await fetchWithAuth(url, {
 				headers: {
@@ -35,8 +36,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
 		} catch (e) {}
 	}
 	const data = { ...referralData };
-
 	if (referralData) data.data.referral_id = referralId;
 
-	return <Content referralData={data} />;
+	// Fetch countries
+	try {
+		const countriesRes = await fetchWithAuth(`${baseUrl}/auth/all-countries`, {
+			headers: {
+				Cookie: cookieStore.toString(),
+			},
+			cache: 'no-store',
+		});
+		if (countriesRes.ok) {
+			countries = await countriesRes.json();
+		}
+	} catch (e) {}
+
+	return <Content referralData={data} countries={countries} />;
 }

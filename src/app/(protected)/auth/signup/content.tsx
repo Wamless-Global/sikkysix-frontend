@@ -14,12 +14,15 @@ import nprogress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import LogoPlaceholder from '@/components/ui/logo';
 import { SignupPageContentProps } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { Country } from '@/types/modules/countries';
 
-export default function SignupPageContent({ referralData }: SignupPageContentProps) {
+export default function SignupPageContent({ referralData, countries }: SignupPageContentProps & { countries: { status: string; countries: Country[] } }) {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
+	const [country, setCountry] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [referralActive, setReferralActive] = useState(!!(referralData && referralData.status === 'success' && referralData.data?.name));
@@ -64,7 +67,7 @@ export default function SignupPageContent({ referralData }: SignupPageContentPro
 			setIsLoading(false);
 			return;
 		}
-		if (!name || !email || !password) {
+		if (!name || !email || !password || !country) {
 			setError('All fields are required.');
 			setIsLoading(false);
 			return;
@@ -83,7 +86,7 @@ export default function SignupPageContent({ referralData }: SignupPageContentPro
 
 		const toastId = toast.loading('Creating your account...');
 		try {
-			await signup(name, email, password, confirmPassword, referralActive && referralId ? referralId : undefined);
+			await signup(name, email, password, confirmPassword, referralActive && referralId ? referralId : undefined, country);
 
 			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
@@ -139,6 +142,21 @@ export default function SignupPageContent({ referralData }: SignupPageContentPro
 								<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
 								<Input id="email" type="email" placeholder="Enter your email address" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 							</div>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="country">Country</Label>
+							<Select value={country} onValueChange={setCountry} disabled={isLoading}>
+								<SelectTrigger className="w-full auth-input">
+									<SelectValue placeholder="Select your country" />
+								</SelectTrigger>
+								<SelectContent>
+									{countries?.countries?.map((c) => (
+										<SelectItem key={c.id} value={c.code}>
+											{c.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="password">Password</Label>

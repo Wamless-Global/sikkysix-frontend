@@ -31,6 +31,15 @@ export interface ReferralData {
 	};
 }
 
+export interface CountriesData {
+	status: string;
+	data?: {
+		name?: string;
+		referral_id?: string;
+	};
+}
+
 export interface SignupPageContentProps {
 	referralData: ReferralData | null;
+	countries: CountriesData | null;
 }

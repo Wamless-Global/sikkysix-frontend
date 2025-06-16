@@ -23,6 +23,17 @@ const nextConfig: NextConfig = {
 	},
 
 	allowedDevOrigins: ['sikkysix.local', '*.sikkysix.local'],
+
+	async rewrites() {
+		return [
+			{
+				// Proxy requests from /api/... on the frontend to http://localhost:5002/api/... on the backend
+				source: '/api/:path*',
+
+				destination: `${process.env.API_BASE_URL}/:path*`,
+			},
+		];
+	},
 };
 
 export default nextConfig;
