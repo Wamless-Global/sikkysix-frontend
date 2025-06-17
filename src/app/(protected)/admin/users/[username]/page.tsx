@@ -240,7 +240,9 @@ export default function UserDetailPage() {
 			const result = await response.json();
 
 			if (!response.ok) {
-				throw new Error(result.message || 'Failed to adjust balance');
+				const errorMessage = handleFetchErrorMessage(result, 'An unexpected error occurred.');
+				toast.error(errorMessage);
+				return;
 			}
 
 			// Update local state with the new balance confirmed by the API

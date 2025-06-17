@@ -1,4 +1,5 @@
 'use client';
+
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -12,18 +13,11 @@ import nProgress from 'nprogress';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
-// import TransactionHistoryTable from '@/components/transactions/TransactionHistoryTable';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { formatNumber, formatUSD, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
-
-// TODO: Replace with actual transaction data fetching for the category
-const _assetTransactionHistoryMock = [
-	{ id: 'txn_asset_1', timestamp: '2025-10-19T10:35:00Z', maskedInvestorId: 'User...a4f8', type: 'Buy Ticker', amount: 2.5, currency: 'TICK', usdValue: 5126.88, status: 'Completed' },
-	{ id: 'txn_asset_2', timestamp: '2025-10-18T15:22:00Z', maskedInvestorId: 'User...b8e1', type: 'Sell Ticker', amount: 0.1, currency: 'TICK', usdValue: 3010.02, status: 'Completed' },
-];
 
 export default function AdminSingleCategoriesPage() {
 	const params = useParams<{ slug: string }>();
@@ -56,8 +50,6 @@ export default function AdminSingleCategoriesPage() {
 			if (result.status === 'success' && result.data) {
 				const fetchedCategory = result.data;
 				const circulatingSupply = fetchedCategory.circulating_supply ?? fetchedCategory.quantity;
-
-				logger.log(result.data);
 
 				setCategoryData({
 					...fetchedCategory,

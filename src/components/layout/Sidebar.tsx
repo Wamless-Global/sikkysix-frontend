@@ -34,7 +34,11 @@ const navItems = [
 	{ href: '/admin/reports', label: 'Reporting', icon: BarChart },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+	setIsMobileSidebarOpen: (IsMobileSidebarOpen: boolean) => void;
+}
+
+const Sidebar = ({ setIsMobileSidebarOpen }: SidebarProps) => {
 	const pathname = usePathname();
 
 	return (
@@ -46,7 +50,12 @@ const Sidebar = () => {
 					const Icon = item.icon;
 
 					return (
-						<CustomLink key={item.href} href={item.href} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary border-l-4 border-transparent', isActive && 'bg-muted text-primary border-primary')}>
+						<CustomLink
+							key={item.href}
+							href={item.href}
+							className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary border-l-4 border-transparent', isActive && 'bg-muted text-primary border-primary')}
+							onClick={() => setIsMobileSidebarOpen(false)}
+						>
 							<Icon className="h-4 w-4" />
 							{item.label}
 						</CustomLink>

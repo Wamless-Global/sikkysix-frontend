@@ -6,8 +6,13 @@ import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { usePathname } from 'next/navigation';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { logger } from '@/lib/logger';
+import { createClient } from '@supabase/supabase-js';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
@@ -35,6 +40,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				// console.error('AuthContext Logout Error:', errorMessage);
 				throw new Error(errorMessage);
 			}
+
+			await supabase.auth.signOut();
 
 			logger.log('AuthContext: Logout successful via API.');
 		} catch (err) {
@@ -81,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 	};
 
-	const signup = async (name: string, email: string, password: string, confirmPassword: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
+	const signup = async (name: string, email: string, password: string, confirmPassword: string, country: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
 		logger.log('AuthContext: Starting signup process with', { name, email, referralId, roles });
 		if (password !== confirmPassword) {
 			throw new Error('Passwords do not match.');
@@ -96,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ name, email, password, confirmPassword, roles, referralId }),
+				body: JSON.stringify({ name, email, password, confirmPassword, roles, country, referralId }),
 			});
 
 			const responseData = await response.json();

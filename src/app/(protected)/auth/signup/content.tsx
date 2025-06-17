@@ -86,7 +86,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 
 		const toastId = toast.loading('Creating your account...');
 		try {
-			await signup(name, email, password, confirmPassword, referralActive && referralId ? referralId : undefined, country);
+			await signup(name, email, password, confirmPassword, country, referralActive && referralId ? referralId : undefined);
 
 			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
@@ -151,7 +151,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 								</SelectTrigger>
 								<SelectContent>
 									{countries?.countries?.map((c) => (
-										<SelectItem key={c.id} value={c.code}>
+										<SelectItem key={c.code} value={c.id}>
 											{c.name}
 										</SelectItem>
 									))}
