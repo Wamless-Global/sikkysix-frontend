@@ -14,13 +14,11 @@ import { MoreHorizontal, Loader2, User as UserIcon, Mail, Phone, MapPin, Calenda
 import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil } from '@/lib/userUtils';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { COUNTRIES } from '@/lib/countries';
 import { format } from 'date-fns';
 import { formatBaseurrency, getEmailStatusVariant, getStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
 import { AdjustBalanceModal } from '@/components/modals/AdjustBalanceModal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, UserStatus } from '@/types';
-import { useAuthContext } from '@/context/AuthContext';
+import { Country, User, UserStatus } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
 import { useOnlineContext } from '@/context/OnlineContext';
@@ -28,6 +26,7 @@ import OnlineBadge from '@/components/ui/online-badge';
 
 export default function UserDetailPage() {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
+	const [countries, setCountries] = useState<Array<Country>>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isSuspending, setIsSuspending] = useState(false);
@@ -66,6 +65,20 @@ export default function UserDetailPage() {
 		};
 		fetchUser();
 	}, [username]);
+
+	useEffect(() => {
+		const fetchCountries = async () => {
+			try {
+				const countriesRes = await fetchWithAuth(`/api/auth/all-countries`);
+				if (countriesRes.ok) {
+					const data = await countriesRes.json();
+					logger.info(data);
+					setCountries(data.countries || []);
+				}
+			} catch (e) {}
+		};
+		fetchCountries();
+	}, []);
 
 	if (isLoading) {
 		return (
@@ -431,7 +444,7 @@ export default function UserDetailPage() {
 					{/* Column 2 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<MapPin className="w-4 h-4" /> <span>Country:</span> <span className="text-foreground">{COUNTRIES.find((c) => c.code === currentUser.country)?.name ?? currentUser.country}</span>
+							<MapPin className="w-4 h-4" /> <span>Country:</span> <span className="text-foreground">{countries.find((c) => c.id === currentUser.country)?.name ?? currentUser.country}</span>
 						</div>
 						{currentUser.telegram_user_id && (
 							<div className="flex items-center gap-2 text-muted-foreground">

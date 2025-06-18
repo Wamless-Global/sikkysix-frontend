@@ -15,9 +15,9 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuChe
 import { Badge } from '@/components/ui/badge';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { toast } from 'sonner';
-import { COUNTRIES } from '@/lib/countries';
 import { Country, Role, User } from '@/types';
 import { ALL_ROLES, deleteUser, fetchUserByUsername, updateUser } from '@/lib/userUtils';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 export default function EditUserPage() {
 	const params = useParams();
@@ -25,6 +25,7 @@ export default function EditUserPage() {
 	const { getUserByUsername } = useUserContext();
 	const username = params?.username as string;
 
+	const [countries, setCountries] = useState<Array<Country>>([]);
 	const [user, setUser] = useState<User | null>(null);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
@@ -43,6 +44,19 @@ export default function EditUserPage() {
 	};
 
 	useEffect(() => {
+		const fetchCountries = async () => {
+			try {
+				const countriesRes = await fetchWithAuth(`/api/auth/all-countries`);
+				if (countriesRes.ok) {
+					const data = await countriesRes.json();
+					setCountries(data.countries || []);
+				}
+			} catch (e) {}
+		};
+		fetchCountries();
+	}, []);
+
+	useEffect(() => {
 		if (!username) {
 			setIsLoading(false);
 			notFound();
@@ -51,26 +65,19 @@ export default function EditUserPage() {
 
 		setIsLoading(true);
 
-		const userFromContext = getUserByUsername(username);
-
-		if (userFromContext) {
-			populateForm(userFromContext);
+		const loadUser = async () => {
+			const fetchedUser = await fetchUserByUsername(username);
+			if (fetchedUser) {
+				populateForm(fetchedUser);
+			} else {
+				setUser(null);
+				toast.error(`User '${username}' not found or failed to load.`);
+				notFound();
+			}
 			setIsLoading(false);
-		} else {
-			const loadUser = async () => {
-				const fetchedUser = await fetchUserByUsername(username);
-				if (fetchedUser) {
-					populateForm(fetchedUser);
-				} else {
-					setUser(null);
-					toast.error(`User '${username}' not found or failed to load.`);
-					notFound();
-				}
-				setIsLoading(false);
-			};
+		};
 
-			loadUser();
-		}
+		loadUser();
 	}, [username, getUserByUsername]);
 
 	const handleSubmit = async (event: React.FormEvent) => {
@@ -170,8 +177,8 @@ export default function EditUserPage() {
 									<SelectValue placeholder="Select country" />
 								</SelectTrigger>
 								<SelectContent>
-									{COUNTRIES.map((countryOption: Country) => (
-										<SelectItem key={countryOption.code} value={countryOption.name}>
+									{countries.map((countryOption: Country) => (
+										<SelectItem key={countryOption.code} value={countryOption.id}>
 											{countryOption.name}
 										</SelectItem>
 									))}

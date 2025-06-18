@@ -11,15 +11,16 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'; // Removed Loader2
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton
-import { COUNTRIES } from '@/lib/countries';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { Role, User, UserFilters, UserStatus } from '@/types';
+import { Country, Role, User, UserFilters, UserStatus } from '@/types';
 import { ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
 import { getStatusVariant } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useOnlineContext } from '@/context/OnlineContext';
 import OnlineBadge from '@/components/ui/online-badge';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -30,6 +31,7 @@ export default function UserManagementPage() {
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterRole, setFilterRole] = useState<Role | 'all'>('all');
+	const [countries, setCountries] = useState<Array<Country>>([]);
 	const [filterStatus, setFilterStatus] = useState<UserStatus | 'all'>('all');
 	const [filterCountry, setFilterCountry] = useState<string | 'all'>('all');
 	const [filterStartDate, setFilterStartDate] = useState<string>('');
@@ -46,6 +48,21 @@ export default function UserManagementPage() {
 		startDate: filterStartDate || undefined,
 		endDate: filterEndDate || undefined,
 	};
+
+	useEffect(() => {
+		const fetchCountries = async () => {
+			try {
+				const countriesRes = await fetchWithAuth(`/api/auth/all-countries`);
+				if (countriesRes.ok) {
+					const data = await countriesRes.json();
+					logger.info(data);
+					setCountries(data.countries || []);
+				}
+			} catch (e) {}
+		};
+		fetchCountries();
+	}, []);
+
 	useEffect(() => {
 		// Removed setIsFetchingData(true)
 		const timer = setTimeout(() => {
@@ -166,8 +183,8 @@ export default function UserManagementPage() {
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">All Countries</SelectItem>
-									{COUNTRIES.map((country) => (
-										<SelectItem key={country.code} value={country.code}>
+									{countries.map((country) => (
+										<SelectItem key={country.code} value={country.id}>
 											{country.name}
 										</SelectItem>
 									))}
@@ -277,7 +294,7 @@ export default function UserManagementPage() {
 												<TableCell>
 													<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
 												</TableCell>
-												<TableCell>{COUNTRIES.find((country) => country.code === user.country)?.name || 'Nigeria'}</TableCell>
+												<TableCell>{countries.find((country) => country.id === user.country)?.name || 'Nigeria'}</TableCell>
 											</TableRow>
 										);
 									})
