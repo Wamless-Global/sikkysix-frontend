@@ -38,7 +38,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning style={{ fontSize: appSettings.baseFontSize }}>
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange enableColorScheme={false}>
 					<Suspense>
 						<ProgressBar />
 						{children}
