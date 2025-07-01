@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AgentType } from '@/types';
-import { formatBaseurrency, formatCurrency, getCurrencyFromLocalStorage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getBaseCurrency, getCurrencyFromLocalStorage } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
@@ -322,13 +322,13 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 													<span className="ml-1 text-xs text-muted-foreground">{agent.rating.toFixed(1)}</span>
 												</div>
 											</div>
-											<span className="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20 ml-auto capitalize">{orderType}</span>
+											<span className="px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20 ml-auto capitalize">{orderType == 'buy' ? 'Deposit' : 'Withdrawal'}</span>
 										</div>
 										<div className="flex flex-col gap-1 sm:gap-2 mt-2">
 											<div className="flex flex-wrap items-center gap-2 text-sm">
 												<span className="text-muted-foreground">Price:</span>
 												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rate, getCurrencyFromLocalStorage()?.code)}</span>
-												<span className="text-xs text-muted-foreground">per {process.env.NEXT_PUBLIC_BASE_CURRENCY}</span>
+												<span className="text-xs text-muted-foreground">per {getBaseCurrency()}</span>
 											</div>
 											<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
 												<span>{agent.transactions} Transactions</span>

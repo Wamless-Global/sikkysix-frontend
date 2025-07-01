@@ -4,6 +4,7 @@ import { AccountStatus, ApiPaymentMethod, Category, EmailStatus, Investment, Tra
 import { P2PTradeStatus, TradeResponse } from '@/types/modules/trade';
 import nProgress from 'nprogress';
 import { NextRequest } from 'next/server';
+import { logger } from './logger';
 
 export const generateSlug = (name: string) => (name ? name.toLowerCase().replace(/\s+/g, '-') : '');
 
@@ -68,7 +69,7 @@ export const formatCurrency = (amount: number | null | undefined, currency: stri
 		amount = 0;
 	}
 
-	const formatted = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+	const formatted = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(amount);
 
 	const symbol = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find((p) => p.type === 'currency')?.value || validCurrency;
 
@@ -97,12 +98,12 @@ export const formatCurrency = (amount: number | null | undefined, currency: stri
 
 export const formatBaseurrency = (amount: number | null | string, units = 2, withTags: boolean = true): React.ReactElement | string => {
 	const convertAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-	const amountStr = convertAmount !== null && convertAmount !== undefined ? convertAmount.toLocaleString(undefined, { maximumFractionDigits: units }) : 'N/A';
+	const amountStr = convertAmount !== null && convertAmount !== undefined ? convertAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: units }) : 'N/A';
 
 	if (withTags) {
-		return <span className="money">{`${amountStr} ${process.env.NEXT_PUBLIC_BASE_CURRENCY || 'NGN'}`}</span>;
+		return <span className="money">{`${amountStr} ${getBaseCurrency()}`}</span>;
 	}
-	return `${amountStr} ${process.env.NEXT_PUBLIC_BASE_CURRENCY || 'NGN'}`;
+	return `${amountStr} ${getBaseCurrency()}`;
 };
 
 // Helper function to determine badge variant based on status
@@ -353,7 +354,7 @@ export const getTradeViewState = (trade: TradeResponse, isUserFlow: boolean, isE
 export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, _isAnAgent?: boolean): string =>
 	isBuyer
 		? trade?.status === 'awaiting_fiat_payment'
-			? `Send the exact amount to the agent's account to receive your ${process.env.NEXT_PUBLIC_BASE_CURRENCY} tokens. \n
+			? `Send the exact amount to the agent's account to receive your ${getBaseCurrency()} tokens. \n
 			Before sending, confirm that the account name matches the agent's name. For your safety, only chat with the agent through the platform so we can help resolve any issues if needed.`
 			: trade?.status === 'fiat_payment_confirmed_by_buyer'
 			? "You've marked payment as sent. Please wait for the agent to confirm receipt. If there are issues, use the chat or raise a dispute after the timer expires."
@@ -398,7 +399,7 @@ export function getTradeStatusToast(updatedTrade: { status: string }) {
 	return { status, statusMap };
 }
 
-export const positiveTransactionTypes: string[] = ['deposit', 'credit', 'investment_profit_withdrawal', 'unlocked_funds_from_order'];
+export const positiveTransactionTypes: string[] = ['deposit', 'credit', 'investment_profit_withdrawal', 'unlocked_funds_from_order', 'bonus'];
 
 export function getFieldLabel(paymentMethodId: string, fieldName: string, availableMethods: ApiPaymentMethod[]): string {
 	const method = availableMethods.find((m) => m.id === paymentMethodId);
@@ -449,6 +450,70 @@ export function getCurrencyFromLocalStorage(): { symbol: string; name: string; c
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Get the base currency from localStorage or fallback to env variable.
+ * @returns {string} The base currency code (e.g. 'SKY').
+ */
+export function getBaseCurrency(): string {
+	if (typeof window !== 'undefined') {
+		try {
+			const raw = localStorage.getItem('settings');
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed.baseCurrency === 'string') {
+					return parsed.baseCurrency;
+				}
+			}
+		} catch (e) {
+			// ignore JSON parse errors
+		}
+	}
+	return process.env.NEXT_PUBLIC_BASE_CURRENCY || '';
+}
+
+/**
+ * Get the application name from localStorage or fallback to empty string.
+ * @returns {string} The application name (e.g. 'SikkySix').
+ */
+export function getPlatformName(): string {
+	if (typeof window !== 'undefined') {
+		try {
+			const raw = localStorage.getItem('settings');
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed.name === 'string') {
+					return parsed.name;
+				}
+			}
+		} catch (e) {
+			// ignore JSON parse errors
+		}
+	}
+	return '';
+}
+
+/**
+ * Get the base currency rate from localStorage or fallback to 1.
+ * @returns {number} The base currency rate (e.g. 1.1).
+ */
+export function getBaseCurrencyRate(): number {
+	if (typeof window !== 'undefined') {
+		try {
+			const raw = localStorage.getItem('settings');
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				const rate = typeof parsed?.rate === 'string' ? parseFloat(parsed.rate) : parsed?.rate;
+				if (!isNaN(rate) && typeof rate === 'number') {
+					return rate;
+				}
+			}
+		} catch (e) {
+			// ignore JSON parse errors
+		}
+	}
+	return 1;
 }
 
 export function getCategoryDisplayStatus(cat: Category): 'Active' | 'Locked' | 'Not Launched' {

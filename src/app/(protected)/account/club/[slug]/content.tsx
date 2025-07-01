@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatBaseurrency, formatNumber, formatRelativeTime, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
+import { formatBaseurrency, formatNumber, formatRelativeTime, getBaseCurrency, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
 import { AuthenticatedUser, Category, Investment, InvestmentsResponse, Transaction, TransactionResponse, UserSingleCategoryResponse } from '@/types';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
@@ -354,7 +354,7 @@ export default function SingleCategoryContent() {
 					<div className="flex-grow w-full sm:w-auto space-y-2">
 						{categoryData.is_launched && (
 							<Label htmlFor="amount" className="text-sm">
-								Amount to Contribute ({process.env.NEXT_PUBLIC_BASE_CURRENCY})
+								Amount to Contribute ({getBaseCurrency()})
 							</Label>
 						)}
 						{!categoryData.is_launched ? (

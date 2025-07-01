@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import nProgress from 'nprogress';
+import { getBaseCurrency } from '@/lib/helpers';
 
 export default function DepositPageContent() {
 	const router = useRouter();
@@ -36,7 +37,7 @@ export default function DepositPageContent() {
 				<CardContent className="space-y-6 pt-6 px-0">
 					<div className="space-y-2">
 						<Label htmlFor="amount" className="text-sm font-medium">
-							Enter Amount ({process.env.NEXT_PUBLIC_BASE_CURRENCY})
+							Enter Amount ({getBaseCurrency()})
 						</Label>
 						<Input id="amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g., 10000" className="bg-background border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)]" />
 					</div>

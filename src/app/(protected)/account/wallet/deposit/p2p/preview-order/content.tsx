@@ -10,7 +10,7 @@ import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
-import { formatBaseurrency, formatCurrency, getCurrencyFromLocalStorage, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getBaseCurrency, getCurrencyFromLocalStorage, handleFetchErrorMessage } from '@/lib/helpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -176,13 +176,13 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 								<span className="font-semibold text-foreground">
 									{preview?.rateNGN} {getCurrencyFromLocalStorage()?.code}
 								</span>{' '}
-								per {process.env.NEXT_PUBLIC_BASE_CURRENCY}.
+								per {getBaseCurrency()}.
 							</>
 						) : (
 							<>
 								Sell&nbsp;
 								<span className="font-semibold text-foreground">{formatBaseurrency(preview?.tokenQuantity)}</span>
-								&nbsp; to receive <span className="font-semibold text-foreground">{formatCurrency(preview?.amountFiat)}</span> at a rate of <span className="font-semibold text-foreground">{formatCurrency(preview?.rateNGN)}</span> per {process.env.NEXT_PUBLIC_BASE_CURRENCY}.
+								&nbsp; to receive <span className="font-semibold text-foreground">{formatCurrency(preview?.amountFiat)}</span> at a rate of <span className="font-semibold text-foreground">{formatCurrency(preview?.rateNGN)}</span> per {getBaseCurrency()}.
 							</>
 						)}
 					</p>
@@ -190,23 +190,23 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 				<CardContent className="space-y-4 pt-6 px-0">
 					<div className="p-4 rounded-lg bg-background dark:bg-muted border border-border space-y-1">
 						<h3 className="text-md font-semibold text-foreground mb-2">
-							{type === 'buy' ? 'Buy' : 'Sell'} {process.env.NEXT_PUBLIC_BASE_CURRENCY}
+							{type === 'buy' ? 'Buy' : 'Sell'} {getBaseCurrency()}
 						</h3>
 						{type === 'buy' ? (
 							<>
-								<OrderDetailItem label="Quantity" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+								<OrderDetailItem label="Quantity" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={getBaseCurrency()} />
 
-								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${getBaseCurrency()}`} />
 
 								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} isBold />
 							</>
 						) : (
 							<>
-								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${getBaseCurrency()}`} />
 
 								<OrderDetailItem label="Expected Fiat" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} isBold />
 
-								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} isBold />
+								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={getBaseCurrency()} isBold />
 							</>
 						)}
 						{preview?.transactionFeesNGN <= 0 ? (
@@ -246,7 +246,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							<AlertCircle className="h-4 w-4" />
 							<AlertTitle>Important</AlertTitle>
 							<AlertDescription>
-								Once confirmed, the specified amount of {process.env.NEXT_PUBLIC_BASE_CURRENCY} will be held in escrow. <b>Only release the funds after you have confirmed receipt of the correct fiat amount ({formatCurrency(preview?.amountFiat)}) in your account.</b>
+								Once confirmed, the specified amount of {getBaseCurrency()} will be held in escrow. <b>Only release the funds after you have confirmed receipt of the correct fiat amount ({formatCurrency(preview?.amountFiat, getCurrencyFromLocalStorage()?.code)}) in your account.</b>
 							</AlertDescription>
 						</Alert>
 					) : (
@@ -254,8 +254,8 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							<AlertCircle className="h-4 w-4" />
 							<AlertTitle>Important</AlertTitle>
 							<AlertDescription>
-								The {process.env.NEXT_PUBLIC_BASE_CURRENCY} amount entered will be taken out for you from the agent&apos;s account once you click on CONFIRM ORDER.
-								<b>Make sure you transfer the correct amount ({formatCurrency(preview?.amountFiat)}) to the agent&apos;s account first before you click on “MADE PAYMENT”</b>
+								The {getBaseCurrency()} amount entered will be taken out for you from the agent&apos;s account once you click on CONFIRM ORDER.
+								<b>Make sure you transfer the correct amount ({formatCurrency(preview?.amountFiat, getCurrencyFromLocalStorage()?.code)}) to the agent&apos;s account first before you click on “MADE PAYMENT”</b>
 								DO NOT mark “Paid” until you complete the transfer is complete. Marking as paid without sending money will lead to cancellation and penalties.
 							</AlertDescription>
 						</Alert>
@@ -276,9 +276,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 				}}
 				onConfirm={proceedWithOrderPlacement}
 				title="Confirm P2P Order"
-				description={`You are about to place an order to ${type} ${preview?.tokenQuantity?.toLocaleString(undefined, {
-					maximumFractionDigits: 6,
-				})} ${process.env.NEXT_PUBLIC_BASE_CURRENCY} for ₦${preview?.amountFiat?.toLocaleString()}.\nPlease review your order details. Are you sure you want to proceed?`}
+				description={`You are about to place an order to ${type} ${formatBaseurrency(preview?.tokenQuantity, 6, false)} for ${formatCurrency(preview?.amountFiat, getCurrencyFromLocalStorage()?.code)}.\nPlease review your order details. Are you sure you want to proceed?`}
 				confirmButtonText="Confirm & Place Order"
 				cancelButtonText="Review Order"
 				isLoading={isProcessingOrder}

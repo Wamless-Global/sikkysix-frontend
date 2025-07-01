@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, MessageCircle } from 'lucide-react';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
+import { getBaseCurrency } from '@/lib/helpers';
 
 interface AwaitingConfirmationViewProps {
 	transactionId: string;
@@ -73,13 +74,13 @@ const AwaitingConfirmationView: React.FC<AwaitingConfirmationViewProps> = ({
 						<>
 							<OrderDetailItem label="Amount Paid" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
 							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
-							<OrderDetailItem label="Quantity to Receive" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							<OrderDetailItem label="Quantity to Receive" value={orderDetails.tokenQuantity} unit={getBaseCurrency()} />
 						</>
 					) : (
 						<>
 							<OrderDetailItem label="Amount to Receive" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
 							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
-							<OrderDetailItem label="Quantity to Sell" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							<OrderDetailItem label="Quantity to Sell" value={orderDetails.tokenQuantity} unit={getBaseCurrency()} />
 						</>
 					)}
 					<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />

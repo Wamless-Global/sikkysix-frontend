@@ -12,7 +12,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { formatCurrency, getAgentStatusBadgeVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getAgentStatusBadgeVariant, getBaseCurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
@@ -28,8 +28,8 @@ const AgentPortalContent = () => {
 	const [trades, setTrades] = useState<any[]>([]);
 	const [stats, setStats] = useState([
 		{ label: 'Total Trades', value: 0 },
-		{ label: 'Total Volume', value: '$0.00' },
-		{ label: 'Earnings', value: '$0.00' },
+		{ label: 'Total Volume', value: formatCurrency(0) },
+		{ label: 'Earnings', value: formatCurrency(0) },
 		{ label: 'Active orders', value: 0 },
 		{ label: 'Completed Trades', value: 0 },
 		{ label: 'Disputes', value: 0 },
@@ -59,14 +59,14 @@ const AgentPortalContent = () => {
 	useEffect(() => {
 		if (!statsLoaded && currentUser?.agent_id) {
 			const agentId = currentUser.agent_id;
-			fetchWithAuth(`/api/p2p/agent/${agentId}/stats`)
+			fetchWithAuth(`/api/agents/${agentId}/stats`)
 				.then((res) => res.json())
 				.then((data) => {
 					if (data.status === 'success' && data.data) {
 						setStats([
 							{ label: 'Total Trades', value: data.data.totalTrades },
-							{ label: 'Total Volume', value: `₦${Number(data.data.totalVolume || 0).toLocaleString()}` },
-							{ label: 'Earnings', value: `₦${Number(data.data.earnings || 0).toLocaleString()}` },
+							{ label: 'Total Volume', value: `${formatCurrency(data.data.totalVolume || 0)}` },
+							{ label: 'Earnings', value: `${formatCurrency(data.data.earnings || 0)}` },
 							{ label: 'Active orders', value: data.data.activeOrders },
 							{ label: 'Completed Trades', value: data.data.completedTrades },
 							{ label: 'Disputes', value: data.data.disputes },
@@ -175,6 +175,7 @@ const AgentPortalContent = () => {
 			if (reconnectTimeout) clearTimeout(reconnectTimeout);
 		};
 	}, [currentUser]);
+
 	return (
 		<div className="space-y-8 pb-16">
 			<h1 className="sub-page-heading">P2P Agent Portal</h1>
@@ -182,25 +183,34 @@ const AgentPortalContent = () => {
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-				{stats.map((stat, i) => (
-					<Card
-						key={stat.label}
-						className={cn(
-							'border border-border shadow-sm rounded-xl',
-							i === 0 && 'bg-gradient-to-br from-blue-600/80 to-blue-400/80 text-white',
-							i === 1 && 'bg-gradient-to-br from-green-600/80 to-green-400/80 text-white',
-							i === 2 && 'bg-gradient-to-br from-yellow-500/80 to-yellow-300/80 text-white',
-							i === 3 && 'bg-gradient-to-br from-purple-600/80 to-purple-400/80 text-white',
-							i === 4 && 'bg-gradient-to-br from-pink-600/80 to-pink-400/80 text-white',
-							i === 5 && 'bg-gradient-to-br from-orange-600/80 to-orange-400/80 text-white'
-						)}
-					>
-						<CardContent className="p-4 flex flex-col items-center">
-							<span className="text-2xl font-bold">{stat.value}</span>
-							<span className="text-xs mt-1 text-center opacity-90">{stat.label}</span>
-						</CardContent>
-					</Card>
-				))}
+				{isLoading || !statsLoaded
+					? Array.from({ length: 6 }).map((_, i) => (
+							<Card key={i} className="border border-border shadow-sm rounded-xl">
+								<CardContent className="p-4 flex flex-col items-center">
+									<Skeleton className="h-8 w-20 mb-2 rounded" />
+									<Skeleton className="h-4 w-16 rounded" />
+								</CardContent>
+							</Card>
+					  ))
+					: stats.map((stat, i) => (
+							<Card
+								key={stat.label}
+								className={cn(
+									'border border-border shadow-sm rounded-xl',
+									i === 0 && 'bg-gradient-to-br from-blue-600/80 to-blue-400/80 text-white',
+									i === 1 && 'bg-gradient-to-br from-green-600/80 to-green-400/80 text-white',
+									i === 2 && 'bg-gradient-to-br from-yellow-500/80 to-yellow-300/80 text-white',
+									i === 3 && 'bg-gradient-to-br from-purple-600/80 to-purple-400/80 text-white',
+									i === 4 && 'bg-gradient-to-br from-pink-600/80 to-pink-400/80 text-white',
+									i === 5 && 'bg-gradient-to-br from-orange-600/80 to-orange-400/80 text-white'
+								)}
+							>
+								<CardContent className="p-4 flex flex-col items-center">
+									<span className="text-2xl font-bold">{stat.value}</span>
+									<span className="text-xs mt-1 text-center opacity-90">{stat.label}</span>
+								</CardContent>
+							</Card>
+					  ))}
 			</div>
 
 			{/* Trades Table */}
@@ -246,7 +256,7 @@ const AgentPortalContent = () => {
 											<SelectItem value="awaiting_fiat_payment">Awaiting Fiat Payment</SelectItem>
 											<SelectItem value="fiat_payment_confirmed_by_buyer">Fiat Payment Confirmed by Buyer</SelectItem>
 											<SelectItem value="fiat_received_confirmed_by_seller">Fiat Received Confirmed by Seller</SelectItem>
-											<SelectItem value="platform_ngn_released">{process.env.NEXT_PUBLIC_BASE_CURRENCY} Released</SelectItem>
+											<SelectItem value="platform_ngn_released">{getBaseCurrency()} Released</SelectItem>
 											<SelectItem value="completed">Completed</SelectItem>
 											<SelectItem value="cancelled_by_buyer">Cancelled by Buyer</SelectItem>
 											<SelectItem value="cancelled_by_seller">Cancelled by Seller</SelectItem>
@@ -341,6 +351,7 @@ const AgentPortalContent = () => {
 										<TableHead className="cursor-pointer w-36">Trade ID</TableHead>
 										<TableHead className="cursor-pointer w-20">Type</TableHead>
 										<TableHead className="w-20">Asset</TableHead>
+										<TableHead className="cursor-pointer w-32">Tokens</TableHead>
 										<TableHead className="cursor-pointer w-32">Amount</TableHead>
 										<TableHead className="cursor-pointer w-40">Status</TableHead>
 										<TableHead className="cursor-pointer w-40">Date</TableHead>
@@ -363,6 +374,9 @@ const AgentPortalContent = () => {
 													</TableCell>
 													<TableCell>
 														<Skeleton className="h-4 w-16 rounded" />
+													</TableCell>
+													<TableCell>
+														<Skeleton className="h-4 w-20 rounded" />
 													</TableCell>
 													<TableCell>
 														<Skeleton className="h-4 w-20 rounded" />
@@ -393,8 +407,9 @@ const AgentPortalContent = () => {
 													}}
 												>
 													<TableCell className="font-mono text-base font-semibold text-blue-700 dark:text-blue-300">{trade.id.slice(0, 8)}…</TableCell>
-													<TableCell className="capitalize font-semibold text-base">{trade.buyer_id === trade.order_creator_id ? 'Buy' : 'Sell'}</TableCell>
-													<TableCell className="font-semibold text-base">{process.env.NEXT_PUBLIC_BASE_CURRENCY}</TableCell>
+													<TableCell className={`capitalize font-semibold text-base ${currentUser == null && 'italic'}`}>{currentUser == null ? 'N/A' : trade.buyer_id === currentUser.id ? 'Withdrawal' : 'Deposit'}</TableCell>
+													<TableCell className="font-semibold text-base">{getBaseCurrency()}</TableCell>
+													<TableCell className="font-semibold text-base">{formatBaseurrency(trade.platform_currency_amount)}</TableCell>
 													<TableCell className="font-semibold text-base text-green-700 dark:text-green-300">{formatCurrency(trade.fiat_amount)}</TableCell>
 													<TableCell>
 														<Badge variant={getAgentStatusBadgeVariant(trade.status)} tabIndex={-1} aria-label={trade.status}>

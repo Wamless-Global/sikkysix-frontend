@@ -31,10 +31,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 			setCurrentUser(null);
 
-			if (typeof window !== 'undefined') {
-				localStorage.removeItem('currency');
-			}
-
 			if (!response.ok) {
 				let errorMessage = `Logout API failed: ${response.statusText || 'Unknown error'}`;
 				try {
@@ -48,6 +44,10 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			await supabase.auth.signOut();
 
 			logger.log('AuthContext: Logout successful via API.');
+			if (typeof window !== 'undefined') {
+				localStorage.removeItem('currency');
+				localStorage.removeItem('settings');
+			}
 		} catch (err) {
 			// console.error('AuthContext: Error during logout:', err);
 			setCurrentUser(null);
@@ -81,7 +81,13 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				if (typeof window !== 'undefined' && responseData.data.currency) {
 					localStorage.setItem('currency', JSON.stringify(responseData.data.currency));
 				}
-				logger.log('AuthContext: Login successful.');
+
+				logger.info(responseData);
+
+				if (typeof window !== 'undefined' && responseData.data.settings) {
+					localStorage.setItem('settings', JSON.stringify(responseData.data.settings));
+				}
+
 				return authenticatedUser;
 			} else {
 				console.error('AuthContext Login Error: Unexpected success response format', responseData);

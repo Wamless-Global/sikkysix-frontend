@@ -77,7 +77,7 @@ export default function ReferralsPageContent() {
 
 	// Calculate total earned and total count from all referrals, not just search results
 	const totalEarned = allReferrals.reduce((sum, r) => {
-		const num = parseFloat((r.amount || '0').replace(/[^\d.]/g, ''));
+		const num = parseFloat(String(r.amount ?? '0').replace(/[^\d.]/g, ''));
 		return sum + (isNaN(num) ? 0 : num);
 	}, 0);
 

@@ -7,7 +7,7 @@ import OrderDetailItem from '@/components/p2p/OrderDetailItem';
 import { useRouter } from 'next/navigation';
 import nprogress from 'nprogress';
 import type { TradeResponse } from '@/types/modules/trade';
-import { formatDateNice } from '@/lib/helpers';
+import { formatDateNice, getBaseCurrency } from '@/lib/helpers';
 
 interface CompletedTransactionViewProps {
 	trade: TradeResponse;
@@ -92,8 +92,8 @@ const CompletedTransactionView: React.FC<CompletedTransactionViewProps> = ({ tra
 			<p className="sub-page-heading-sub-text text-left -mt-2">
 				Transaction ID: <span className="font-mono bg-muted text-muted-foreground p-1 rounded-sm">{trade.escrow_transaction_id}</span>
 				<br />
-				{isBuyer && `You purchased ${process.env.NEXT_PUBLIC_BASE_CURRENCY} and your payment has been confirmed.`}
-				{isSeller && `You sold ${process.env.NEXT_PUBLIC_BASE_CURRENCY} and the payment has been confirmed.`}
+				{isBuyer && `You purchased ${getBaseCurrency()} and your payment has been confirmed.`}
+				{isSeller && `You sold ${getBaseCurrency()} and the payment has been confirmed.`}
 			</p>
 			<Card className="bg-background border-0 shadow-none">
 				<CardHeader className="px-0">
@@ -106,13 +106,13 @@ const CompletedTransactionView: React.FC<CompletedTransactionViewProps> = ({ tra
 						<>
 							<OrderDetailItem label="Amount Paid" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
 							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
-							<OrderDetailItem label="Quantity Received" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} className="money" isBold />
+							<OrderDetailItem label="Quantity Received" value={orderDetails.tokenQuantity} unit={getBaseCurrency()} className="money" isBold />
 						</>
 					) : (
 						<>
 							<OrderDetailItem label="Amount Received" value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
 							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
-							<OrderDetailItem label="Quantity Sold" value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} className="money" isBold />
+							<OrderDetailItem label="Quantity Sold" value={orderDetails.tokenQuantity} unit={getBaseCurrency()} className="money" isBold />
 						</>
 					)}
 					<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />

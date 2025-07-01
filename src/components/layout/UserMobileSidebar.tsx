@@ -24,7 +24,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 	const navItems = [
 		{ href: '/account', for: 'user', label: 'Home' },
 		{ href: '/account/referrals', for: 'user', label: 'Referrals' },
-		{ href: '/account/report', for: 'user', label: 'Report' },
+		// { href: '/account/report', for: 'user', label: 'Report' },
 		{ href: '/account/agents-apply', for: 'user', label: 'Become an Agent', hideFor: 'agent' },
 		...(currentUser?.roles.includes('agent')
 			? [

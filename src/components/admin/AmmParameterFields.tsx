@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { getBaseCurrency } from '@/lib/helpers';
 import { AmmModelType } from '@/types';
 import { Control } from 'react-hook-form';
 
@@ -70,11 +71,11 @@ export function AmmParameterFields({ ammModelType, isSubmitting, control }: AmmP
 						name="amm_parameters.initial_ngn_pool_balance"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Initial {process.env.NEXT_PUBLIC_BASE_CURRENCY} Balance</FormLabel>
+								<FormLabel>Initial {getBaseCurrency()} Balance</FormLabel>
 								<FormControl>
 									<Input type="number" min="0" step="any" placeholder="e.g., 1000" {...field} disabled={isSubmitting} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
 								</FormControl>
-								<FormDescription>Initial {process.env.NEXT_PUBLIC_BASE_CURRENCY} pool balance.</FormDescription>
+								<FormDescription>Initial {getBaseCurrency()} pool balance.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}

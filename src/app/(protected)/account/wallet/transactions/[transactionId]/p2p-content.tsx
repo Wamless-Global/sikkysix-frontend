@@ -14,7 +14,7 @@ import copyToClipboard from '@/components/ui/copy-to-clipboard';
 import { cn } from '@/lib/utils';
 import type { TradeResponse } from '@/types/modules/trade';
 import { Transaction } from '@/types';
-import { getTradeDescription, getTradeStatusToast, getTradeViewState, handleFetchErrorMessage } from '@/lib/helpers';
+import { getBaseCurrency, getTradeDescription, getTradeStatusToast, getTradeViewState, handleFetchErrorMessage } from '@/lib/helpers';
 import MakePaymentView from './MakePaymentView';
 import MessagingView from './MessagingView';
 import DisputeModal from './DisputeModal';
@@ -516,7 +516,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 						<CardContent className="space-y-1 px-0">
 							<OrderDetailItem label={isBuyer ? 'Amount to Pay' : 'Amount to Receive'} value={orderDetails.amount} unit={orderDetails.fiat_currency} isBold />
 							<OrderDetailItem label="Exchange Rate" value={orderDetails.rate} unit={orderDetails.fiat_currency} />
-							<OrderDetailItem label={isBuyer ? (isAnAgent ? 'Quantity to Receive' : 'Quantity to Buy') : 'Quantity to Sell'} value={orderDetails.tokenQuantity} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
+							<OrderDetailItem label={isBuyer ? (isAnAgent ? 'Quantity to Receive' : 'Quantity to Buy') : 'Quantity to Sell'} value={orderDetails.tokenQuantity} unit={getBaseCurrency()} />
 							<OrderDetailItem label="Fee" value={orderDetails.transactionFees} unit="%" />
 						</CardContent>
 					</Card>

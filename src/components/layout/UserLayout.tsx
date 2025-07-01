@@ -46,7 +46,7 @@ const desktopNavItems: desktopNavItemsType = [
 		],
 	},
 	{ href: '/account/referrals', label: 'Referrals', icon: Users, for: 'user' },
-	{ href: '/account/report', label: 'Report', icon: PieChart, for: 'user' },
+	// { href: '/account/report', label: 'Report', icon: PieChart, for: 'user' },
 ];
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {

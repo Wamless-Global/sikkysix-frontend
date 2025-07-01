@@ -1,3 +1,5 @@
+import { getPlatformName } from '@/lib/helpers';
+
 export interface AppSettings {
 	appName: string;
 	metaDescription: string;
@@ -7,7 +9,7 @@ export interface AppSettings {
 }
 
 export const appSettings: AppSettings = {
-	appName: 'SikkySix',
+	appName: getPlatformName(),
 	metaDescription: 'Admin dashboard for SikkySix platform.',
 	baseFontSize: '15px',
 	supportemail: 'support@mm.com',
