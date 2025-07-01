@@ -9,7 +9,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import appSettings from '@/config/app';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
-import LogoPlaceholder from '@/components/ui/logo';
+import Logo from '@/components/ui/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function VerifyEmailContent({ email, initialStatus }: { email?: string; initialStatus: { status: string; message: string } }) {
@@ -60,7 +60,7 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				<LogoPlaceholder size="xl" />
+				<Logo alt="Sikkysix Logo" size="xl" />
 			</CustomLink>
 
 			<Card className="auth-card w-full max-w-md">

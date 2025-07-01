@@ -39,7 +39,7 @@ function SettingsSkeleton() {
 export default function PlatformSettingsPage() {
 	const [platformName, setPlatformName] = useState('SikkySix Invest');
 	const [platformBaseCurrency, setPlatformBaseCurrency] = useState('NGN');
-	const [platformFiatRate, setPlatformFiatRate] = useState('1');
+	const [orderThreshold, setOrderThreshold] = useState('');
 
 	const [agentMaxDepositFeePercent, setagentMaxDepositFeePercent] = useState(5);
 	const [agentMaxWithdrawalFeePercent, setagentMaxWithdrawalFeePercent] = useState(5);
@@ -50,8 +50,8 @@ export default function PlatformSettingsPage() {
 	const [penaltyFeeValue, setPenaltyFeeValue] = useState(0);
 
 	const [referralBonusPercent, setReferralBonusPercent] = useState(2);
-	const [bonusFromDeposit, setBonusFromDeposit] = useState(true);
-	const [bonusFromWithdrawal, setBonusFromWithdrawal] = useState(true);
+	const [bonusFromSavings, setBonusFromSavings] = useState(true);
+	const [bonusFromLiquidatingSavings, setBonusFromLiquidatingSavings] = useState(true);
 	const [referralThreshold, setReferralThreshold] = useState(10);
 	const [higherEarningsMultiplier, setHigherEarningsMultiplier] = useState(4);
 
@@ -60,10 +60,12 @@ export default function PlatformSettingsPage() {
 	const [enableFeesFromNetProfit, setEnableFeesFromNetProfit] = useState(false);
 	const [platformRevenueModel, setPlatformRevenueModel] = useState<'' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS'>('');
 	const [enableBuyingFeesWalletBalance, setEnableBuyingFeesWalletBalance] = useState(false);
-	const [categoriesTerm, setCategoriesTerm] = useState('units');
+	const [currencies, setCurrencies] = useState<{ code: string; name: string; symbol: string }[]>([]);
+	const [currencyRates, setCurrencyRates] = useState<Record<string, string>>({});
 
 	const [loading, setLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [categoriesTerm, setCategoriesTerm] = useState('units');
 
 	useEffect(() => {
 		async function fetchSettings() {
@@ -83,7 +85,7 @@ export default function PlatformSettingsPage() {
 
 				if (settings.platform_base_currency) setPlatformBaseCurrency(settings.platform_base_currency);
 
-				if (settings.platform_fiat_rate) setPlatformFiatRate(settings.platform_fiat_rate);
+				if (settings.order_threshold !== undefined) setOrderThreshold(settings.order_threshold);
 
 				if (settings.agent_max_deposit_fee_percent !== undefined) setagentMaxDepositFeePercent(Number(settings.agent_max_deposit_fee_percent));
 
@@ -99,9 +101,9 @@ export default function PlatformSettingsPage() {
 
 				if (settings.referral_bonus_percent !== undefined) setReferralBonusPercent(Number(settings.referral_bonus_percent));
 
-				if (settings.bonus_from_deposit !== undefined) setBonusFromDeposit(settings.bonus_from_deposit === 'true');
+				if (settings.bonus_from_savings !== undefined) setBonusFromSavings(settings.bonus_from_savings === 'true');
 
-				if (settings.bonus_from_withdrawal !== undefined) setBonusFromWithdrawal(settings.bonus_from_withdrawal === 'true');
+				if (settings.bonus_from_liquidating_savings !== undefined) setBonusFromLiquidatingSavings(settings.bonus_from_liquidating_savings === 'true');
 
 				if (settings.referral_threshold !== undefined) setReferralThreshold(Number(settings.referral_threshold));
 
@@ -116,8 +118,6 @@ export default function PlatformSettingsPage() {
 				if (settings.platform_revenue_model) setPlatformRevenueModel(settings.platform_revenue_model as '' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS');
 
 				if (settings.enable_buying_fees_wallet_balance !== undefined) setEnableBuyingFeesWalletBalance(settings.enable_buying_fees_wallet_balance === 'true');
-
-				if (settings.categories_term) setCategoriesTerm(settings.categories_term);
 			} catch (e) {
 				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
@@ -126,6 +126,43 @@ export default function PlatformSettingsPage() {
 			}
 		}
 		fetchSettings();
+	}, []);
+
+	useEffect(() => {
+		async function fetchCurrenciesAndRates() {
+			try {
+				setLoading(true);
+				const res = await fetchWithAuth('/api/currencies');
+				if (!res.ok) throw new Error('Failed to fetch currencies');
+				const api = await res.json();
+				const currencyArr = api?.data || [];
+
+				setCurrencies(currencyArr.map((c: any) => ({ code: c.fiat_code, name: c.fiat_name, symbol: c.fiat_symbol })));
+
+				// Fetch platform settings for rates
+				const settingsRes = await fetchWithAuth('/api/admin/settings');
+				if (settingsRes.ok) {
+					const settingsApi = await settingsRes.json();
+					const settingsArr = settingsApi?.data?.settings || [];
+					const settings: Record<string, string> = {};
+					for (const s of settingsArr) {
+						settings[s.setting_key] = s.setting_value;
+					}
+					if (settings.platform_fiat_rate) {
+						try {
+							const parsed = JSON.parse(settings.platform_fiat_rate);
+							setCurrencyRates(parsed);
+						} catch {}
+					}
+				}
+			} catch (e) {
+				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
+				toast.error(errorMessage);
+			} finally {
+				setLoading(false);
+			}
+		}
+		fetchCurrenciesAndRates();
 	}, []);
 
 	// --- PATCH helpers ---
@@ -163,7 +200,7 @@ export default function PlatformSettingsPage() {
 		const updates = [
 			{ key: 'platform_name', setting_value: platformName },
 			{ key: 'platform_base_currency', setting_value: platformBaseCurrency },
-			{ key: 'platform_fiat_rate', setting_value: platformFiatRate },
+			{ key: 'order_threshold', setting_value: orderThreshold },
 		];
 		await patchSettings(updates, 'General Settings');
 	};
@@ -186,8 +223,8 @@ export default function PlatformSettingsPage() {
 	const handleSaveReferralSettings = async () => {
 		const updates = [
 			{ key: 'referral_bonus_percent', setting_value: referralBonusPercent.toString() },
-			{ key: 'bonus_from_deposit', setting_value: bonusFromDeposit ? 'true' : 'false' },
-			{ key: 'bonus_from_withdrawal', setting_value: bonusFromWithdrawal ? 'true' : 'false' },
+			{ key: 'bonus_from_savings', setting_value: bonusFromSavings ? 'true' : 'false' },
+			{ key: 'bonus_from_liquidating_savings', setting_value: bonusFromLiquidatingSavings ? 'true' : 'false' },
 			{ key: 'referral_threshold', setting_value: referralThreshold.toString() },
 			{ key: 'higher_earnings_multiplier', setting_value: higherEarningsMultiplier.toString() },
 		];
@@ -203,6 +240,14 @@ export default function PlatformSettingsPage() {
 			{ key: 'categories_term', setting_value: categoriesTerm },
 		];
 		await patchSettings(updates, 'Investment Settings');
+	};
+	const handleSaveRates = async () => {
+		const ratesObj: Record<string, string> = {};
+		currencies.forEach((c) => {
+			if (currencyRates[c.code]) ratesObj[c.code] = currencyRates[c.code];
+		});
+		const updates = [{ key: 'platform_fiat_rate', setting_value: JSON.stringify(ratesObj) }];
+		await patchSettings(updates, 'Currency Rates');
 	};
 
 	if (loading) {
@@ -236,80 +281,16 @@ export default function PlatformSettingsPage() {
 								<Input disabled={isSubmitting} id="platformBaseCurrency" value={platformBaseCurrency} onChange={(e) => setPlatformBaseCurrency(e.target.value)} className="focus:ring-primary/60" placeholder="e.g., NGN, USD" />
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="platformFiatRate" className="font-medium">
-									Platform Fiat Rate (NGN)
+								<Label htmlFor="orderThreshold" className="font-medium flex items-center gap-1">
+									Order Threshold
+									<InfoTooltip content="The minimum balance at which agents will be notified that their balance is running low." />
 								</Label>
-								<Input disabled={isSubmitting} id="platformFiatRate" value={platformFiatRate} onChange={(e) => setPlatformFiatRate(e.target.value)} className="focus:ring-primary/60" placeholder="The rate of currency to Naira" />
+								<Input disabled={isSubmitting} id="orderThreshold" type="number" value={orderThreshold} onChange={(e) => setOrderThreshold(e.target.value)} className="focus:ring-primary/60" placeholder="Amount to notify agents their balance is low" />
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">
 							<Button onClick={handleSaveGeneralSettings} className="bg-primary hover:bg-primary/90 transition">
 								Save General Settings
-							</Button>
-						</CardFooter>
-					</Card>
-
-					{/* Fee Configuration */}
-					<Card className="border">
-						<CardHeader className="flex flex-row items-center gap-2 pb-2">
-							<Percent className="w-5 h-5 text-yellow-500" />
-							<CardTitle>Fee Configuration</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							<div className="space-y-2">
-								<Label htmlFor="depositFee" className="font-medium">
-									Maximum Agent Deposit Fee (%)
-								</Label>
-								<Input disabled={isSubmitting} id="depositFee" type="number" min="0" max="100" step="0.1" value={agentMaxDepositFeePercent} onChange={(e) => setagentMaxDepositFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="withdrawalFee" className="font-medium">
-									Maximum Agent Withdrawal Fee (%)
-								</Label>
-								<Input disabled={isSubmitting} id="withdrawalFee" type="number" min="0" max="100" step="0.1" value={agentMaxWithdrawalFeePercent} onChange={(e) => setagentMaxWithdrawalFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
-							</div>
-						</CardContent>
-						<CardFooter className="border-t px-6 py-4 flex justify-end">
-							<Button disabled={isSubmitting} onClick={handleSaveFeeSettings} className="bg-yellow-500 hover:bg-yellow-600 transition">
-								Save Fee Settings
-							</Button>
-						</CardFooter>
-					</Card>
-
-					{/* Referral Program */}
-					<Card className="border">
-						<CardHeader className="flex flex-row items-center gap-2 pb-2">
-							<Users className="w-5 h-5 text-green-500" />
-							<CardTitle>Referral Program</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							<div className="space-y-2">
-								<Label htmlFor="referralBonus" className="font-medium">
-									Referral Bonus Payout (%)
-								</Label>
-								<Input disabled={isSubmitting} id="referralBonus" type="number" min="0" max="100" step="0.1" value={referralBonusPercent} onChange={(e) => setReferralBonusPercent(parseFloat(e.target.value) || 0)} className="focus:ring-green-400/60" placeholder="e.g., 2" />
-							</div>
-							<div className="space-y-2">
-								<Label className="font-medium">Bonus Source</Label>
-								<div className="space-y-2">
-									<div className="flex items-center space-x-2">
-										<Checkbox disabled={isSubmitting} id="bonusFromDeposit" checked={bonusFromDeposit} onCheckedChange={(checked) => setBonusFromDeposit(Boolean(checked))} className="accent-green-500" />
-										<label htmlFor="bonusFromDeposit" className="text-sm font-medium leading-none">
-											Take from Deposit Fee
-										</label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<Checkbox disabled={isSubmitting} id="bonusFromWithdrawal" checked={bonusFromWithdrawal} onCheckedChange={(checked) => setBonusFromWithdrawal(Boolean(checked))} className="accent-green-500" />
-										<label htmlFor="bonusFromWithdrawal" className="text-sm font-medium leading-none">
-											Take from Withdrawal Fee
-										</label>
-									</div>
-								</div>
-							</div>
-						</CardContent>
-						<CardFooter className="border-t px-6 py-4 flex justify-end">
-							<Button disabled={isSubmitting} onClick={handleSaveReferralSettings} className="bg-green-500 hover:bg-green-600 transition">
-								Save Referral Settings
 							</Button>
 						</CardFooter>
 					</Card>
@@ -376,7 +357,109 @@ export default function PlatformSettingsPage() {
 							</Button>
 						</CardFooter>
 					</Card>
+
+					{/* Fee Configuration */}
+					<Card className="border">
+						<CardHeader className="flex flex-row items-center gap-2 pb-2">
+							<Percent className="w-5 h-5 text-yellow-500" />
+							<CardTitle>Fee Configuration</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-6">
+							<div className="space-y-2">
+								<Label htmlFor="depositFee" className="font-medium">
+									Maximum Agent Deposit Fee (%)
+								</Label>
+								<Input disabled={isSubmitting} id="depositFee" type="number" min="0" max="100" step="0.1" value={agentMaxDepositFeePercent} onChange={(e) => setagentMaxDepositFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="withdrawalFee" className="font-medium">
+									Maximum Agent Withdrawal Fee (%)
+								</Label>
+								<Input disabled={isSubmitting} id="withdrawalFee" type="number" min="0" max="100" step="0.1" value={agentMaxWithdrawalFeePercent} onChange={(e) => setagentMaxWithdrawalFeePercent(parseFloat(e.target.value) || 0)} className="focus:ring-yellow-400/60" />
+							</div>
+						</CardContent>
+						<CardFooter className="border-t px-6 py-4 flex justify-end">
+							<Button disabled={isSubmitting} onClick={handleSaveFeeSettings} className="bg-yellow-500 hover:bg-yellow-600 transition">
+								Save Fee Settings
+							</Button>
+						</CardFooter>
+					</Card>
+
+					{/* Referral Program */}
+					<Card className="border">
+						<CardHeader className="flex flex-row items-center gap-2 pb-2">
+							<Users className="w-5 h-5 text-green-500" />
+							<CardTitle>Referral Program</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-6">
+							<div className="space-y-2">
+								<Label htmlFor="referralBonus" className="font-medium">
+									Referral Bonus Payout (%)
+								</Label>
+								<Input disabled={isSubmitting} id="referralBonus" type="number" min="0" max="100" step="0.1" value={referralBonusPercent} onChange={(e) => setReferralBonusPercent(parseFloat(e.target.value) || 0)} className="focus:ring-green-400/60" placeholder="e.g., 2" />
+							</div>
+							<div className="space-y-2">
+								<Label className="font-medium">Bonus Source</Label>
+								<div className="space-y-2">
+									<div className="flex items-center space-x-2">
+										<Checkbox disabled={isSubmitting} id="bonusFromSavings" checked={bonusFromSavings} onCheckedChange={(checked) => setBonusFromSavings(Boolean(checked))} className="accent-green-500" />
+										<label htmlFor="bonusFromSavings" className="text-sm font-medium leading-none">
+											Take from Savings Fee
+										</label>
+									</div>
+									<div className="flex items-center space-x-2">
+										<Checkbox disabled={isSubmitting} id="bonusFromLiquidatingSavings" checked={bonusFromLiquidatingSavings} onCheckedChange={(checked) => setBonusFromLiquidatingSavings(Boolean(checked))} className="accent-green-500" />
+										<label htmlFor="bonusFromLiquidatingSavings" className="text-sm font-medium leading-none">
+											Take from Savings Withdrawal Fee
+										</label>
+									</div>
+								</div>
+							</div>
+						</CardContent>
+						<CardFooter className="border-t px-6 py-4 flex justify-end">
+							<Button disabled={isSubmitting} onClick={handleSaveReferralSettings} className="bg-green-500 hover:bg-green-600 transition">
+								Save Referral Settings
+							</Button>
+						</CardFooter>
+					</Card>
 				</div>
+
+				{/* Currency Rates Section */}
+				<Card className="border">
+					<CardHeader className="flex flex-row items-center gap-2 pb-2">
+						<Info className="w-5 h-5 text-primary" />
+						<CardTitle>Currency Rates</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-6">
+						{currencies.length === 0 ? (
+							<p className="text-muted-foreground">No currencies found.</p>
+						) : (
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								{currencies.map((c) => (
+									<div key={c.code} className="space-y-2">
+										<Label htmlFor={`rate-${c.code}`} className="font-medium">
+											{c.name} ({c.code})
+										</Label>
+										<Input
+											disabled={isSubmitting}
+											id={`rate-${c.code}`}
+											type="number"
+											value={currencyRates[c.code] || ''}
+											onChange={(e) => setCurrencyRates((prev: Record<string, string>) => ({ ...prev, [c.code]: e.target.value }))}
+											className="focus:ring-primary/60"
+											placeholder={`Enter rate for ${c.name}`}
+										/>
+									</div>
+								))}
+							</div>
+						)}
+					</CardContent>
+					<CardFooter className="border-t px-6 py-4 flex justify-end">
+						<Button onClick={handleSaveRates} className="bg-primary hover:bg-primary/90 transition">
+							Save Currency Rates
+						</Button>
+					</CardFooter>
+				</Card>
 			</div>
 		</TooltipProvider>
 	);

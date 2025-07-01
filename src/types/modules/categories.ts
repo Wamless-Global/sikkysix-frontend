@@ -54,6 +54,7 @@ export interface Category {
 	maximum_investable: number;
 	amm_model_type: AmmModelType;
 	amm_parameters: AmmParameters;
+	metadata: Record<string, any>;
 }
 
 export interface AMSParams {
@@ -119,4 +120,7 @@ export interface UserDisplayCategory {
 	buttonText: string;
 	buttonEnabled: boolean;
 	description?: string | null;
+	status?: 'Active' | 'Locked' | 'Not Launched';
+	is_locked?: boolean;
+	is_launched?: boolean;
 }

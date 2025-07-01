@@ -31,6 +31,10 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 			setCurrentUser(null);
 
+			if (typeof window !== 'undefined') {
+				localStorage.removeItem('currency');
+			}
+
 			if (!response.ok) {
 				let errorMessage = `Logout API failed: ${response.statusText || 'Unknown error'}`;
 				try {
@@ -59,7 +63,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-
 				body: JSON.stringify({ email, password }),
 			});
 
@@ -74,6 +77,10 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			if (responseData.status === 'success' && responseData.data?.user) {
 				const authenticatedUser = responseData.data.user as AuthenticatedUser;
 				setCurrentUser(authenticatedUser);
+
+				if (typeof window !== 'undefined' && responseData.data.currency) {
+					localStorage.setItem('currency', JSON.stringify(responseData.data.currency));
+				}
 				logger.log('AuthContext: Login successful.');
 				return authenticatedUser;
 			} else {

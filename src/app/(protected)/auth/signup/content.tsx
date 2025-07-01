@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nprogress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
-import LogoPlaceholder from '@/components/ui/logo';
+import Logo from '@/components/ui/logo';
 import { SignupPageContentProps } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Country } from '@/types/modules/countries';
@@ -103,7 +103,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				<LogoPlaceholder size="xl" />
+				<Logo alt="Sikkysix Logo" size="xl" />
 			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">

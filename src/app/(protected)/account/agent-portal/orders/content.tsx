@@ -103,10 +103,10 @@ export default function AgentOrdersContent() {
 				await fetchOrders();
 			} else {
 				const error = await res.json().catch(() => ({}));
-				throw new Error(error.message || 'Failed to upload avatar');
+				throw new Error(handleFetchErrorMessage(error, 'Failed to create order'));
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to create order');
+			const errorMessage = handleFetchErrorMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setApiLoading(false);
@@ -121,7 +121,7 @@ export default function AgentOrdersContent() {
 	const handleEditOrder = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!editForm) return;
-		for (const key of ['order_type', 'fiat_currency', 'total_asset_amount', 'order_fee', 'payment_window_minutes', 'order_terms']) {
+		for (const key of ['order_type', 'fiat_currency', 'total_asset_amount', 'payment_window_minutes', 'order_terms']) {
 			if (!(editForm as any)[key]) {
 				toast.error('Please fill all fields');
 				return;
@@ -136,14 +136,14 @@ export default function AgentOrdersContent() {
 			});
 			if (res.ok) {
 				setEditModalOpen(false);
-				await fetchOrders(); // Refetch after edit
+				await fetchOrders();
 				toast.success('Order updated');
 			} else {
 				const error = await res.json().catch(() => ({}));
-				throw new Error(error.message || 'Failed to create order');
+				throw new Error(handleFetchErrorMessage(error, 'Failed to edit order'));
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, null, 'Failed to create order');
+			const errorMessage = handleFetchErrorMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setApiLoading(false);
@@ -292,10 +292,13 @@ export default function AgentOrdersContent() {
 						<div className="space-y-3">
 							<Label htmlFor="edit-total_asset_amount">Total Asset Amount</Label>
 							<Input id="edit-total_asset_amount" type="number" value={editForm?.total_asset_amount || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, total_asset_amount: e.target.value } : f))} required className="account-input w-full" />
+							<p className="text-xs text-muted-foreground mt-1">
+								Enter a negative amount (e.g. -100) to deduct from the order, a positive amount to add, and 0 to leave the amount unchanged.
+							</p>
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-order_fee">Fee (%)</Label>
-							<Input id="edit-order_fee" type="number" min="0" step="any" value={editForm?.order_fee || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, order_fee: e.target.value } : f))} required className="account-input w-full" />
+							<Input id="edit-order_fee" type="number" min="0" step="any" value={editForm?.order_fee || '0'} onChange={(e) => setEditForm((f) => (f ? { ...f, order_fee: e.target.value } : f))} required className="account-input w-full" />
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-payment_window_minutes">Payment Window (minutes)</Label>

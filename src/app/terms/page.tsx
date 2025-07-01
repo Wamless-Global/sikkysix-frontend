@@ -1,10 +1,10 @@
 import { CustomLink } from '@/components/ui/CustomLink';
-import LogoPlaceholder from '@/components/ui/logo';
+import Logo from '@/components/ui/logo';
 
 export default function TermsPage() {
 	return (
 		<div className="static-page flex min-h-screen flex-col items-center p-8">
-			<LogoPlaceholder size="xl" />
+			<Logo alt="Sikkysix Logo" size="xl" />
 
 			<div className="static-card w-full max-w-4xl p-8">
 				<h2 className="mb-6 text-3xl font-semibold">Terms & Conditions</h2>

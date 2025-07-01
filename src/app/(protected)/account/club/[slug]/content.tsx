@@ -45,6 +45,7 @@ export default function SingleCategoryContent() {
 	const [investmentsPage, setInvestmentsPage] = useState(1);
 	const [investmentsTotalPages, setInvestmentsTotalPages] = useState(1);
 	const { setCurrentUser, currentUser } = useAuthContext();
+	const [isRequestingLaunch, setIsRequestingLaunch] = useState(false);
 
 	const fetchUserCategory = useCallback(async (identifier: string) => {
 		nProgress.start();
@@ -71,11 +72,11 @@ export default function SingleCategoryContent() {
 				fetchedCategory.is_launched = fetchedCategory.is_launched === undefined ? true : fetchedCategory.is_launched;
 				setCategoryData(fetchedCategory);
 			} else {
-				const errorMessage = typeof result.data === 'string' ? result.data : result.message || 'Failed to fetch category data or data is invalid';
+				const errorMessage = handleFetchErrorMessage(result, 'Failed to fetch category data or data is invalid.');
 				throw new Error(errorMessage);
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Could not load category details.');
+			const errorMessage = handleFetchErrorMessage(err);
 			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {
@@ -110,14 +111,16 @@ export default function SingleCategoryContent() {
 		try {
 			const response = await fetchWithAuth(`/api/investments/?status=active&page=${page}&categoryId=${categoryId}`);
 			if (!response.ok) {
-				throw new Error('Failed to fetch active investments');
+				throw new Error(handleFetchErrorMessage(await response.json()));
 			}
 			const data: InvestmentsResponse = await response.json();
+
+			logger.log('Active Investments Data:', data);
 
 			setActiveInvestments(data.data.investments);
 			setInvestmentsPage(data.data.currentPage);
 			setInvestmentsTotalPages(data.data.totalPages);
-		} catch (err) {
+		} catch (err: unknown) {
 			handleFetchErrorMessage(err);
 			// console.error('Error fetching active investments:', err);
 			toast.error('Failed to load active investments');
@@ -232,7 +235,7 @@ export default function SingleCategoryContent() {
 				} catch (_e) {}
 				toast.error(errorMessage);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			// console.error('Error creating category:', error);
 			handleFetchErrorMessage(error);
 			toast.error('An unexpected error occurred. Please try again.');
@@ -349,173 +352,222 @@ export default function SingleCategoryContent() {
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-lg rounded-2xl text-[var(--dashboard-secondary-foreground)] p-4 py-6">
 				<CardContent className="px-2 flex flex-col sm:flex-row justify-between items-start gap-4">
 					<div className="flex-grow w-full sm:w-auto space-y-2">
-						<Label htmlFor="amount" className="text-sm text-muted-foreground">
-							Amount to Contribute ({process.env.NEXT_PUBLIC_BASE_CURRENCY})
-						</Label>
-						<div className="flex flex-col md:flex-row gap-1 md:gap-4">
-							<Input
-								id="amount"
-								type="text"
-								inputMode="decimal"
-								placeholder="Enter amount"
-								value={amountInput}
-								onChange={handleAmountChange}
-								className={`bg-background/80 dark:bg-black/30 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-12 account-input text-lg ${amountError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-								disabled={categoryData.is_locked || !categoryData.is_launched}
-							/>
-							<Button onClick={handleBuyNow} size={'lg'} variant={'fixed-cta'} disabled={isLoadingPurchase || categoryData.is_locked || !categoryData.is_launched || !amountInput} className="w-full mt-4 sm:w-auto sm:mt-0 sm:self-end h-12 !self-center shadow-md">
-								{isLoadingPurchase ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Processing...
-									</>
-								) : (
-									'Save Now'
-								)}
-							</Button>
-						</div>
+						{categoryData.is_launched && (
+							<Label htmlFor="amount" className="text-sm">
+								Amount to Contribute ({process.env.NEXT_PUBLIC_BASE_CURRENCY})
+							</Label>
+						)}
+						{!categoryData.is_launched ? (
+							<div className="flex flex-col items-center justify-center py-6">
+								<p className="text-base mb-2">This club is not yet open for contributions.</p>
+								<Button
+									variant="fixed-cta"
+									className=""
+									onClick={async () => {
+										if (!categoryData?.id || !currentUser?.id) return toast.error('Missing club or user info.');
+										setIsRequestingLaunch(true);
+										try {
+											const formData = new FormData();
+											formData.append('new_request', currentUser.id);
+											const res = await fetchWithAuth(`/api/categories/${categoryData.id}`, {
+												method: 'PUT',
+												body: formData,
+											});
+											if (!res.ok) {
+												const data = await res.json().catch(() => ({}));
+												throw new Error(handleFetchErrorMessage(data, 'Failed to request club launch.'));
+											}
+											toast.success('Request sent!');
+										} catch (e: unknown) {
+											const err = handleFetchErrorMessage(e);
+											toast.error(err || 'Failed to request club launch.');
+										} finally {
+											setIsRequestingLaunch(false);
+										}
+									}}
+									size={'lg'}
+									disabled={isRequestingLaunch}
+								>
+									{isRequestingLaunch ? 'Requesting...' : 'Request Club Launch'}
+								</Button>
+							</div>
+						) : (
+							<div className="flex flex-col md:flex-row gap-1 md:gap-4">
+								<Input
+									id="amount"
+									type="text"
+									inputMode="decimal"
+									placeholder="Enter a	mount"
+									value={amountInput}
+									onChange={handleAmountChange}
+									className={`bg-background/80 dark:bg-black/30 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-12 account-input text-lg ${amountError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+									disabled={categoryData.is_locked || !categoryData.is_launched}
+								/>
+								<Button
+									onClick={handleBuyNow}
+									size={'lg'}
+									variant={'fixed-cta'}
+									disabled={isLoadingPurchase || categoryData.is_locked || !categoryData.is_launched || !amountInput}
+									className={`w-full mt-4 sm:w-auto sm:mt-0 sm:self-end h-12 !self-center shadow-md ${categoryData.is_locked ? 'bg-gray-400 text-gray-700 cursor-not-allowed hover:bg-gray-400' : ''}`}
+								>
+									{categoryData.is_locked ? (
+										'Locked'
+									) : isLoadingPurchase ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Processing...
+										</>
+									) : (
+										'Save Now'
+									)}
+								</Button>
+							</div>
+						)}
 						{amountError && <p className="text-sm text-red-400 mt-1 px-1">{amountError}</p>}
 					</div>
 				</CardContent>
 			</Card>
 
-			<Tabs defaultValue="activity" className="w-full">
-				<TabsList className="bg-transparent p-0 h-auto gap-4 pb-2 mb-4">
-					<TabsTrigger value="activity" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
-						Club Activity
-					</TabsTrigger>
-					<TabsTrigger value="positions" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
-						My Active Savings
-					</TabsTrigger>
-				</TabsList>
+			{/* Only render Tabs if club is launched */}
+			{categoryData.is_launched && (
+				<Tabs defaultValue="activity" className="w-full">
+					<TabsList className="bg-transparent p-0 h-auto gap-4 pb-2 mb-4">
+						<TabsTrigger value="activity" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
+							Club Activity
+						</TabsTrigger>
+						<TabsTrigger value="positions" className="data-[state=active]:text-[var(--dashboard-accent)] data-[state=inactive]:text-muted-foreground rounded-none justify-start pb-2 text-base font-semibold !bg-transparent !border-0">
+							My Active Savings
+						</TabsTrigger>
+					</TabsList>
 
-				<TabsContent value="activity" className="mt-0 space-y-4">
-					{isLoadingTransactions ? (
-						<div className="space-y-4">
-							{[1, 2, 3].map((index) => (
-								<Skeleton key={index} className="h-16 w-full rounded-lg" />
-							))}
-						</div>
-					) : transactions.length > 0 ? (
-						<>
-							{transactions.map((transaction) => {
-								const isCredit = transaction.type === 'investment';
-								return (
-									<div key={transaction.id} className="flex items-center justify-between pl-0 p-3 rounded-lg hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
-										<div className="flex items-center gap-3">
-											{isCredit ? (
-												<div className="bg-[var(--success)] rounded-full p-3">
-													<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+					<TabsContent value="activity" className="mt-0 space-y-4">
+						{isLoadingTransactions ? (
+							<div className="space-y-4">
+								{[1, 2, 3].map((index) => (
+									<Skeleton key={index} className="h-16 w-full rounded-lg" />
+								))}
+							</div>
+						) : transactions.length > 0 ? (
+							<>
+								{transactions.map((transaction) => {
+									const isCredit = transaction.type === 'investment';
+									return (
+										<div key={transaction.id} className="flex items-center justify-between pl-0 p-3 rounded-lg hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
+											<div className="flex items-center gap-3">
+												{isCredit ? (
+													<div className="bg-[var(--success)] rounded-full p-3">
+														<ArrowDown className="h-6 w-6 text-[var(--success-foreground)]" />
+													</div>
+												) : (
+													<div className="bg-[var(--danger)] rounded-full p-3">
+														<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
+													</div>
+												)}
+												<div>
+													<p className="font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{transaction.user_name}</p>
+													<p className="text-sm text-muted-foreground">{formatRelativeTime(transaction.created_at)}</p>
 												</div>
-											) : (
-												<div className="bg-[var(--danger)] rounded-full p-3">
-													<ArrowUp className="h-5 w-5 text-[var(--danger-foreground)]" />
-												</div>
-											)}
-											<div>
-												<p className="font-medium text-foreground truncate max-w-[150px] sm:max-w-xs">{transaction.user_name}</p>
-												<p className="text-sm text-muted-foreground">{formatRelativeTime(transaction.created_at)}</p>
 											</div>
+											<span className={`font-semibold ${isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(transaction.amount)}</span>
 										</div>
-										<span className={`font-semibold ${isCredit ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(transaction.amount)}</span>
+									);
+								})}
+
+								{/* Pagination */}
+								{totalPages > 1 && (
+									<div className="flex justify-center gap-2 mt-6">
+										<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+											Previous
+										</Button>
+										<span className="flex items-center px-3 text-sm">
+											Page {currentPage} of {totalPages}
+										</span>
+										<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+											Next
+										</Button>
 									</div>
-								);
-							})}
+								)}
+							</>
+						) : (
+							<div className="text-center py-10 text-muted-foreground">No activity yet.</div>
+						)}
+					</TabsContent>
 
-							{/* Pagination */}
-							{totalPages > 1 && (
-								<div className="flex justify-center gap-2 mt-6">
-									<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-										Previous
-									</Button>
-									<span className="flex items-center px-3 text-sm">
-										Page {currentPage} of {totalPages}
-									</span>
-									<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-										Next
-									</Button>
-								</div>
-							)}
-						</>
-					) : (
-						<div className="text-center py-10 text-muted-foreground">No activity yet.</div>
-					)}
-				</TabsContent>
-
-				<TabsContent value="positions" className="mt-0">
-					{isLoadingInvestments ? (
-						<div className="space-y-4">
-							{[1, 2, 3].map((index) => (
-								<Skeleton key={index} className="h-20 w-full rounded-lg" />
-							))}
-						</div>
-					) : activeInvestments.length > 0 ? (
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							{activeInvestments.map((inv) => {
-								const currentValue = inv.current_value;
-								const profit = currentValue - inv.amount_invested;
-								return (
-									<CustomLink key={inv.id} href={`/account/my-savings/${inv.id}`} className="block">
-										<div className="relative bg-card hover:bg-muted/50 transition-colors duration-200 rounded-lg p-4 space-y-3 border-l-4 border-blue-500 shadow-sm">
-											<div className="flex justify-between items-center">
-												<div>
-													<h3 className="font-semibold text-foreground">Contribution ID: {truncateString(inv.id)}</h3>
-													<p className="text-xs text-muted-foreground">Started: {new Date(inv.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+					<TabsContent value="positions" className="mt-0">
+						{isLoadingInvestments ? (
+							<div className="space-y-4">
+								{[1, 2, 3].map((index) => (
+									<Skeleton key={index} className="h-20 w-full rounded-lg" />
+								))}
+							</div>
+						) : activeInvestments.length > 0 ? (
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								{activeInvestments.map((inv) => {
+									const currentValue = inv.current_value;
+									const profit = currentValue - inv.amount_invested;
+									return (
+										<CustomLink key={inv.id} href={`/account/my-savings/${inv.id}`} className="block">
+											<div className="relative bg-card hover:bg-muted/50 transition-colors duration-200 rounded-lg p-4 space-y-3 border-l-4 border-blue-500 shadow-sm">
+												<div className="flex justify-between items-center">
+													<div>
+														<h3 className="font-semibold text-foreground">Contribution ID: {truncateString(inv.id)}</h3>
+														<p className="text-xs text-muted-foreground">Started: {new Date(inv.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+													</div>
+													<Badge variant={inv.status === 'active' ? 'active' : 'outline'} className="ml-2 capitalize">
+														{inv.status}
+													</Badge>
 												</div>
-												<Badge variant={inv.status === 'active' ? 'active' : 'outline'} className="ml-2 capitalize">
-													{inv.status}
-												</Badge>
-											</div>
-											<div className="grid grid-cols-2 gap-2 text-sm mt-2">
-												<div>
-													<span className="text-muted-foreground">Savings</span>
-													<div className="font-medium">{formatBaseurrency(inv.amount_invested)}</div>
-												</div>
-												<div>
-													<span className="text-muted-foreground">Units Contributed</span>
-													<div className="font-medium">
-														{formatNumber(inv.units_purchased)} {inv.ticker}
+												<div className="grid grid-cols-2 gap-2 text-sm mt-2">
+													<div>
+														<span className="text-muted-foreground">Savings</span>
+														<div className="font-medium">{formatBaseurrency(inv.amount_invested)}</div>
+													</div>
+													<div>
+														<span className="text-muted-foreground">Units Contributed</span>
+														<div className="font-medium">
+															{formatNumber(inv.units_purchased)} {inv.ticker}
+														</div>
+													</div>
+													<div>
+														<span className="text-muted-foreground">Current Value</span>
+														<div className="font-medium">{formatBaseurrency(currentValue)}</div>
+													</div>
+													<div>
+														<span className="text-muted-foreground">Profit/Loss</span>
+														<div className={`font-medium ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatBaseurrency(profit)}</div>
 													</div>
 												</div>
-												<div>
-													<span className="text-muted-foreground">Current Value</span>
-													<div className="font-medium">{formatBaseurrency(currentValue)}</div>
-												</div>
-												<div>
-													<span className="text-muted-foreground">Profit/Loss</span>
-													<div className={`font-medium ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatBaseurrency(profit)}</div>
-												</div>
+												<Button size="sm" variant="outline" className="mt-2">
+													View Details
+												</Button>
 											</div>
-											<Button size="sm" variant="outline" className="mt-2">
-												View Details
-											</Button>
-										</div>
-									</CustomLink>
-								);
-							})}
+										</CustomLink>
+									);
+								})}
 
-							{investmentsTotalPages > 1 && (
-								<div className="flex justify-center gap-2 mt-6 col-span-full">
-									<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage - 1)} disabled={investmentsPage === 1}>
-										Previous
-									</Button>
-									<span className="flex items-center px-3 text-sm">
-										Page {investmentsPage} of {investmentsTotalPages}
-									</span>
-									<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage + 1)} disabled={investmentsPage === investmentsTotalPages}>
-										Next
-									</Button>
-								</div>
-							)}
-						</div>
-					) : (
-						<div className="text-center py-10 text-muted-foreground flex flex-col items-center">
-							<img src="/wallet.png" alt="No positions" className="h-20 w-20 mb-4 opacity-60" />
-							No active savings in this club.
-						</div>
-					)}
-				</TabsContent>
-			</Tabs>
+								{investmentsTotalPages > 1 && (
+									<div className="flex justify-center gap-2 mt-6 col-span-full">
+										<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage - 1)} disabled={investmentsPage === 1}>
+											Previous
+										</Button>
+										<span className="flex items-center px-3 text-sm">
+											Page {investmentsPage} of {investmentsTotalPages}
+										</span>
+										<Button variant="outline" size="sm" onClick={() => handleInvestmentsPageChange(investmentsPage + 1)} disabled={investmentsPage === investmentsTotalPages}>
+											Next
+										</Button>
+									</div>
+								)}
+							</div>
+						) : (
+							<div className="text-center py-10 text-muted-foreground flex flex-col items-center">
+								<img src="/wallet.png" alt="No positions" className="h-20 w-20 mb-4 opacity-60" />
+								No active savings in this club.
+							</div>
+						)}
+					</TabsContent>
+				</Tabs>
+			)}
 
 			{/* Use validated amount for modal */}
 			<InsufficientBalanceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentBalance={currentUserBalance} requiredAmount={parseFloat(amountInput) || 0} />

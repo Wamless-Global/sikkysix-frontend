@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AgentType } from '@/types';
-import { formatBaseurrency, formatCurrency } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getCurrencyFromLocalStorage } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
@@ -327,7 +327,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 										<div className="flex flex-col gap-1 sm:gap-2 mt-2">
 											<div className="flex flex-wrap items-center gap-2 text-sm">
 												<span className="text-muted-foreground">Price:</span>
-												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rate)}</span>
+												<span className="font-semibold text-base text-foreground">{formatCurrency(agent.rate, getCurrencyFromLocalStorage()?.code)}</span>
 												<span className="text-xs text-muted-foreground">per {process.env.NEXT_PUBLIC_BASE_CURRENCY}</span>
 											</div>
 											<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

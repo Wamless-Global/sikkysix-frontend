@@ -34,6 +34,7 @@ export default function CommunicationCenterPage() {
 	const [historyPage, setHistoryPage] = useState(1);
 	const [historyTotal, setHistoryTotal] = useState(0);
 	const [sendToAll, setSendToAll] = useState(true);
+	const [deliveryMethod, setDeliveryMethod] = useState<'notification' | 'email' | 'both'>('notification');
 	const [userSearch, setUserSearch] = useState('');
 	const [userSearchResults, setUserSearchResults] = useState<any[]>([]);
 	const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
@@ -135,6 +136,7 @@ export default function CommunicationCenterPage() {
 			const payload: any = {
 				title: values.messageTitle,
 				message: values.messageContent,
+				delivery_method: deliveryMethod,
 			};
 			if (!sendToAll) {
 				payload.recipient_id = selectedUsers.map((u) => u.id);
@@ -154,6 +156,7 @@ export default function CommunicationCenterPage() {
 			reset();
 			setSelectedUsers([]);
 			setSendToAll(true);
+			setDeliveryMethod('notification');
 			setHistoryPage(1);
 			toast.success('Broadcast Sent!');
 		} catch (err) {
@@ -177,13 +180,25 @@ export default function CommunicationCenterPage() {
 					<CardHeader className="flex flex-row items-center justify-between gap-2">
 						<div>
 							<CardTitle>Send Broadcast Message</CardTitle>
-							<CardDescription>Send a pop-up message to all active users.</CardDescription>
+							<CardDescription className="mt-2">Send a pop-up message to all active users.</CardDescription>
 						</div>
-						<div className="flex items-center gap-2">
-							<Switch checked={sendToAll} onCheckedChange={setSendToAll} id="send-to-all-toggle" />
-							<label htmlFor="send-to-all-toggle" className="text-sm font-medium cursor-pointer select-none">
-								{sendToAll ? 'Send to All' : 'Send to Selected'}
-							</label>
+						<div className="flex items-center gap-4">
+							<div className="flex items-center gap-2">
+								<Switch checked={sendToAll} onCheckedChange={setSendToAll} id="send-to-all-toggle" />
+								<label htmlFor="send-to-all-toggle" className="text-sm font-medium cursor-pointer select-none">
+									{sendToAll ? 'Send to All' : 'Send to Selected'}
+								</label>
+							</div>
+							{/* <div className="flex flex-col gap-2">
+								<label htmlFor="delivery-method-select" className="text-sm font-medium select-none">
+									Delivery Method:
+								</label>
+								<select id="delivery-method-select" className="border rounded px-2 py-1 text-sm bg-background" value={deliveryMethod} onChange={(e) => setDeliveryMethod(e.target.value as 'notification' | 'email' | 'both')}>
+									<option value="notification">Notifications Only</option>
+									<option value="email">Email Only</option>
+									<option value="both">Notification and Email</option>
+								</select>
+							</div> */}
 						</div>
 					</CardHeader>
 					<Form {...form}>

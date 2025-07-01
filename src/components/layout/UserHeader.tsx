@@ -1,5 +1,6 @@
 import { Bell, Menu } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import Logo from '@/components/ui/logo';
 
 interface UserHeaderProps {
 	notifications: string[];
@@ -13,7 +14,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, un
 			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" onClick={onMenuToggle} aria-label="Toggle Menu" />
 
 			<div className="flex items-center">
-				<span className="text-lg font-nico font-semibold text-[var(--dashboard-secondary-foreground)]">Sikky Six</span>
+				<Logo alt="Sikkysix Logo" size="md" variant="text" />
 			</div>
 
 			<div className="relative">

@@ -114,7 +114,7 @@ export default function ReferralsPageContent() {
 						</div>
 					)}
 				</div>
-				<p className="text-sm text-muted-foreground">Share this code with friends. When they sign up and invest, you earn!</p>
+				<p className="text-sm text-muted-foreground">Share this code with friends. When they sign up and save, you earn!</p>
 			</div>
 
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-4">

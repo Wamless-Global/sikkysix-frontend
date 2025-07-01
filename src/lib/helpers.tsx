@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { AccountStatus, ApiPaymentMethod, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
+import { AccountStatus, ApiPaymentMethod, Category, EmailStatus, Investment, Transaction, UserStatus } from '@/types';
 import { P2PTradeStatus, TradeResponse } from '@/types/modules/trade';
 import nProgress from 'nprogress';
 import { NextRequest } from 'next/server';
@@ -41,8 +41,9 @@ export const currencyFormatter = (value: number | string, units = 2, currency = 
  * @param options Optional: { symbol?: boolean, code?: boolean }
  * @returns The formatted currency string, symbol, or code.
  */
-export const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN', options?: { symbol?: boolean; code?: boolean; symbolPosition?: 'before' | 'after' }): string => {
-	const fallbackCurrency = process.env.NEXT_PUBLIC_FIAT_CURRENCY || 'NGN';
+export const formatCurrency = (amount: number | null | undefined, currency: string = '', options?: { symbol?: boolean; code?: boolean; symbolPosition?: 'before' | 'after' }): string => {
+	const fallbackCurrency = getCurrencyFromLocalStorage()?.code || 'NGN';
+
 	const validCurrency = (() => {
 		try {
 			new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(0);
@@ -432,4 +433,37 @@ export function sanitizeUrl(url: string, base: string): string {
 
 export function normalizeUrl(url: string): string {
 	return url.replace(/([^:]\/)\/+/g, '$1');
+}
+
+export function getCurrencyFromLocalStorage(): { symbol: string; name: string; code: string } | null {
+	if (typeof window === 'undefined') return null;
+	try {
+		const currencyStr = localStorage.getItem('currency');
+
+		if (!currencyStr) return null;
+		const currency = JSON.parse(currencyStr);
+		if (currency && currency.symbol && currency.name && currency.code) {
+			return currency;
+		}
+		return null;
+	} catch {
+		return null;
+	}
+}
+
+export function getCategoryDisplayStatus(cat: Category): 'Active' | 'Locked' | 'Not Launched' {
+	if (cat.is_locked) return 'Locked';
+	if (cat.is_launched === false) return 'Not Launched';
+	return 'Active';
+}
+export function getCategoryButtonText(status: string): string {
+	switch (status) {
+		case 'Locked':
+			return 'Club Locked';
+		case 'Not Launched':
+			return 'Coming Soon';
+		case 'Active':
+		default:
+			return 'View Club';
+	}
 }

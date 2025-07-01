@@ -10,11 +10,12 @@ import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
-import { formatBaseurrency, formatCurrency, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getCurrencyFromLocalStorage, handleFetchErrorMessage } from '@/lib/helpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'deposit' | 'withdraw' }) {
 	const router = useRouter();
@@ -54,7 +55,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 
 				if (data?.status === 'success' && data?.data) {
 					if (!data.data.methods || data.data.methods.length === 0) {
-						toast.error('No payment methods available for this order. Please try a different order or contact support.');
+						toast.error('Set up your payment method to continue with this order Please try a different order or contact support.');
 						setPreview({
 							amountFiat: Number(data.data.amount),
 							rateNGN: Number(data.data.rate),
@@ -169,11 +170,11 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 								<span className="font-semibold text-foreground">{formatBaseurrency(preview?.tokenQuantity)}</span>
 								&nbsp; for{' '}
 								<span className="font-semibold text-foreground">
-									{preview?.amountFiat} {process.env.NEXT_PUBLIC_FIAT_CURRENCY}
+									{preview?.amountFiat} {getCurrencyFromLocalStorage()?.code}
 								</span>{' '}
 								at a rate of{' '}
 								<span className="font-semibold text-foreground">
-									{preview?.rateNGN} {process.env.NEXT_PUBLIC_FIAT_CURRENCY}
+									{preview?.rateNGN} {getCurrencyFromLocalStorage()?.code}
 								</span>{' '}
 								per {process.env.NEXT_PUBLIC_BASE_CURRENCY}.
 							</>
@@ -194,14 +195,16 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 						{type === 'buy' ? (
 							<>
 								<OrderDetailItem label="Quantity" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} />
-								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
-								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
+
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+
+								<OrderDetailItem label="Amount to Pay" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} isBold />
 							</>
 						) : (
 							<>
-								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
+								<OrderDetailItem label="Rate" value={preview?.rateNGN} unit={`${formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} / ${process.env.NEXT_PUBLIC_BASE_CURRENCY}`} />
 
-								<OrderDetailItem label="Expected Fiat" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} isBold />
+								<OrderDetailItem label="Expected Fiat" value={preview?.amountFiat?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} isBold />
 
 								<OrderDetailItem label="Amount to Sell" value={preview?.tokenQuantity?.toLocaleString(undefined, { maximumFractionDigits: 6 })} unit={process.env.NEXT_PUBLIC_BASE_CURRENCY} isBold />
 							</>
@@ -209,7 +212,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 						{preview?.transactionFeesNGN <= 0 ? (
 							<OrderDetailItem label="Transaction Fees" value="No transaction fee" unit="" />
 						) : (
-							<OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit={formatCurrency(null, process.env.NEXT_PUBLIC_FIAT_CURRENCY, { code: true })} />
+							<OrderDetailItem label="Transaction Fees" value={preview?.transactionFeesNGN} unit={formatCurrency(null, getCurrencyFromLocalStorage()?.code, { code: true })} />
 						)}
 					</div>
 					{preview?.methods && preview.methods.length > 0 && (
@@ -229,7 +232,15 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 							</RadioGroup>
 						</div>
 					)}
-					{preview?.methods && preview.methods.length === 0 && <p className="text-center text-destructive font-medium">No payment methods available for this order.</p>}
+					{preview?.methods && preview.methods.length === 0 && (
+						<p className="text-center text-destructive font-medium">
+							Set up your payment method{' '}
+							<CustomLink href={'/account/profile/payment-options'} className="text-blue-300">
+								here
+							</CustomLink>{' '}
+							to continue with this order
+						</p>
+					)}
 					{type === 'sell' ? (
 						<Alert variant="default" className="border-yellow-500/50 text-yellow-700 dark:border-yellow-500/30 dark:text-yellow-300 [&>svg]:text-yellow-500 dark:[&>svg]:text-yellow-400">
 							<AlertCircle className="h-4 w-4" />

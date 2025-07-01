@@ -1,10 +1,11 @@
 'use client';
 
 import { OnlineContextType, UserProviderProps } from '@/types';
-import { createContext, useState, useContext, useEffect, useRef } from 'react';
+import { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { useAuthContext } from './AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 const OnlineContext = createContext<OnlineContextType | undefined>(undefined);
 
@@ -13,22 +14,27 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const OnlineProvider: React.FC<UserProviderProps> = ({ children }) => {
-	const [online, setOnline] = useState<boolean>(true);
+	// CHANGE: Added a 'connecting' state for better UI feedback
+	const [online, setOnline] = useState<boolean>(() => (typeof window !== 'undefined' ? window.navigator.onLine : true));
+	const [connecting, setConnecting] = useState<boolean>(true);
 	const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
 
 	const { currentUser } = useAuthContext();
 	const currentUserId = currentUser?.id || null;
 
-	const channelRef = useRef<any>(null);
-	const reconnectIntervalRef = useRef<NodeJS.Timeout | null>(null);
+	const channelRef = useRef<RealtimeChannel | null>(null);
 
-	const setupChannel = () => {
+	// CHANGE: The setupChannel function is now memoized with useCallback.
+	const setupChannel = useCallback(() => {
 		if (!currentUserId) return;
 
+		// Clean up any existing channel before creating a new one
 		if (channelRef.current) {
 			channelRef.current.unsubscribe();
+			channelRef.current = null;
 		}
 
+		setConnecting(true);
 		const channel = supabase.channel('online-presence', {
 			config: {
 				presence: { key: currentUserId },
@@ -37,57 +43,79 @@ export const OnlineProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 		channel.on('presence', { event: 'sync' }, () => {
 			const state = channel.presenceState();
-			setOnlineUserIds(new Set(Object.keys(state)));
-			logger.log(`user connected: ${currentUserId}`);
-			setOnline(true); // if we got a sync, we're online
-			logger.log('Synced presence:', [...Object.keys(state)]);
+			const userIds = Object.keys(state);
+			setOnlineUserIds(new Set(userIds));
+			logger.log('Presence synced. Online users:', userIds);
 		});
 
-		channel.on('presence', { event: 'leave' }, () => {
-			// Optional: re-check state
-			const state = channel.presenceState();
-			setOnlineUserIds(new Set(Object.keys(state)));
-		});
-
-		channel.subscribe((status) => {
+		channel.subscribe((status, err) => {
 			if (status === 'SUBSCRIBED') {
-				channel.track({ online_at: Date.now() });
 				logger.log('Subscribed to online-presence');
+				channel.track({ online_at: new Date().toISOString() });
+				setOnline(true);
+				setConnecting(false);
+			} else if (status === 'CLOSED') {
+				logger.log('Channel closed.');
+				setOnline(false);
+				setConnecting(false);
+			} else if (['CHANNEL_ERROR', 'TIMED_OUT'].includes(status)) {
+				logger.log(`Channel error, status: ${status}`, err);
+				setOnline(false);
+				setConnecting(false);
 			}
 		});
 
 		channelRef.current = channel;
-	};
-
-	const reconnect = () => {
-		logger.log('Attempting reconnection...');
-		setupChannel();
-	};
+	}, [currentUserId]);
 
 	useEffect(() => {
-		if (!currentUserId) return;
-
-		setupChannel();
-
-		// Retry every 5 seconds if we're marked offline
-		reconnectIntervalRef.current = setInterval(() => {
-			if (!online) {
-				reconnect();
-			}
-		}, 5000);
+		if (currentUserId) {
+			setupChannel();
+		}
 
 		return () => {
-			channelRef.current?.unsubscribe();
-			if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
+			if (channelRef.current) {
+				channelRef.current.unsubscribe();
+				channelRef.current = null;
+			}
 		};
-	}, [currentUserId]);
+	}, [currentUserId, setupChannel]);
+
+	// CHANGE: New effect to handle browser online/offline events
+	useEffect(() => {
+		const handleOnline = () => {
+			logger.log('Browser back online. Attempting to reconnect...');
+			setOnline(true);
+			// Let Supabase handle the reconnection attempt automatically on 'online' event.
+			// If we want to be more aggressive, we can call setupChannel() here.
+			// supabase.realtime.connect() can also be used if the whole client was offline.
+			if (channelRef.current?.state !== 'joined') {
+				setupChannel();
+			}
+		};
+
+		const handleOffline = () => {
+			logger.log('Browser is offline.');
+			setOnline(false);
+			setConnecting(false);
+		};
+
+		window.addEventListener('online', handleOnline);
+		window.addEventListener('offline', handleOffline);
+
+		return () => {
+			window.removeEventListener('online', handleOnline);
+			window.removeEventListener('offline', handleOffline);
+		};
+	}, [setupChannel]); // Depend on the memoized setupChannel function
 
 	const isUserOnline = (userId: string) => onlineUserIds.has(userId);
 
 	const value = {
 		online,
-		setOnline,
+		connecting, // Expose the connecting state
 		isUserOnline,
+		setOnline,
 	};
 
 	return <OnlineContext.Provider value={value}>{children}</OnlineContext.Provider>;
@@ -96,7 +124,7 @@ export const OnlineProvider: React.FC<UserProviderProps> = ({ children }) => {
 export const useOnlineContext = (): OnlineContextType => {
 	const context = useContext(OnlineContext);
 	if (context === undefined) {
-		throw new Error('useOnlineContext must be used within a OnlineProvider');
+		throw new Error('useOnlineContext must be used within an OnlineProvider');
 	}
 	return context;
 };

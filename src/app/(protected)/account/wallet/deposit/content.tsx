@@ -14,9 +14,11 @@ export default function DepositPageContent() {
 	const router = useRouter();
 	const [amount, setAmount] = useState('10000');
 	const [depositMethod, setDepositMethod] = useState('p2p');
+	const [isRedirecting, setIsRedirecting] = useState(false);
 
 	const handleProceed = () => {
 		nProgress.start();
+		setIsRedirecting(true);
 		if (depositMethod === 'p2p') {
 			router.push(`/account/wallet/deposit/p2p?amount=${amount}`);
 		} else if (depositMethod === 'onchain') {
@@ -53,9 +55,21 @@ export default function DepositPageContent() {
 						</RadioGroup>
 					</div>
 
-					<Button onClick={handleProceed} size="lg" variant="success" className="w-full flex items-center justify-center group" disabled={!amount || parseFloat(amount) <= 0}>
-						Proceed
-						<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+					<Button onClick={handleProceed} size="lg" variant="success" className={`w-full flex items-center justify-center group ${isRedirecting ? 'opacity-60 cursor-not-allowed' : ''}`} disabled={!amount || parseFloat(amount) <= 0 || isRedirecting}>
+						{isRedirecting ? (
+							<span className="flex items-center">
+								<svg className="animate-spin mr-2 h-5 w-5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+								</svg>
+								Processing...
+							</span>
+						) : (
+							<>
+								Proceed
+								<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+							</>
+						)}
 					</Button>
 				</CardContent>
 			</Card>

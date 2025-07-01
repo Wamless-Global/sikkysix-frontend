@@ -11,7 +11,7 @@ import appSettings from '@/config/app';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { handleFetchErrorMessage } from '@/lib/helpers';
-import LogoPlaceholder from '@/components/ui/logo';
+import Logo from '@/components/ui/logo';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function parseFragmentParams() {
@@ -23,7 +23,7 @@ function parseFragmentParams() {
 function ProjectSkeletonLoader() {
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4 space-y-4">
-			<LogoPlaceholder size="xl" />
+			<Logo alt="Sikkysix Logo" size="xl" />
 			<div className="w-full max-w-md text-center space-y-2 mt-5">
 				<Skeleton className="mb-2 h-8 w-full md:w-96 mx-auto" />
 				<Skeleton className="mb-2 h-8 w-full md:w-98 mx-auto" />
@@ -123,7 +123,7 @@ export default function VerifyEmailStatusPageContent() {
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				<LogoPlaceholder size="xl" />
+				<Logo alt="Sikkysix Logo" size="xl" />
 			</CustomLink>
 			<div className="w-full max-w-md text-center mt-5">
 				<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>

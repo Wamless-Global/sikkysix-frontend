@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
-import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { generateSlug, getCategoryButtonText, getCategoryDisplayStatus, handleFetchErrorMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
@@ -28,7 +28,7 @@ export default function AccountPage() {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = errorData.message || errorData.error || errorMessage;
+					errorMessage = handleFetchErrorMessage(errorData, 'An unexpected error occurred while fetching clubs.');
 				} catch (_jsonError) {}
 				throw new Error(errorMessage);
 			}
@@ -36,16 +36,22 @@ export default function AccountPage() {
 			const result: ApiCategoriesResponse = await response.json();
 
 			if (result.status === 'success' && result.data && Array.isArray(result.data.categories)) {
-				const transformedCategories: UserDisplayCategory[] = result.data.categories.map((apiCat: Category) => ({
-					id: apiCat.id,
-					slug: apiCat.ticker,
-					title: apiCat.name,
-					image: apiCat.image,
-					minimum: `${apiCat.minimum_investable}`,
-					buttonText: 'View Club Details',
-					buttonEnabled: Boolean(apiCat.is_launched) && !Boolean(apiCat.is_locked),
-					description: apiCat.description,
-				}));
+				const transformedCategories: UserDisplayCategory[] = result.data.categories.map((apiCat: Category) => {
+					const status = getCategoryDisplayStatus(apiCat);
+					return {
+						id: apiCat.id,
+						slug: apiCat.ticker,
+						title: apiCat.name,
+						image: apiCat.image,
+						minimum: `${apiCat.minimum_investable}`,
+						buttonText: getCategoryButtonText(status),
+						buttonEnabled: true,
+						description: apiCat.description,
+						status,
+						is_locked: apiCat.is_locked,
+						is_launched: apiCat.is_launched,
+					};
+				});
 				setCategories(transformedCategories);
 			} else {
 				console.warn('Unexpected API response structure or error status:', result);
@@ -57,7 +63,7 @@ export default function AccountPage() {
 				}
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred while fetching categories.');
+			const errorMessage = handleFetchErrorMessage(err);
 			setError(errorMessage);
 			setCategories([]);
 		} finally {
@@ -108,17 +114,20 @@ export default function AccountPage() {
 
 			{!isLoading && !error && categories.length > 0 && (
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
-					{categories.map((category) =>
-						category.buttonEnabled ? (
-							<CustomLink key={category.id} href={`/account/club/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
-								<DashboardCard title={category.title} image={category.image || '/Variety-fruits-vegetables.png'} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
-							</CustomLink>
-						) : (
-							<div key={category.id}>
-								<DashboardCard title={category.title} image={category.image || '/Variety-fruits-vegetables.png'} minimum={category.minimum} buttonText={category.buttonText} buttonEnabled={category.buttonEnabled} />
-							</div>
-						)
-					)}
+					{categories.map((category) => (
+						<CustomLink key={category.id} href={`/account/club/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
+							<DashboardCard
+								title={category.title}
+								image={category.image || '/Variety-fruits-vegetables.png'}
+								minimum={category.minimum}
+								buttonText={category.buttonText}
+								buttonEnabled={category.buttonEnabled}
+								status={category.status}
+								is_locked={category.is_locked}
+								is_launched={category.is_launched}
+							/>
+						</CustomLink>
+					))}
 				</div>
 			)}
 		</div>

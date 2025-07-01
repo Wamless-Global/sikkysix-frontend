@@ -358,6 +358,49 @@ export default function AdminSingleCategoriesPage() {
 					{/* <TransactionHistoryTable transactions={assetTransactionHistoryMock.map((tx) => ({ ...tx, type: tx.type.replace('Ticker', categoryData.ticker).replace('TICK', categoryData.ticker) }))} showMyTransactionsToggle={false} /> */}
 					<p className="text-sm text-muted-foreground mt-2 text-center">Transaction history data is not yet connected for this category.</p>
 				</div>
+
+				{/* Render metadata if not launched and metadata exists */}
+				{displayStatus === 'Not Launched' && categoryData.metadata && (
+					<Card className="mt-6">
+						<CardHeader>
+							<CardTitle>Launch Requests</CardTitle>
+							<CardDescription>Users who have requested this club to be launched.</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{categoryData.metadata.requests ? (
+								<div>
+									<p className="mb-2 text-sm text-muted-foreground">
+										Total Requests: <span className="font-semibold">{categoryData.metadata.requests.count}</span>
+									</p>
+									<div className="overflow-x-auto">
+										<table className="min-w-full text-sm border">
+											<thead>
+												<tr className="border-b">
+													<th className="px-2 py-2 text-left">User Name</th>
+													<th className="px-2 py-2 text-left">Profile</th>
+												</tr>
+											</thead>
+											<tbody>
+												{categoryData.metadata.requests.requested_by.map((user: { id: string; name: string }) => (
+													<tr key={user.id} className="border-b">
+														<td className="px-2 py-2">{user.name || <span className="italic text-muted-foreground">Unknown</span>}</td>
+														<td className="px-2 py-2">
+															<a href={`/admin/users/${user.id}`} className="text-blue-600 hover:underline dark:text-blue-400" target="_blank" rel="noopener noreferrer">
+																View Profile
+															</a>
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							) : (
+								<p className="text-muted-foreground">No requests yet.</p>
+							)}
+						</CardContent>
+					</Card>
+				)}
 			</div>
 
 			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

@@ -13,7 +13,7 @@ import { CustomLink } from '@/components/ui/CustomLink'; // Import CustomLink
 import { toast } from 'sonner';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import LogoPlaceholder from '@/components/ui/logo';
+import Logo from '@/components/ui/logo';
 
 const formSchema = z.object({
 	email: z.string().email({
@@ -63,8 +63,7 @@ export default function ForgotPasswordPageContent() {
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				{/* <h1 className="mb-8 text-4xl font-bold">LOGO</h1> */}
-				<LogoPlaceholder size="xl" />
+				<Logo alt="Sikkysix Logo" size="xl" />
 			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">
