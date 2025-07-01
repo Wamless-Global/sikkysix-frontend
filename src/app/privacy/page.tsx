@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function PrivacyPage() {
 	return (
 		<div className="static-page flex min-h-screen flex-col items-center p-8">
-			<Logo alt="Sikkysix Logo" size="xl" />
+			<Logo alt={`${getPlatformName()} Logo`} size="xl" />
 
 			<div className="static-card w-full max-w-4xl p-8">
 				<h2 className="mb-6 text-3xl font-semibold">Privacy Policy</h2>

@@ -13,6 +13,8 @@ const logoVariants = {
 	full: '/logo.png',
 	text: '/logo-name.png',
 	dice: '/logo-icon.png',
+	'dark-with-text': '/dark-logo-text.png',
+	dark: '/dark-full-logo.png',
 };
 
 export default function Logo({

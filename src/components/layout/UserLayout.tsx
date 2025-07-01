@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import nProgress from 'nprogress';
 import { Role } from '@/types';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import NotificationCenter from '@/components/ui/NotificationCenter';
 import Logo from '@/components/ui/logo';
 
@@ -207,7 +207,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 				<div className="!sticky top-0 w-full right-0 z-10 backdrop-blur-sm">
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/80 rounded-full shadow mx-8 mt-6 relative">
 						<div className="">
-							<Logo alt="Sikkysix Logo" size="md" variant="text" className="absolute -top-4" />
+							<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" className="absolute -top-4" />
 						</div>
 						<div className="relative">
 							<button type="button" className="p-2 rounded-full hover:bg-white/60 cursor-pointer" onClick={() => setNotificationCenterOpen(true)} aria-label="Open notifications">

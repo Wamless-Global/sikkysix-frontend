@@ -232,7 +232,7 @@ export default function UserManagementPage() {
 									<TableHead>Roles</TableHead>
 									<TableHead>Registered</TableHead>
 									<TableHead>Investments</TableHead>
-									<TableHead>Online</TableHead>
+									{/* <TableHead>Online</TableHead> */}
 									<TableHead>Total Invested</TableHead>
 									<TableHead>Status</TableHead>
 									<TableHead>Country</TableHead>
@@ -258,9 +258,9 @@ export default function UserManagementPage() {
 											<TableCell>
 												<Skeleton className="h-4 w-[50px]" />
 											</TableCell>
-											<TableCell>
+											{/* <TableCell>
 												<Skeleton className="h-4 w-[50px]" />
-											</TableCell>
+											</TableCell> */}
 											<TableCell>
 												<Skeleton className="h-4 w-[80px]" />
 											</TableCell>
@@ -287,9 +287,9 @@ export default function UserManagementPage() {
 												<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
 												<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
 												<TableCell>{user.investmentCount}</TableCell>
-												<TableCell>
+												{/* <TableCell>
 													<OnlineBadge online={userOnline} />
-												</TableCell>
+												</TableCell> */}
 												<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
 												<TableCell>
 													<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CustomLink } from '@/components/ui/CustomLink';
 import Logo from '@/components/ui/logo';
+import { getPlatformName } from '@/lib/helpers';
 
 // Placeholder SVG for Icons/Images - Using muted color
 const IconPlaceholder = ({ className = 'w-10 h-10' }: { className?: string }) => (
@@ -32,7 +33,7 @@ export default function LandingPage() {
 		<div className="bg-background text-foreground min-h-screen font-sans">
 			<header className="container mx-auto px-4 py-4 flex justify-between items-center">
 				<div className="flex items-center space-x-2">
-					<Logo alt="Sikkysix Logo" />
+					<Logo alt={`${getPlatformName()} Logo`} />
 					<span className="text-xl font-bold">Sikky Six</span>
 				</div>
 				<nav className="hidden md:flex items-center space-x-6">
@@ -372,7 +373,7 @@ export default function LandingPage() {
 					<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
 						<div className="md:col-span-2">
 							<div className="flex items-center space-x-2 mb-4">
-								<Logo alt="Sikkysix Logo" />
+								<Logo alt={`${getPlatformName()} Logo`} />
 								<span className="text-xl font-bold text-foreground">Sikky Six</span>
 							</div>
 							<p className="text-sm max-w-xs">Your trusted platform for diverse investment opportunities. Join our community of successful investors and grow your wealth together.</p>

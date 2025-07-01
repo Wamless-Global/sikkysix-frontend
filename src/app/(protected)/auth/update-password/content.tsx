@@ -13,7 +13,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { useRouter } from 'next/navigation';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import appSettings from '@/config/app';
 import { VerifyResetTokenResult } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -154,7 +154,7 @@ export default function UpdatePasswordPageContent() {
 		return (
 			<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 				<CustomLink href={'/'}>
-					<Logo alt="Sikkysix Logo" size="xl" />
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 				</CustomLink>
 				<div className="w-full max-w-md text-center mt-10">
 					<div className="flex items-center gap-4 justify-center mb-8">
@@ -170,7 +170,7 @@ export default function UpdatePasswordPageContent() {
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
 				<CustomLink href={'/'}>
-					<Logo alt="Sikkysix Logo" size="xl" />
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 				</CustomLink>
 			</CustomLink>
 			<Card className="auth-card w-full max-w-md">

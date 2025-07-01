@@ -2,10 +2,10 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2, X, RefreshCcw, DollarSign } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
-import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency, positiveTransactionTypes } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency, positiveTransactionTypes, getBaseCurrencyRate, formatCurrency } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
@@ -40,6 +40,7 @@ export default function WalletPageContent() {
 	const [totalCount, setTotalCount] = useState(0);
 	const [balance, setBalance] = useState<number | null>(null);
 	const [isBalanceLoading, setIsBalanceLoading] = useState(true);
+	const [showFiat, setShowFiat] = useState(false);
 
 	useEffect(() => {
 		setIsBalanceLoading(true);
@@ -76,9 +77,35 @@ export default function WalletPageContent() {
 		<div className="space-y-12">
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-md rounded-2xl text-[var(--dashboard-secondary-foreground)] md:py-2 overflow-hidden">
 				<CardContent className="p-1 px-6 md:p-6 flex justify-center items-center relative">
+					<button
+						type="button"
+						className="absolute top-0 left-2 p-1 rounded-full bg-background/30 hover:bg-background/60 border border-border transition items-center justify-center z-10 hidden sm:block cursor-pointer"
+						onClick={() => setShowFiat((prev) => !prev)}
+						aria-label="Toggle balance display"
+					>
+						{showFiat ? <DollarSign className="h-4 w-4 text-foreground" /> : <RefreshCcw className="h-4 w-4 text-foreground" />}
+					</button>
+
+					<button
+						type="button"
+						className="absolute -top-4 left-2 p-1 rounded-full bg-background/30 hover:bg-background/60 border border-border transition flex items-center justify-center z-10 sm:hidden cursor-pointer"
+						onClick={() => setShowFiat((prev) => !prev)}
+						aria-label="Toggle balance display"
+					>
+						{showFiat ? <DollarSign className="h-3 w-3 text-foreground" /> : <RefreshCcw className="h-3 w-3 text-foreground" />}
+					</button>
+
 					<div className="flex items-center flex-col">
 						<p className="text-sm opacity-80 mb-1">Available Balance</p>
-						{isBalanceLoading ? <Skeleton className="h-10 w-40 rounded-md bg-background/40" /> : <p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>}
+						<div className="flex items-center gap-2">
+							{isBalanceLoading ? (
+								<Skeleton className="h-10 w-40 rounded-md bg-background/40" />
+							) : showFiat ? (
+								<p className="amount-heading-extra-large">{formatCurrency((balance ?? 0) * getBaseCurrencyRate())}</p>
+							) : (
+								<p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>
+							)}
+						</div>
 					</div>
 					<div className="opacity-80 dark:opacity-70 absolute right-0">
 						<Image src="/wallet.png" alt="Wallet Graphic" width={80} height={50} className="hidden sm:block" />

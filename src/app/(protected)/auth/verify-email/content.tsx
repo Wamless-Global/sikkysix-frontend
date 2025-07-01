@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CustomLink } from '@/components/ui/CustomLink';
 import appSettings from '@/config/app';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
 import Logo from '@/components/ui/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,7 +60,7 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				<Logo alt="Sikkysix Logo" size="xl" />
+				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 			</CustomLink>
 
 			<Card className="auth-card w-full max-w-md">

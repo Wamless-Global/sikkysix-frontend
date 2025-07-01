@@ -231,8 +231,8 @@ export default function AgentOrdersContent() {
 									<SelectValue placeholder="Select order type" />
 								</SelectTrigger>
 								<SelectContent className="account-input w-full">
-									<SelectItem value="BUY_PLATFORM_CURRENCY">Buy </SelectItem>
-									<SelectItem value="SELL_PLATFORM_CURRENCY">Sell </SelectItem>
+									<SelectItem value="BUY_PLATFORM_CURRENCY">Deposit </SelectItem>
+									<SelectItem value="SELL_PLATFORM_CURRENCY">Withdrawal </SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -283,7 +283,7 @@ export default function AgentOrdersContent() {
 					<form onSubmit={handleEditOrder} className="space-y-6 mt-5">
 						<div className="space-y-3">
 							<Label htmlFor="edit-order_type">Order Type</Label>
-							<div className="account-input w-full bg-muted/50 px-3 py-2 rounded text-sm text-foreground">{editForm?.order_type === 'BUY_PLATFORM_CURRENCY' ? 'Buy' : 'Sell'}</div>
+							<div className="account-input w-full bg-muted/50 px-3 py-2 rounded text-sm text-foreground">{editForm?.order_type === 'BUY_PLATFORM_CURRENCY' ? 'Deposit' : 'Withdrawal'}</div>
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-fiat_currency">Fiat Currency</Label>
@@ -292,9 +292,7 @@ export default function AgentOrdersContent() {
 						<div className="space-y-3">
 							<Label htmlFor="edit-total_asset_amount">Total Asset Amount</Label>
 							<Input id="edit-total_asset_amount" type="number" value={editForm?.total_asset_amount || ''} onChange={(e) => setEditForm((f) => (f ? { ...f, total_asset_amount: e.target.value } : f))} required className="account-input w-full" />
-							<p className="text-xs text-muted-foreground mt-1">
-								Enter a negative amount (e.g. -100) to deduct from the order, a positive amount to add, and 0 to leave the amount unchanged.
-							</p>
+							<p className="text-xs text-muted-foreground mt-1">Enter a negative amount (e.g. -100) to deduct from the order, a positive amount to add, and 0 to leave the amount unchanged.</p>
 						</div>
 						<div className="space-y-3">
 							<Label htmlFor="edit-order_fee">Fee (%)</Label>

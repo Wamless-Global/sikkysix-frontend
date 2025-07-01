@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import appSettings from '@/config/app';
 import { ProgressBar } from '@/components/layout/ProgressBar';
 import { Toaster } from '@/components/ui/sonner';
+import { DynamicAppNameTitle } from '@/components/others/DynamicAppNameTitle';
 import './globals.css';
 
 const geistSans = Geist({
@@ -41,6 +42,7 @@ export default function RootLayout({
 				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange enableColorScheme={false}>
 					<Suspense>
 						<ProgressBar />
+						<DynamicAppNameTitle fallback={appSettings.appName} />
 						{children}
 						<Toaster richColors />
 					</Suspense>

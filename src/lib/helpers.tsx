@@ -491,7 +491,7 @@ export function getPlatformName(): string {
 			// ignore JSON parse errors
 		}
 	}
-	return '';
+	return process.env.NEXT_PUBLIC_NAME || '';
 }
 
 /**

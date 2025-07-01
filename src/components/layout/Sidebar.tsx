@@ -31,7 +31,7 @@ const navItems = [
 		label: 'Communication',
 		icon: MessageSquare,
 	},
-	{ href: '/admin/reports', label: 'Reporting', icon: BarChart },
+	// { href: '/admin/reports', label: 'Reporting', icon: BarChart },
 ];
 
 interface SidebarProps {

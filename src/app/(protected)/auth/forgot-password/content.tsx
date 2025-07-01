@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomLink } from '@/components/ui/CustomLink'; // Import CustomLink
 import { toast } from 'sonner';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import Logo from '@/components/ui/logo';
 
@@ -63,7 +63,7 @@ export default function ForgotPasswordPageContent() {
 	return (
 		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
 			<CustomLink href={'/'}>
-				<Logo alt="Sikkysix Logo" size="xl" />
+				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 			</CustomLink>
 			<Card className="auth-card w-full max-w-md">
 				<CardHeader className="space-y-1 text-left">
