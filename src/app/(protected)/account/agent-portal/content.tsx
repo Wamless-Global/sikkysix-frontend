@@ -390,7 +390,7 @@ const AgentPortalContent = () => {
 									) : trades.length === 0 ? (
 										<TableRow>
 											<TableCell colSpan={7} className="text-center text-muted-foreground">
-												<Image src="/box.png" alt="No Trades" width={48} height={48} className="mx-auto mb-2 opacity-70" />
+												<Image src="/images/box.png" alt="No Trades" width={48} height={48} className="mx-auto mb-2 opacity-70" />
 												<div className="font-medium">No trades yet</div>
 												<div className="text-xs mt-1">Your trades will appear here once you start trading.</div>
 											</TableCell>

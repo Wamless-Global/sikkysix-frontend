@@ -330,7 +330,7 @@ export default function LandingPage() {
 				<div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 					<div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto md:ml-auto md:mr-0">
 						<div className="absolute inset-0 rounded-full bg-[var(--lp-green-primary)]/10 blur-3xl"></div>
-						<Image src="/placeholder-person.jpg" alt="Testimonial Person" width={288} height={288} className="rounded-full object-cover relative z-10 border-4 border-[var(--lp-dark-bg)]" />
+						<Image src="/images/placeholder-person.jpg" alt="Testimonial Person" width={288} height={288} className="rounded-full object-cover relative z-10 border-4 border-[var(--lp-dark-bg)]" />
 					</div>
 					<div className="text-center md:text-left md:mr-auto md:ml-0">
 						<span className="text-7xl font-serif text-[var(--lp-green-primary)] block mb-[-1rem] ml-[-0.5rem]">“</span>

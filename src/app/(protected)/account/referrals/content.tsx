@@ -162,13 +162,13 @@ export default function ReferralsPageContent() {
 					))
 				) : debouncedSearchTerm ? (
 					<div className="text-center py-10 px-4 flex flex-col items-center">
-						<Image src="/box.png" alt="No Record Found" width={80} height={80} className="mb-6" />
+						<Image src="/images/box.png" alt="No Record Found" width={80} height={80} className="mb-6" />
 						<h3 className="text-xl font-semibold mb-2 text-foreground">No Record Found</h3>
 						<p className="text-muted-foreground mb-6 leading-8">No referrals match your search.</p>
 					</div>
 				) : (
 					<div className="text-center py-10 px-4 flex flex-col items-center">
-						<Image src="/box.png" alt="Empty Box" width={80} height={80} className="mb-6" />
+						<Image src="/images/box.png" alt="Empty Box" width={80} height={80} className="mb-6" />
 						<h3 className="text-xl font-semibold mb-2 text-foreground">No Referrals Yet</h3>
 						<p className="text-muted-foreground mb-6 leading-8">Share your code to start earning!</p>
 					</div>
@@ -223,7 +223,7 @@ export default function ReferralsPageContent() {
 						) : (
 							<TableRow>
 								<TableCell colSpan={4} className="text-center py-10 px-4">
-									<Image src="/box.png" alt="Empty Box" width={80} height={80} className="mb-6 mx-auto" />
+									<Image src="/images/box.png" alt="Empty Box" width={80} height={80} className="mb-6 mx-auto" />
 									<h3 className="text-xl font-semibold mb-2 text-foreground">No Referrals Yet</h3>
 									<p className="text-muted-foreground mb-6 leading-8">Share your code to start earning!</p>
 								</TableCell>

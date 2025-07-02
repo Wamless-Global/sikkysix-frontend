@@ -30,7 +30,7 @@ export default function OnChainDepositPageContent() {
 				<CardContent className="space-y-6 pt-6">
 					<div className="flex justify-center my-4">
 						<div className="p-3 bg-background dark:bg-muted rounded-lg inline-block border border-border shadow-sm">
-							<Image src="/qr-code-placeholder.svg" alt="Deposit QR Code" width={180} height={180} className="rounded-sm" />
+							<Image src="/images/qr-code-placeholder.svg" alt="Deposit QR Code" width={180} height={180} className="rounded-sm" />
 						</div>
 					</div>
 

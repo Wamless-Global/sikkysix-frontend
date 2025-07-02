@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" style="margin: 0; padding: 0">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Your Magic Link</title>
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="../style/style.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="logo">
+				<img src="/images/dark-full-logo.png" alt="logo" style="width: 100px; height: auto" />
+			</div>
+			<h1>Magic Link</h1>
+			<p>Follow this link to login:</p>
+			<a href="{{ .ConfirmationURL }}" class="button">Log In</a>
+			<div class="footer">Need help? <a href="mailto:support@sikkysix.com" style="color: #22c55e; text-decoration: underline">Contact support</a></div>
+		</div>
+	</body>
+</html>

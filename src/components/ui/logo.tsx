@@ -9,12 +9,12 @@ const sizeMap = {
 };
 
 const logoVariants = {
-	default: '/logo.png',
-	full: '/logo.png',
-	text: '/logo-name.png',
-	dice: '/logo-icon.png',
-	'dark-with-text': '/dark-logo-text.png',
-	dark: '/dark-full-logo.png',
+	default: '/images/logo.png',
+	full: '/images/logo.png',
+	text: '/images/logo-name.png',
+	dice: '/images/logo-icon.png',
+	'dark-with-text': '/images/dark-logo-text.png',
+	dark: '/images/dark-full-logo.png',
 };
 
 export default function Logo({

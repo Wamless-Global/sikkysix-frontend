@@ -44,7 +44,7 @@ export default function NotFound() {
 	return (
 		<div className="flex flex-col items-center justify-center min-h-[100vh] px-4 py-12 text-center bg-background">
 			<div className="mb-6">
-				<Image src="/globe.svg" alt="Not found illustration" width={80} height={80} className="mx-auto opacity-80" />
+				<Image src="/images/globe.svg" alt="Not found illustration" width={80} height={80} className="mx-auto opacity-80" />
 			</div>
 			<h1 className="text-6xl font-extrabold text-[var(--dashboard-accent)] mb-2 tracking-tight">404</h1>
 			<h2 className="text-2xl font-semibold mb-2 text-foreground">Page Not Found</h2>

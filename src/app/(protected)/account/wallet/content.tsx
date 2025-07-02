@@ -108,8 +108,8 @@ export default function WalletPageContent() {
 						</div>
 					</div>
 					<div className="opacity-80 dark:opacity-70 absolute right-0">
-						<Image src="/wallet.png" alt="Wallet Graphic" width={80} height={50} className="hidden sm:block" />
-						<Image src="/wallet.png" alt="Wallet Graphic" width={60} height={40} className="sm:hidden" />
+						<Image src="/images/wallet.png" alt="Wallet Graphic" width={80} height={50} className="hidden sm:block" />
+						<Image src="/images/wallet.png" alt="Wallet Graphic" width={60} height={40} className="sm:hidden" />
 					</div>
 				</CardContent>
 			</Card>
@@ -193,7 +193,7 @@ export default function WalletPageContent() {
 					</div>
 				) : (
 					<div className="text-center py-10 px-4 flex flex-col items-center">
-						<Image src="/box.png" alt="Empty Box" width={80} height={80} className="mb-6" />
+						<Image src="/images/box.png" alt="Empty Box" width={80} height={80} className="mb-6" />
 						<p className="text-muted-foreground mb-6 leading-8">You haven&apos;t made any contribution yet.</p>
 					</div>
 				)}

@@ -182,7 +182,7 @@ export default function PortfolioPageContent() {
 						</div>
 					) : (
 						<div className="text-center py-10 px-4 flex flex-col items-center mt-8 md:mt-12">
-							<Image src="/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />
+							<Image src="/images/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />
 							<h3 className="text-xl font-semibold mb-2 text-foreground">It&apos;s Lonely Here!</h3>
 							<p className="text-muted-foreground mb-6 max-w-sm text-sm leading-relaxed">You&apos;re one step away from joining a thriving community of savers, start contributing and build your savngs.</p>
 							<PortfolioStartButton />
@@ -259,7 +259,7 @@ export default function PortfolioPageContent() {
 						</div>
 					) : (
 						<div className="text-center py-10 px-4 flex flex-col items-center mt-8 md:mt-12">
-							<Image src="/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />
+							<Image src="/images/box.png" alt="Empty Box" width={72} height={72} className="mb-5 opacity-75" />
 							<h3 className="text-lg font-medium mb-2 text-foreground">No Completed Savings</h3>
 							<p className="text-sm">Once you reach your savings goal, they will appear here.</p>
 						</div>

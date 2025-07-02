@@ -118,7 +118,7 @@ export default function AccountPage() {
 						<CustomLink key={category.id} href={`/account/club/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
 							<DashboardCard
 								title={category.title}
-								image={category.image || '/Variety-fruits-vegetables.png'}
+								image={category.image || '/images/Variety-fruits-vegetables.png'}
 								minimum={category.minimum}
 								buttonText={category.buttonText}
 								buttonEnabled={category.buttonEnabled}

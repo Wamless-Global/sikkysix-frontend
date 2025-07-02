@@ -294,7 +294,7 @@ export default function SingleCategoryContent() {
 	return (
 		<div className="space-y-6">
 			<div className="relative h-64 md:h-72 rounded-lg overflow-hidden">
-				<Image src={categoryData.image || '/Variety-fruits-vegetables.png'} alt={categoryData.name} layout="fill" objectFit="cover" className="brightness-75" unoptimized />
+				<Image src={categoryData.image || '/images/Variety-fruits-vegetables.png'} alt={categoryData.name} layout="fill" objectFit="cover" className="brightness-75" unoptimized />
 				<div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent"></div>
 				<div className="absolute bottom-0 left-0 p-4 md:p-6 text-white">
 					<h1 className="text-2xl md:text-3xl font-bold mb-1">
@@ -561,7 +561,7 @@ export default function SingleCategoryContent() {
 							</div>
 						) : (
 							<div className="text-center py-10 text-muted-foreground flex flex-col items-center">
-								<img src="/wallet.png" alt="No positions" className="h-20 w-20 mb-4 opacity-60" />
+								<img src="/images/wallet.png" alt="No positions" className="h-20 w-20 mb-4 opacity-60" />
 								No active savings in this club.
 							</div>
 						)}
