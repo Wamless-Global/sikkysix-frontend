@@ -57,8 +57,11 @@ export const formatCurrency = (amount: number | null | undefined, currency: stri
 	if (options?.symbol && !options?.code) {
 		// Get the currency symbol
 		const parts = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0);
-		const symbolPart = parts.find((p) => p.type === 'currency');
-		return symbolPart?.value || validCurrency;
+		let symbolPart = parts.find((p) => p.type === 'currency')?.value;
+		if (!symbolPart) {
+			symbolPart = getCurrencySymbol();
+		}
+		return symbolPart || validCurrency;
 	}
 
 	if (options?.code && !options?.symbol) {
@@ -69,9 +72,11 @@ export const formatCurrency = (amount: number | null | undefined, currency: stri
 		amount = 0;
 	}
 
-	const formatted = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(amount);
+	const formatted = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 4 }).format(amount);
 
-	const symbol = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find((p) => p.type === 'currency')?.value || validCurrency;
+	let symbol = new Intl.NumberFormat('en-US', { style: 'currency', currency: validCurrency, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find((p) => p.type === 'currency')?.value;
+
+	symbol = getCurrencySymbol() || validCurrency;
 
 	// If both code and symbol are true, show both with amount
 	if (options?.code && options?.symbol) {
@@ -531,4 +536,24 @@ export function getCategoryButtonText(status: string): string {
 		default:
 			return 'View Club';
 	}
+}
+
+/**
+ * Get the currency symbol from localStorage or fallback to empty string.
+ * @returns {string} The currency symbol (e.g. '₦', '₵').
+ */
+export function getCurrencySymbol(): string {
+	if (typeof window !== 'undefined') {
+		try {
+			const currencyStr = localStorage.getItem('currency');
+			if (!currencyStr) return '';
+			const currency = JSON.parse(currencyStr);
+			if (currency && typeof currency.symbol === 'string') {
+				return currency.symbol;
+			}
+		} catch {
+			// ignore JSON parse errors
+		}
+	}
+	return '';
 }

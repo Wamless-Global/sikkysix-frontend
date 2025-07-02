@@ -46,7 +46,7 @@ export default function AboutPage() {
 					<p className="mb-2">Sikky Six is a modern twist on traditional contribution groups. The big idea:</p>
 					<blockquote className="border-l-4 border-[var(--lp-green-primary)] pl-4 italic mb-2">What if people could contribute like Ajo, but also earn digital rewards like crypto?</blockquote>
 					<p className="mb-2">
-						Sikky Six introduced <b>CLUB POINTS</b> – digital points you earn when you contribute. The value of these points goes up or down based on how well your club is doing (more money in = higher value).
+						Sikky Six introduced <b>CLUB POINTS</b> - digital points you earn when you contribute. The value of these points goes up or down based on how well your club is doing (more money in = higher value).
 					</p>
 					<p className="mb-2">The name “Sikky Six” comes from the Nigerian slang for “Double Six” in Ludo: it means luck, winning, and community breakthroughs.</p>
 				</section>
@@ -80,7 +80,7 @@ export default function AboutPage() {
 					<h2 className="text-xl font-semibold mb-2">💸 What Happens Next?</h2>
 					<ul className="list-disc list-inside mb-2">
 						<li>Your Club Points increase in value when your club performs well</li>
-						<li>When your total value doubles your contributions, you've "hit Sikky Six" (this is the max reward)</li>
+						<li>When your total value doubles your contributions, you&apos;ve &quot;hit Sikky Six&quot; (this is the max reward)</li>
 						<li>You can withdraw (sell SKY) anytime</li>
 						<li>But withdrawing early = you lose bonus rewards</li>
 					</ul>
@@ -104,7 +104,7 @@ export default function AboutPage() {
 				<section className="mb-8">
 					<h2 className="text-xl font-semibold mb-2">⭐ Why Join Sikky Six?</h2>
 					<ul className="list-disc list-inside mb-2">
-						<li>It's more than saving: it's a social club with purpose</li>
+						<li>It&apos;s more than saving: it&apos;s a social club with purpose</li>
 						<li>You join hands with others working toward similar goals</li>
 						<li>You grow together financially</li>
 						<li>You can earn more than you contribute</li>

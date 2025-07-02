@@ -1,5 +1,6 @@
 import { CustomLink } from '@/components/ui/CustomLink';
 import Logo from '@/components/ui/logo';
+import { getPlatformName } from '@/lib/helpers';
 
 export default function TermsPage() {
 	return (

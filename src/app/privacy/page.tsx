@@ -1,6 +1,6 @@
 import { CustomLink } from '@/components/ui/CustomLink';
 import Logo from '@/components/ui/logo';
-import Link from 'next/link';
+import { getPlatformName } from '@/lib/helpers';
 
 export default function PrivacyPage() {
 	return (
