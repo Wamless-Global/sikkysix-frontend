@@ -13,11 +13,15 @@ const nextConfig: NextConfig = {
 			},
 			{
 				protocol: 'https',
-				hostname: process.env.SUPABASE_URL!,
+				hostname: 'dhzqzevtqhqrttzurgor.supabase.co',
 			},
 			{
 				protocol: 'https',
 				hostname: 'api.supabase.local',
+			},
+			{
+				protocol: 'https',
+				hostname: 'backend-sikkysix.up.railway.app',
 			},
 		],
 	},
