@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
 			},
 			{
 				protocol: 'https',
-				hostname: 'dhzqzevtqhqrttzurgor.supabase.co',
+				hostname: process.env.SUPABASE_URL!,
 			},
 			{
 				protocol: 'https',
@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
 	async rewrites() {
 		return [
 			{
-				// Proxy requests from /api/... on the frontend to http://localhost:5002/api/... on the backend
+				// Proxy requests from /api/... on the frontend to the backend
 				source: '/api/:path*',
 
 				destination: `${process.env.API_BASE_URL}/:path*`,
