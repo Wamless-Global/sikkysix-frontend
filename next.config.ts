@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
 			},
 			{
 				protocol: 'https',
-				hostname: 'backend-sikkysix.up.railway.app',
+				hostname: 'auth.sikkysix.com',
 			},
 		],
 	},
