@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { login } = useAuthContext();
@@ -86,7 +87,10 @@ export default function LoginPage() {
 							<Label htmlFor="password">Password</Label>
 							<div className="relative flex items-center">
 								<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input id="password" type="password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} className="auth-input pl-10" />
+								<Input id="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} className="auth-input pl-10 pr-10" />
+								<button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 h-5 w-5 text-gray-400 focus:outline-none" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+									{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+								</button>
 							</div>
 						</div>
 						<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>

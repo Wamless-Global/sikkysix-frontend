@@ -101,7 +101,7 @@ export default function WalletPageContent() {
 							{isBalanceLoading ? (
 								<Skeleton className="h-10 w-40 rounded-md bg-background/40" />
 							) : showFiat ? (
-								<p className="amount-heading-extra-large">{formatCurrency((balance ?? 0) * getBaseCurrencyRate())}</p>
+								<p className="amount-heading-extra-large">{formatCurrency((balance ?? 0) / getBaseCurrencyRate())}</p>
 							) : (
 								<p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>
 							)}

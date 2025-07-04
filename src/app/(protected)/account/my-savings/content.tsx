@@ -5,13 +5,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { formatBaseurrency, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getBaseCurrencyRate, handleFetchErrorMessage } from '@/lib/helpers';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Investment } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import PortfolioStartButton from '@/components/ui/portfolio-start-button';
+import { DollarSign, RefreshCcw } from 'lucide-react';
 
 interface PortfolioResponse {
 	status: string;
@@ -30,6 +31,7 @@ export default function PortfolioPageContent() {
 	const [investments, setInvestments] = useState<Investment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [, setError] = useState<string | null>(null);
+	const [showFiat, setShowFiat] = useState(false);
 
 	const fetchInvestments = useCallback(async () => {
 		setIsLoading(true);
@@ -71,15 +73,35 @@ export default function PortfolioPageContent() {
 		<div className="space-y-8 pb-16">
 			{/* Savings Summary Card */}
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-md rounded-2xl text-[var(--dashboard-secondary-foreground)] md:py-2">
-				<CardContent className="p-1 px-6 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-					<div className="flex-1">
+				<CardContent className="p-1 px-6 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 relative">
+					<button
+						type="button"
+						className="absolute top-0 left-2 p-1 rounded-full bg-background/30 hover:bg-background/60 border border-border transition items-center justify-center z-10 hidden sm:block cursor-pointer"
+						onClick={() => setShowFiat((prev) => !prev)}
+						aria-label="Toggle balance display"
+					>
+						{showFiat ? <DollarSign className="h-4 w-4 text-foreground" /> : <RefreshCcw className="h-4 w-4 text-foreground" />}
+					</button>
+
+					<button
+						type="button"
+						className="absolute -top-4 left-2 p-1 rounded-full bg-background/30 hover:bg-background/60 border border-border transition flex items-center justify-center z-10 sm:hidden cursor-pointer"
+						onClick={() => setShowFiat((prev) => !prev)}
+						aria-label="Toggle balance display"
+					>
+						{showFiat ? <DollarSign className="h-3 w-3 text-foreground" /> : <RefreshCcw className="h-3 w-3 text-foreground" />}
+					</button>
+
+					<div className="flex-1 sm:mt-2">
 						<p className="subtext mb-1 text-center md:text-left">{selectedTab === 'active' ? 'Active Savings' : 'Completed Savings'}</p>
 						{isLoading ? (
 							<div className="animate-pulse">
 								<div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
 							</div>
+						) : showFiat ? (
+							<p className="amount-heading-extra-large">{formatCurrency((portfolioValue ?? 0) / getBaseCurrencyRate())}</p>
 						) : (
-							<p className="amount-heading-extra-large">{formatBaseurrency(portfolioValue)}</p>
+							<p className="amount-heading-extra-large">{formatBaseurrency(portfolioValue ?? 0)}</p>
 						)}
 					</div>
 					<div className="text-right flex flex-col items-end">
