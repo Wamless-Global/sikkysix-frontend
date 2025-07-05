@@ -7,9 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
-import { generateSlug, getCategoryButtonText, getCategoryDisplayStatus, handleFetchErrorMessage } from '@/lib/helpers';
+import { generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 export default function AccountPage() {
 	const [categories, setCategories] = useState<UserDisplayCategory[]>([]);
@@ -21,6 +23,7 @@ export default function AccountPage() {
 		nProgress.start();
 		setIsLoading(true);
 		setError(null);
+
 		try {
 			const response = await fetchWithAuth('/api/categories');
 
@@ -75,6 +78,34 @@ export default function AccountPage() {
 	useEffect(() => {
 		fetchUserCategories();
 	}, [fetchUserCategories]);
+
+	useEffect(() => {
+		if (!getSetCookie()) {
+			logger.log('AccountPage: Checking for set-cookie...', !getSetCookie());
+			const { access_token, refresh_token, expires_at, expires_in } = getLoggedInAsUser();
+			logger.log('AccountPage: Parsed tokens:', { access_token, refresh_token, expires_at, expires_in });
+			if (access_token) {
+				const toastId = toast.loading('Completing login...');
+				fetch('/api/auth/set-session', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ access_token, refresh_token, expires_at, expires_in }),
+				})
+					.then(async (res) => {
+						if (!res.ok) {
+							const data = await res.json().catch(() => ({}));
+							throw new Error(data.message || 'Failed to set session.');
+						}
+						toast.success('Login as user completed!', { id: toastId });
+						window.history.replaceState(null, '', window.location.pathname + window.location.search);
+						localStorage.setItem('sb-auth-cookie-set', JSON.stringify(true));
+					})
+					.catch((err) => {
+						toast.error(err.message || 'Failed to set session.', { id: toastId });
+					});
+			}
+		}
+	}, []);
 
 	const handleRetry = () => {
 		fetchUserCategories();

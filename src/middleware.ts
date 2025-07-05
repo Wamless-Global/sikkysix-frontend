@@ -89,7 +89,7 @@ async function handleProtectedRoute(request: NextRequest, authToken: string | un
 }
 
 export async function middleware(request: NextRequest) {
-	const authToken = request.cookies.get('auth_token')?.value;
+	const authToken = request.cookies.get('sb-access-token')?.value || request.cookies.get('auth_token')?.value;
 	const { pathname } = request.nextUrl;
 
 	const loginUrl = new URL('/auth/login', request.url);

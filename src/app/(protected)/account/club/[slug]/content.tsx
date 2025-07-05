@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatBaseurrency, formatNumber, formatRelativeTime, getBaseCurrency, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
+import { convertCurrency, formatBaseurrency, formatNumber, formatRelativeTime, getBaseCurrency, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
 import { AuthenticatedUser, Category, Investment, InvestmentsResponse, Transaction, TransactionResponse, UserSingleCategoryResponse } from '@/types';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
@@ -353,9 +353,13 @@ export default function SingleCategoryContent() {
 				<CardContent className="px-2 flex flex-col sm:flex-row justify-between items-start gap-4">
 					<div className="flex-grow w-full sm:w-auto space-y-2">
 						{categoryData.is_launched && (
-							<Label htmlFor="amount" className="text-sm">
-								Amount to Contribute ({getBaseCurrency()})
-							</Label>
+							<div className="flex items-center justify-between">
+								<Label htmlFor="amount" className="text-sm">
+									Amount to Contribute ({getBaseCurrency()})
+								</Label>
+
+								<span className="font-bold">~{convertCurrency(+amountInput)}</span>
+							</div>
 						)}
 						{!categoryData.is_launched ? (
 							<div className="flex flex-col items-center justify-center py-6">

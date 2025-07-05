@@ -23,6 +23,7 @@ import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
 import { useOnlineContext } from '@/context/OnlineContext';
 import OnlineBadge from '@/components/ui/online-badge';
+import nProgress from 'nprogress';
 
 export default function UserDetailPage() {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -283,17 +284,23 @@ export default function UserDetailPage() {
 
 			const data = await response.json();
 			if (!response.ok) {
-				throw new Error(data.message || 'Failed to impersonate user.');
+				throw new Error(data.message || 'Failed to log in as user.');
 			}
 
-			if (data.status === 'success' && data.data?.token && data.data?.user) {
-				setCurrentUser(data.data.user);
-				toast.success('Impersonation token received and user context updated.');
+			if (data.status === 'success' && data.data?.link && data.data?.user) {
+				nProgress.start();
+
+				logger.info('Impersonation response data:', data);
+
+				router.push(data.data.link);
+				toast.success("Successfully retrieved user's information");
 			} else {
+				logger.error('Impersonation response did not contain expected data:', data);
 				throw new Error('No token or user received from impersonation endpoint.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to impersonate user.');
+			logger.error('Error during user impersonation:', err);
+			const errorMessage = handleFetchErrorMessage(err, 'Failed to log in as user.');
 			toast.error(errorMessage);
 		} finally {
 			setIsImpersonating(false);
@@ -388,7 +395,7 @@ export default function UserDetailPage() {
 								<DropdownMenuItem onClick={loginAsUser} className="cursor-pointer" disabled={isImpersonating}>
 									{isImpersonating ? (
 										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Impersonating...
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging you in...
 										</>
 									) : (
 										'Login As User'

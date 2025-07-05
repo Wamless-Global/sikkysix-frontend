@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2, X, RefreshCcw, DollarSign } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
-import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency, positiveTransactionTypes, getBaseCurrencyRate, formatCurrency } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency, positiveTransactionTypes, convertCurrency } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
@@ -98,13 +98,7 @@ export default function WalletPageContent() {
 					<div className="flex items-center flex-col">
 						<p className="text-sm opacity-80 mb-1">Available Balance</p>
 						<div className="flex items-center gap-2">
-							{isBalanceLoading ? (
-								<Skeleton className="h-10 w-40 rounded-md bg-background/40" />
-							) : showFiat ? (
-								<p className="amount-heading-extra-large">{formatCurrency((balance ?? 0) / getBaseCurrencyRate())}</p>
-							) : (
-								<p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>
-							)}
+							{isBalanceLoading ? <Skeleton className="h-10 w-40 rounded-md bg-background/40" /> : showFiat ? <p className="amount-heading-extra-large">{convertCurrency(balance ?? 0)}</p> : <p className="amount-heading-extra-large">{formatBaseurrency(balance ?? 0)}</p>}
 						</div>
 					</div>
 					<div className="opacity-80 dark:opacity-70 absolute right-0">

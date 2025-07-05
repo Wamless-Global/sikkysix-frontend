@@ -60,6 +60,9 @@ export default function PlatformSettingsPage() {
 	const [enableFeesFromNetProfit, setEnableFeesFromNetProfit] = useState(false);
 	const [platformRevenueModel, setPlatformRevenueModel] = useState<'' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS'>('');
 	const [enableBuyingFeesWalletBalance, setEnableBuyingFeesWalletBalance] = useState(false);
+	const [capSavings, setCapSavings] = useState(false);
+	const [capSavingsFrequency, setCapSavingsFrequency] = useState('');
+	const [weekMode, setWeekMode] = useState(false);
 	const [currencies, setCurrencies] = useState<{ code: string; name: string; symbol: string }[]>([]);
 	const [currencyRates, setCurrencyRates] = useState<Record<string, string>>({});
 
@@ -118,6 +121,10 @@ export default function PlatformSettingsPage() {
 				if (settings.platform_revenue_model) setPlatformRevenueModel(settings.platform_revenue_model as '' | 'MODEL_A_DIRECT_REVENUE' | 'MODEL_B_POOL_BENEFITS');
 
 				if (settings.enable_buying_fees_wallet_balance !== undefined) setEnableBuyingFeesWalletBalance(settings.enable_buying_fees_wallet_balance === 'true');
+
+				if (settings.cap_savings !== undefined) setCapSavings(settings.cap_savings === 'true');
+				if (settings.cap_savings_frequency !== undefined) setCapSavingsFrequency(settings.cap_savings_frequency);
+				if (settings.week_mode !== undefined) setWeekMode(settings.week_mode === 'true');
 			} catch (e) {
 				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
@@ -238,7 +245,12 @@ export default function PlatformSettingsPage() {
 			{ key: 'platform_revenue_model', setting_value: platformRevenueModel },
 			{ key: 'enable_buying_fees_wallet_balance', setting_value: enableBuyingFeesWalletBalance ? 'true' : 'false' },
 			{ key: 'categories_term', setting_value: categoriesTerm },
+			{ key: 'cap_savings', setting_value: capSavings ? 'true' : 'false' },
 		];
+		if (capSavings) {
+			updates.push({ key: 'cap_savings_frequency', setting_value: capSavingsFrequency });
+			updates.push({ key: 'week_mode', setting_value: weekMode ? 'true' : 'false' });
+		}
 		await patchSettings(updates, 'Investment Settings');
 	};
 	const handleSaveRates = async () => {
@@ -330,6 +342,38 @@ export default function PlatformSettingsPage() {
 									<InfoTooltip content="If enabled, buying fees will be deducted from the user's wallet balance instead of invested amount." />
 								</Label>
 							</div>
+							<div className="flex items-center gap-3">
+								<Switch disabled={isSubmitting} id="capSavings" checked={capSavings} onCheckedChange={setCapSavings} />
+								<Label htmlFor="capSavings" className="font-medium cursor-pointer flex items-center gap-1">
+									Cap Savings
+									<InfoTooltip content="If enabled, savings will be capped according to the selected frequency." />
+								</Label>
+							</div>
+							{capSavings && (
+								<>
+									<div className="space-y-2">
+										<Label htmlFor="capSavingsFrequency" className="font-medium">
+											Cap Savings Frequency
+										</Label>
+										<Input disabled={isSubmitting} id="capSavingsFrequency" value={capSavingsFrequency} onChange={(e) => setCapSavingsFrequency(e.target.value)} className="focus:ring-blue-500/60" placeholder="e.g., daily, weekly, monthly" />
+									</div>
+									<div className="space-y-2">
+										<Label htmlFor="weekMode" className="font-medium flex items-center gap-1">
+											Week Mode
+											<InfoTooltip content="Choose how the week is determined for capping: 'Monday' (week starts on Monday) or 'Rolling' (7 days from any day)." />
+										</Label>
+										<Select disabled={isSubmitting} value={weekMode ? 'monday' : 'rolling'} onValueChange={(value) => setWeekMode(value === 'monday')}>
+											<SelectTrigger id="weekMode" className="focus:ring-blue-500/60">
+												<SelectValue placeholder="Select week mode" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="monday">Monday (week starts on Monday)</SelectItem>
+												<SelectItem value="rolling">Rolling (any 7-day period)</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+								</>
+							)}
 							<div className="space-y-2">
 								<Label htmlFor="revenueModel" className="font-medium">
 									Platform Revenue Model

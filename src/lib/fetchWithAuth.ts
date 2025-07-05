@@ -1,4 +1,4 @@
-import { normalizeUrl, sanitizeUrl } from './helpers';
+import { getLoggedInAsUser, normalizeUrl, sanitizeUrl } from './helpers';
 
 /**
  * Fetch utility that adds Authorization header if token is present.
@@ -9,11 +9,13 @@ import { normalizeUrl, sanitizeUrl } from './helpers';
  * @param token - Optional access token (if not provided, uses cookies only)
  */
 export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}, token?: string | null) {
+	const session = getLoggedInAsUser();
+
 	const authToken = token;
 	const headers = new Headers(init.headers || {});
 
-	if (authToken) {
-		headers.set('Authorization', `Bearer ${authToken}`);
+	if (authToken || (session && session?.access_token)) {
+		headers.set('Authorization', `Bearer ${authToken || session.access_token}`);
 	}
 
 	const cleanUrl = false;

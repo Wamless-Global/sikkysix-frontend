@@ -1,7 +1,7 @@
 import { Bell, Menu } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Logo from '@/components/ui/logo';
-import { getPlatformName } from '@/lib/helpers';
+import { getLoggedInAsUser, getPlatformName } from '@/lib/helpers';
 
 interface UserHeaderProps {
 	notifications: string[];
@@ -10,8 +10,10 @@ interface UserHeaderProps {
 }
 
 const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, unreadNotifications }) => {
+	const isAdmin = getLoggedInAsUser();
+
 	return (
-		<header className="z-40 flex h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full">
+		<header className={`z-40 flex h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full`}>
 			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" onClick={onMenuToggle} aria-label="Toggle Menu" />
 
 			<div className="flex items-center">

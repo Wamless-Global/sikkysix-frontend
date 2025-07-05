@@ -1,6 +1,6 @@
 'use client';
 
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { clearLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { usePathname } from 'next/navigation';
@@ -22,6 +22,22 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 	const logout = async (): Promise<void> => {
 		try {
+			if (getSetCookie()) {
+				const response = await fetch('/api/auth/clear-session', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+				});
+
+				if (!response.ok) {
+					let errorMessage = `Logout API failed: ${response.statusText || 'Unknown error'}`;
+					try {
+						const errorData = await response.json();
+						errorMessage = handleFetchErrorMessage(errorData, errorMessage);
+					} catch (_parseError) {}
+					throw new Error(errorMessage);
+				}
+			}
+
 			const response = await fetchWithAuth(`/api/auth/logout`, {
 				method: 'POST',
 				headers: {
@@ -47,6 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			if (typeof window !== 'undefined') {
 				localStorage.removeItem('currency');
 				localStorage.removeItem('settings');
+				clearLoggedInAsUser();
 			}
 		} catch (err) {
 			// console.error('AuthContext: Error during logout:', err);
@@ -87,6 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				if (typeof window !== 'undefined' && responseData.data.settings) {
 					localStorage.setItem('settings', JSON.stringify(responseData.data.settings));
 				}
+
+				clearLoggedInAsUser();
 
 				return authenticatedUser;
 			} else {

@@ -290,6 +290,7 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 		if (redirect) {
 			nProgress.start();
 			window.location.reload();
+			clearLoggedInAsUser();
 		}
 	}
 
@@ -557,3 +558,44 @@ export function getCurrencySymbol(): string {
 	}
 	return '';
 }
+
+export function getLoggedInAsUser() {
+	if (typeof window !== 'undefined') {
+		try {
+			const isLoggedInAsUserStr = localStorage.getItem('sb-api-auth-token');
+			if (!isLoggedInAsUserStr) return false;
+			const isLoggedInAsUser = JSON.parse(isLoggedInAsUserStr);
+			return isLoggedInAsUser;
+		} catch {
+			// ignore JSON parse errors
+		}
+	}
+	return false;
+}
+
+export function getSetCookie() {
+	if (typeof window !== 'undefined') {
+		try {
+			const isCookieSet = localStorage.getItem('sb-auth-cookie-set');
+			if (!isCookieSet) return false;
+			return JSON.parse(isCookieSet);
+		} catch {}
+	}
+	return false;
+}
+
+export function clearLoggedInAsUser(): void {
+	if (typeof window !== 'undefined') {
+		localStorage.removeItem('sb-api-auth-token');
+		localStorage.removeItem('sb-auth-cookie-set');
+	}
+}
+
+export function setLoggedInAsUser(): void {
+	if (typeof window !== 'undefined') {
+		localStorage.setItem('sb-auth-cookie-set', JSON.stringify(false));
+		localStorage.setItem('sb-api-auth-token', JSON.stringify({}));
+	}
+}
+
+export const convertCurrency = (amount: number): string => formatCurrency(amount * getBaseCurrencyRate());

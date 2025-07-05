@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 import { CustomLink } from '@/components/ui/CustomLink';
-import { formatBaseurrency, formatCurrency, getBaseCurrencyRate, handleFetchErrorMessage } from '@/lib/helpers';
+import { convertCurrency, formatBaseurrency, handleFetchErrorMessage } from '@/lib/helpers';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { Investment } from '@/types';
@@ -99,7 +99,7 @@ export default function PortfolioPageContent() {
 								<div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
 							</div>
 						) : showFiat ? (
-							<p className="amount-heading-extra-large">{formatCurrency((portfolioValue ?? 0) / getBaseCurrencyRate())}</p>
+							<p className="amount-heading-extra-large">{convertCurrency(portfolioValue ?? 0)}</p>
 						) : (
 							<p className="amount-heading-extra-large">{formatBaseurrency(portfolioValue ?? 0)}</p>
 						)}
