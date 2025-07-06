@@ -562,7 +562,7 @@ export function getCurrencySymbol(): string {
 export function getLoggedInAsUser() {
 	if (typeof window !== 'undefined') {
 		try {
-			const isLoggedInAsUserStr = localStorage.getItem('sb-api-auth-token');
+			const isLoggedInAsUserStr = localStorage.getItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
 			if (!isLoggedInAsUserStr) return false;
 			const isLoggedInAsUser = JSON.parse(isLoggedInAsUserStr);
 			return isLoggedInAsUser;
@@ -586,15 +586,15 @@ export function getSetCookie() {
 
 export function clearLoggedInAsUser(): void {
 	if (typeof window !== 'undefined') {
-		localStorage.removeItem('sb-api-auth-token');
-		localStorage.removeItem('sb-auth-cookie-set');
+		localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
+		localStorage.removeItem(`sb-auth-cookie-set`);
 	}
 }
 
 export function setLoggedInAsUser(): void {
 	if (typeof window !== 'undefined') {
-		localStorage.setItem('sb-auth-cookie-set', JSON.stringify(false));
-		localStorage.setItem('sb-api-auth-token', JSON.stringify({}));
+		localStorage.setItem(`sb-auth-cookie-set`, JSON.stringify(false));
+		localStorage.setItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`, JSON.stringify({}));
 	}
 }
 
