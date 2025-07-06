@@ -563,6 +563,7 @@ export function getLoggedInAsUser() {
 	if (typeof window !== 'undefined') {
 		try {
 			const isLoggedInAsUserStr = localStorage.getItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
+			logger.warn(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`, isLoggedInAsUserStr);
 			if (!isLoggedInAsUserStr) return false;
 			const isLoggedInAsUser = JSON.parse(isLoggedInAsUserStr);
 			return isLoggedInAsUser;
