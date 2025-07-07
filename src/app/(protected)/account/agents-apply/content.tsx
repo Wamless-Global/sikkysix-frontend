@@ -18,7 +18,6 @@ import { useAuthContext } from '@/context/AuthContext';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { logger } from '@/lib/logger';
 
 const kycFormSchema = z.object({
 	fullName: z.string().min(1, { message: 'Full legal name is required.' }),
@@ -139,7 +138,7 @@ const AgentApplyContent = () => {
 	};
 
 	return (
-		<div className="container mx-auto py-8">
+		<div className="mx-auto">
 			<h1 className="text-2xl font-bold mb-6">Agent Application - KYC Verification</h1>
 
 			{isLoading && (
