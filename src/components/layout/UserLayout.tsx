@@ -220,7 +220,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 					</div>
 				</div>
 
-				<div className="flex flex-1 flex-col lg:pl-72 lg:pr-8 overflow-x-hidden">
+				<div className={`flex flex-1 flex-col lg:pl-72 lg:pr-8 overflow-x-hidden ${isAdmin ? 'pt-16 sm:pt-10' : 'top-0'}`}>
 					<NotificationCenter open={notificationCenterOpen} onClose={() => setNotificationCenterOpen(false)} userId={currentUser?.id || ''} handleUnread={setUnreadNotifications} />
 
 					<main className="flex-1 overflow-y-auto p-5 pb-24 md:p-10 gap-10">

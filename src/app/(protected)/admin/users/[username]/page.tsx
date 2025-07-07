@@ -24,9 +24,10 @@ import { logger } from '@/lib/logger';
 import { useOnlineContext } from '@/context/OnlineContext';
 import OnlineBadge from '@/components/ui/online-badge';
 import nProgress from 'nprogress';
+import { useAuthContext } from '@/context/AuthContext';
 
 export default function UserDetailPage() {
-	const [currentUser, setCurrentUser] = useState<User | null>(null);
+	const [thisUser, setthisUser] = useState<User | null>(null);
 	const [countries, setCountries] = useState<Array<Country>>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -38,6 +39,7 @@ export default function UserDetailPage() {
 	const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
 	const [isImpersonating, setIsImpersonating] = useState(false);
 	const { isUserOnline } = useOnlineContext();
+	const { currentUser } = useAuthContext();
 
 	const params = useParams();
 	const router = useRouter();
@@ -53,13 +55,13 @@ export default function UserDetailPage() {
 			}
 
 			setIsLoading(true);
-			setCurrentUser(null);
+			setthisUser(null);
 
 			const fetchedUser = await fetchUserByUsername(username);
 			if (fetchedUser) {
-				setCurrentUser(fetchedUser);
+				setthisUser(fetchedUser);
 			} else {
-				setCurrentUser(null);
+				setthisUser(null);
 				toast.error(`User '${username}' not found or failed to load.`);
 			}
 			setIsLoading(false);
@@ -161,19 +163,19 @@ export default function UserDetailPage() {
 		);
 	}
 
-	if (!currentUser) {
+	if (!thisUser) {
 		notFound();
 		return null;
 	}
 
 	const handleToggleSuspendUser = () => {
-		if (!currentUser) return;
-		const isCurrentlySuspended = currentUser.status === 'Suspended';
+		if (!thisUser) return;
+		const isCurrentlySuspended = thisUser.status === 'Suspended';
 		const actionText = isCurrentlySuspended ? 'unsuspend (activate)' : 'suspend';
 
 		setDialogDetails({
 			title: `Confirm User ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}`,
-			description: `Are you sure you want to ${actionText} ${currentUser.name}?`,
+			description: `Are you sure you want to ${actionText} ${thisUser.name}?`,
 			actionText: actionText.charAt(0).toUpperCase() + actionText.slice(1),
 		});
 		setConfirmAction('suspend');
@@ -181,10 +183,10 @@ export default function UserDetailPage() {
 	};
 
 	const handleDeleteUser = () => {
-		if (!currentUser) return;
+		if (!thisUser) return;
 		setDialogDetails({
 			title: 'Confirm User Deletion',
-			description: `Are you sure you want to DELETE ${currentUser.name}? This action cannot be undone.`,
+			description: `Are you sure you want to DELETE ${thisUser.name}? This action cannot be undone.`,
 			actionText: 'Delete',
 		});
 		setConfirmAction('delete');
@@ -192,22 +194,22 @@ export default function UserDetailPage() {
 	};
 
 	const handleConfirmAction = async () => {
-		if (!currentUser) return;
+		if (!thisUser) return;
 
 		const currentAction = confirmAction;
-		const userId = currentUser.id;
-		const _userName = currentUser.name;
+		const userId = thisUser.id;
+		const _userName = thisUser.name;
 
 		if (currentAction === 'suspend') {
 			setIsSuspending(true);
 			try {
-				const isCurrentlySuspended = currentUser.status === 'Suspended';
+				const isCurrentlySuspended = thisUser.status === 'Suspended';
 				const newStatus: UserStatus = isCurrentlySuspended ? 'Active' : 'Suspended';
 
 				const updatedUser = await updateUser(userId, { status: newStatus });
 
 				if (updatedUser) {
-					setCurrentUser(updatedUser);
+					setthisUser(updatedUser);
 				}
 			} catch {
 				// console.error('Error during status update process:', error);
@@ -241,11 +243,11 @@ export default function UserDetailPage() {
 	};
 
 	const handleAdjustBalanceSubmit = async (amount: number, reason: string) => {
-		if (!currentUser) return;
+		if (!thisUser) return;
 		setIsAdjustingBalance(true);
 
 		try {
-			const response = await fetchWithAuth(`/api/users/${currentUser.id}/wallet`, {
+			const response = await fetchWithAuth(`/api/users/${thisUser.id}/wallet`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ amount, reason }),
@@ -260,8 +262,8 @@ export default function UserDetailPage() {
 			}
 
 			// Update local state with the new balance confirmed by the API
-			logger.log('Adjusting balance for user:', currentUser.id, 'New balance:', result.data.wallet_balance);
-			setCurrentUser((prevUser) => (prevUser ? { ...prevUser, wallet_balance: result.data.wallet_balance } : null));
+			logger.log('Adjusting balance for user:', thisUser.id, 'New balance:', result.data.wallet_balance);
+			setthisUser((prevUser) => (prevUser ? { ...prevUser, wallet_balance: result.data.wallet_balance } : null));
 			toast.success(result.message || 'Balance adjusted successfully!');
 			setIsAdjustModalOpen(false); // Close modal on success
 		} catch (err) {
@@ -274,10 +276,10 @@ export default function UserDetailPage() {
 	};
 
 	const loginAsUser = async () => {
-		if (!currentUser) return;
+		if (!thisUser) return;
 		setIsImpersonating(true);
 		try {
-			const response = await fetchWithAuth(`/api/users/${currentUser.id}/impersonate`, {
+			const response = await fetchWithAuth(`/api/users/${thisUser.id}/impersonate`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 			});
@@ -291,6 +293,10 @@ export default function UserDetailPage() {
 				nProgress.start();
 
 				logger.info('Impersonation response data:', data);
+
+				if (typeof window !== 'undefined') {
+					localStorage.setItem(`admin-login-request`, JSON.stringify(true));
+				}
 
 				router.push(data.data.link);
 				toast.success("Successfully retrieved user's information");
@@ -307,7 +313,7 @@ export default function UserDetailPage() {
 		}
 	};
 
-	const userOnline = isUserOnline(currentUser.id);
+	const userOnline = isUserOnline(thisUser.id);
 
 	return (
 		<div className="space-y-6">
@@ -317,8 +323,8 @@ export default function UserDetailPage() {
 				<CardHeader className="flex flex-col md:flex-row items-start justify-between gap-4">
 					<div className="flex items-center gap-4 flex-1">
 						<div className="flex-shrink-0">
-							{currentUser.avatar_url ? (
-								<Image src={currentUser.avatar_url} alt={`${currentUser.name}&apos;s profile picture`} width={80} height={80} className="rounded-full border" />
+							{thisUser.avatar_url ? (
+								<Image src={thisUser.avatar_url} alt={`${thisUser.name}&apos;s profile picture`} width={80} height={80} className="rounded-full border" />
 							) : (
 								<div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border">
 									<UserIcon className="w-10 h-10 text-muted-foreground" />
@@ -327,22 +333,22 @@ export default function UserDetailPage() {
 						</div>
 						<div className="flex-1 space-y-1">
 							<div className="flex gap-2 items-center">
-								<CardTitle className="text-2xl">{currentUser.name}</CardTitle>
+								<CardTitle className="text-2xl">{thisUser.name}</CardTitle>
 								<OnlineBadge online={userOnline} />
 							</div>
 							<CardDescription className="flex items-center gap-1.5 text-sm">
-								<UserIcon className="w-3.5 h-3.5" /> {currentUser.username}
+								<UserIcon className="w-3.5 h-3.5" /> {thisUser.username}
 							</CardDescription>
 							<CardDescription className="flex items-center gap-1.5 text-sm">
-								<Mail className="w-3.5 h-3.5" /> {currentUser.email}
-								<Badge variant={getEmailStatusVariant(currentUser.email_status)} className="ml-1 px-1.5 py-0 text-xs">
-									{currentUser.email_status === 'Active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
-									{currentUser.email_status === 'Active' ? 'Verified' : 'Not Verified'}
+								<Mail className="w-3.5 h-3.5" /> {thisUser.email}
+								<Badge variant={getEmailStatusVariant(thisUser.email_status)} className="ml-1 px-1.5 py-0 text-xs">
+									{thisUser.email_status === 'Active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+									{thisUser.email_status === 'Active' ? 'Verified' : 'Not Verified'}
 								</Badge>
 							</CardDescription>
-							{currentUser.phone_number && (
+							{thisUser.phone_number && (
 								<CardDescription className="flex items-center gap-1.5 text-sm">
-									<Phone className="w-3.5 h-3.5" /> {currentUser.phone_number}
+									<Phone className="w-3.5 h-3.5" /> {thisUser.phone_number}
 								</CardDescription>
 							)}
 						</div>
@@ -363,7 +369,7 @@ export default function UserDetailPage() {
 								<DropdownMenuItem
 									onClick={() => {
 										NProgress.start();
-										router.push(`/admin/users/${currentUser.username}/edit`);
+										router.push(`/admin/users/${thisUser.username}/edit`);
 									}}
 									className="cursor-pointer"
 								>
@@ -375,7 +381,7 @@ export default function UserDetailPage() {
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
 										</>
-									) : currentUser.status === 'Suspended' ? (
+									) : thisUser.status === 'Suspended' ? (
 										'Unsuspend User'
 									) : (
 										'Suspend User'
@@ -386,25 +392,38 @@ export default function UserDetailPage() {
 								<DropdownMenuItem
 									onClick={() => {
 										NProgress.start();
-										router.push(`/admin/users/${currentUser.username}/edit`);
+										router.push(`/admin/users/${thisUser.username}/edit`);
 									}}
 									className="cursor-pointer"
 								>
 									Edit Profile
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={loginAsUser} className="cursor-pointer" disabled={isImpersonating}>
-									{isImpersonating ? (
-										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging you in...
-										</>
-									) : (
-										'Login As User'
-									)}
-								</DropdownMenuItem>
+								{currentUser?.id !== thisUser.id && (
+									<>
+										<DropdownMenuItem
+											onClick={() => {
+												NProgress.start();
+												router.push(`/admin/users/${thisUser.username}/edit`);
+											}}
+											className="cursor-pointer"
+										>
+											Edit Profile
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={loginAsUser} className="cursor-pointer" disabled={isImpersonating}>
+											{isImpersonating ? (
+												<>
+													<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging you in...
+												</>
+											) : (
+												'Login As User'
+											)}
+										</DropdownMenuItem>
+									</>
+								)}
 								<DropdownMenuItem
 									onClick={() => {
 										NProgress.start();
-										router.push(`/admin/transactions?userId=${currentUser.id}`);
+										router.push(`/admin/transactions?userId=${thisUser.id}`);
 									}}
 									className="cursor-pointer"
 								>
@@ -430,53 +449,53 @@ export default function UserDetailPage() {
 					{/* Column 1 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<UserIcon className="w-4 h-4" /> <span>User ID:</span> <span className="font-mono text-foreground">{currentUser.id}</span>
+							<UserIcon className="w-4 h-4" /> <span>User ID:</span> <span className="font-mono text-foreground">{thisUser.id}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Users className="w-4 h-4" /> <span>Role:</span> <span className="capitalize text-foreground">{Array.isArray(currentUser.roles) ? currentUser.roles.join(', ') : currentUser.roles}</span>
+							<Users className="w-4 h-4" /> <span>Role:</span> <span className="capitalize text-foreground">{Array.isArray(thisUser.roles) ? thisUser.roles.join(', ') : thisUser.roles}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
 							<HelpCircle className="w-4 h-4" /> <span>Account Status:</span>
-							<Badge variant={currentUser.is_active ? 'default' : 'secondary'} className="ml-1">
-								{currentUser.is_active ? 'Active' : 'Inactive'}
+							<Badge variant={thisUser.is_active ? 'default' : 'secondary'} className="ml-1">
+								{thisUser.is_active ? 'Active' : 'Inactive'}
 							</Badge>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
 							<HelpCircle className="w-4 h-4" /> <span>User Status:</span>
-							<Badge variant={getStatusVariant(currentUser.status)} className="ml-1">
-								{currentUser.status}
+							<Badge variant={getStatusVariant(thisUser.status)} className="ml-1">
+								{thisUser.status}
 							</Badge>
 						</div>
 					</div>
 					{/* Column 2 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<MapPin className="w-4 h-4" /> <span>Country:</span> <span className="text-foreground">{countries.find((c) => c.id === currentUser.country)?.name ?? currentUser.country}</span>
+							<MapPin className="w-4 h-4" /> <span>Country:</span> <span className="text-foreground">{countries.find((c) => c.id === thisUser.country)?.name ?? thisUser.country}</span>
 						</div>
-						{currentUser.telegram_user_id && (
+						{thisUser.telegram_user_id && (
 							<div className="flex items-center gap-2 text-muted-foreground">
 								<svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
 									<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12a12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472c-.18 1.898-.962 6.502-1.36 8.627c-.17.91-.497 1.209-.82 1.234c-.696.055-1.226-.46-1.9-1.088c-.848-.787-1.322-1.278-2.12-1.965c-.944-.793-.315-1.215.19-1.905c.14-.193.25-.397.37-.623c.166-.31.328-.624.518-.966c.18-.32.06-.607-.1-.758c-.16-.15-.49-.105-.71.037c-.21.13-.42.26-.63.39c-1.06.64-1.78.99-2.48 1c-.69.01-.97-.24-.97-.85c0-.48.28-1.03.82-1.58c2.39-2.32 4.1-3.7 5.07-4.35c.75-.49 1.18-.7 1.5-.7z" />
 								</svg>
-								<span>Telegram:</span> <span className="text-foreground">{currentUser.telegram_user_id}</span>
+								<span>Telegram:</span> <span className="text-foreground">{thisUser.telegram_user_id}</span>
 							</div>
 						)}
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Calendar className="w-4 h-4" /> <span>Registered:</span> <span className="text-foreground">{currentUser.registrationDate ? format(new Date(currentUser.registrationDate), 'PPpp') : 'N/A'}</span>
+							<Calendar className="w-4 h-4" /> <span>Registered:</span> <span className="text-foreground">{thisUser.registrationDate ? format(new Date(thisUser.registrationDate), 'PPpp') : 'N/A'}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Clock className="w-4 h-4" /> <span>Last Login:</span> <span className="text-foreground">{currentUser.last_login ? format(new Date(currentUser.last_login), 'PPpp') : 'Never'}</span>
+							<Clock className="w-4 h-4" /> <span>Last Login:</span> <span className="text-foreground">{thisUser.last_login ? format(new Date(thisUser.last_login), 'PPpp') : 'Never'}</span>
 						</div>
 					</div>
 					{/* Column 3 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<LinkIcon className="w-4 h-4" /> <span>Referral Code:</span> <span className="font-mono text-foreground">{currentUser.referral_code ?? 'N/A'}</span>
+							<LinkIcon className="w-4 h-4" /> <span>Referral Code:</span> <span className="font-mono text-foreground">{thisUser.referral_code ?? 'N/A'}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
 							<Users className="w-4 h-4" /> <span>Referred By:</span>
 							<span className="text-foreground">
-								{currentUser.referred_by_user_id ? `User ID: ${currentUser.referred_by_user_id}` : 'None'} {/* TODO: Fetch referrer name */}
+								{thisUser.referred_by_user_id ? `User ID: ${thisUser.referred_by_user_id}` : 'None'} {/* TODO: Fetch referrer name */}
 							</span>
 						</div>
 					</div>
@@ -496,13 +515,13 @@ export default function UserDetailPage() {
 					{/* Column 1 */}
 					<div className="space-y-2 text-sm">
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Wallet className="w-4 h-4" /> <span>Wallet Balance:</span> <span className="font-semibold text-foreground">{formatBaseurrency(currentUser.wallet_balance ?? 0)}</span>
+							<Wallet className="w-4 h-4" /> <span>Wallet Balance:</span> <span className="font-semibold text-foreground">{formatBaseurrency(thisUser.wallet_balance ?? 0)}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<DollarSign className="w-4 h-4" /> <span>Total Invested:</span> <span className="font-semibold text-foreground">{formatBaseurrency(currentUser.totalInvested ?? 0)}</span>
+							<DollarSign className="w-4 h-4" /> <span>Total Invested:</span> <span className="font-semibold text-foreground">{formatBaseurrency(thisUser.totalInvested ?? 0)}</span>
 						</div>
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Activity className="w-4 h-4" /> <span>Active Investments:</span> <span className="font-semibold text-foreground">{currentUser.investmentCount ?? 0}</span>
+							<Activity className="w-4 h-4" /> <span>Active Investments:</span> <span className="font-semibold text-foreground">{thisUser.investmentCount ?? 0}</span>
 						</div>
 					</div>
 					{/* Column 2 */}
@@ -632,7 +651,7 @@ export default function UserDetailPage() {
 				</AlertDialogContent>
 			</AlertDialog>
 
-			{currentUser && <AdjustBalanceModal isOpen={isAdjustModalOpen} onClose={() => setIsAdjustModalOpen(false)} onSubmit={handleAdjustBalanceSubmit} currentBalance={currentUser.wallet_balance ?? 0} isSubmitting={isAdjustingBalance} />}
+			{thisUser && <AdjustBalanceModal isOpen={isAdjustModalOpen} onClose={() => setIsAdjustModalOpen(false)} onSubmit={handleAdjustBalanceSubmit} currentBalance={thisUser.wallet_balance ?? 0} isSubmitting={isAdjustingBalance} />}
 		</div>
 	);
 }

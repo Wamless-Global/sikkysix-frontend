@@ -589,6 +589,7 @@ export function clearLoggedInAsUser(): void {
 	if (typeof window !== 'undefined') {
 		localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
 		localStorage.removeItem(`sb-auth-cookie-set`);
+		localStorage.removeItem(`admin-login-request`);
 	}
 }
 
@@ -597,6 +598,17 @@ export function setLoggedInAsUser(): void {
 		localStorage.setItem(`sb-auth-cookie-set`, JSON.stringify(false));
 		localStorage.setItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`, JSON.stringify({}));
 	}
+}
+
+export function adminLoginRequest() {
+	if (typeof window !== 'undefined') {
+		try {
+			const loginRequest = localStorage.getItem('admin-login-request');
+			if (!loginRequest) return false;
+			return JSON.parse(loginRequest);
+		} catch {}
+	}
+	return false;
 }
 
 export const convertCurrency = (amount: number): string => formatCurrency(amount * getBaseCurrencyRate());

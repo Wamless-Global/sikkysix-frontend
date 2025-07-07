@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
-import { generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
+import { adminLoginRequest, generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
@@ -81,12 +81,10 @@ export default function AccountPage() {
 		fetchUserCategories();
 	}, [fetchUserCategories]);
 
-	const isAdmin = getLoggedInAsUser();
-
 	useEffect(() => {
 		if (!getSetCookie()) {
 			logger.log('AccountPage: Checking for set-cookie...', !getSetCookie());
-			const { access_token, refresh_token, expires_at, expires_in } = isAdmin;
+			const { access_token, refresh_token, expires_at, expires_in } = getLoggedInAsUser();
 			logger.log('AccountPage: Parsed tokens:', { access_token, refresh_token, expires_at, expires_in });
 			if (access_token) {
 				const toastId = toast.loading('Completing login...');
@@ -108,7 +106,7 @@ export default function AccountPage() {
 						toast.error(err.message || 'Failed to set session.', { id: toastId });
 					});
 				router.refresh();
-			} else if (isAdmin) {
+			} else if (adminLoginRequest()) {
 				window.location.reload();
 			}
 		}
