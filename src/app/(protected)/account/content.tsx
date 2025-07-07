@@ -105,6 +105,7 @@ export default function AccountPage() {
 					.catch((err) => {
 						toast.error(err.message || 'Failed to set session.', { id: toastId });
 					});
+				router.refresh();
 			} else {
 				router.refresh();
 			}
