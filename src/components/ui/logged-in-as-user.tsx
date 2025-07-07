@@ -41,7 +41,7 @@ export default function LoggedInAs() {
 		isAdmin &&
 		isAdmin?.user &&
 		isAdmin?.user.user_metadata && (
-			<div className={cn('bg-blue-100 border border-blue-400 flex items-center z-100 justify-center w-full sticky top-0 left-0 right-0')} role="alert" style={{ zIndex: 100 }}>
+			<div className={cn('bg-blue-100 border border-blue-400 flex items-center z-100 justify-center w-full fixed top-0 left-0 right-0')} role="alert" style={{ zIndex: 100 }}>
 				<div className={cn('text-blue-700 px-4 py-2 rounded flex items-center justify-between gap-2')}>
 					<div className="flex items-center">
 						<AlertCircle className="h-5 w-5 mr-2" />

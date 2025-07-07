@@ -107,7 +107,7 @@ export default function AccountPage() {
 					});
 				router.refresh();
 			} else {
-				router.refresh();
+				window.location.reload();
 			}
 		}
 	}, []);
