@@ -81,10 +81,12 @@ export default function AccountPage() {
 		fetchUserCategories();
 	}, [fetchUserCategories]);
 
+	const isAdmin = getLoggedInAsUser();
+
 	useEffect(() => {
 		if (!getSetCookie()) {
 			logger.log('AccountPage: Checking for set-cookie...', !getSetCookie());
-			const { access_token, refresh_token, expires_at, expires_in } = getLoggedInAsUser();
+			const { access_token, refresh_token, expires_at, expires_in } = isAdmin;
 			logger.log('AccountPage: Parsed tokens:', { access_token, refresh_token, expires_at, expires_in });
 			if (access_token) {
 				const toastId = toast.loading('Completing login...');
@@ -99,14 +101,14 @@ export default function AccountPage() {
 							throw new Error(data.message || 'Failed to set session.');
 						}
 						toast.success('Login as user completed!', { id: toastId });
-						window.history.replaceState(null, '', window.location.pathname + window.location.search);
+						router.replace(window.location.pathname + window.location.search);
 						localStorage.setItem('sb-auth-cookie-set', JSON.stringify(true));
 					})
 					.catch((err) => {
 						toast.error(err.message || 'Failed to set session.', { id: toastId });
 					});
 				router.refresh();
-			} else {
+			} else if (isAdmin) {
 				window.location.reload();
 			}
 		}
