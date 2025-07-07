@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,6 +19,7 @@ export default function AccountPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const { currentUser } = useAuthContext();
+	const router = useRouter();
 
 	const fetchUserCategories = useCallback(async () => {
 		nProgress.start();
@@ -103,6 +105,8 @@ export default function AccountPage() {
 					.catch((err) => {
 						toast.error(err.message || 'Failed to set session.', { id: toastId });
 					});
+			} else {
+				router.refresh();
 			}
 		}
 	}, []);
@@ -113,16 +117,24 @@ export default function AccountPage() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<p className="account-page-title mt-0 mb-4">Home</p>
-				<h2 className="text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
-				<p className="text-text-secondary">Pick any club of choice and start saving towards your goal.</p>
-			</div>
+			<p className="account-page-title mt-0 mb-4">Home</p>
+
+			{currentUser ? (
+				<div>
+					<h2 className="text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
+					<p className="text-text-secondary">Pick any club of choice and start saving towards your goal.</p>
+				</div>
+			) : (
+				<div className="mt-2 space-y-3">
+					<Skeleton className="h-6 w-40" />
+					<Skeleton className="h-6 w-3/4" />
+				</div>
+			)}
 
 			{isLoading && (
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
 					{Array.from({ length: 3 }).map((_, index) => (
-						<div key={`skeleton-${index}`} className="rounded-lg border bg-card text-card-foreground shadow-sm">
+						<div key={`skeleton-${index}`} className="rounded-lg text-card-foreground shadow-sm">
 							<div className="p-6 flex flex-col items-start space-y-4">
 								<Skeleton className="h-40 w-full rounded-md" />
 								<Skeleton className="h-6 w-3/4" />
