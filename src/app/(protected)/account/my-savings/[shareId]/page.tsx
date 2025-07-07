@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Content from './content';
 
 export const metadata: Metadata = {
-	title: 'Portfolio Share Details',
+	title: 'Portfolio Details',
 	description: 'View details of a specific share in your portfolio.',
 };
 

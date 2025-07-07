@@ -13,16 +13,16 @@ export default function AboutPage() {
 			<AppHeader />
 			<main className="flex-1">
 				<section className="relative">
-					<div className="container mx-auto px-4 sm:px-10 py-20 md:py-32 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
+					<div className="container mx-auto px-4 sm:px-10 py-20 md:py-32 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
 						<div className="flex-1 text-center md:text-left z-10">
 							<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-foreground">Save Smarter with Dynamic Clubs</h1>
-							<p className="text-xl text-muted-foreground mb-8 max-w-xl">Join diverse savings clubs, enjoy early saver rewards, and grow your wealth transparently.</p>
+							<p className="sm:text-lg text-muted-foreground mb-8 max-w-xl">Join diverse savings clubs, enjoy early saver rewards, and grow your wealth transparently.</p>
 							<CustomLink href="/auth/register" passHref>
-								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-4 text-lg shadow-lg">
+								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-6 text-md shadow-lg">
 									Get Started
 								</Button>
 							</CustomLink>
-							<div className="mt-6 text-muted-foreground text-base">Already 1,000+ savers joined</div>
+							<p className="mt-6 text-muted-foreground sm:text-lg">Already 1,000+ savers joined</p>
 						</div>
 						<div className="flex-1 flex justify-center md:justify-end z-10">
 							<div className="w-full max-w-md aspect-[4/3] rounded-3xl flex items-center justify-center overflow-hidden  relative">
@@ -40,18 +40,18 @@ export default function AboutPage() {
 						{[
 							{
 								icon: '🏦',
-								title: 'Dynamic Clubs',
-								desc: 'Save across preset categories, actively managed for best returns.',
+								title: 'The Clubs',
+								desc: 'Each club is designed to help members support one another and reach personal milestones together.',
 							},
 							{
 								icon: '🎁',
-								title: 'Early saver Benefits',
-								desc: 'Earn up to 2-3x returns when you join early.',
+								title: 'Clubber Benefits',
+								desc: 'Every contribution earns you club points, giving you the chance to be rewarded by other members with potential rewards of up to twice your contribution.',
 							},
 							{
 								icon: '🤝',
-								title: 'Referral Rewards',
-								desc: 'Earn extra by inviting friends.',
+								title: 'Invitation Rewards',
+								desc: 'When you invite friends or family to join any club, you earn a continual 2% of their future contribution withdrawals for life.',
 							},
 						].map((item, idx) => (
 							<div key={idx} className="bg-white/5 rounded-2xl p-8 shadow-md border border-[var(--lp-border)] text-center transition-transform hover:-translate-y-2 hover:shadow-xl cursor-pointer">
@@ -66,11 +66,11 @@ export default function AboutPage() {
 				<section className="container mx-auto px-4 py-16 md:py-24">
 					<div className="mb-12">
 						<h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">{getPlatformName()} Benefits</h2>
-						<p className="text-lg text-muted-foreground text-center max-w-2xl mx-auto">Enjoy a seamless, secure, and rewarding savement experience.</p>
+						<p className="sm:text-lg text-muted-foreground text-center max-w-2xl mx-auto">Enjoy a Seamless, Secure and Rewarding Contribution Experience.</p>
 					</div>
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
 						{[
-							{ icon: '💸', title: 'Zero Commission', desc: 'No hidden fees or commissions.' },
+							{ icon: '💸', title: 'Zero Commission', desc: 'No hidden fees' },
 							{ icon: '📊', title: 'Real-Time Insights', desc: 'Track your club’s performance live.' },
 							{ icon: '🔒', title: 'Secure & Encrypted', desc: 'Your data and funds are protected.' },
 							{ icon: '✨', title: 'User-Friendly Interface', desc: 'Simple, intuitive, and modern.' },
@@ -88,12 +88,12 @@ export default function AboutPage() {
 
 				<section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12">
 					<div className="flex-1">
-						<h2 className="text-3xl md:text-4xl font-bold mb-8 text-foreground">3 Reasons savers Choose Us</h2>
+						<h2 className="text-2xl md:text-3xl font-bold mb-8 text-foreground">3 Reasons savers Choose Us</h2>
 						<div className="grid grid-cols-1 gap-6">
 							{[
-								{ icon: '📈', title: 'Dynamic Savement Clubs', desc: 'Clubs adapt to market trends for better returns.' },
+								{ icon: '📈', title: 'Dynamic Contribution Clubs', desc: 'See how your club points increase in value.' },
 								{ icon: '🔍', title: 'Transparent Profit System', desc: 'See exactly how your money grows.' },
-								{ icon: '🌍', title: 'Global Access, Local Support', desc: 'Save from anywhere, get help anytime.' },
+								{ icon: '🌍', title: 'Global Access, Local Support', desc: 'Start small, save from anywhere, get help anytime.' },
 							].map((item, idx) => (
 								<div key={idx} className="flex items-center gap-4 bg-white/5 rounded-xl p-6 border border-[var(--lp-border)] shadow-sm">
 									<span className="text-3xl">{item.icon}</span>

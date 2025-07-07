@@ -2,6 +2,7 @@ import { Bell, Menu } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Logo from '@/components/ui/logo';
 import { getLoggedInAsUser, getPlatformName } from '@/lib/helpers';
+import { CustomLink } from '@/components/ui/CustomLink';
 
 interface UserHeaderProps {
 	notifications: string[];
@@ -16,9 +17,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, un
 		<header className={`z-40 flex h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full`}>
 			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" onClick={onMenuToggle} aria-label="Toggle Menu" />
 
-			<div className="flex items-center">
+			<CustomLink href="/" className="flex items-center">
 				<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" />
-			</div>
+			</CustomLink>
 
 			<div className="relative">
 				<button

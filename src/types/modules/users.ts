@@ -67,6 +67,7 @@ export interface AuthenticatedUser {
 	avatar_url: string | null;
 	roles: Role[]; // Array of roles
 	registrationDate: string;
+	phone_number: string;
 	investmentCount: number;
 	totalInvested: number;
 	wallet_balance: number;
@@ -78,6 +79,7 @@ export interface AuthenticatedUser {
 	fiat_name?: string | null;
 	fiat_code?: string | null;
 	fiat_symbol?: string | null;
+	dob?: string | null;
 }
 
 export interface UserFilters {

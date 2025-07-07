@@ -53,7 +53,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 					const errorData = await response.json();
 					errorMessage = errorData.message || errorMessage;
 				} catch (_parseError) {}
-				// console.error('AuthContext Logout Error:', errorMessage);
 				throw new Error(errorMessage);
 			}
 
@@ -113,7 +112,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				throw new Error('Login failed: Unexpected response from server.');
 			}
 		} catch (err) {
-			// console.error('AuthContext: Error during login:', err);
 			setCurrentUser(null);
 			throw err;
 		} finally {
@@ -235,7 +233,6 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 	};
 
 	useEffect(() => {
-		// Only run checkUserSession if not on 404 page (using is404 prop)
 		if (is404) {
 			setIsLoading(false);
 			return;

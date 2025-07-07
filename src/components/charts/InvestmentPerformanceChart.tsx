@@ -14,7 +14,7 @@ const _mockChartData = {
 		{ date: '2025-04-01', value: 13000 },
 		{ date: '2025-05-01', value: 15000 },
 	],
-	'Number of Investors': [
+	'Number of savers': [
 		{ date: '2025-01-01', value: 50 },
 		{ date: '2025-02-01', value: 65 },
 		{ date: '2025-03-01', value: 70 },
@@ -64,7 +64,7 @@ const InvestmentPerformanceChart: React.FC = () => {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="Total Savings Value">Total Savings Value</SelectItem>
-								<SelectItem value="Number of Investors">Number of Investors</SelectItem>
+								<SelectItem value="Number of savers">Number of savers</SelectItem>
 								<SelectItem value="Cumulative Profit Distributed">Cumulative Profit Distributed</SelectItem>
 							</SelectContent>
 						</Select>

@@ -9,10 +9,10 @@ import { Camera } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { updateUser } from '@/lib/userUtils';
 import type { AuthenticatedUser } from '@/types';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 export default function EditProfilePageContent() {
 	const { currentUser, setCurrentUser } = useAuthContext();
@@ -21,14 +21,16 @@ export default function EditProfilePageContent() {
 	const [form, setForm] = useState({
 		name: currentUser?.name ?? '',
 		email: currentUser?.email ?? '',
-		phone: '',
-		dob: '',
+		phone: currentUser?.phone_number ?? '',
+		dob: currentUser?.dob ?? '',
 	});
+
+	logger.log(currentUser);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const schema = z.object({
 		name: z.string().min(2, 'Name is required'),
-		email: z.string().email('Invalid email address'),
+		// email: z.string().email('Invalid email address'),
 		phone: z.string().optional().or(z.literal('')),
 		dob: z.string().optional().or(z.literal('')),
 	});
@@ -60,38 +62,36 @@ export default function EditProfilePageContent() {
 		}
 		setIsSubmitting(true);
 		try {
-			let avatar_url = currentUser?.avatar_url ?? null;
+			const formData = new FormData();
 			if (avatarFile) {
-				const formData = new FormData();
 				formData.append('image', avatarFile);
-				const res = await fetchWithAuth('/api/profile', {
-					method: 'PUT',
-					body: formData,
-				});
-				if (!res.ok) {
-					const error = await res.json().catch(() => ({}));
-					throw new Error(error.message || 'Failed to upload avatar');
-				}
-				const data = await res.json();
-				avatar_url = data.url || avatar_url;
 			}
 
-			const updatedUser = await updateUser(currentUser!.id, {
-				name: form.name,
-				email: form.email,
-				avatar_url,
-				phone_number: form.phone || undefined,
+			formData.append('name', form.name);
+			// formData.append('email', form.email);
+			formData.append('phone_number', form.phone || '');
+
+			if (form.dob) {
+				formData.append('dob', form.dob);
+			}
+
+			const res = await fetchWithAuth('/api/users/profile', {
+				method: 'PUT',
+				body: formData,
 			});
-			if (updatedUser) {
-				// Patch avatar_url to always be string|null for AuthenticatedUser
+
+			const updatedUser = await res.json();
+			if (res.ok) {
 				const patchedUser = {
-					...updatedUser,
+					...updatedUser.data,
 					avatar_url: updatedUser.avatar_url ?? null,
 				} as AuthenticatedUser;
+
 				setCurrentUser?.(patchedUser);
 				toast.success('Profile updated successfully!');
 			} else {
-				toast.error('Failed to update profile.');
+				const errorMessage = handleFetchErrorMessage(updatedUser, 'Failed to update profile.');
+				throw new Error(errorMessage);
 			}
 		} catch (err) {
 			const errorMessage = handleFetchErrorMessage(err, 'An error occurred while updating profile.');

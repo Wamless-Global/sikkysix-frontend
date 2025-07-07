@@ -5,6 +5,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import { ChevronRight } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ProfilePageContent() {
 	const { currentUser } = useAuthContext();
@@ -18,16 +19,30 @@ export default function ProfilePageContent() {
 	return (
 		<div className="space-y-12">
 			<div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
-				<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-[var(--dashboard-accent)]">
-					<AvatarImage src={currentUser?.avatar_url ?? undefined} alt={currentUser?.name ?? 'User Avatar'} />
-					<AvatarFallback>{currentUser?.name?.charAt(0) ?? 'U'}</AvatarFallback>
-				</Avatar>
+				{currentUser ? (
+					<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-[var(--dashboard-accent)]">
+						<AvatarImage src={currentUser?.avatar_url ?? undefined} alt={currentUser?.name ?? 'User Avatar'} />
+						<AvatarFallback>{currentUser?.name?.charAt(0) ?? 'U'}</AvatarFallback>
+					</Avatar>
+				) : (
+					<Skeleton className="h-20 w-20 sm:h-24 sm:w-24 rounded-full" />
+				)}
 				<div className="flex-grow space-y-1">
-					<h2 className="text-2xl font-semibold text-foreground">{currentUser?.name ?? 'User Name'}</h2>
-					<p className="text-muted-foreground">{currentUser?.email ?? 'user@example.com'}</p>
-					<CustomLink href="/account/profile/edit" className="text-sm text-[var(--dashboard-accent)] hover:underline">
-						Edit personal information
-					</CustomLink>
+					{currentUser ? (
+						<>
+							<h2 className="text-2xl font-semibold text-foreground">{currentUser?.name ?? 'User Name'}</h2>
+							<p className="text-muted-foreground">{currentUser?.email ?? 'user@example.com'}</p>
+							<CustomLink href="/account/profile/edit" className="text-sm text-[var(--dashboard-accent)] hover:underline">
+								Edit personal information
+							</CustomLink>
+						</>
+					) : (
+						<div className="mt-2 space-y-3">
+							<Skeleton className="h-6 w-40" />
+							<Skeleton className="h-4 w-56" />
+							<Skeleton className="h-4 w-48" />
+						</div>
+					)}
 				</div>
 			</div>
 

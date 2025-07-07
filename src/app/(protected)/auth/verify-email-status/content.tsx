@@ -13,6 +13,7 @@ import nProgress from 'nprogress';
 import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
 import { Skeleton } from '@/components/ui/skeleton';
+import AppFooter from '@/components/layout/AppFooter';
 
 function parseFragmentParams() {
 	if (typeof window === 'undefined') return {};
@@ -22,7 +23,7 @@ function parseFragmentParams() {
 
 function ProjectSkeletonLoader() {
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4 space-y-4">
+		<div className="auth-page flex flex-col items-center justify-center py-20 space-y-4">
 			<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 			<div className="w-full max-w-md text-center space-y-2 mt-5">
 				<Skeleton className="mb-2 h-8 w-full md:w-96 mx-auto" />
@@ -121,56 +122,60 @@ export default function VerifyEmailStatusPageContent() {
 	}
 
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<CustomLink href={'/'}>
-				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
-			</CustomLink>
-			<div className="w-full max-w-md text-center mt-5">
-				<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>
-				<p className="mb-8 text-gray-300">{statusMessage}</p>
-
-				{(pageStatus === 'error' || pageStatus === 'expired') && (
-					<form onSubmit={handleResendSubmit} className="space-y-4 mb-6">
-						<div>
-							<Label htmlFor="emailForResend" className="sr-only">
-								Your Email Address
-							</Label>
-							<Input id="emailForResend" type="email" placeholder="Enter your email to resend link" value={emailForResend} onChange={(e) => setEmailForResend(e.target.value)} required disabled={isResending} />
-						</div>
-						<Button type="submit" size="lg" variant="success" className="w-full" disabled={isResending}>
-							{isResending ? 'Resending...' : 'Resend Verification Link'}
-						</Button>
-					</form>
-				)}
-
-				{pageStatus === 'success' && (
-					<Button
-						size="lg"
-						variant="success"
-						onClick={() => {
-							nProgress.start();
-							router.push('/auth/login');
-						}}
-						className="w-full cursor-pointer mb-5"
-					>
-						Proceed to Login
-					</Button>
-				)}
-
-				{pageStatus !== 'success' && (
-					<>
-						<CustomLink href={'/auth/login'} className="w-full cursor-pointer mb-5">
-							Back to Login
-						</CustomLink>
-						<br />
-						<br />
-					</>
-				)}
-
-				<CustomLink href={`mailto:${appSettings.supportemail}`} className="text-sm text-gray-400 hover:underline">
-					Need help? Contact support.
+		<div className="auth-page ">
+			<div className="flex flex-col items-center justify-center py-20">
+				<CustomLink href={'/'}>
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 				</CustomLink>
+				<div className="w-full max-w-md text-center mt-5">
+					<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>
+					<p className="mb-8 text-gray-300">{statusMessage}</p>
+
+					{(pageStatus === 'error' || pageStatus === 'expired') && (
+						<form onSubmit={handleResendSubmit} className="space-y-4 mb-6">
+							<div>
+								<Label htmlFor="emailForResend" className="sr-only">
+									Your Email Address
+								</Label>
+								<Input id="emailForResend" type="email" placeholder="Enter your email to resend link" value={emailForResend} onChange={(e) => setEmailForResend(e.target.value)} required disabled={isResending} />
+							</div>
+							<Button type="submit" size="lg" variant="success" className="w-full" disabled={isResending}>
+								{isResending ? 'Resending...' : 'Resend Verification Link'}
+							</Button>
+						</form>
+					)}
+
+					{pageStatus === 'success' && (
+						<Button
+							size="lg"
+							variant="success"
+							onClick={() => {
+								nProgress.start();
+								router.push('/auth/login');
+							}}
+							className="w-full cursor-pointer mb-5"
+						>
+							Proceed to Login
+						</Button>
+					)}
+
+					{pageStatus !== 'success' && (
+						<>
+							<CustomLink href={'/auth/login'} className="w-full cursor-pointer mb-5">
+								Back to Login
+							</CustomLink>
+							<br />
+							<br />
+						</>
+					)}
+
+					<CustomLink href={`mailto:${appSettings.supportemail}`} className="text-sm text-gray-400 hover:underline">
+						Need help? Contact support.
+					</CustomLink>
+				</div>
 			</div>
+
+			<AppFooter />
 		</div>
 	);
 }

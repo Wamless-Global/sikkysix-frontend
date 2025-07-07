@@ -4,9 +4,9 @@ import { getPlatformName } from '@/lib/helpers';
 
 export default function AppFooter() {
 	return (
-		<footer className="text-muted-foreground pt-16 pb-6 bg-gradient-to-r from-[var(--lp-green-primary)]/20 to-[var(--lp-green-primary)]/10">
+		<footer className="text-muted-foreground pt-16 pb-6 bg-gradient-to-r from-[var(--lp-green-primary)]/20 to-[var(--lp-green-primary)]/5">
 			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-4 sm:mb-2">
+				<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
 					<div className="md:col-span-2">
 						<div className="flex items-center space-x-2 mb-4">
 							<Logo alt={`${getPlatformName()} Logo`} variant="dark" size="md" />
@@ -63,7 +63,7 @@ export default function AppFooter() {
 						</ul>
 					</div>
 				</div>
-				<div className="border-t border-[var(--lp-border)] pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+				<div className="border-t pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
 					<p>
 						© {new Date().getFullYear()} {getPlatformName()}. All rights reserved.
 					</p>

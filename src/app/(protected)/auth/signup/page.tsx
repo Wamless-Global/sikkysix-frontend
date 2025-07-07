@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import Content from './content';
 import { cookies } from 'next/headers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { logger } from '@/lib/logger';
 
 export const metadata: Metadata = {
 	title: 'Sign Up',
@@ -10,7 +9,6 @@ export const metadata: Metadata = {
 	keywords: ['sign up', 'register', 'create account', 'new user'],
 };
 
-// Update to support async searchParams for Next.js 15+
 export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
 	const params = await searchParams;
 	const referralId = params?.ref;
@@ -20,7 +18,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
 	let referralData = null;
 	let countries = [];
 
-	// Fetch referral data if referralId is present
 	if (referralId) {
 		const url = `${baseUrl}/auth/referral/${encodeURIComponent(referralId)}`;
 		try {
@@ -38,7 +35,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
 	const data = { ...referralData };
 	if (referralData) data.data.referral_id = referralId;
 
-	// Fetch countries
 	try {
 		const countriesRes = await fetchWithAuth(`${baseUrl}/auth/all-countries`, {
 			headers: {

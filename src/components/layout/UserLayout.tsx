@@ -208,9 +208,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 					<UserHeader onMenuToggle={toggleMobileSidebar} notifications={notifications} unreadNotifications={unreadNotifications} />
 
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/90 rounded-full shadow mx-8 mt-6 relative">
-						<div className="">
+						<CustomLink href="/">
 							<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" className="absolute -top-4" />
-						</div>
+						</CustomLink>
 						<div className="relative">
 							<button type="button" className="p-2 rounded-full hover:bg-white/60 cursor-pointer" onClick={() => setNotificationCenterOpen(true)} aria-label="Open notifications">
 								<Bell className="h-6 w-6 text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100" />

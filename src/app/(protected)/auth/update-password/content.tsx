@@ -18,6 +18,7 @@ import appSettings from '@/config/app';
 import { VerifyResetTokenResult } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import Logo from '@/components/ui/logo';
+import AppFooter from '@/components/layout/AppFooter';
 
 const formSchema = z
 	.object({
@@ -152,7 +153,7 @@ export default function UpdatePasswordPageContent() {
 
 	if (pageStatus === 'loading') {
 		return (
-			<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
+			<div className="auth-page flex flex-col items-center justify-center py-20">
 				<CustomLink href={'/'}>
 					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
 				</CustomLink>
@@ -167,82 +168,86 @@ export default function UpdatePasswordPageContent() {
 	}
 
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<CustomLink href={'/'}>
+		<div className="auth-page">
+			<div className=" flex flex-col items-center justify-center py-20">
 				<CustomLink href={'/'}>
-					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+					<CustomLink href={'/'}>
+						<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+					</CustomLink>
 				</CustomLink>
-			</CustomLink>
-			<Card className="auth-card w-full max-w-md">
-				<CardHeader className="space-y-1 text-left">
-					<CardTitle className={`text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{pageStatus === 'error' || pageStatus === 'expired' ? (
-						<div className="text-center text-[var(--danger)] space-y-4">
-							<p>{statusMessage}</p>
-							<Button
-								size="lg"
-								variant="success"
-								onClick={() => {
-									nProgress.start();
-									router.push('/auth/login');
-								}}
-								className="w-full cursor-pointer"
-							>
-								Back to Login
-							</Button>
-						</div>
-					) : (
-						<Form {...form}>
-							<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-								<FormField
-									control={form.control}
-									name="newPassword"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel htmlFor="password">New Password</FormLabel>
-											<FormControl>
-												<div className="relative flex items-center">
-													<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-													<Input id="password" type="password" placeholder="Enter new password" {...field} disabled={loading} className="auth-input pl-10" />
-												</div>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="confirmPassword"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
-											<FormControl>
-												<div className="relative flex items-center">
-													<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-													<Input id="confirmPassword" type="password" placeholder="Confirm new password" {...field} disabled={loading} className="auth-input pl-10" />
-												</div>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={loading}>
-									{loading ? 'Updating...' : 'Update Password'}
+				<Card className="auth-card w-full max-w-md">
+					<CardHeader className="space-y-1 text-left">
+						<CardTitle className={`text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{pageStatus === 'error' || pageStatus === 'expired' ? (
+							<div className="text-center text-[var(--danger)] space-y-4">
+								<p>{statusMessage}</p>
+								<Button
+									size="lg"
+									variant="success"
+									onClick={() => {
+										nProgress.start();
+										router.push('/auth/login');
+									}}
+									className="w-full cursor-pointer"
+								>
+									Back to Login
 								</Button>
-							</form>
-						</Form>
-					)}
-					<div className="mt-6 text-center text-sm w-full space-y-2">
-						<div>
-							<CustomLink href={`mailto:${appSettings.supportemail}`} className="text-sm text-gray-400 hover:underline">
-								Need help? Contact support.
-							</CustomLink>
+							</div>
+						) : (
+							<Form {...form}>
+								<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+									<FormField
+										control={form.control}
+										name="newPassword"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel htmlFor="password">New Password</FormLabel>
+												<FormControl>
+													<div className="relative flex items-center">
+														<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
+														<Input id="password" type="password" placeholder="Enter new password" {...field} disabled={loading} className="auth-input pl-10" />
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="confirmPassword"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
+												<FormControl>
+													<div className="relative flex items-center">
+														<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
+														<Input id="confirmPassword" type="password" placeholder="Confirm new password" {...field} disabled={loading} className="auth-input pl-10" />
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={loading}>
+										{loading ? 'Updating...' : 'Update Password'}
+									</Button>
+								</form>
+							</Form>
+						)}
+						<div className="mt-6 text-center text-sm w-full space-y-2">
+							<div>
+								<CustomLink href={`mailto:${appSettings.supportemail}`} className="text-sm text-gray-400 hover:underline">
+									Need help? Contact support.
+								</CustomLink>
+							</div>
 						</div>
-					</div>
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			</div>
+
+			<AppFooter />
 		</div>
 	);
 }

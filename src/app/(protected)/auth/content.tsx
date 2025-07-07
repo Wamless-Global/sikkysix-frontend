@@ -13,6 +13,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
+import AppFooter from '@/components/layout/AppFooter';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
@@ -66,55 +67,57 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<CustomLink href={'/'}>
-				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
-			</CustomLink>
-			<Card className="auth-card w-full max-w-md">
-				<CardHeader className="space-y-1 text-left">
-					<CardTitle className="text-2xl font-semibold">Login in to your account</CardTitle>
-				</CardHeader>
-				<form onSubmit={handleSubmit}>
-					<CardContent className="space-y-6">
-						<div className="space-y-2">
-							<Label htmlFor="email">Email</Label>
-							<div className="relative flex items-center">
-								<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input id="email" type="email" placeholder="Enter your email address" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} className="auth-input pl-10" />
+		<div className="auth-page">
+			<div className="flex flex-col items-center justify-center py-20">
+				<CustomLink href={'/'}>
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+				</CustomLink>
+				<Card className="auth-card w-full max-w-md">
+					<CardHeader className="space-y-1 text-left">
+						<CardTitle className="text-2xl font-semibold">Login in to your account</CardTitle>
+					</CardHeader>
+					<form onSubmit={handleSubmit}>
+						<CardContent className="space-y-6">
+							<div className="space-y-2">
+								<Label htmlFor="email">Email</Label>
+								<div className="relative flex items-center">
+									<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
+									<Input id="email" type="email" placeholder="Enter your email address" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} className="auth-input pl-10" />
+								</div>
 							</div>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="password">Password</Label>
-							<div className="relative flex items-center">
-								<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
-								<Input id="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} className="auth-input pl-10 pr-10" />
-								<button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 h-5 w-5 text-gray-400 focus:outline-none" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
-									{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-								</button>
+
+							<div className="space-y-2">
+								<Label htmlFor="password">Password</Label>
+								<div className="relative flex items-center">
+									<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
+									<Input id="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} className="auth-input pl-10 pr-10" />
+									<button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 h-5 w-5 text-gray-400 focus:outline-none cursor-pointer" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+										{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+									</button>
+								</div>
 							</div>
-						</div>
-						<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
-							{isLoading ? 'Logging in...' : 'Login'}
-						</Button>
-						<div className="mt-6 text-center text-sm w-full space-y-2">
-							<div>
-								Don&apos;`t have an account?&nbsp;
-								<CustomLink href="/auth/signup" className="link-success font-medium">
-									Sign up
-								</CustomLink>
+
+							<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
+								{isLoading ? 'Logging in...' : 'Login'}
+							</Button>
+							<div className="mt-6 text-center text-sm w-full space-y-2">
+								<div>
+									Don&apos;`t have an account?&nbsp;
+									<CustomLink href="/auth/signup" className="link-success font-medium">
+										Sign up
+									</CustomLink>
+								</div>
+								<div>
+									<CustomLink href="/auth/forgot-password" className="link-success font-medium">
+										Forgot password?
+									</CustomLink>
+								</div>
 							</div>
-							<div>
-								<CustomLink
-									href="/auth/forgot-password" // TODO: Create this page later
-									className="link-success font-medium"
-								>
-									Forgot password?
-								</CustomLink>
-							</div>
-						</div>
-					</CardContent>
-				</form>
-			</Card>
+						</CardContent>
+					</form>
+				</Card>
+			</div>
+			<AppFooter />
 		</div>
 	);
 }

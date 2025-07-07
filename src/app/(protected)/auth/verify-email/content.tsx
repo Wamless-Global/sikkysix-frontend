@@ -11,6 +11,7 @@ import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
 import Logo from '@/components/ui/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AppFooter from '@/components/layout/AppFooter';
 
 export default function VerifyEmailContent({ email, initialStatus }: { email?: string; initialStatus: { status: string; message: string } }) {
 	const router = useRouter();
@@ -58,42 +59,46 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 	};
 
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<CustomLink href={'/'}>
-				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
-			</CustomLink>
+		<div className="auth-page">
+			<div className="flex flex-col items-center justify-center py-20">
+				<CustomLink href={'/'}>
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+				</CustomLink>
 
-			<Card className="auth-card w-full max-w-md">
-				<CardHeader className="space-y-1 text-center">
-					<CardTitle className="text-2xl font-semibold">Check Email Verification</CardTitle>
-				</CardHeader>
-				<CardContent className="text-center">
-					<p className="mb-8 text-gray-300">{statusMessage}</p>
+				<Card className="auth-card w-full max-w-md">
+					<CardHeader className="space-y-1 text-center">
+						<CardTitle className="text-2xl font-semibold">Check Email Verification</CardTitle>
+					</CardHeader>
+					<CardContent className="text-center">
+						<p className="mb-8 text-gray-300">{statusMessage}</p>
 
-					{isResending && (
-						<div className="flex justify-center items-center mb-5">
-							<p>Resending...</p>
-						</div>
-					)}
+						{isResending && (
+							<div className="flex justify-center items-center mb-5">
+								<p>Resending...</p>
+							</div>
+						)}
 
-					{!isResending && allowResend && (
-						<>
-							<Button size="lg" variant="success" onClick={() => router.push('/auth/login')} className="w-full cursor-pointer mb-5">
-								Go to Login
-							</Button>
-
-							{allowResend && (
-								<Button size="lg" variant="outline" onClick={handleResendEmail} className="w-full cursor-pointer disabled:opacity-50 mb-5" disabled={isResending}>
-									{isResending ? 'Resending...' : 'Resend Verification Email'}
+						{!isResending && allowResend && (
+							<>
+								<Button size="lg" variant="success" onClick={() => router.push('/auth/login')} className="w-full cursor-pointer mb-5">
+									Go to Login
 								</Button>
-							)}
-							<CustomLink href={`mailto:${appSettings.supportemail}`} className="mb-6 text-sm text-gray-400">
-								Need help? Contact support.
-							</CustomLink>
-						</>
-					)}
-				</CardContent>
-			</Card>
+
+								{allowResend && (
+									<Button size="lg" variant="outline" onClick={handleResendEmail} className="w-full cursor-pointer disabled:opacity-50 mb-5" disabled={isResending}>
+										{isResending ? 'Resending...' : 'Resend Verification Email'}
+									</Button>
+								)}
+								<CustomLink href={`mailto:${appSettings.supportemail}`} className="mb-6 text-sm text-gray-400">
+									Need help? Contact support.
+								</CustomLink>
+							</>
+						)}
+					</CardContent>
+				</Card>
+			</div>
+
+			<AppFooter />
 		</div>
 	);
 }

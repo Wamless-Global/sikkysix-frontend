@@ -63,7 +63,7 @@
 	--destructive: oklch(0.577 0.245 27.325);
 	--border: oklch(0.929 0.011 283.11);
 	--input: oklch(0.929 0.011 283.11);
-	--ring: oklch(0.769 0.188 303.9);
+	--ring: var(--dashboard-accent);
 	--chart-1: oklch(0.627 0.265 303.9); /* Violet */
 	--chart-2: oklch(0.6 0.118 184.704); /* Teal */
 	--chart-3: oklch(0.398 0.07 227.392); /* Blue */
@@ -164,7 +164,8 @@
 	/* Border very subtle */
 	--border: oklch(0.25 0.022 280); /* Increased lightness for better contrast */
 	--input: oklch(0.35 0.022 280); /* Made even lighter for more contrast */
-	--ring: oklch(0.627 0.265 303.9 / 0.8); /* Ring uses primary with alpha */
+	/* --ring: oklch(0.627 0.265 303.9 / 0.8); */
+	--ring: var(--dashboard-accent);
 
 	/* Chart colors (already set) */
 	--chart-1: oklch(0.627 0.265 303.9);

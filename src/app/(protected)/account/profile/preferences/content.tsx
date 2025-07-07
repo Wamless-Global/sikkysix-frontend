@@ -82,7 +82,7 @@ export default function PreferencesPageContent() {
 
 	return (
 		<div className="max-w-2xl space-y-8">
-			<h1 className="sub-page-heading">Application Preferences</h1>
+			<h1 className="sub-page-heading">My Preferences</h1>
 
 			{/* <Card className="bg-muted/30 dark:bg-muted/10 shadow-sm">
 				<CardHeader>

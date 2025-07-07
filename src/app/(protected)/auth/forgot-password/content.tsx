@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import Logo from '@/components/ui/logo';
+import AppFooter from '@/components/layout/AppFooter';
 
 const formSchema = z.object({
 	email: z.string().email({
@@ -61,48 +62,52 @@ export default function ForgotPasswordPageContent() {
 	}
 
 	return (
-		<div className="auth-page flex min-h-screen flex-col items-center justify-center p-4">
-			<CustomLink href={'/'}>
-				<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
-			</CustomLink>
-			<Card className="auth-card w-full max-w-md">
-				<CardHeader className="space-y-1 text-left">
-					<CardTitle className="text-2xl font-semibold">Forgot Password?</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-							<FormField
-								control={form.control}
-								name="email"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel htmlFor="email">Email</FormLabel>
-										<FormControl>
-											<div className="relative flex items-center">
-												<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
-												<Input id="email" type="email" placeholder="Enter your email address" {...field} disabled={loading} className="auth-input pl-10" />
-											</div>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={loading}>
-								{loading ? 'Sending...' : 'Send Reset Link'}
-							</Button>
-						</form>
-					</Form>
-					<div className="mt-6 text-center text-sm w-full space-y-2">
-						<div>
-							Remember your password?
-							<CustomLink href="/auth/login" className="link-success font-medium">
-								Login
-							</CustomLink>
+		<div className="auth-page">
+			<div className="flex flex-col items-center justify-center py-20">
+				<CustomLink href={'/'}>
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+				</CustomLink>
+				<Card className="auth-card w-full max-w-md">
+					<CardHeader className="space-y-1 text-left">
+						<CardTitle className="text-2xl font-semibold">Forgot Password?</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Form {...form}>
+							<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+								<FormField
+									control={form.control}
+									name="email"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel htmlFor="email">Email</FormLabel>
+											<FormControl>
+												<div className="relative flex items-center">
+													<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
+													<Input id="email" type="email" placeholder="Enter your email address" {...field} disabled={loading} className="auth-input pl-10" />
+												</div>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={loading}>
+									{loading ? 'Sending...' : 'Send Reset Link'}
+								</Button>
+							</form>
+						</Form>
+						<div className="mt-6 text-center text-sm w-full space-y-2">
+							<div>
+								Remember your password?
+								<CustomLink href="/auth/login" className="link-success font-medium">
+									Login
+								</CustomLink>
+							</div>
 						</div>
-					</div>
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			</div>
+
+			<AppFooter />
 		</div>
 	);
 }
