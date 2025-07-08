@@ -149,32 +149,34 @@ export default function SingleCategoryContent() {
 		if (isNaN(amount) || amount <= 0) {
 			return 'Please enter a valid positive amount.';
 		}
+
 		if (!categoryData) {
 			return 'Category data not loaded.';
 		}
-		if (categoryData.minimum_investable !== null && amount < categoryData.minimum_investable) {
-			return `Amount must be at least ${formatBaseurrency(categoryData.minimum_investable)}.`;
-		}
-		if (categoryData.maximum_investable !== null && amount > categoryData.maximum_investable) {
-			return `Amount cannot exceed ${formatBaseurrency(categoryData.maximum_investable)}.`;
-		}
+
 		if (balance === undefined) {
 			return 'Could not verify your balance. Please try again.';
 		}
 		if (amount > balance) {
 			logger.log(balance, amount);
-
 			return 'Insufficient balance.';
 		}
+
+		if (categoryData.minimum_investable !== null && amount < categoryData.minimum_investable) {
+			return `Amount must be at least ${formatBaseurrency(categoryData.minimum_investable, 2, false)}.`;
+		}
+
+		if (categoryData.maximum_investable !== null && amount > categoryData.maximum_investable) {
+			return `Amount cannot exceed ${formatBaseurrency(categoryData.maximum_investable, 2, false)}.`;
+		}
+
 		return null;
 	};
 
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
-		// Allow only numbers and one decimal point
 		if (/^\d*\.?\d*$/.test(value)) {
 			setAmountInput(value);
-			// Clear error on change, re-validate on submit
 			if (amountError) {
 				setAmountError(null);
 			}
@@ -231,7 +233,7 @@ export default function SingleCategoryContent() {
 				let errorMessage = `Failed to create category. Status: ${response.status}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = errorData.message || errorData.detail || errorMessage;
+					errorMessage = handleFetchErrorMessage(errorData);
 				} catch (_e) {}
 				toast.error(errorMessage);
 			}

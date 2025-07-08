@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { handleFetchErrorMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 function SettingsSkeleton() {
 	return (

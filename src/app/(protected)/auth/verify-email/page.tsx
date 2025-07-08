@@ -55,7 +55,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
 	return (
 		<>
 			<VerifyEmailContent email={email} initialStatus={verificationResult} />
-			<AppFooter />
 		</>
 	);
 }

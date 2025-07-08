@@ -12,7 +12,7 @@ export const appSettings: AppSettings = {
 	appName: getPlatformName(),
 	metaDescription: 'Admin dashboard for SikkySix platform.',
 	baseFontSize: '15px',
-	supportemail: 'support@mm.com',
+	supportemail: 'support@sikkysix.com',
 	itemsPerPage: 10,
 };
 
