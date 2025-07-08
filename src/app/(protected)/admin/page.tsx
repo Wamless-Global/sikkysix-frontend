@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -6,6 +8,9 @@ import UserGrowthChart from '@/components/charts/UserGrowthChart';
 import { Users, Activity, DollarSign, ListChecks, HandCoins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
+import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
+import { useEffect } from 'react';
 
 const kpiCardGradients = ['from-violet-500 to-purple-600', 'from-cyan-400 to-sky-500', 'from-emerald-400 to-green-500', 'from-amber-400 to-orange-500', 'from-pink-500 to-rose-500'];
 
@@ -18,6 +23,19 @@ const kpiData = [
 ];
 
 export default function AdminDashboardPage() {
+	useEffect(() => {
+		(async () => {
+			const response = await fetchWithAuth(`/api/admin/stats`);
+			const result = await response.json();
+
+			if (!response.ok) {
+				logger.error('Failed to fetch admin dashboard stats:', result);
+			} else {
+				logger.log('Admin Dashboard Statss:', result);
+			}
+		})();
+	}, []);
+
 	return (
 		<div className="space-y-6">
 			<Breadcrumbs />

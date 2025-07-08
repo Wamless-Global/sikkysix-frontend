@@ -98,7 +98,7 @@ export interface ApiTransaction {
 export interface TransactionApiResponse {
 	status: string;
 	data: {
-		transactions: ApiTransaction[];
+		transactions: Transaction[];
 		hasMore: boolean;
 		currentPage: number;
 		pageSize: number;
@@ -116,3 +116,30 @@ export interface AccountTransaction {
 	status: 'completed' | 'pending' | string;
 	originalType: string;
 }
+
+export const TRANSACTION_TYPE_VALUES: TransactionsType[] = [
+	'deposit',
+	'withdrawal',
+	'investment',
+	'investment_profit_withdrawal',
+	'referral_bonus',
+	'fee',
+	'penalty',
+	'promo_bonus',
+	'refund',
+	'payout',
+	'wallet_debit_admin',
+	'wallet_credit_admin',
+	'deposit_fee_revenue',
+	'withdrawal_fee_revenue',
+	'early_withdrawal_penalty_revenue',
+	'profit_cap_retained_revenue',
+	'investment_fee_revenue',
+	'selling_units_fee_revenue',
+	'locked_funds_for_order',
+	'unlocked_funds_from_order',
+];
+
+export const PAYMENT_METHOD: TransactionsPaymentMethod[] = ['p2p', 'wallet_balance', 'crypto', 'internal'];
+
+export const TRANSACTION_STATUSES: TransactionStatus[] = ['pending', 'approved', 'rejected', 'completed', 'failed', 'cancelled'];

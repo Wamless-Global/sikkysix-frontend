@@ -172,13 +172,17 @@ export default function SingleAgentPage() {
 			</Card>
 
 			{/* Charts Section */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<InvestmentTrendChart />
-				<UserGrowthChart />
-			</div>
-			<div className="mt-6">
-				<InvestmentPerformanceChart />
-			</div>
+			{false && (
+				<>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<InvestmentTrendChart />
+						<UserGrowthChart />
+					</div>
+					<div className="mt-6">
+						<InvestmentPerformanceChart />
+					</div>
+				</>
+			)}
 
 			{/* Actions */}
 			<div className="flex gap-2 mt-6">

@@ -24,10 +24,8 @@ export default function AboutPage() {
 							</CustomLink>
 							<p className="mt-6 text-muted-foreground sm:text-lg">Already 1,000+ savers joined</p>
 						</div>
-						<div className="flex-1 flex justify-center md:justify-end z-10">
-							<div className="w-full max-w-md aspect-[4/3] rounded-3xl flex items-center justify-center overflow-hidden  relative">
-								<Image src="/images/credit-card-cuate.svg" alt="People collaborating illustration" fill />
-							</div>
+						<div className="flex-1 flex justify-center md:justify-end z-10 relative h-96">
+							<Image src="/images/credit-card-cuate.svg" alt="People collaborating illustration" fill />
 						</div>
 					</div>
 					<div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--lp-green-primary)]/10 to-transparent" />

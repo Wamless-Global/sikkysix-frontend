@@ -16,6 +16,7 @@ import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Category, PaginatedCategoriesResponse } from '@/types';
 import Image from 'next/image';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
+import { logger } from '@/lib/logger';
 
 // Helper function to determine badge variant based on lock status
 const getLockStatusVariant = (isLocked: boolean): 'destructive' | 'default' => {
@@ -44,6 +45,8 @@ export default function CategoryManagementPage() {
 				throw new Error(errorMessage);
 			}
 			const result: PaginatedCategoriesResponse = await response.json();
+
+			logger.log('Fetched categories:', result);
 
 			if (result.status !== 'success') {
 				throw new Error(result.data?.toString() || 'API returned an error without a message');
@@ -113,8 +116,6 @@ export default function CategoryManagementPage() {
 									<TableHead className="text-right">Price/Unit</TableHead>
 									<TableHead className="text-right">Min Invest</TableHead>
 									<TableHead className="text-right">Max Invest</TableHead>
-									<TableHead className="text-right">Market Cap</TableHead>
-									<TableHead className="text-right">Holders</TableHead>
 									<TableHead className="text-center">
 										<span className="sr-only">Actions</span>
 									</TableHead>
@@ -147,12 +148,6 @@ export default function CategoryManagementPage() {
 											</TableCell>
 											<TableCell className="text-right">
 												<Skeleton className="h-4 w-[70px] ml-auto" />
-											</TableCell>
-											<TableCell className="text-right">
-												<Skeleton className="h-4 w-[120px] ml-auto" />
-											</TableCell>
-											<TableCell className="text-right">
-												<Skeleton className="h-4 w-[60px] ml-auto" />
 											</TableCell>
 											<TableCell className="text-center">
 												<Button variant="ghost" className="h-8 w-8 p-0" disabled>
@@ -188,8 +183,6 @@ export default function CategoryManagementPage() {
 											<TableCell className="text-right font-mono">{formatBaseurrency(category.current_price_per_unit)}</TableCell>
 											<TableCell className="text-right font-mono">{category.minimum_investable !== undefined ? `${formatBaseurrency(category.minimum_investable, 2, false)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 											<TableCell className="text-right font-mono">{category.maximum_investable !== undefined ? `${formatBaseurrency(category.maximum_investable, 2, false)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
-											<TableCell className="text-right font-mono">{category.market_cap ? `$${formatBaseurrency(category.market_cap)}` : <span className="text-gray-400 italic">N/A</span>}</TableCell>
-											<TableCell className="text-right">{category.holders !== undefined ? category.holders.toLocaleString() : <span className="text-gray-400 italic">N/A</span>}</TableCell>
 											<TableCell className="text-center">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
@@ -205,18 +198,11 @@ export default function CategoryManagementPage() {
 																Edit Category
 															</CustomLink>
 														</DropdownMenuItem>
-														{/* <DropdownMenuItem onClick={() => alert(`Toggling lock for ${category.name}`)} className="cursor-pointer">
-													{category.is_locked ? 'Unlock' : 'Lock'} Category
-												</DropdownMenuItem> */}
 														<DropdownMenuItem asChild>
 															<CustomLink href={`/admin/clubs/${generateSlug(category.ticker)}`} className="w-full justify-start cursor-pointer">
 																View Details
 															</CustomLink>
 														</DropdownMenuItem>
-														{/* <DropdownMenuSeparator /> */}
-														{/* <DropdownMenuItem className="text-red-600 hover:!text-red-600 hover:!bg-red-100 focus:text-red-600 focus:bg-red-100 cursor-pointer" onClick={() => alert(`Deleting ${category.name}`)}>
-													Delete Category
-												</DropdownMenuItem> */}
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</TableCell>

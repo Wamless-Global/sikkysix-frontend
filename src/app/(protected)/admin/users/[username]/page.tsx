@@ -546,84 +546,86 @@ export default function UserDetailPage() {
 				</CardContent>
 			</Card>
 
-			<Tabs defaultValue="investments">
-				<TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4 h-12">
-					<TabsTrigger className="" value="investments">
-						Active Investments
-					</TabsTrigger>
-					<TabsTrigger value="investment-history">Investment History</TabsTrigger>
-					<TabsTrigger value="transactions">Transactions</TabsTrigger>
-					<TabsTrigger value="wallet">Wallet History</TabsTrigger>
-					<TabsTrigger value="referrals">Referrals</TabsTrigger>
-					<TabsTrigger value="tasks">Tasks</TabsTrigger>
-				</TabsList>
-				<TabsContent value="investments">
-					<Card>
-						<CardHeader>
-							<CardTitle>Active Investments</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Active investments table...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 1 */}
-					</Card>
-				</TabsContent>
-				<TabsContent value="investment-history">
-					<Card>
-						<CardHeader>
-							<CardTitle>Investment History</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Investment history table...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 2 */}
-					</Card>
-				</TabsContent>
-				<TabsContent value="transactions">
-					<Card>
-						<CardHeader>
-							<CardTitle>Transaction History</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Transaction history table with filters...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 3 */}
-					</Card>
-				</TabsContent>
-				<TabsContent value="wallet">
-					<Card>
-						<CardHeader>
-							<CardTitle>Wallet History</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Wallet history table...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 4 */}
-					</Card>
-				</TabsContent>
-				<TabsContent value="referrals">
-					<Card>
-						<CardHeader>
-							<CardTitle>Users Referred</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Referred users table...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 5 */}
-					</Card>
-				</TabsContent>
-				<TabsContent value="tasks">
-					<Card>
-						<CardHeader>
-							<CardTitle>Task History & Withdrawal Status</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-muted-foreground">Task details and withdrawal eligibility...</p>
-						</CardContent>
-						{/* TODO: Implement Tab 6 */}
-					</Card>
-				</TabsContent>
-			</Tabs>
+			{false && (
+				<Tabs defaultValue="investments">
+					<TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4 h-12">
+						<TabsTrigger className="" value="investments">
+							Active Investments
+						</TabsTrigger>
+						<TabsTrigger value="investment-history">Investment History</TabsTrigger>
+						<TabsTrigger value="transactions">Transactions</TabsTrigger>
+						<TabsTrigger value="wallet">Wallet History</TabsTrigger>
+						<TabsTrigger value="referrals">Referrals</TabsTrigger>
+						<TabsTrigger value="tasks">Tasks</TabsTrigger>
+					</TabsList>
+					<TabsContent value="investments">
+						<Card>
+							<CardHeader>
+								<CardTitle>Active Investments</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Active investments table...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 1 */}
+						</Card>
+					</TabsContent>
+					<TabsContent value="investment-history">
+						<Card>
+							<CardHeader>
+								<CardTitle>Investment History</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Investment history table...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 2 */}
+						</Card>
+					</TabsContent>
+					<TabsContent value="transactions">
+						<Card>
+							<CardHeader>
+								<CardTitle>Transaction History</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Transaction history table with filters...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 3 */}
+						</Card>
+					</TabsContent>
+					<TabsContent value="wallet">
+						<Card>
+							<CardHeader>
+								<CardTitle>Wallet History</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Wallet history table...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 4 */}
+						</Card>
+					</TabsContent>
+					<TabsContent value="referrals">
+						<Card>
+							<CardHeader>
+								<CardTitle>Users Referred</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Referred users table...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 5 */}
+						</Card>
+					</TabsContent>
+					<TabsContent value="tasks">
+						<Card>
+							<CardHeader>
+								<CardTitle>Task History & Withdrawal Status</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<p className="text-muted-foreground">Task details and withdrawal eligibility...</p>
+							</CardContent>
+							{/* TODO: Implement Tab 6 */}
+						</Card>
+					</TabsContent>
+				</Tabs>
+			)}
 
 			{/* Confirmation Dialog (Remains the same for now) */}
 			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
