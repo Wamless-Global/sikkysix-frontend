@@ -14,24 +14,40 @@ import { useEffect } from 'react';
 
 const kpiCardGradients = ['from-violet-500 to-purple-600', 'from-cyan-400 to-sky-500', 'from-emerald-400 to-green-500', 'from-amber-400 to-orange-500', 'from-pink-500 to-rose-500'];
 
-const kpiData = [
-	{ title: 'Total Users', value: '1,234', description: '+20.1% from last month', icon: Users },
-	{ title: 'Active Users (Monthly)', value: '890', description: '+15.5% from last month', icon: Activity },
-	{ title: 'Total Invested', value: '$150,678', description: '+5.2% from last month', icon: DollarSign },
-	{ title: 'Pending Approvals', value: '15', description: 'Deposits & Withdrawals', icon: ListChecks },
-	{ title: 'Fees Collected (Month)', value: '$2,345', description: '+8.1% from last month', icon: HandCoins },
+const kpiConfig = [
+	{ key: 'totalUsers', title: 'Total Users', icon: Users },
+	{ key: 'totalActiveUsers', title: 'Active Users', icon: Activity },
+	{ key: 'totalCategories', title: 'Total Categories', icon: ListChecks },
+	{ key: 'totalInvested', title: 'Total Invested', icon: DollarSign },
+	{ key: 'totalPendingAgentApplications', title: 'Pending Agent Applications', icon: ListChecks },
+	{ key: 'totalFees', title: 'Fees Collected', icon: HandCoins },
+	{ key: 'totalDeposits', title: 'Total Deposits', icon: DollarSign },
+	{ key: 'totalWithdrawals', title: 'Total Withdrawals', icon: DollarSign },
 ];
 
+import { useState } from 'react';
+
 export default function AdminDashboardPage() {
+	const [stats, setStats] = useState<any>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
 	useEffect(() => {
 		(async () => {
-			const response = await fetchWithAuth(`/api/admin/stats`);
-			const result = await response.json();
-
-			if (!response.ok) {
-				logger.error('Failed to fetch admin dashboard stats:', result);
-			} else {
-				logger.log('Admin Dashboard Statss:', result);
+			try {
+				const response = await fetchWithAuth(`/api/admin/stats`);
+				const result = await response.json();
+				if (!response.ok || !result.success) {
+					setError('Failed to fetch admin dashboard stats');
+					logger.error('Failed to fetch admin dashboard stats:', result);
+				} else {
+					setStats(result.data);
+				}
+			} catch (err) {
+				setError('Failed to fetch admin dashboard stats');
+				logger.error('Failed to fetch admin dashboard stats:', err);
+			} finally {
+				setLoading(false);
 			}
 		})();
 	}, []);
@@ -41,10 +57,19 @@ export default function AdminDashboardPage() {
 			<Breadcrumbs />
 			<h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-2">Dashboard</h1>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-				{kpiData.map((kpi, index) => {
+				{kpiConfig.map((kpi, index) => {
 					const Icon = kpi.icon;
-					const gradientClass = kpiCardGradients[index % kpiCardGradients.length];
-
+					const gradientClass = index < 5 ? kpiCardGradients[index % kpiCardGradients.length] : 'from-gray-400 to-gray-600';
+					let value = '';
+					if (loading) value = '...';
+					else if (error) value = 'Error';
+					else if (stats && typeof stats[kpi.key] !== 'undefined') {
+						if (['totalInvested', 'totalFees', 'totalDeposits', 'totalWithdrawals'].includes(kpi.key)) {
+							value = `$${Number(stats[kpi.key]).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+						} else {
+							value = stats[kpi.key].toLocaleString();
+						}
+					}
 					return (
 						<Card key={index} className={cn('text-white bg-gradient-to-br', gradientClass)}>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -52,50 +77,53 @@ export default function AdminDashboardPage() {
 								<Icon className="h-4 w-4 text-white/80" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">{kpi.value}</div>
-								<p className="text-xs text-white/70">{kpi.description}</p>
+								<div className="text-2xl font-bold">{value}</div>
 							</CardContent>
 						</Card>
 					);
 				})}
 			</div>
-			<div>
-				<h2 className="text-xl font-semibold mb-3">Quick CustomLinks</h2>
-				<div className="flex flex-wrap gap-2">
-					<Button asChild variant="outline">
-						<CustomLink href="/admin/transactions">Approve Transactions</CustomLink>
-					</Button>
-					<Button asChild variant="outline">
-						<CustomLink href="/admin/clubs">Manage Clubs</CustomLink>
-					</Button>
-					<Button asChild variant="outline">
-						<CustomLink href="/admin/users">View Users</CustomLink>
-					</Button>
-					<Button asChild variant="outline">
-						<CustomLink href="/admin/communication">Send Broadcast</CustomLink>
-					</Button>
-				</div>
-			</div>
-			<div className="grid gap-4 md:grid-cols-2">
-				<Card>
-					<CardHeader>
-						<CardTitle>Recent Savings Trends</CardTitle>
-						<CardDescription>Volume over the last 30 days.</CardDescription>
-					</CardHeader>
-					<CardContent className="h-[300px] p-0">
-						<InvestmentTrendChart />
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>User Registration Growth</CardTitle>
-						<CardDescription>New users per week.</CardDescription>
-					</CardHeader>
-					<CardContent className="h-[300px] p-0">
-						<UserGrowthChart />
-					</CardContent>
-				</Card>
-			</div>
+			{false && (
+				<>
+					<div>
+						<h2 className="text-xl font-semibold mb-3">Quick CustomLinks</h2>
+						<div className="flex flex-wrap gap-2">
+							<Button asChild variant="outline">
+								<CustomLink href="/admin/transactions">Approve Transactions</CustomLink>
+							</Button>
+							<Button asChild variant="outline">
+								<CustomLink href="/admin/clubs">Manage Clubs</CustomLink>
+							</Button>
+							<Button asChild variant="outline">
+								<CustomLink href="/admin/users">View Users</CustomLink>
+							</Button>
+							<Button asChild variant="outline">
+								<CustomLink href="/admin/communication">Send Broadcast</CustomLink>
+							</Button>
+						</div>
+					</div>
+					<div className="grid gap-4 md:grid-cols-2">
+						<Card>
+							<CardHeader>
+								<CardTitle>Recent Savings Trends</CardTitle>
+								<CardDescription>Volume over the last 30 days.</CardDescription>
+							</CardHeader>
+							<CardContent className="h-[300px] p-0">
+								<InvestmentTrendChart />
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle>User Registration Growth</CardTitle>
+								<CardDescription>New users per week.</CardDescription>
+							</CardHeader>
+							<CardContent className="h-[300px] p-0">
+								<UserGrowthChart />
+							</CardContent>
+						</Card>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

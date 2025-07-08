@@ -17,7 +17,7 @@ export default function AboutPage() {
 						<div className="flex-1 text-center md:text-left z-10">
 							<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-foreground">Save Smarter with Dynamic Clubs</h1>
 							<p className="sm:text-lg text-muted-foreground mb-8 max-w-xl">Join diverse savings clubs, enjoy early saver rewards, and grow your wealth transparently.</p>
-							<CustomLink href="/auth/register" passHref>
+							<CustomLink href="/auth/signup" passHref>
 								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-6 text-md shadow-lg">
 									Get Started
 								</Button>

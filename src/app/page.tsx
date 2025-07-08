@@ -44,7 +44,7 @@ export default function LandingPage() {
 					<div className="px-6">
 						<p className="sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">The social contribution clubs built around real life struggles where members help each other to reach personal goals with ease and transparency.</p>
 						<div className="flex justify-center space-x-4">
-							<CustomLink href="/auth/login" passHref>
+							<CustomLink href="/auth/signup" passHref>
 								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-6 text-md shadow-lg">
 									Join Now
 								</Button>

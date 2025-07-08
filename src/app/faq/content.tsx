@@ -78,7 +78,7 @@ export default function FaqPage() {
 					))}
 				</Accordion>
 				<div className="mt-10 flex justify-center">
-					<CustomLink href="/auth/register" passHref>
+					<CustomLink href="/auth/signup" passHref>
 						<Button variant={'success'} size={'lg'}>
 							Join {getPlatformName()}
 						</Button>
