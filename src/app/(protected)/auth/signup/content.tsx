@@ -116,9 +116,9 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 							<div className="space-y-2 mb-4">
 								<Label htmlFor="referral-name">Referred by</Label>
 								<div className="relative flex items-center">
-									<User className="absolute left-3 h-5 w-5 text-gray-600" />
-									<Input id="referral-name" type="text" value={referralName} disabled readOnly className="auth-input pl-10 cursor-not-allowed" />
-									{referralActive ? (
+									<User className="absolute left-3 h-5 w-5 text-gray-700" />
+									<Input id="referral-name" type="text" value={referralName} disabled readOnly className="auth-input pl-10 cursor-not-allowed text-gray-500" />
+									{/* {referralActive ? (
 										<button type="button" className="absolute right-3 text-red-500 hover:text-red-700 cursor-pointer" onClick={handleRemoveReferral} disabled={isLoading} aria-label="Remove referral">
 											<Trash2 className="h-5 w-5" />
 										</button>
@@ -126,7 +126,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 										<button type="button" className="absolute right-3 text-green-600 hover:text-green-800 cursor-pointer" onClick={handleRestoreReferral} disabled={isLoading} aria-label="Restore referral">
 											<RefreshCw className="h-5 w-5" />
 										</button>
-									)}
+									)} */}
 								</div>
 							</div>
 						)}
