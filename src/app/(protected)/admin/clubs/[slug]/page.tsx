@@ -14,10 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { formatNumber, formatUSD, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatNumber, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { logger } from '@/lib/logger';
 
 export default function AdminSingleCategoriesPage() {
 	const params = useParams<{ slug: string }>();
@@ -301,13 +300,13 @@ export default function AdminSingleCategoriesPage() {
 					</CardHeader>
 					<CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
 						{[
-							{ label: 'Current Price', value: formatUSD(categoryData.current_price_per_unit), size: 'large' },
+							{ label: 'Current Price', value: formatBaseurrency(categoryData.current_price_per_unit), size: 'large' },
 							{ label: 'Quantity (Total Supply)', value: formatNumber(categoryData.quantity) },
 							{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply) + (categoryData.ticker ? ` ${categoryData.ticker}` : '') },
-							{ label: 'Market Cap', value: formatUSD(categoryData.market_cap, 0), tooltip: 'Calculated: Price * Circulating Supply' },
-							{ label: 'Total Liquidity', value: formatUSD(categoryData.total_liquidity, 0) },
-							{ label: 'Minimum Investable', value: formatUSD(categoryData.minimum_investable) },
-							{ label: 'Maximum Investable', value: formatUSD(categoryData.maximum_investable) },
+							{ label: 'Market Cap', value: formatBaseurrency(categoryData?.market_cap || 0), tooltip: 'Calculated: Price * Circulating Supply' },
+							{ label: 'Total Liquidity', value: formatBaseurrency(categoryData.total_liquidity, 0) },
+							{ label: 'Minimum Investable', value: formatBaseurrency(categoryData.minimum_investable) },
+							{ label: 'Maximum Investable', value: formatBaseurrency(categoryData.maximum_investable) },
 							{ label: 'Holders', value: formatNumber(categoryData.holders) },
 							{ label: 'Fee (%)', value: categoryData.fee !== null && categoryData.fee !== undefined ? `${categoryData.fee}%` : 'N/A' },
 							{ label: 'Volatility Factor', value: categoryData.volatility_factor !== null && categoryData.volatility_factor !== undefined ? categoryData.volatility_factor.toString() : 'N/A' },
@@ -315,7 +314,7 @@ export default function AdminSingleCategoriesPage() {
 							{ label: '24h Change', value: <PriceChangeIndicator value={categoryData.price_change_24h} /> },
 							{ label: '7d Change', value: <PriceChangeIndicator value={categoryData.price_change_7d} /> },
 							{ label: '30d Change', value: <PriceChangeIndicator value={categoryData.price_change_30d} /> },
-							{ label: '24h Volume', value: formatUSD(categoryData.volume_24h, 0) },
+							{ label: '24h Volume', value: formatBaseurrency(categoryData?.volume_24h || 0) },
 							{ label: 'Created At', value: new Date(categoryData.created_at).toLocaleDateString() },
 							{ label: 'Last Updated', value: categoryData.updated_at ? new Date(categoryData.updated_at).toLocaleDateString() : 'N/A' },
 						]

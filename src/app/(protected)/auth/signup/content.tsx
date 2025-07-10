@@ -21,6 +21,7 @@ import AppFooter from '@/components/layout/AppFooter';
 export default function SignupPageContent({ referralData, countries }: SignupPageContentProps & { countries: { status: string; countries: Country[] } }) {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
+	const [confirmEmail, setConfirmEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [country, setCountry] = useState('');
@@ -63,12 +64,17 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 		setError(null);
 		setIsLoading(true);
 
+		if (email !== confirmEmail) {
+			setError('Emails do not match.');
+			setIsLoading(false);
+			return;
+		}
 		if (password !== confirmPassword) {
 			setError('Passwords do not match.');
 			setIsLoading(false);
 			return;
 		}
-		if (!name || !email || !password || !country) {
+		if (!name || !email || !confirmEmail || !password || !country) {
 			setError('All fields are required.');
 			setIsLoading(false);
 			return;
@@ -87,7 +93,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 
 		const toastId = toast.loading('Creating your account...');
 		try {
-			await signup(name, email, password, confirmPassword, country, referralActive && referralId ? referralId : undefined);
+			await signup(name, email, confirmEmail, password, confirmPassword, country, referralActive && referralId ? referralId : undefined);
 
 			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
@@ -118,15 +124,16 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 								<div className="relative flex items-center">
 									<User className="absolute left-3 h-5 w-5 text-gray-700" />
 									<Input id="referral-name" type="text" value={referralName} disabled readOnly className="auth-input pl-10 cursor-not-allowed text-gray-500" />
-									{/* {referralActive ? (
-										<button type="button" className="absolute right-3 text-red-500 hover:text-red-700 cursor-pointer" onClick={handleRemoveReferral} disabled={isLoading} aria-label="Remove referral">
-											<Trash2 className="h-5 w-5" />
-										</button>
-									) : (
-										<button type="button" className="absolute right-3 text-green-600 hover:text-green-800 cursor-pointer" onClick={handleRestoreReferral} disabled={isLoading} aria-label="Restore referral">
-											<RefreshCw className="h-5 w-5" />
-										</button>
-									)} */}
+									{false &&
+										(referralActive ? (
+											<button type="button" className="absolute right-3 text-red-500 hover:text-red-700 cursor-pointer" onClick={handleRemoveReferral} disabled={isLoading} aria-label="Remove referral">
+												<Trash2 className="h-5 w-5" />
+											</button>
+										) : (
+											<button type="button" className="absolute right-3 text-green-600 hover:text-green-800 cursor-pointer" onClick={handleRestoreReferral} disabled={isLoading} aria-label="Restore referral">
+												<RefreshCw className="h-5 w-5" />
+											</button>
+										))}
 								</div>
 							</div>
 						)}
@@ -143,6 +150,13 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 								<div className="relative flex items-center">
 									<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
 									<Input id="email" type="email" placeholder="Enter your email address" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
+								</div>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="confirm-email">Confirm Email</Label>
+								<div className="relative flex items-center">
+									<Mail className="absolute left-3 h-5 w-5 text-gray-400" />
+									<Input id="confirm-email" type="email" placeholder="Re-enter your email address" value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 								</div>
 							</div>
 							<div className="space-y-2">

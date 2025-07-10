@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Country, Role, User, UserFilters, UserStatus } from '@/types';
 import { ALL_ROLES, ALL_STATUSES } from '@/lib/userUtils';
-import { getStatusVariant } from '@/lib/helpers';
+import { formatBaseurrency, getStatusVariant } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useOnlineContext } from '@/context/OnlineContext';
 import OnlineBadge from '@/components/ui/online-badge';
@@ -287,10 +287,12 @@ export default function UserManagementPage() {
 												<TableCell>{Array.isArray(user.roles) ? user.roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(', ') : ''}</TableCell>
 												<TableCell>{new Date(user.registrationDate).toLocaleString()}</TableCell>
 												<TableCell>{user.investmentCount}</TableCell>
-												{/* <TableCell>
-													<OnlineBadge online={userOnline} />
-												</TableCell> */}
-												<TableCell>${user.totalInvested.toLocaleString()}</TableCell>
+												{false && (
+													<TableCell>
+														<OnlineBadge online={userOnline} />
+													</TableCell>
+												)}
+												<TableCell>{formatBaseurrency(user.totalInvested)}</TableCell>
 												<TableCell>
 													<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
 												</TableCell>

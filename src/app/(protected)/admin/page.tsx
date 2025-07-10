@@ -26,6 +26,7 @@ const kpiConfig = [
 ];
 
 import { useState } from 'react';
+import { formatBaseurrency } from '@/lib/helpers';
 
 export default function AdminDashboardPage() {
 	const [stats, setStats] = useState<any>(null);
@@ -65,7 +66,7 @@ export default function AdminDashboardPage() {
 					else if (error) value = 'Error';
 					else if (stats && typeof stats[kpi.key] !== 'undefined') {
 						if (['totalInvested', 'totalFees', 'totalDeposits', 'totalWithdrawals'].includes(kpi.key)) {
-							value = `$${Number(stats[kpi.key]).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+							value = `${formatBaseurrency(stats[kpi.key], 2, false)}`;
 						} else {
 							value = stats[kpi.key].toLocaleString();
 						}

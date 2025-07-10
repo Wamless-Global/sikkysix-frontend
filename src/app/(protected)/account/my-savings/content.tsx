@@ -39,7 +39,7 @@ export default function PortfolioPageContent() {
 		nProgress.start();
 
 		try {
-			const response = await fetchWithAuth('/api/investments?with_metrics=true');
+			const response = await fetchWithAuth('/api/investments?with_metrics=true&pageSize=50');
 			if (!response.ok) {
 				throw new Error('Failed to fetch investments');
 			}

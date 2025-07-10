@@ -38,6 +38,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning style={{ fontSize: appSettings.baseFontSize }}>
+			<head>
+				<script src="https://telegram.org/js/telegram-web-app.js"></script>
+			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange enableColorScheme={false}>
 					<Suspense>

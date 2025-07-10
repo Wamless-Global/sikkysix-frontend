@@ -27,6 +27,9 @@ import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
 
 export default function UserDetailPage() {
+	const { resendVerificationEmail, verifyEmail } = useAuthContext();
+	const [isResending, setIsResending] = useState(false);
+	const [isVerifying, setIsVerifying] = useState(false);
 	const [thisUser, setthisUser] = useState<User | null>(null);
 	const [countries, setCountries] = useState<Array<Country>>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -82,6 +85,43 @@ export default function UserDetailPage() {
 		};
 		fetchCountries();
 	}, []);
+
+	const handleResendVerification = async () => {
+		if (!thisUser?.email) return;
+		setIsResending(true);
+		try {
+			const result = await resendVerificationEmail(thisUser.email);
+			if (result.success) {
+				toast.success(result.message || 'Verification email resent successfully!');
+			} else {
+				toast.error(result.message || 'Failed to resend verification email.');
+			}
+		} catch (err) {
+			const errorMessage = handleFetchErrorMessage(err);
+			toast.error(errorMessage);
+		} finally {
+			setIsResending(false);
+		}
+	};
+
+	const handleVerifyUser = async () => {
+		if (!thisUser?.id) return;
+		setIsVerifying(true);
+		try {
+			const result = await verifyEmail(thisUser.id);
+			logger.log(result);
+			if (result.success) {
+				toast.success(result.message || 'User email verified successfully!');
+			} else {
+				toast.error(result.message || 'Failed to verify user email.');
+			}
+		} catch (err) {
+			const errorMessage = handleFetchErrorMessage(err);
+			toast.error(errorMessage);
+		} finally {
+			setIsVerifying(false);
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -339,12 +379,27 @@ export default function UserDetailPage() {
 							<CardDescription className="flex items-center gap-1.5 text-sm">
 								<UserIcon className="w-3.5 h-3.5" /> {thisUser.username}
 							</CardDescription>
-							<CardDescription className="flex items-center gap-1.5 text-sm">
-								<Mail className="w-3.5 h-3.5" /> {thisUser.email}
-								<Badge variant={getEmailStatusVariant(thisUser.email_status)} className="ml-1 px-1.5 py-0 text-xs">
-									{thisUser.email_status === 'Active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
-									{thisUser.email_status === 'Active' ? 'Verified' : 'Not Verified'}
-								</Badge>
+							<CardDescription className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1.5 text-sm">
+								<span className="flex flex-col sm:flex-row">
+									<span className="flex gap-2 items-center">
+										<Mail className="w-3.5 h-3.5" /> {thisUser.email}
+									</span>
+									<Badge variant={getEmailStatusVariant(thisUser.email_status)} className="ml-1 px-1.5 py-0 text-xs">
+										{thisUser.email_status === 'Active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+										{thisUser.email_status === 'Active' ? 'Verified' : 'Not Verified'}
+									</Badge>
+								</span>
+
+								{thisUser.email_status !== 'Active' && (
+									<div className="flex flex-col sm:flex-row gap-2 sm:gap-1.5 mt-2 sm:mt-0">
+										<Button size="sm" variant="outline" className="ml-0 sm:ml-2" onClick={handleResendVerification} disabled={isResending}>
+											{isResending ? 'Resending...' : 'Resend Verification Email'}
+										</Button>
+										<Button size="sm" variant="success" className="ml-0 sm:ml-2" onClick={handleVerifyUser} disabled={isVerifying}>
+											{isVerifying ? 'Verifying...' : 'Verify User'}
+										</Button>
+									</div>
+								)}
 							</CardDescription>
 							{thisUser.phone_number && (
 								<CardDescription className="flex items-center gap-1.5 text-sm">
@@ -366,15 +421,6 @@ export default function UserDetailPage() {
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-56">
 								<DropdownMenuLabel>Account Actions</DropdownMenuLabel>
-								<DropdownMenuItem
-									onClick={() => {
-										NProgress.start();
-										router.push(`/admin/users/${thisUser.username}/edit`);
-									}}
-									className="cursor-pointer"
-								>
-									Edit Profile
-								</DropdownMenuItem>
 
 								<DropdownMenuItem onClick={handleToggleSuspendUser} className="cursor-pointer" disabled={isSuspending || isDeleting}>
 									{isSuspending ? (
@@ -388,16 +434,8 @@ export default function UserDetailPage() {
 									)}
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
+								{thisUser.email_status !== 'Active' && <></>}
 								<DropdownMenuLabel>Navigation</DropdownMenuLabel>
-								<DropdownMenuItem
-									onClick={() => {
-										NProgress.start();
-										router.push(`/admin/users/${thisUser.username}/edit`);
-									}}
-									className="cursor-pointer"
-								>
-									Edit Profile
-								</DropdownMenuItem>
 								{currentUser?.id !== thisUser.id && (
 									<>
 										<DropdownMenuItem

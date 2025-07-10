@@ -20,6 +20,39 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const pathname = usePathname();
 
+	const verifyEmail = async (userId: string): Promise<{ success: boolean; message: string | null }> => {
+		if (!userId) {
+			console.error('AuthContext: verifyEmail called with no userId.');
+			throw { success: false, message: 'No user ID provided for email verification.' };
+		}
+		try {
+			const response = await fetchWithAuth(`/api/users/${userId}/verify-email`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			const responseData = await response.json();
+
+			if (!response.ok) {
+				const errorMessage = handleFetchErrorMessage(responseData?.message, `Failed to verify email: ${response.statusText || 'Unknown HTTP error'}`);
+				console.error('AuthContext: Verify email API HTTP error:', errorMessage, `Status: ${response.status}`);
+				throw { success: false, message: errorMessage };
+			}
+			if (responseData.status === 'success') {
+				logger.log('AuthContext: Email verification request successful for', userId);
+				return { success: true, message: responseData.message || 'Email verified successfully.' };
+			} else {
+				const errorMessage = responseData?.message || 'Backend indicated an issue with verifying the email.';
+				console.warn('AuthContext: Verify email backend issue:', errorMessage);
+				throw { success: false, message: errorMessage };
+			}
+		} catch (err: unknown) {
+			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while verifying email.', null, false);
+			throw { success: false, message: errorMessage };
+		}
+	};
+
 	const logout = async (): Promise<void> => {
 		try {
 			if (getSetCookie()) {
@@ -118,12 +151,17 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 	};
 
-	const signup = async (name: string, email: string, password: string, confirmPassword: string, country: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
+	const signup = async (name: string, email: string, confirmEmail: string, password: string, confirmPassword: string, country: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
 		logger.log('AuthContext: Starting signup process with', { name, email, referralId, roles });
 		if (password !== confirmPassword) {
 			throw new Error('Passwords do not match.');
 		}
-		if (!name || !email || !password) {
+
+		if (email !== confirmEmail) {
+			throw new Error('Emails do not match.');
+		}
+
+		if (!name || !email || !password || !confirmPassword || !country || !confirmEmail) {
 			throw new Error('All fields are required for signup.');
 		}
 
@@ -133,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ name, email, password, confirmPassword, roles, country, referralId }),
+				body: JSON.stringify({ name, email, confirmEmail, password, confirmPassword, roles, country, referralId }),
 			});
 
 			const responseData = await response.json();
@@ -274,6 +312,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		signup,
 		checkEmailVerificationStatus,
 		resendVerificationEmail,
+		verifyEmail,
 	};
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
