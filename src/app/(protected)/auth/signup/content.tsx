@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nprogress from 'nprogress';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
 import { SignupPageContentProps } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -99,7 +99,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
 			router.push(`/auth/verify-email?email=${email}`);
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			setError(errorMessage);
 			toast.error(errorMessage, { id: toastId });
 		} finally {

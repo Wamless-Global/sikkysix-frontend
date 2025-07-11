@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { useAuthContext } from '@/context/AuthContext';
-import { adminLoginRequest, generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
+import { adminLoginRequest, generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
@@ -33,7 +33,7 @@ export default function AccountPage() {
 				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = handleFetchErrorMessage(errorData, 'An unexpected error occurred while fetching clubs.');
+					errorMessage = handleFetchMessage(errorData, 'An unexpected error occurred while fetching clubs.');
 				} catch (_jsonError) {}
 				throw new Error(errorMessage);
 			}
@@ -68,7 +68,7 @@ export default function AccountPage() {
 				}
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			setError(errorMessage);
 			setCategories([]);
 		} finally {
@@ -118,12 +118,12 @@ export default function AccountPage() {
 
 	return (
 		<div className="space-y-6">
-			<p className="account-page-title mt-0 mb-4">Home</p>
+			<p className="account-page-title mt-0 mb-4 !text-xm">Home</p>
 
 			{currentUser ? (
 				<div>
-					<h2 className="text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
-					<p className="text-text-secondary">Pick any club of choice and start saving towards your goal.</p>
+					<h2 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
+					<p className="text-text-secondary text-sm">Pick any club of choice and start saving towards your goal.</p>
 				</div>
 			) : (
 				<div className="mt-2 space-y-3">

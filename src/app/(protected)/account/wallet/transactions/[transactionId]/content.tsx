@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchMessage } from '@/lib/helpers';
 import { Transaction } from '@/types';
 import P2PContent from './p2p-content';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -30,7 +30,7 @@ export default function TransactionDetailsPageContent() {
 				setTransaction(data);
 			})
 			.catch((_err) => {
-				handleFetchErrorMessage(_err);
+				handleFetchMessage(_err);
 
 				setError('Could not load transaction.');
 			})

@@ -10,7 +10,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import appSettings from '@/config/app';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
 import { Skeleton } from '@/components/ui/skeleton';
 import AppFooter from '@/components/layout/AppFooter';
@@ -105,7 +105,7 @@ export default function VerifyEmailStatusPageContent() {
 				setStatusMessage(result.message || 'Failed to resend verification email. Please try again or contact support.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 			setStatusMessage(errorMessage);
 		} finally {

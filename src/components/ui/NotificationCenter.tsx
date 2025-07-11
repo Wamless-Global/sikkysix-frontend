@@ -38,7 +38,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 		handleUnread(unreadCount);
 	}, [unreadCount, handleUnread]);
 
-	// Disable body scroll when open
 	useEffect(() => {
 		if (open) {
 			document.body.style.overflow = 'hidden';
@@ -174,10 +173,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 		<>
 			<div className="fixed inset-0 z-90 bg-black/40 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" />
 			<div className="notification-center-panel enhanced fixed right-0 top-0 bottom-0 z-100 bg-[oklch(var(--dashboard-secondary))] border-l border-[oklch(var(--border))] shadow-2xl rounded-l-2xl max-w-md w-full lg:mr-4 animate-fade-in-up">
-				<div className="notification-center-header enhanced flex items-center justify-between px-8 py-4 border-b border-[oklch(var(--border))] bg-[oklch(var(--sidebar))] rounded-tl-2xl">
+				<div className="notification-center-header enhanced flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[oklch(var(--border))] bg-[oklch(var(--sidebar))] rounded-tl-2xl">
 					<div className="flex items-center gap-3">
 						<Bell className="h-6 w-6 text-[oklch(var(--dashboard-secondary-foreground))]" />
-						<span className="font-nico text-xl font-semibold text-[oklch(var(--dashboard-secondary-foreground))] tracking-tight">Notifications</span>
+						<span className="font-nico text-lg sm:text-xl font-semibold text-[oklch(var(--dashboard-secondary-foreground))] tracking-tight">Notifications</span>
 						{unreadCount > 0 && <span className="ml-2 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5">{unreadCount}</span>}
 					</div>
 					<Button variant="ghost" size="icon" onClick={onClose} className="notification-center-close text-[oklch(var(--dashboard-secondary-foreground))] opacity-80 hover:opacity-100 focus:opacity-100 z-10" aria-label="Close notifications panel">
@@ -188,11 +187,15 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 					{loading ? (
 						<div className="notification-center-empty text-center text-muted-foreground py-10">Loading...</div>
 					) : notifications.length === 0 ? (
-						<div className="notification-center-empty text-center text-muted-foreground py-10">No notifications yet.</div>
+						<div className="notification-center-empty text-center text-muted-foreground py-10 !text-sm sm:text-base">No notifications yet.</div>
 					) : (
 						<div className="space-y-4">
 							{notifications.map((n) => (
-								<div key={n.id} className={`notification-center-item flex flex-col bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-md px-6 py-4 relative group transition-all duration-150 ${n.is_read ? 'opacity-70' : 'opacity-100'}`} style={{ minHeight: 'unset' }}>
+								<div
+									key={n.id}
+									className={`notification-center-item flex flex-col bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-md px-6 py-4 relative group transition-all duration-150 ${n.is_read ? 'opacity-70' : 'opacity-100'} text-sm sm:text-base`}
+									style={{ minHeight: 'unset' }}
+								>
 									<div className="flex items-center justify-between mb-1">
 										<CustomLink href={`${n.action_link ? `${n.action_link}` : '#'}`} onClick={onClose} className="flex items-center gap-2 min-w-0">
 											{!n.is_read && <span className="inline-block w-2 h-2 rounded-full bg-[var(--dashboard-accent)] animate-pulse flex-shrink-0" title="New" />}

@@ -9,11 +9,11 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import nProgress from 'nprogress';
-import { convertCurrency, getBaseCurrency } from '@/lib/helpers';
+import { convertToBaseCurrency, getBaseCurrencyRate, getCurrencySymbol } from '@/lib/helpers';
 
 export default function DepositPageContent() {
 	const router = useRouter();
-	const [amount, setAmount] = useState('10000');
+	const [amount, setAmount] = useState('');
 	const [depositMethod, setDepositMethod] = useState('p2p');
 	const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -21,9 +21,9 @@ export default function DepositPageContent() {
 		nProgress.start();
 		setIsRedirecting(true);
 		if (depositMethod === 'p2p') {
-			router.push(`/account/wallet/deposit/p2p?amount=${amount}`);
+			router.push(`/account/wallet/deposit/p2p?amount=${+amount / getBaseCurrencyRate()}`);
 		} else if (depositMethod === 'onchain') {
-			router.push(`/account/wallet/deposit/on-chain?amount=${amount}`);
+			router.push(`/account/wallet/deposit/on-chain?amount=${+amount / getBaseCurrencyRate()}`);
 		}
 	};
 
@@ -38,10 +38,10 @@ export default function DepositPageContent() {
 					<div className="space-y-2">
 						<div className="flex items-center justify-between">
 							<Label htmlFor="amount" className="text-sm font-medium">
-								Enter Amount ({getBaseCurrency()})
+								Enter Amount ({getCurrencySymbol()})
 							</Label>
 
-							<span className="font-bold">~{convertCurrency(+amount)}</span>
+							<span className="font-bold">~ {convertToBaseCurrency(+amount)}</span>
 						</div>
 						<Input id="amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g., 10000" className="bg-background border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)]" />
 					</div>

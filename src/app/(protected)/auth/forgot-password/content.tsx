@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomLink } from '@/components/ui/CustomLink'; // Import CustomLink
 import { toast } from 'sonner';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import Logo from '@/components/ui/logo';
 import AppFooter from '@/components/layout/AppFooter';
@@ -54,7 +54,7 @@ export default function ForgotPasswordPageContent() {
 				toast.error(data.message || 'Failed to send password reset link.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setLoading(false);

@@ -15,7 +15,7 @@ import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 import Image from 'next/image';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 
 const paymentMethodSchema = z.object({
 	name: z.string().min(2, 'Name is required'),
@@ -76,7 +76,7 @@ export default function EditP2PPage() {
 					let errorMsg = `Unable to load countries. Status: ${res.status}`;
 					try {
 						const errorData = await res.json();
-						errorMsg = handleFetchErrorMessage(errorData, errorMsg);
+						errorMsg = handleFetchMessage(errorData, errorMsg);
 					} catch (_e) {}
 					toast.error(errorMsg);
 					throw new Error(errorMsg);

@@ -15,7 +15,7 @@ import nProgress from 'nprogress';
 import { toast } from 'sonner';
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/config/app';
 import { useAuthContext } from '@/context/AuthContext';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
@@ -67,7 +67,7 @@ const AgentApplyContent = () => {
 				}
 			} else {
 				const err = await response.json();
-				const errorMessage = handleFetchErrorMessage(err, `Failed to fetch application status. Status: ${response.status}`);
+				const errorMessage = handleFetchMessage(err, `Failed to fetch application status. Status: ${response.status}`);
 				setError(errorMessage);
 			}
 		} catch (error) {
@@ -125,7 +125,7 @@ const AgentApplyContent = () => {
 				let errorMsg = `Failed to submit application. Status: ${response.status}`;
 				try {
 					const errorData = await response.json();
-					errorMsg = handleFetchErrorMessage(errorData, errorMsg);
+					errorMsg = handleFetchMessage(errorData, errorMsg);
 				} catch (_e) {}
 				toast.error(errorMsg);
 			}

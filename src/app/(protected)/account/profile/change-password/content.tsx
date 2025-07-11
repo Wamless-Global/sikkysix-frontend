@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
 const formSchema = z
@@ -58,7 +58,7 @@ export default function ChangePasswordPageContent() {
 				toast.error(data.message || 'Failed to update password.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setLoading(false);

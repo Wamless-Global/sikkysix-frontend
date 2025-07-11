@@ -15,7 +15,7 @@ export default function AboutPage() {
 				<section className="relative">
 					<div className="container mx-auto px-4 sm:px-10 py-20 md:py-32 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
 						<div className="flex-1 text-center md:text-left z-10">
-							<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-foreground">Save Smarter with Dynamic Clubs</h1>
+							<h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-foreground">Save Smarter with Dynamic Clubs</h1>
 							<p className="sm:text-lg text-muted-foreground mb-8 max-w-xl">Join diverse savings clubs, enjoy early saver rewards, and grow your wealth transparently.</p>
 							<CustomLink href="/auth/signup" passHref>
 								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-6 text-md shadow-lg">

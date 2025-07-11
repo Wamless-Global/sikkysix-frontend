@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import CircularProgressDisplay from '@/components/ui/circular-progress-display';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'sonner';
-import { formatBaseurrency, formatNumber, formatRelativeTime, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatNumber, formatRelativeTime, generateSlug, handleFetchMessage } from '@/lib/helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AuthenticatedUser, Investment, SingleInvestmentResponse, WithdrawalPreviewResponse } from '@/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -53,7 +53,7 @@ export default function PortfolioItemDetailPageContent() {
 				setInvestment(data.data.investment);
 			} catch (err) {
 				// console.error('Error fetching investment:', err);
-				const errorMessage = handleFetchErrorMessage(err, 'Failed to load investment details');
+				const errorMessage = handleFetchMessage(err, 'Failed to load investment details');
 				setError(errorMessage);
 			} finally {
 				setIsLoading(false);

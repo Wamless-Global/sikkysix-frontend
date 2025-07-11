@@ -15,7 +15,7 @@ import { fetchUserByUsername, updateUser, deleteUser as deleteUserUtil } from '@
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
-import { formatBaseurrency, getEmailStatusVariant, getStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, getEmailStatusVariant, getStatusVariant, handleFetchMessage } from '@/lib/helpers';
 import { AdjustBalanceModal } from '@/components/modals/AdjustBalanceModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Country, User, UserStatus } from '@/types';
@@ -97,7 +97,7 @@ export default function UserDetailPage() {
 				toast.error(result.message || 'Failed to resend verification email.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setIsResending(false);
@@ -116,7 +116,7 @@ export default function UserDetailPage() {
 				toast.error(result.message || 'Failed to verify user email.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setIsVerifying(false);
@@ -296,7 +296,7 @@ export default function UserDetailPage() {
 			const result = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = handleFetchErrorMessage(result, 'An unexpected error occurred.');
+				const errorMessage = handleFetchMessage(result, 'An unexpected error occurred.');
 				toast.error(errorMessage);
 				return;
 			}
@@ -308,7 +308,7 @@ export default function UserDetailPage() {
 			setIsAdjustModalOpen(false); // Close modal on success
 		} catch (err) {
 			// console.error('Error adjusting balance:', err);
-			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred.');
+			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred.');
 			toast.error(errorMessage);
 		} finally {
 			setIsAdjustingBalance(false);
@@ -346,7 +346,7 @@ export default function UserDetailPage() {
 			}
 		} catch (err) {
 			logger.error('Error during user impersonation:', err);
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to log in as user.');
+			const errorMessage = handleFetchMessage(err, 'Failed to log in as user.');
 			toast.error(errorMessage);
 		} finally {
 			setIsImpersonating(false);

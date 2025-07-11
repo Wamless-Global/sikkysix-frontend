@@ -14,9 +14,10 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import nProgress from 'nprogress';
 import { Role } from '@/types';
-import { getLoggedInAsUser, getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getLoggedInAsUser, getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import NotificationCenter from '@/components/ui/NotificationCenter';
 import Logo from '@/components/ui/logo';
+import { useTelegram } from '@/context/TelegramContext';
 
 type desktopNavItemsType = {
 	href: string;
@@ -55,6 +56,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 	const [_openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 	const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
 	const [unreadNotifications, setUnreadNotifications] = useState(0);
+	const { closeTelegramApp, isTelegram } = useTelegram();
 
 	const pathname = usePathname();
 	const router = useRouter();
@@ -70,9 +72,13 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 			await logout();
 			toast.success('Logged out successfully!');
 			nProgress.start();
-			router.replace('/auth/login');
+			if (isTelegram) {
+				closeTelegramApp();
+			} else {
+				router.replace('/auth/login');
+			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred during logout.');
+			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred during logout.');
 			toast.error(errorMessage);
 		} finally {
 			setIsLogoutLoading(false);

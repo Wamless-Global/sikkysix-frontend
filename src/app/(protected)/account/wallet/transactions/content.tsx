@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchErrorMessage, positiveTransactionTypes } from '@/lib/helpers';
+import { formatBaseurrency, formatDate, getTransactionTypeLabel, handleFetchMessage, positiveTransactionTypes } from '@/lib/helpers';
 import { AccountTransaction, TransactionApiResponse } from '@/types';
 import { cn } from '@/lib/utils';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -85,7 +85,7 @@ export default function AccountTransactionsPageContent() {
 				setTransactions([]);
 				setTotalCount(0);
 				setTotalPages(1);
-				setError(handleFetchErrorMessage(err, 'An error occurred while fetching transactions.'));
+				setError(handleFetchMessage(err, 'An error occurred while fetching transactions.'));
 			})
 			.finally(() => setTimeout(() => setIsLoading(false), 300));
 	}, [currentPage, filterStatus, filterType, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount, sortColumn, sortDirection]);
@@ -227,7 +227,7 @@ export default function AccountTransactionsPageContent() {
 				setTransactions([]);
 				setTotalCount(0);
 				setTotalPages(1);
-				setError(handleFetchErrorMessage(err, 'An error occurred while fetching transactions.'));
+				setError(handleFetchMessage(err, 'An error occurred while fetching transactions.'));
 			})
 			.finally(() => setTimeout(() => setIsLoading(false), 300));
 	};

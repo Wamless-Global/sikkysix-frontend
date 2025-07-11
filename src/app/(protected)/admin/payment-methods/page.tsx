@@ -11,7 +11,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { Skeleton } from '@/components/ui/skeleton';
 import appSettings from '@/config/app';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -33,7 +33,7 @@ export default function P2PManagementPage() {
 
 			const result = await response.json();
 			if (!response.ok) {
-				setError(handleFetchErrorMessage(result, 'Failed to fetch payment methods'));
+				setError(handleFetchMessage(result, 'Failed to fetch payment methods'));
 				throw new Error('Failed to fetch payment methods');
 			}
 
@@ -81,7 +81,7 @@ export default function P2PManagementPage() {
 
 			fetchMethods(currentPage);
 		} catch (err: unknown) {
-			toast.error(handleFetchErrorMessage('Failed to delete payment method.'), { id: toastId });
+			toast.error(handleFetchMessage('Failed to delete payment method.'), { id: toastId });
 		}
 	};
 

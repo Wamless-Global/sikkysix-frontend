@@ -13,7 +13,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { useRouter } from 'next/navigation';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import appSettings from '@/config/app';
 import { VerifyResetTokenResult } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -144,7 +144,7 @@ export default function UpdatePasswordPageContent() {
 				toast.error(data.message || 'Failed to update password.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setLoading(false);

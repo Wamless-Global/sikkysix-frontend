@@ -14,7 +14,7 @@ import copyToClipboard from '@/components/ui/copy-to-clipboard';
 import { cn } from '@/lib/utils';
 import type { TradeResponse } from '@/types/modules/trade';
 import { Transaction } from '@/types';
-import { getBaseCurrency, getTradeDescription, getTradeStatusToast, getTradeViewState, handleFetchErrorMessage } from '@/lib/helpers';
+import { getBaseCurrency, getTradeDescription, getTradeStatusToast, getTradeViewState, handleFetchMessage } from '@/lib/helpers';
 import MakePaymentView from './MakePaymentView';
 import MessagingView from './MessagingView';
 import DisputeModal from './DisputeModal';
@@ -130,7 +130,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 					});
 					if (!res.ok) throw new Error('Failed to update trade status');
 				} catch (err) {
-					const errorMessage = handleFetchErrorMessage(err, 'Failed to update trade status to expired. Please refresh or contact support.');
+					const errorMessage = handleFetchMessage(err, 'Failed to update trade status to expired. Please refresh or contact support.');
 					toast.error(errorMessage);
 				}
 				setIsExpired(true);
@@ -235,7 +235,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 			// 	setTimeLeft(0);
 			// }, 15000);
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to update payment status.');
+			const errorMessage = handleFetchMessage(err, 'Failed to update payment status.');
 			toast.error(errorMessage);
 			setIsProcessingPaymentConfirmation(false);
 			nProgress.done();
@@ -260,7 +260,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 			setTransactionFlowState('completedTransaction');
 			setTimeLeft(0);
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to cancel trade. Please try again.');
+			const errorMessage = handleFetchMessage(err, 'Failed to cancel trade. Please try again.');
 			toast.error(errorMessage);
 		}
 		setIsCancelling(false);
@@ -286,7 +286,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 			if (!res.ok) throw new Error('Failed to confirm payment received');
 			toast.success('Payment confirmed. Trade will be completed.');
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to confirm payment.');
+			const errorMessage = handleFetchMessage(err, 'Failed to confirm payment.');
 			toast.error(errorMessage);
 		} finally {
 			setIsProcessingSellerConfirm(false);
@@ -309,7 +309,7 @@ export default function P2PContent({ transaction, isAnAgent = false }: P2PConten
 			if (!res.ok) throw new Error('Failed to confirm payment as buyer');
 			toast.success('Payment marked as made. Waiting for seller confirmation.');
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to confirm payment as buyer.');
+			const errorMessage = handleFetchMessage(err, 'Failed to confirm payment as buyer.');
 			toast.error(errorMessage);
 		} finally {
 			setIsProcessingBuyerConfirm(false);

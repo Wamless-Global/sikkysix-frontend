@@ -14,7 +14,7 @@ import InfoTooltip from '@/components/ui/info-tooltip';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
 
@@ -127,7 +127,7 @@ export default function PlatformSettingsPage() {
 				if (settings.cap_savings_frequency !== undefined) setCapSavingsFrequency(settings.cap_savings_frequency);
 				if (settings.week_mode !== undefined) setWeekMode(settings.week_mode === 'true');
 			} catch (e) {
-				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
+				const errorMessage = handleFetchMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
 			} finally {
 				setLoading(false);
@@ -164,7 +164,7 @@ export default function PlatformSettingsPage() {
 					}
 				}
 			} catch (e) {
-				const errorMessage = handleFetchErrorMessage(e, 'Failed to load platform settings.');
+				const errorMessage = handleFetchMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
 			} finally {
 				setLoading(false);
@@ -188,13 +188,13 @@ export default function PlatformSettingsPage() {
 				toast.success(`${section} saved successfully!`, { id: toastId });
 				return true;
 			} else {
-				const errorMessage = handleFetchErrorMessage(data, `Failed to save ${section}.`);
+				const errorMessage = handleFetchMessage(data, `Failed to save ${section}.`);
 
 				toast.error(errorMessage, { id: toastId });
 				return false;
 			}
 		} catch (e: unknown) {
-			const errorMessage = handleFetchErrorMessage(e, `Failed to save ${section}.`);
+			const errorMessage = handleFetchMessage(e, `Failed to save ${section}.`);
 
 			toast.error(errorMessage, { id: toastId });
 			return false;

@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
 import AppFooter from '@/components/layout/AppFooter';
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
 				router.replace(destination);
 			}, 1000);
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 
 			if (errorMessage.includes('Please verify your email address before logging in')) {
 				nProgress.start();

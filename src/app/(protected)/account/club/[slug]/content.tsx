@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { convertCurrency, formatBaseurrency, formatNumber, formatRelativeTime, getBaseCurrency, handleFetchErrorMessage, truncateString } from '@/lib/helpers';
+import { convertCurrency, formatBaseurrency, formatNumber, formatRelativeTime, getBaseCurrency, handleFetchMessage, truncateString } from '@/lib/helpers';
 import { AuthenticatedUser, Category, Investment, InvestmentsResponse, Transaction, TransactionResponse, UserSingleCategoryResponse } from '@/types';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Badge } from '@/components/ui/badge';
@@ -72,11 +72,11 @@ export default function SingleCategoryContent() {
 				fetchedCategory.is_launched = fetchedCategory.is_launched === undefined ? true : fetchedCategory.is_launched;
 				setCategoryData(fetchedCategory);
 			} else {
-				const errorMessage = handleFetchErrorMessage(result, 'Failed to fetch category data or data is invalid.');
+				const errorMessage = handleFetchMessage(result, 'Failed to fetch category data or data is invalid.');
 				throw new Error(errorMessage);
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {
@@ -97,7 +97,7 @@ export default function SingleCategoryContent() {
 			setCurrentPage(data.data.currentPage);
 			setTotalPages(data.data.totalPages);
 		} catch (err) {
-			handleFetchErrorMessage(err);
+			handleFetchMessage(err);
 			toast.error('Failed to load transaction history');
 		} finally {
 			setIsLoadingTransactions(false);
@@ -111,7 +111,7 @@ export default function SingleCategoryContent() {
 		try {
 			const response = await fetchWithAuth(`/api/investments/?status=active&page=${page}&categoryId=${categoryId}`);
 			if (!response.ok) {
-				throw new Error(handleFetchErrorMessage(await response.json()));
+				throw new Error(handleFetchMessage(await response.json()));
 			}
 			const data: InvestmentsResponse = await response.json();
 
@@ -121,7 +121,7 @@ export default function SingleCategoryContent() {
 			setInvestmentsPage(data.data.currentPage);
 			setInvestmentsTotalPages(data.data.totalPages);
 		} catch (err: unknown) {
-			handleFetchErrorMessage(err);
+			handleFetchMessage(err);
 			// console.error('Error fetching active investments:', err);
 			toast.error('Failed to load active investments');
 		} finally {
@@ -233,13 +233,13 @@ export default function SingleCategoryContent() {
 				let errorMessage = `Failed to create category. Status: ${response.status}`;
 				try {
 					const errorData = await response.json();
-					errorMessage = handleFetchErrorMessage(errorData);
+					errorMessage = handleFetchMessage(errorData);
 				} catch (_e) {}
 				toast.error(errorMessage);
 			}
 		} catch (error: unknown) {
 			// console.error('Error creating category:', error);
-			handleFetchErrorMessage(error);
+			handleFetchMessage(error);
 			toast.error('An unexpected error occurred. Please try again.');
 		} finally {
 			nProgress.done();
@@ -381,11 +381,11 @@ export default function SingleCategoryContent() {
 											});
 											if (!res.ok) {
 												const data = await res.json().catch(() => ({}));
-												throw new Error(handleFetchErrorMessage(data, 'Failed to request club launch.'));
+												throw new Error(handleFetchMessage(data, 'Failed to request club launch.'));
 											}
 											toast.success('Request sent!');
 										} catch (e: unknown) {
-											const err = handleFetchErrorMessage(e);
+											const err = handleFetchMessage(e);
 											toast.error(err || 'Failed to request club launch.');
 										} finally {
 											setIsRequestingLaunch(false);

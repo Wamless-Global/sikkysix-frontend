@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ArrowDown, ArrowRight, ArrowUp, BanknoteArrowDown, BanknoteArrowUp, Loader2, X, RefreshCcw, DollarSign } from 'lucide-react';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Button } from '@/components/ui/button';
-import { formatDate, getTransactionTypeLabel, handleFetchErrorMessage, formatBaseurrency, positiveTransactionTypes, convertCurrency } from '@/lib/helpers';
+import { formatDate, getTransactionTypeLabel, handleFetchMessage, formatBaseurrency, positiveTransactionTypes, convertCurrency } from '@/lib/helpers';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiTransaction } from '@/types';
@@ -50,7 +50,7 @@ export default function WalletPageContent() {
 				else setBalance(0);
 			})
 			.catch((err) => {
-				handleFetchErrorMessage(err);
+				handleFetchMessage(err);
 				setBalance(0);
 			})
 			.finally(() => setIsBalanceLoading(false));

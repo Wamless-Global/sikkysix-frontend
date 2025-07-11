@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLoggedInAsUser, getSetCookie, handleFetchErrorMessage } from '@/lib/helpers';
+import { clearLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
 import { AuthContextType, AuthenticatedUser, AuthProviderProps } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { usePathname } from 'next/navigation';
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = handleFetchErrorMessage(responseData?.message, `Failed to verify email: ${response.statusText || 'Unknown HTTP error'}`);
+				const errorMessage = handleFetchMessage(responseData?.message, `Failed to verify email: ${response.statusText || 'Unknown HTTP error'}`);
 				console.error('AuthContext: Verify email API HTTP error:', errorMessage, `Status: ${response.status}`);
 				throw { success: false, message: errorMessage };
 			}
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				throw { success: false, message: errorMessage };
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while verifying email.', null, false);
+			const errorMessage = handleFetchMessage(err, 'An unknown error occurred while verifying email.', null, false);
 			throw { success: false, message: errorMessage };
 		}
 	};
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 					let errorMessage = `Logout API failed: ${response.statusText || 'Unknown error'}`;
 					try {
 						const errorData = await response.json();
-						errorMessage = handleFetchErrorMessage(errorData, errorMessage);
+						errorMessage = handleFetchMessage(errorData, errorMessage);
 					} catch (_parseError) {}
 					throw new Error(errorMessage);
 				}
@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = handleFetchErrorMessage(responseData || `Signup API failed: ${response.statusText || 'Unknown error'}`);
+				const errorMessage = handleFetchMessage(responseData || `Signup API failed: ${response.statusText || 'Unknown error'}`);
 				console.error('AuthContext Signup Error:', errorMessage, responseData);
 				throw new Error(errorMessage);
 			}
@@ -265,7 +265,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				return { success: false, message: errorMessage };
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unknown error occurred while checking email status.', null, false);
+			const errorMessage = handleFetchMessage(err, 'An unknown error occurred while checking email status.', null, false);
 			return { success: false, message: errorMessage };
 		}
 	};

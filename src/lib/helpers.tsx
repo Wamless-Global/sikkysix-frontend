@@ -238,7 +238,7 @@ export function getTransactionTypeLabel(type: string) {
 	return TRANSACTION_TYPE_LABELS[type] || type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function handleFetchErrorMessage(err: { message?: string; detail?: unknown; errors?: any[] } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = '', redirect: boolean = true): string {
+export function handleFetchMessage(err: { message?: string; detail?: unknown; errors?: any[] } | string | unknown, defaultMessage: string | null = '', JSONErr: string | null = '', redirect: boolean = true): string {
 	let errorMessage = defaultMessage || 'An unexpected error occurred.';
 
 	let message: string | undefined;
@@ -286,7 +286,7 @@ export function handleFetchErrorMessage(err: { message?: string; detail?: unknow
 	}
 
 	if (errorMessage == 'Not authorized, no authentication cookie found' || errorMessage.includes('no authentication cookie') || errorMessage.includes('No active session found')) {
-		errorMessage = 'You session has expired. Please log in again.';
+		errorMessage = 'Your session has expired. Please log in again.';
 		if (redirect) {
 			nProgress.start();
 			window.location.reload();
@@ -563,10 +563,11 @@ export function getLoggedInAsUser() {
 	if (typeof window !== 'undefined') {
 		try {
 			const isLoggedInAsUserStr = localStorage.getItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
+			const authCookie = localStorage.getItem(`sb-auth-cookie-set`);
 			logger.warn(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`, isLoggedInAsUserStr);
-			if (!isLoggedInAsUserStr) return false;
+			if (!isLoggedInAsUserStr || !authCookie) return false;
 			const isLoggedInAsUser = JSON.parse(isLoggedInAsUserStr);
-			return isLoggedInAsUser;
+			return JSON.parse(authCookie) && isLoggedInAsUser;
 		} catch {
 			// ignore JSON parse errors
 		}
@@ -585,11 +586,30 @@ export function getSetCookie() {
 	return false;
 }
 
+export function getTGData() {
+	if (typeof window !== 'undefined') {
+		try {
+			const data = localStorage.getItem('tg-init-data');
+			if (!data) return null;
+			// Try to parse as JSON, otherwise return as string
+			try {
+				return JSON.parse(data);
+			} catch {
+				return data;
+			}
+		} catch {
+			return null;
+		}
+	}
+	return null;
+}
+
 export function clearLoggedInAsUser(): void {
 	if (typeof window !== 'undefined') {
 		localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
 		localStorage.removeItem(`sb-auth-cookie-set`);
 		localStorage.removeItem(`admin-login-request`);
+		localStorage.removeItem(`tg-init-data`);
 	}
 }
 
@@ -612,3 +632,5 @@ export function adminLoginRequest() {
 }
 
 export const convertCurrency = (amount: number): string => formatCurrency(amount * getBaseCurrencyRate());
+
+export const convertToBaseCurrency = (amount: number) => formatBaseurrency(amount / getBaseCurrencyRate());

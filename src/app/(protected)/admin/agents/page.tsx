@@ -15,7 +15,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Agent, AgentFilters } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 
 // Assuming these constants exist or need to be defined
 const ALL_AVAILABILITY_STATUSES = ['available', 'offline', 'busy'];
@@ -74,7 +74,7 @@ const fetchAgents = async (filters: AgentFilters, page: number): Promise<{ agent
 		const response = await fetchWithAuth(url);
 		if (!response.ok) {
 			const errorData = await response.json();
-			throw new Error(handleFetchErrorMessage(errorData, `Error fetching agents: ${response.statusText}`));
+			throw new Error(handleFetchMessage(errorData, `Error fetching agents: ${response.statusText}`));
 		}
 		const result = await response.json();
 

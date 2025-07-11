@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { Switch } from '@/components/ui/switch';
 import { Input as SearchInput } from '@/components/ui/input';
 import { X } from 'lucide-react';
@@ -69,7 +69,7 @@ export default function CommunicationCenterPage() {
 				setSentMessages(data.data.notifications);
 				setHistoryTotal(data.data.count);
 			} catch (e) {
-				setError(handleFetchErrorMessage(e, 'Failed to fetch sent messages.'));
+				setError(handleFetchMessage(e, 'Failed to fetch sent messages.'));
 				setSentMessages([]);
 				setHistoryTotal(0);
 			}
@@ -148,7 +148,7 @@ export default function CommunicationCenterPage() {
 			});
 			const data = await res.json();
 			if (data.status === 'error') {
-				const errorMessage = handleFetchErrorMessage(data, 'Failed to send broadcast.');
+				const errorMessage = handleFetchMessage(data, 'Failed to send broadcast.');
 				setError(errorMessage || 'Failed to send broadcast.');
 				toast.error(errorMessage || 'Failed to send broadcast.');
 				return;
@@ -161,7 +161,7 @@ export default function CommunicationCenterPage() {
 			toast.success('Broadcast Sent!');
 		} catch (err) {
 			logger.error('Failed to send broadcast:', err);
-			const errorMessage = handleFetchErrorMessage(err, 'Failed to send broadcast.');
+			const errorMessage = handleFetchMessage(err, 'Failed to send broadcast.');
 			setError(errorMessage);
 			toast.error(errorMessage);
 		} finally {

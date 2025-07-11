@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useAuthContext } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatBaseurrency, formatDateNice, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatDateNice, handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { Order } from '@/types';
 import { logger } from '@/lib/logger';
@@ -103,10 +103,10 @@ export default function AgentOrdersContent() {
 				await fetchOrders();
 			} else {
 				const error = await res.json().catch(() => ({}));
-				throw new Error(handleFetchErrorMessage(error, 'Failed to create order'));
+				throw new Error(handleFetchMessage(error, 'Failed to create order'));
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setApiLoading(false);
@@ -140,10 +140,10 @@ export default function AgentOrdersContent() {
 				toast.success('Order updated');
 			} else {
 				const error = await res.json().catch(() => ({}));
-				throw new Error(handleFetchErrorMessage(error, 'Failed to edit order'));
+				throw new Error(handleFetchMessage(error, 'Failed to edit order'));
 			}
 		} catch (err: unknown) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 		} finally {
 			setApiLoading(false);

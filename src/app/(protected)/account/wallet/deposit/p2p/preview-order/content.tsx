@@ -10,7 +10,7 @@ import nProgress from 'nprogress';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import OrderDetailItem from '@/components/p2p/OrderDetailItem';
-import { formatBaseurrency, formatCurrency, getBaseCurrency, getCurrencyFromLocalStorage, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getBaseCurrency, getCurrencyFromLocalStorage, handleFetchMessage } from '@/lib/helpers';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -79,7 +79,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 						setSelectedMethodId(data.data.methods[0].id);
 					}
 				} else if (data?.error) {
-					const msg = handleFetchErrorMessage(data.error, 'Could not fetch order preview.');
+					const msg = handleFetchMessage(data.error, 'Could not fetch order preview.');
 					setSoftError(msg);
 					toast.error(msg);
 				} else {
@@ -87,7 +87,7 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 					toast.error('Order preview not found.');
 				}
 			} catch (err) {
-				const msg = handleFetchErrorMessage(err, 'Failed to fetch order preview.');
+				const msg = handleFetchMessage(err, 'Failed to fetch order preview.');
 				setSoftError(msg);
 				toast.error(msg);
 			} finally {
@@ -119,12 +119,12 @@ export default function P2PNewOrderPageContent({ page = 'deposit' }: { page?: 'd
 				toast.success('Order placed successfully! Redirecting...');
 				router.replace(`/account/wallet/transactions/${data.data.escrow_transaction_id}`);
 			} else {
-				const msg = handleFetchErrorMessage(data, 'Failed to confirm order.');
+				const msg = handleFetchMessage(data, 'Failed to confirm order.');
 				toast.error(msg);
 				setIsProcessingOrder(false);
 			}
 		} catch (err) {
-			const msg = handleFetchErrorMessage(err, 'Failed to confirm order.');
+			const msg = handleFetchMessage(err, 'Failed to confirm order.');
 			toast.error(msg);
 			setIsProcessingOrder(false);
 		}

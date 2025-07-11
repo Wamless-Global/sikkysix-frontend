@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import nProgress from 'nprogress';
 import { fetchCurrentUserBalance } from '@/lib/userUtils';
-import { getBaseCurrency, handleFetchErrorMessage } from '@/lib/helpers';
+import { convertCurrency, getBaseCurrency, handleFetchMessage } from '@/lib/helpers';
 
 export default function WithdrawPageContent() {
 	const router = useRouter();
@@ -26,7 +26,7 @@ export default function WithdrawPageContent() {
 				const balance = await fetchCurrentUserBalance();
 				if (typeof balance === 'number') setCurrentBalance(balance);
 			} catch (error) {
-				handleFetchErrorMessage(error, 'An unknown error occurred while fetching balance.');
+				handleFetchMessage(error, 'An unknown error occurred while fetching balance.');
 			}
 		};
 		fetchBalance();
@@ -74,9 +74,13 @@ export default function WithdrawPageContent() {
 				</CardHeader>
 				<CardContent className="space-y-6 pt-6 px-0">
 					<div className="space-y-2">
-						<Label htmlFor="amount" className="text-sm font-medium">
-							Enter Amount ({getBaseCurrency()})
-						</Label>
+						<div className="flex items-center justify-between">
+							<Label htmlFor="amount" className="text-sm font-medium">
+								Enter Amount ({getBaseCurrency()})
+							</Label>
+
+							<span className="font-bold">~ {convertCurrency(+amount)}</span>
+						</div>
 						<Input
 							id="amount"
 							type="number"

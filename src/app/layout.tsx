@@ -6,6 +6,8 @@ import appSettings from '@/config/app';
 import { ProgressBar } from '@/components/layout/ProgressBar';
 import { Toaster } from '@/components/ui/sonner';
 import { DynamicAppNameTitle } from '@/components/others/DynamicAppNameTitle';
+import { TelegramProvider } from '@/context/TelegramContext';
+
 import './globals.css';
 
 const geistSans = Geist({
@@ -46,8 +48,10 @@ export default function RootLayout({
 					<Suspense>
 						<ProgressBar />
 						<DynamicAppNameTitle fallback={appSettings.appName} />
-						{children}
-						<Toaster richColors />
+						<TelegramProvider>
+							{children}
+							<Toaster richColors />
+						</TelegramProvider>
 					</Suspense>
 				</ThemeProvider>
 			</body>

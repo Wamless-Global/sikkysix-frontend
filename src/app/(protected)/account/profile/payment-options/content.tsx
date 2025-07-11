@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
-import { getFieldLabel, handleFetchErrorMessage } from '@/lib/helpers';
+import { getFieldLabel, handleFetchMessage } from '@/lib/helpers';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 
@@ -141,7 +141,7 @@ export default function ProfilePaymentOptionsContent() {
 				setModalOpen(false);
 				toast.success('Payment method added', { id: toastId });
 			} else {
-				const errorMessage = handleFetchErrorMessage(data, 'Failed to add payment method');
+				const errorMessage = handleFetchMessage(data, 'Failed to add payment method');
 				toast.error(errorMessage, { id: toastId });
 			}
 		} catch (e) {
@@ -202,7 +202,7 @@ export default function ProfilePaymentOptionsContent() {
 				toast.success('Payment method deleted', { id: toastId });
 			} else {
 				const err = await res.json();
-				const errorMessage = handleFetchErrorMessage(err, 'Failed to delete payment method');
+				const errorMessage = handleFetchMessage(err, 'Failed to delete payment method');
 				toast.error(errorMessage, { id: toastId });
 			}
 		} catch (e) {

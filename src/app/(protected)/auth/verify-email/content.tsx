@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CustomLink } from '@/components/ui/CustomLink';
 import appSettings from '@/config/app';
-import { getPlatformName, handleFetchErrorMessage } from '@/lib/helpers';
+import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import nProgress from 'nprogress';
 import Logo from '@/components/ui/logo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,7 +50,7 @@ export default function VerifyEmailContent({ email, initialStatus }: { email?: s
 				setStatusMessage(result.message || 'Failed to resend. Please try again or contact support.');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err);
+			const errorMessage = handleFetchMessage(err);
 			toast.error(errorMessage);
 			setStatusMessage(errorMessage);
 		} finally {

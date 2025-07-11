@@ -16,7 +16,7 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { generateSlug, handleFetchMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
@@ -130,7 +130,7 @@ export default function EditCategoryPage() {
 				}
 			} catch (err) {
 				// console.error('Error fetching category:', error);
-				const errorMessage = handleFetchErrorMessage(err, 'Could not load category for editing.');
+				const errorMessage = handleFetchMessage(err, 'Could not load category for editing.');
 				toast.error(errorMessage);
 				router.push('/admin/clubs');
 			} finally {

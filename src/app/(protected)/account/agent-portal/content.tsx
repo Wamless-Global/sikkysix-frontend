@@ -12,7 +12,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { formatBaseurrency, formatCurrency, getAgentStatusBadgeVariant, getBaseCurrency, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatCurrency, getAgentStatusBadgeVariant, getBaseCurrency, handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
@@ -74,7 +74,7 @@ const AgentPortalContent = () => {
 					}
 				})
 				.catch((err) => {
-					handleFetchErrorMessage(err);
+					handleFetchMessage(err);
 				})
 				.finally(() => setStatsLoaded(true));
 		}
@@ -112,7 +112,7 @@ const AgentPortalContent = () => {
 				}
 			})
 			.catch((err) => {
-				handleFetchErrorMessage(err);
+				handleFetchMessage(err);
 			})
 			.finally(() => setIsLoading(false));
 	}, [currentUser, page, pageSize, sortBy, sortOrder, statusFilter, debouncedSearchTerm]);

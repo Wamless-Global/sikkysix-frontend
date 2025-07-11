@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { Application, ApplicationStatus, ApplicationResponse } from '@/types/modules/applications';
 import { toast } from 'sonner';
-import { formatDateNice, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatDateNice, getAgentStatusVariant, handleFetchMessage } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -85,7 +85,7 @@ export default function SingleApplicationPage() {
 
 			toast.success('Application status updated successfully.');
 		} catch (err: any) {
-			const errorMessage = handleFetchErrorMessage(err, 'Error updating application');
+			const errorMessage = handleFetchMessage(err, 'Error updating application');
 			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);
@@ -112,7 +112,7 @@ export default function SingleApplicationPage() {
 			toast.success('Application deleted successfully.');
 			router.push('/admin/applications');
 		} catch (err: any) {
-			const errorMessage = handleFetchErrorMessage(err, 'Error deleting application');
+			const errorMessage = handleFetchMessage(err, 'Error deleting application');
 			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);

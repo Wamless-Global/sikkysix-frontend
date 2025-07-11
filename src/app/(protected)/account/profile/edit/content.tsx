@@ -10,7 +10,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import type { AuthenticatedUser } from '@/types';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
 
@@ -90,11 +90,11 @@ export default function EditProfilePageContent() {
 				setCurrentUser?.(patchedUser);
 				toast.success('Profile updated successfully!');
 			} else {
-				const errorMessage = handleFetchErrorMessage(updatedUser, 'Failed to update profile.');
+				const errorMessage = handleFetchMessage(updatedUser, 'Failed to update profile.');
 				throw new Error(errorMessage);
 			}
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'An error occurred while updating profile.');
+			const errorMessage = handleFetchMessage(err, 'An error occurred while updating profile.');
 			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);

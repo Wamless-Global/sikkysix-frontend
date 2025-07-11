@@ -14,7 +14,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, un
 	const isAdmin = getLoggedInAsUser();
 
 	return (
-		<header className={`z-40 flex h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full`}>
+		<header className={`z-40 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full`}>
 			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" onClick={onMenuToggle} aria-label="Toggle Menu" />
 
 			<CustomLink href="/" className="flex items-center">

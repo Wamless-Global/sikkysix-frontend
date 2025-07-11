@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Phone, Paperclip, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchP2PMessages, sendP2PMessage } from '@/lib/p2p-messaging';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { useAuthContext } from '@/context/AuthContext';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -194,7 +194,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 				}));
 				setMessages(mapped);
 			} catch (err) {
-				handleFetchErrorMessage(err);
+				handleFetchMessage(err);
 			}
 		}
 		if (tradeId && currentUserId) fetchMessages();

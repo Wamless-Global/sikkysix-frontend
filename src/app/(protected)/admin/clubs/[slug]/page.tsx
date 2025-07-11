@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import InvestmentPerformanceChart from '@/components/charts/InvestmentPerformanceChart';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
-import { formatBaseurrency, formatNumber, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, formatNumber, generateSlug, handleFetchMessage } from '@/lib/helpers';
 import { Category, SingleCategoryResponse } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 
@@ -155,7 +155,7 @@ export default function AdminSingleCategoriesPage() {
 				router.push('/admin/clubs');
 			}
 		} catch (apiError) {
-			const errorMessage = handleFetchErrorMessage(apiError, `Could not ${confirmAction} category. Please try again.`);
+			const errorMessage = handleFetchMessage(apiError, `Could not ${confirmAction} category. Please try again.`);
 
 			toast.error(errorMessage);
 			if (categoryIdentifier && confirmAction !== 'delete') {

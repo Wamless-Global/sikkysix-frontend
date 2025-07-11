@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
 import { CustomLink } from '@/components/ui/CustomLink';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-import { formatDateNice, getAgentStatusVariant, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatDateNice, getAgentStatusVariant, handleFetchMessage } from '@/lib/helpers';
 import { Application, ApplicationStatus } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
@@ -109,7 +109,7 @@ export default function ApplicationsPage() {
 				setApplications(fetchedApplications);
 				setTotalCount(fetchedTotalCount);
 			} catch (err: any) {
-				const errorMessage = handleFetchErrorMessage(err, `Failed to fetch applications`);
+				const errorMessage = handleFetchMessage(err, `Failed to fetch applications`);
 				setError(errorMessage);
 			} finally {
 				setIsLoading(false);

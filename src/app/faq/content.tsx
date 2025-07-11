@@ -57,7 +57,7 @@ export default function FaqPage() {
 			<section className="relative">
 				<div className="container mx-auto px-4 sm:px-10 py-24 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
 					<div className="flex-1 text-center md:text-left z-10">
-						<h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">{getPlatformName()} FAQs</h1>
+						<h1 className="text-3xl md:text-5xl font-bold mb-6 text-center">{getPlatformName()} FAQs</h1>
 						<p className="sm:text-lg text-muted-foreground text-center max-w-2xl mx-auto mt-4">Find answers to the most common questions about how {getPlatformName()} works, membership, rewards, and more.</p>
 					</div>
 					<div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--lp-green-primary)]/10 to-transparent" />

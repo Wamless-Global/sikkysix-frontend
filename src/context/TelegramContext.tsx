@@ -1,5 +1,6 @@
 'use client';
 
+import { getTGData } from '@/lib/helpers';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type TelegramUser = {
@@ -12,6 +13,7 @@ type TelegramUser = {
 
 type TelegramContextType = {
 	user: TelegramUser | null;
+	isTelegram?: boolean;
 };
 
 const TelegramContext = createContext<TelegramContextType>({
@@ -20,22 +22,36 @@ const TelegramContext = createContext<TelegramContextType>({
 
 export const TelegramProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [user, setUser] = useState<TelegramUser | null>(null);
+	const [isTelegram, setIsTelegram] = useState(false);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			const tg = (window as any).Telegram?.WebApp;
+			const tg_local = getTGData();
+
 			tg?.ready();
 			tg?.expand();
 
-			if (tg?.initDataUnsafe?.user) {
+			if (tg?.initDataUnsafe?.user || (tg_local && tg_local != '')) {
+				setIsTelegram(true);
 				setUser(tg.initDataUnsafe.user);
 			}
 		}
 	}, []);
 
-	return <TelegramContext.Provider value={{ user }}>{children}</TelegramContext.Provider>;
+	return <TelegramContext.Provider value={{ user, isTelegram }}>{children}</TelegramContext.Provider>;
 };
 
-export function useTelegram(): TelegramContextType {
-	return useContext(TelegramContext);
+export function useTelegram(): TelegramContextType & { closeTelegramApp: () => void } {
+	const context = useContext(TelegramContext);
+
+	const closeTelegramApp = () => {
+		if (typeof window !== 'undefined') {
+			const tg = (window as any).Telegram?.WebApp;
+			if (tg && typeof tg.close === 'function') {
+				tg.close();
+			}
+		}
+	};
+	return { ...context, closeTelegramApp };
 }

@@ -7,7 +7,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import nProgress from 'nprogress';
 import { usePathname, useRouter } from 'next/navigation';
-import { handleFetchErrorMessage } from '@/lib/helpers';
+import { handleFetchMessage } from '@/lib/helpers';
 import { Role } from '@/types';
 
 interface UserMobileSidebarProps {
@@ -51,7 +51,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 			nProgress.start();
 			router.replace('/auth/login');
 		} catch (err) {
-			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred during logout.');
+			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred during logout.');
 			toast.error(errorMessage);
 		} finally {
 			setIsLogoutLoading(false);
@@ -63,9 +63,9 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 
 			<div className="relative flex h-full w-72 flex-col bg-[oklch(0.11_0.018_270)] text-text-primary shadow-xl">
 				<div className="flex items-center justify-between p-4 border-b border-border/40">
-					<span className="text-lg font-semibold">Menu</span>
+					<span className="text-base font-semibold">Menu</span>
 					<Button variant="ghost" size="icon" onClick={onClose} className="text-text-primary hover:bg-white/10">
-						<X className="h-6 w-6" />
+						<X className="h-4 w-4" />
 						<span className="sr-only">Close menu</span>
 					</Button>
 				</div>
@@ -76,7 +76,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 						if ('subMenu' in item && item.subMenu) {
 							return (
 								<div key={item.href}>
-									<button type="button" className="flex w-full items-center justify-between rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => setOpenSubMenu(openSubMenu === item.label ? null : item.label)}>
+									<button type="button" className="flex w-full items-center justify-between rounded-md px-3 py-2 font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground text-sm" onClick={() => setOpenSubMenu(openSubMenu === item.label ? null : item.label)}>
 										{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
 										<span className={cn('ml-2 transition-transform', openSubMenu === item.label ? 'rotate-90' : '')}>▶</span>
 									</button>
@@ -96,14 +96,14 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 
 						if (currentUser?.roles.includes(item.for as Role) && !currentUser?.roles.includes(item.hideFor as Role))
 							return (
-								<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
+								<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
 									{isActive ? <span className="text-[oklch(0.69_0.21_145)]">{item.label}</span> : item.label}
 								</CustomLink>
 							);
 					})}
 				</nav>
 				<div className="mt-auto border-t border-border/40 p-4">
-					<Button variant="outline" className="w-full border-muted-foreground/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground" disabled={isLogoutLoading} onClick={handleLogout}>
+					<Button variant="outline" className="w-full border-muted-foreground/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground text-sm" disabled={isLogoutLoading} onClick={handleLogout} size={'sm'}>
 						{isLogoutLoading && <Loader2 className="h-6 w-6 shrink-0 animate-spin" aria-hidden="true" />}
 						Log Out
 					</Button>

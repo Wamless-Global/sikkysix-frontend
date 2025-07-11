@@ -11,7 +11,7 @@ import { CustomLink } from '@/components/ui/CustomLink';
 import nProgress from 'nprogress';
 import { Skeleton } from '@/components/ui/skeleton';
 import appSettings from '@/config/app';
-import { formatBaseurrency, generateSlug, handleFetchErrorMessage } from '@/lib/helpers';
+import { formatBaseurrency, generateSlug, handleFetchMessage } from '@/lib/helpers';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Category, PaginatedCategoriesResponse } from '@/types';
 import Image from 'next/image';
@@ -57,7 +57,7 @@ export default function CategoryManagementPage() {
 			setTotalPages(result.data.totalPages);
 		} catch (err) {
 			// console.error('Failed to fetch categories:', err);
-			const errorMessage = handleFetchErrorMessage(err, 'An unexpected error occurred while fetching categories.');
+			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred while fetching categories.');
 			setError(errorMessage);
 			setCategories([]);
 		} finally {

@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
 		],
 	},
 
-	allowedDevOrigins: ['sikkysix.local', '*.sikkysix.local'],
+	allowedDevOrigins: ['sikkysix.local', '*.sikkysix.local', '0a4275e217b2.ngrok-free.app'],
 
 	async rewrites() {
 		return [
