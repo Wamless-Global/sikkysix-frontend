@@ -1,6 +1,6 @@
 'use client';
 
-import { getTGData } from '@/lib/helpers';
+import { getTGData, isLoggedInViaTG } from '@/lib/helpers';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type TelegramUser = {
@@ -25,17 +25,18 @@ export const TelegramProvider: React.FC<{ children: ReactNode }> = ({ children }
 	const [isTelegram, setIsTelegram] = useState(false);
 
 	useEffect(() => {
+		let tg, tg_local;
 		if (typeof window !== 'undefined') {
-			const tg = (window as any).Telegram?.WebApp;
-			const tg_local = getTGData();
+			tg = (window as any).Telegram?.WebApp;
+			tg_local = getTGData();
 
 			tg?.ready();
 			tg?.expand();
+		}
 
-			if (tg?.initDataUnsafe?.user || (tg_local && tg_local != '')) {
-				setIsTelegram(true);
-				setUser(tg.initDataUnsafe.user);
-			}
+		if (tg?.initDataUnsafe?.user || (tg_local && tg_local != '') || isLoggedInViaTG()) {
+			setIsTelegram(true);
+			if (tg?.initDataUnsafe?.user) setUser(tg.initDataUnsafe.user);
 		}
 	}, []);
 

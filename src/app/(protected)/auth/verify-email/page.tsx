@@ -3,7 +3,6 @@ import VerifyEmailContent from './content';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
 import { Metadata } from 'next';
-import AppFooter from '@/components/layout/AppFooter';
 
 export const metadata: Metadata = {
 	title: 'Verify Your Email',

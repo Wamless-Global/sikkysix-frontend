@@ -12,11 +12,12 @@ import { Role } from '@/types';
 
 interface UserMobileSidebarProps {
 	isOpen: boolean;
+	isLogoutLoading: boolean;
 	onClose: () => void;
+	handleLogout: () => void;
 }
 
-const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }) => {
-	const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutLoading, onClose, handleLogout }) => {
 	const router = useRouter();
 	const { logout, currentUser } = useAuthContext();
 	const pathname = usePathname();
@@ -43,20 +44,6 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, onClose }
 	];
 	const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
-	const handleLogout = async () => {
-		setIsLogoutLoading(true);
-		try {
-			await logout();
-			toast.success('Logged out successfully!');
-			nProgress.start();
-			router.replace('/auth/login');
-		} catch (err) {
-			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred during logout.');
-			toast.error(errorMessage);
-		} finally {
-			setIsLogoutLoading(false);
-		}
-	};
 	return (
 		<div className={cn('fixed inset-0 z-50 flex lg:hidden', isOpen ? 'translate-x-0' : '-translate-x-full', 'transition-transform duration-300 ease-in-out')}>
 			<div className={cn('fixed inset-0 bg-black/60 backdrop-blur-sm', isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none', 'transition-opacity duration-300 ease-in-out')} onClick={onClose} aria-hidden="true" />

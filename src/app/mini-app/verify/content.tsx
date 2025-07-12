@@ -16,7 +16,7 @@ export default function VerifyPage() {
 		async function trySetSession() {
 			if (typeof window === 'undefined') return;
 			const tg = (window as any).Telegram?.WebApp;
-			const initData = tg?.initData || sessionStorage.getItem('tg-init-data');
+			const initData = tg?.initData || sessionStorage.getItem('tg-init-data') || getTGData();
 
 			if (tg) {
 				tg.ready();
@@ -44,15 +44,7 @@ export default function VerifyPage() {
 							}
 
 							if (typeof window !== 'undefined') {
-								localStorage.setItem(
-									`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`,
-									JSON.stringify({
-										access_token: hashParams.access_token,
-										refresh_token: hashParams.refresh_token,
-										expires_at: hashParams.expires_at,
-										expires_in: hashParams.expires_in,
-									})
-								);
+								localStorage.setItem(`logged-in-via-tg`, JSON.stringify(true));
 							}
 							router.replace('/account');
 						})

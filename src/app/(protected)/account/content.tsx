@@ -14,6 +14,9 @@ import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 
+const hash = typeof window !== 'undefined' ? window.location.hash.substring(1) : '';
+const hashParams = Object.fromEntries(new URLSearchParams(hash).entries());
+
 export default function AccountPage() {
 	const [categories, setCategories] = useState<UserDisplayCategory[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -82,10 +85,9 @@ export default function AccountPage() {
 	}, [fetchUserCategories]);
 
 	useEffect(() => {
-		if (!getSetCookie()) {
-			logger.log('AccountPage: Checking for set-cookie...', !getSetCookie());
+		if (!getSetCookie() && adminLoginRequest()) {
 			const { access_token, refresh_token, expires_at, expires_in } = getLoggedInAsUser();
-			logger.log('AccountPage: Parsed tokens:', { access_token, refresh_token, expires_at, expires_in });
+
 			if (access_token) {
 				const toastId = toast.loading('Completing login...');
 				fetch('/api/auth/set-session', {
@@ -106,7 +108,7 @@ export default function AccountPage() {
 						toast.error(err.message || 'Failed to set session.', { id: toastId });
 					});
 				router.refresh();
-			} else if (adminLoginRequest()) {
+			} else {
 				window.location.reload();
 			}
 		}

@@ -25,79 +25,109 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 
 	useEffect(() => {
 		let retryTimer: NodeJS.Timeout;
+		let retryCount = 0;
+		const maxRetries = 10;
 		function checkAndHandleTG() {
 			if (typeof window === 'undefined') return;
 			const tg = (window as any).Telegram?.WebApp;
 
-			if (tg) {
+			if (tg && tg.initData && tg.initData.length > 0) {
 				tg.ready();
-				if (tg.initData && tg.initData.length > 0) {
-					try {
-						sessionStorage.setItem('tg-init-data', tg.initData);
-						toast.info(`Saved initData: ${sessionStorage.getItem('tg-init-data')}`);
-					} catch (error: unknown) {
-						setError('Failed to save tg-init-data');
-						toast.error('Failed to save tg-init-data');
-					}
+				try {
+					sessionStorage.setItem('tg-init-data', tg.initData);
+					localStorage.setItem('tg-init-data', tg.initData);
+					toast.info(`Saved initData: ${sessionStorage.getItem('tg-init-data')}`);
+				} catch (error: unknown) {
+					setError('Failed to save tg-init-data');
+					toast.error('Failed to save tg-init-data');
+				}
 
-					fetchWithAuth('/api/auth/telegram-verification', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ initData: tg.initData }),
-					})
-						.then(async (res) => {
-							// setIsLoading(false);
-							if (res.ok) {
-								const data = await res.json();
-								const msg = handleFetchMessage(data);
+				fetchWithAuth('/api/auth/telegram-verification', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ initData: tg.initData }),
+				})
+					.then(async (res) => {
+						if (res.ok) {
+							const data = await res.json();
+							const msg = handleFetchMessage(data);
 
-								if (!data.exists) {
-									setShowEmailInput(true);
-								} else if (data.exists && !data.loggedIn) {
-									toast.error('There was an error logging you in.');
-									setError('There was an error logging you in.');
-								} else if (data.exists && data.loggedIn && data.link) {
-									try {
-										sessionStorage.setItem('tg-init-data', tg.initData);
-										toast.success('Saved tg-init-data, redirecting...');
-									} catch (e) {
-										setError('Failed to save tg-init-data before navigating');
-
-										toast.error('Failed to save tg-init-data before navigating');
-									}
-
-									router.push(data.link);
-								} else {
-									toast.success(msg);
+							if (!data.exists) {
+								setShowEmailInput(true);
+							} else if (data.exists && !data.loggedIn) {
+								toast.error('There was an error logging you in.');
+								setError('There was an error logging you in.');
+							} else if (data.exists && data.loggedIn && data.link) {
+								try {
+									sessionStorage.setItem('tg-init-data', tg.initData);
+									localStorage.setItem('tg-init-data', tg.initData);
+								} catch (_e) {
+									sessionStorage.setItem('tg-init-data', tg.initData);
+									localStorage.setItem('tg-init-data', tg.initData);
 								}
+								router.push(data.link);
 							} else {
-								setError('Failed to save tg-init-data before navigating');
-								toast.error('Failed to launch the app. Please try again.');
+								toast.success(msg);
 							}
-						})
-						.catch((err) => {
-							setIsLoading(false);
-							const error = handleFetchMessage(err, 'Network error when launching');
-							setError(error);
-
-							toast.error(error);
-						});
-				} else {
-					// Retry after a short delay if initData is empty
-					toast.warning('Waiting for Telegram initData...');
+						} else {
+							setError('Failed to save tg-init-data before navigating');
+							toast.error('Failed to launch the app. Please try again.');
+						}
+					})
+					.catch((err) => {
+						setIsLoading(false);
+						const error = handleFetchMessage(err, 'Network error when launching');
+						setError(error);
+						toast.error(error);
+					});
+			} else {
+				retryCount++;
+				if (retryCount < maxRetries) {
 					retryTimer = setTimeout(checkAndHandleTG, 1000);
 				}
-			} else {
-				setError('Could not launch the app. Please try again.');
-
-				toast.error('Could not launch the app. Please try again.');
-				setIsLoading(false);
 			}
 		}
 		checkAndHandleTG();
 		return () => {
 			if (retryTimer) clearTimeout(retryTimer);
 		};
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		const tg = (window as any).Telegram?.WebApp;
+
+		if (tg) {
+			tg.ready();
+
+			setTimeout(() => {
+				const startParam = tg.initDataUnsafe?.start_param;
+				let message = '';
+				if (startParam) {
+					switch (startParam) {
+						case 'status-invalid_token':
+							message = 'Invalid token. Please try again.';
+							toast.error(message);
+							break;
+						case 'status-invalid_or_expired_token':
+							message = 'Invalid or expired token. Please try again.';
+							toast.error(message);
+							break;
+						case 'status-success':
+							message = 'Your action was successful!';
+							toast.success(message);
+							break;
+						case 'status-update_failed':
+							message = 'Update failed. Please try again.';
+							toast.error(message);
+							break;
+						default:
+							message = 'Unknown status.';
+							toast.error(message);
+					}
+				}
+			}, 500);
+		}
 	}, []);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -126,7 +156,14 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 			const data = await res.json();
 
 			if (res.ok) {
-				toast.success('Email set successfully! Please check your inbox.');
+				toast.success('Email sent successfully! Please check your inbox.');
+
+				const tg = (window as any).Telegram?.WebApp;
+				if (tg && typeof tg.close === 'function') {
+					setTimeout(() => {
+						tg.close();
+					}, 5000);
+				}
 			} else {
 				toast.error(handleFetchMessage(data, 'Failed to register email. Please try again.'));
 			}
@@ -194,8 +231,8 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 						)}
 					</div>
 				</section>
-				<div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--lp-green-primary)]/12 to-transparent" />
 			</main>
+			<div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--lp-green-primary)]/12 to-transparent" />
 		</div>
 	);
 }

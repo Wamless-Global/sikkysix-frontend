@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
 import { toast } from 'sonner';
@@ -14,6 +14,7 @@ import nProgress from 'nprogress';
 import { getPlatformName, handleFetchMessage } from '@/lib/helpers';
 import Logo from '@/components/ui/logo';
 import AppFooter from '@/components/layout/AppFooter';
+import { useTelegram } from '@/context/TelegramContext';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
@@ -23,6 +24,21 @@ export default function LoginPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { login } = useAuthContext();
+	const { closeTelegramApp, isTelegram } = useTelegram();
+
+	if (isTelegram) {
+		localStorage.removeItem(`tg-init-data`);
+		localStorage.removeItem(`logged-in-via-tg`);
+		closeTelegramApp();
+	}
+
+	useEffect(() => {
+		if (isTelegram) {
+			localStorage.removeItem(`tg-init-data`);
+			localStorage.removeItem(`logged-in-via-tg`);
+			closeTelegramApp();
+		}
+	}, []);
 
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();

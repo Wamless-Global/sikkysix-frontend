@@ -17,6 +17,7 @@ import { SignupPageContentProps } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Country } from '@/types/modules/countries';
 import AppFooter from '@/components/layout/AppFooter';
+import { useTelegram } from '@/context/TelegramContext';
 
 export default function SignupPageContent({ referralData, countries }: SignupPageContentProps & { countries: { status: string; countries: Country[] } }) {
 	const [name, setName] = useState('');
@@ -32,6 +33,21 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 	const [referralName, setReferralName] = useState(referralActive && referralData?.data?.name ? referralData.data.name : '');
 	const router = useRouter();
 	const { signup } = useAuthContext();
+	const { closeTelegramApp, isTelegram } = useTelegram();
+
+	if (isTelegram) {
+		localStorage.removeItem(`tg-init-data`);
+		localStorage.removeItem(`logged-in-via-tg`);
+		closeTelegramApp();
+	}
+
+	useEffect(() => {
+		if (isTelegram) {
+			localStorage.removeItem(`tg-init-data`);
+			localStorage.removeItem(`logged-in-via-tg`);
+			closeTelegramApp();
+		}
+	}, []);
 
 	useEffect(() => {
 		if (referralData && referralData.status === 'success' && referralData.data?.name) {

@@ -563,11 +563,17 @@ export function getLoggedInAsUser() {
 	if (typeof window !== 'undefined') {
 		try {
 			const isLoggedInAsUserStr = localStorage.getItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
-			const authCookie = localStorage.getItem(`sb-auth-cookie-set`);
-			logger.warn(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`, isLoggedInAsUserStr);
-			if (!isLoggedInAsUserStr || !authCookie) return false;
+			const adminRequest = localStorage.getItem(`admin-login-request`);
+
+			if (!isLoggedInAsUserStr || isLoggedInAsUserStr === 'null' || !adminRequest || adminRequest === 'null') return false;
+
 			const isLoggedInAsUser = JSON.parse(isLoggedInAsUserStr);
-			return JSON.parse(authCookie) && isLoggedInAsUser;
+
+			if (JSON.parse(adminRequest)) {
+				return isLoggedInAsUser;
+			} else {
+				return false;
+			}
 		} catch {
 			// ignore JSON parse errors
 		}
@@ -591,7 +597,7 @@ export function getTGData() {
 		try {
 			const data = localStorage.getItem('tg-init-data');
 			if (!data) return null;
-			// Try to parse as JSON, otherwise return as string
+
 			try {
 				return JSON.parse(data);
 			} catch {
@@ -609,7 +615,6 @@ export function clearLoggedInAsUser(): void {
 		localStorage.removeItem(`sb-${process.env.NEXT_PUBLIC_BACKEND_SERVICE}-auth-token`);
 		localStorage.removeItem(`sb-auth-cookie-set`);
 		localStorage.removeItem(`admin-login-request`);
-		localStorage.removeItem(`tg-init-data`);
 	}
 }
 
@@ -626,6 +631,17 @@ export function adminLoginRequest() {
 			const loginRequest = localStorage.getItem('admin-login-request');
 			if (!loginRequest) return false;
 			return JSON.parse(loginRequest);
+		} catch {}
+	}
+	return false;
+}
+
+export function isLoggedInViaTG() {
+	if (typeof window !== 'undefined') {
+		try {
+			const tgLogin = localStorage.getItem('logged-in-via-tg');
+			if (!tgLogin) return false;
+			return JSON.parse(tgLogin);
 		} catch {}
 	}
 	return false;

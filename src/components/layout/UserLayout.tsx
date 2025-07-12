@@ -67,21 +67,23 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 	const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
 
 	const handleLogout = async () => {
-		setIsLogoutLoading(true);
-		try {
-			await logout();
-			toast.success('Logged out successfully!');
-			nProgress.start();
-			if (isTelegram) {
-				closeTelegramApp();
-			} else {
+		if (isTelegram) {
+			localStorage.removeItem(`tg-init-data`);
+			localStorage.removeItem(`logged-in-via-tg`);
+			closeTelegramApp();
+		} else {
+			setIsLogoutLoading(true);
+			try {
+				await logout();
+				toast.success('Logged out successfully!');
+				nProgress.start();
 				router.replace('/auth/login');
+			} catch (err) {
+				const errorMessage = handleFetchMessage(err, 'An unexpected error occurred during logout.');
+				toast.error(errorMessage);
+			} finally {
+				setIsLogoutLoading(false);
 			}
-		} catch (err) {
-			const errorMessage = handleFetchMessage(err, 'An unexpected error occurred during logout.');
-			toast.error(errorMessage);
-		} finally {
-			setIsLogoutLoading(false);
 		}
 	};
 
@@ -208,7 +210,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 					</aside>
 				)}
 
-				<UserMobileSidebar isOpen={isMobileSidebarOpen} onClose={closeMobileSidebar} />
+				<UserMobileSidebar isOpen={isMobileSidebarOpen} onClose={closeMobileSidebar} handleLogout={handleLogout} isLogoutLoading={isLogoutLoading} />
 
 				<div className={`sticky ${isAdmin ? 'top-14 sm:top-10' : 'top-0'} w-full right-0 backdrop-blur-sm z-10 lg:pl-72 lg:pr-8`}>
 					<UserHeader onMenuToggle={toggleMobileSidebar} notifications={notifications} unreadNotifications={unreadNotifications} />
