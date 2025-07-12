@@ -61,6 +61,7 @@ export default function VerifyPage() {
 		timer = setTimeout(trySetSession, 2000);
 		return () => clearTimeout(timer);
 	}, []);
+
 	return (
 		<div className="bg-background text-foreground min-h-screen font-sans flex flex-col">
 			<main className="flex-1">

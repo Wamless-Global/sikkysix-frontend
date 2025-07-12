@@ -156,7 +156,11 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 			const data = await res.json();
 
 			if (res.ok) {
-				toast.success('Email sent successfully! Please check your inbox.');
+				if (!data?.newUser) {
+					toast.success('Email sent successfully! Please check your inbox.');
+				} else {
+					toast.success('Your account was created successfully. Confirm your email');
+				}
 
 				const tg = (window as any).Telegram?.WebApp;
 				if (tg && typeof tg.close === 'function') {
