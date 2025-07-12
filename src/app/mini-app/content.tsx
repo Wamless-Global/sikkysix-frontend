@@ -88,9 +88,9 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 					retryTimer = setTimeout(checkAndHandleTG, 1000);
 				}
 			} else {
-				setError('Telegram WebApp not found');
+				setError('Could not launch the app. Please try again.');
 
-				toast.error('Telegram WebApp not found');
+				toast.error('Could not launch the app. Please try again.');
 				setIsLoading(false);
 			}
 		}
@@ -163,7 +163,7 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 					<div className="px-6">
 						<p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">The social contribution clubs built around real life struggles where members help each other to reach personal goals with ease and transparency.</p>
 
-						{isLoading && <span className="loader"></span>}
+						{isLoading && !showEmailInput && <span className="loader"></span>}
 
 						{error && <p className="text-destructive">{error}</p>}
 
