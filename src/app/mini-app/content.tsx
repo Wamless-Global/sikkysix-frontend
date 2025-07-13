@@ -36,7 +36,6 @@ export default function MiniAppPage({ countries }: { countries: { status: string
 				try {
 					sessionStorage.setItem('tg-init-data', tg.initData);
 					localStorage.setItem('tg-init-data', tg.initData);
-					toast.info(`Saved initData: ${sessionStorage.getItem('tg-init-data')}`);
 				} catch (error: unknown) {
 					setError('Failed to save tg-init-data');
 					toast.error('Failed to save tg-init-data');
