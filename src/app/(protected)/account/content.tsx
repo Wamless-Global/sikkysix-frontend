@@ -12,7 +12,6 @@ import { adminLoginRequest, generateSlug, getCategoryButtonText, getCategoryDisp
 import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
-import { logger } from '@/lib/logger';
 
 const hash = typeof window !== 'undefined' ? window.location.hash.substring(1) : '';
 const hashParams = Object.fromEntries(new URLSearchParams(hash).entries());
