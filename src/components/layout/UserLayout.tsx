@@ -6,7 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import UserHeader from '@/components/layout/UserHeader';
 import UserFooter from '@/components/layout/UserFooter';
 import UserMobileSidebar from '@/components/layout/UserMobileSidebar';
-import { Home, Briefcase, Wallet, Gamepad2, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon } from 'lucide-react';
+import { Home, Briefcase, Wallet, Gamepad2, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon, PieChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -46,8 +46,8 @@ const desktopNavItems: desktopNavItemsType = [
 			{ href: '/account/agent-portal/settings', label: 'settings' },
 		],
 	},
-	{ href: '/account/referrals', label: 'Referrals', icon: Users, for: 'user' },
-	// { href: '/account/report', label: 'Report', icon: PieChart, for: 'user' },
+	{ href: '/account/referrals', label: 'Referrals', icon: Users, for: 'user', hideFor: 'figure-head' },
+	{ href: '/account/stats', label: 'Figure head', icon: PieChart, for: 'figure-head' },
 ];
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {

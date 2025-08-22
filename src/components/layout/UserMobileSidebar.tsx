@@ -25,7 +25,6 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 	const navItems = [
 		{ href: '/account', for: 'user', label: 'Home' },
 		{ href: '/account/referrals', for: 'user', label: 'Referrals' },
-		// { href: '/account/report', for: 'user', label: 'Report' },
 		{ href: '/account/agents-apply', for: 'user', label: 'Become an Agent', hideFor: 'agent' },
 		...(currentUser?.roles.includes('agent')
 			? [
@@ -40,7 +39,8 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 					},
 			  ]
 			: []),
-		{ href: '/account/profile/preferences', label: 'Settings', for: 'user' },
+		{ href: '/account/profile/preferences', label: 'Settings', for: 'user', hideFor: 'figure-head' },
+		{ href: '/account/stats', label: 'Figure head', for: 'figure-head' },
 	];
 	const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 

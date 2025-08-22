@@ -103,6 +103,8 @@ export async function middleware(request: NextRequest) {
 	const isUnauthorizedPagePath = pathname === '/unauthorized';
 	const isAgentPortalPath = pathname.startsWith('/account/agent-portal');
 
+	const isSpecialReferralPath = pathname.startsWith('/account/stats');
+
 	// If accessing /unauthorized without a token, redirect to login (they shouldn't be here)
 	if (isUnauthorizedPagePath && !authToken) {
 		logger.log('Middleware: Accessing /unauthorized without token. Redirecting to login.');
@@ -116,6 +118,17 @@ export async function middleware(request: NextRequest) {
 		if (!authToken || verificationResult.error || !verificationResult.user) return redirectUer(loginUrl, pathname, authToken, verificationResult);
 
 		if (!verificationResult.user || !verificationResult.user.roles.includes('agent')) {
+			return NextResponse.redirect(unauthorizedUrl);
+		}
+	}
+
+	// Restrict /account/stats to figure-head's only
+	if (isSpecialReferralPath) {
+		const verificationResult = await verifyTokenAndGetUserDetails(request, authToken);
+
+		if (!authToken || verificationResult.error || !verificationResult.user) return redirectUer(loginUrl, pathname, authToken, verificationResult);
+
+		if (!verificationResult.user || !verificationResult.user.roles.includes('figure-head')) {
 			return NextResponse.redirect(unauthorizedUrl);
 		}
 	}
