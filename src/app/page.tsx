@@ -15,7 +15,7 @@ export default function LandingPage() {
 					<div className="absolute top-10 left-10 w-16 h-16 border-2 border-[var(--lp-border)] rounded-full opacity-30 animate-pulse"></div>
 					<div className="absolute bottom-20 right-10 w-10 h-10 border border-[var(--lp-green-primary)] opacity-30 transform rotate-45"></div>
 
-					<h1 className="text-4xl md:text-6xl font-bold mb-1 leading-tight text-foreground capitalize px-4">the community savings club.</h1>
+					<h1 className="text-4xl md:text-6xl font-bold mb-1 leading-tight text-foreground capitalize px-4">The community savings club.</h1>
 
 					<div className="w-full max-w-2xl mx-auto overflow-hidden mb-4 relative h-96">
 						<Image src="/images/dark-full-logo.png" alt="Community Group" fill className="w-full h-64 object-cover object-center hidden" />
