@@ -199,7 +199,7 @@ export default function CreateCategoryPage() {
 		});
 
 		formData.delete('amm_parameters');
-		formData.append('amm_parameters', JSON.stringify(ammModelType !== 'exponential_bonding_curve' ? {'exponential_bonding_curve': ammParams} : ammParams));
+		formData.append('amm_parameters', JSON.stringify(ammModelType == 'exponential_bonding_curve' ? { exponential_bonding_curve: ammParams } : ammParams));
 
 		if (data.ticker) {
 			formData.set('ticker', data.ticker.toUpperCase());
