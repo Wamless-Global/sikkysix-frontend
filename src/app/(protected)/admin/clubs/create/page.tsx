@@ -205,10 +205,6 @@ export default function CreateCategoryPage() {
 			formData.set('ticker', data.ticker.toUpperCase());
 		}
 
-		// for (let [key, value] of formData.entries()) {
-		// logger.log(`${key}: ${value}`);
-		// }
-
 		try {
 			const response = await fetchWithAuth('/api/categories', {
 				method: 'POST',
