@@ -88,7 +88,7 @@ async function handleProtectedRoute(request: NextRequest, authToken: string | un
 	return null; // User is authenticated and authorized
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const authToken = request.cookies.get('sb-access-token')?.value || request.cookies.get('auth_token')?.value;
 	const { pathname } = request.nextUrl;
 
@@ -143,7 +143,7 @@ export async function middleware(request: NextRequest) {
 			['user', 'admin'], // Allow users with 'user' or 'admin' role
 			loginUrl,
 			unauthorizedUrl,
-			pathname
+			pathname,
 		);
 		if (response) return response;
 	}
