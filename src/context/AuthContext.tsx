@@ -151,7 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 		}
 	};
 
-	const signup = async (name: string, email: string, confirmEmail: string, password: string, confirmPassword: string, country: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
+	const signup = async (name: string, email: string, confirmEmail: string, password: string, confirmPassword: string, country: string, phone_number: string, referralId?: string | undefined, roles: Array<string> = ['user']): Promise<void> => {
 		logger.log('AuthContext: Starting signup process with', { name, email, referralId, roles });
 		if (password !== confirmPassword) {
 			throw new Error('Passwords do not match.');
@@ -161,7 +161,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			throw new Error('Emails do not match.');
 		}
 
-		if (!name || !email || !password || !confirmPassword || !country || !confirmEmail) {
+		if (!name || !email || !password || !confirmPassword || !country || !phone_number || !confirmEmail) {
 			throw new Error('All fields are required for signup.');
 		}
 
@@ -171,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ name, email, confirmEmail, password, confirmPassword, roles, country, referralId }),
+				body: JSON.stringify({ name, email, confirmEmail, password, confirmPassword, roles, country, phone_number, referralId }),
 			});
 
 			const responseData = await response.json();
@@ -280,7 +280,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			try {
 				const response = await fetchWithAuth('/api/auth/verify-me');
 				if (!response.ok) {
-					console.error(`AuthContext: Session check API error - ${response.status} ${response.statusText}`);
+					console.error(`AuthContext: Session check API error - ${response.status} `, response);
 					setCurrentUser(null);
 					return;
 				}
@@ -292,7 +292,8 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				} else {
 					setCurrentUser(null);
 				}
-			} catch {
+			} catch (err) {
+				console.error('AuthContext: Error checking user session:', err);
 				setCurrentUser(null);
 			} finally {
 				setIsLoading(false);

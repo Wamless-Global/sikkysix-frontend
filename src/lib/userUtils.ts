@@ -33,7 +33,7 @@ export const fetchUserByUsername = async (username: string, token?: string): Pro
 					// Add Authorization or other necessary headers if required by your backend
 				},
 			},
-			token
+			token,
 		);
 
 		if (response.ok) {
@@ -118,7 +118,7 @@ export const updateUser = async (userId: string, userData: Partial<User>, token?
 				},
 				body: JSON.stringify(userData),
 			},
-			token
+			token,
 		);
 
 		if (response.ok) {
@@ -189,7 +189,7 @@ export const deleteUser = async (userId: string, token?: string): Promise<boolea
 			{
 				method: 'DELETE',
 			},
-			token
+			token,
 		);
 
 		if (response.ok) {
@@ -222,9 +222,10 @@ export const deleteUser = async (userId: string, token?: string): Promise<boolea
  * Fetches the current authenticated user&apos;s account balance.
  * This is a placeholder and should be replaced with a real API call.
  * @param token Optional authentication token.
+ * @param silent If true, suppresses toast notifications on error.
  * @returns A Promise resolving to the user&apos;s balance, or null if an error occurs.
  */
-export const fetchCurrentUserBalance = async (token?: string): Promise<number | null> => {
+export const fetchCurrentUserBalance = async (token?: string, silent: boolean = false): Promise<number | null> => {
 	const targetUrl = '/api/users/me/balance';
 
 	try {
@@ -237,7 +238,7 @@ export const fetchCurrentUserBalance = async (token?: string): Promise<number | 
 					'Content-Type': 'application/json',
 				},
 			},
-			token
+			token,
 		);
 
 		if (response.ok) {
@@ -247,22 +248,28 @@ export const fetchCurrentUserBalance = async (token?: string): Promise<number | 
 				return data.balance;
 			} else {
 				console.error('Balance data is not in the expected format or missing:', data);
-				toast.error('Received invalid or missing balance data from server.');
+				if (!silent) {
+					toast.error('Received invalid or missing balance data from server.');
+				}
 				return null;
 			}
 		} else {
 			const errorBody = await response.text();
 			console.error(`API Error (${targetUrl}): ${response.status} ${response.statusText}`, errorBody);
-			toast.error(`Failed to fetch balance: ${response.statusText || 'Server error'}`);
+			if (!silent) {
+				toast.error(`Failed to fetch balance: ${response.statusText || 'Server error'}`);
+			}
 			return null;
 		}
 	} catch (error) {
-		if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
-			toast.error('Server unavailable or returned an invalid response while fetching balance.');
-		} else if (error instanceof Error) {
-			toast.error(`An error occurred while fetching balance: ${error.message}`);
-		} else {
-			toast.error('An unknown error occurred while fetching balance.');
+		if (!silent) {
+			if (error instanceof SyntaxError && (error.message.includes('JSON') || error.message.includes('token'))) {
+				toast.error('Server unavailable or returned an invalid response while fetching balance.');
+			} else if (error instanceof Error) {
+				toast.error(`An error occurred while fetching balance: ${error.message}`);
+			} else {
+				toast.error('An unknown error occurred while fetching balance.');
+			}
 		}
 		console.error('Error in fetchCurrentUserBalance:', error);
 		return null;

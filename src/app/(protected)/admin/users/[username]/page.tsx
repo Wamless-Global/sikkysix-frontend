@@ -338,6 +338,8 @@ export default function UserDetailPage() {
 					localStorage.setItem(`admin-login-request`, JSON.stringify(true));
 				}
 
+				logger.info('Redirecting to impersonation link:', data.data.link);
+
 				router.push(data.data.link);
 				toast.success("Successfully retrieved user's information");
 			} else {

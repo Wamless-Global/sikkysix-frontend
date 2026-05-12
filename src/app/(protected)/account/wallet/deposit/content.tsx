@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,8 @@ import { convertToBaseCurrency, getBaseCurrencyRate, getCurrencySymbol } from '@
 
 export default function DepositPageContent() {
 	const router = useRouter();
-	const [amount, setAmount] = useState('');
+	const searchParams = useSearchParams();
+	const [amount, setAmount] = useState(searchParams.get('amount') ?? '');
 	const [depositMethod, setDepositMethod] = useState('p2p');
 	const [isRedirecting, setIsRedirecting] = useState(false);
 

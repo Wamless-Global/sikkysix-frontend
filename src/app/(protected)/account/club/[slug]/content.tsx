@@ -46,6 +46,7 @@ export default function SingleCategoryContent() {
 	const [investmentsTotalPages, setInvestmentsTotalPages] = useState(1);
 	const { setCurrentUser, currentUser } = useAuthContext();
 	const [isRequestingLaunch, setIsRequestingLaunch] = useState(false);
+	const [shouldPassDepositUrl, setShouldPassDepositUrl] = useState(false);
 
 	const fetchUserCategory = useCallback(async (identifier: string) => {
 		nProgress.start();
@@ -145,6 +146,28 @@ export default function SingleCategoryContent() {
 		}
 	}, [categoryData?.id, fetchTransactions, fetchActiveInvestments]);
 
+	useEffect(() => {
+		if (categoryData?.id) {
+			try {
+				// Use silent fetch to avoid showing toasts during page load
+				const result = fetchCurrentUserBalance(undefined, true);
+				if (result instanceof Promise) {
+					result
+						.then((balance) => {
+							setCurrentUserBalance(balance ?? undefined);
+						})
+						.catch(() => {
+							// On error, leave currentUserBalance as undefined
+						});
+				} else {
+					setCurrentUserBalance(result ?? undefined);
+				}
+			} catch (_error) {
+				// On error, leave currentUserBalance as undefined
+			}
+		}
+	}, [categoryData?.id]);
+
 	const validateAmount = (amount: number, balance: number | undefined): string | null => {
 		if (isNaN(amount) || amount <= 0) {
 			return 'Please enter a valid positive amount.';
@@ -197,6 +220,9 @@ export default function SingleCategoryContent() {
 		if (validationError) {
 			setAmountError(validationError);
 			if (validationError === 'Insufficient balance.') {
+				// Set shouldPassDepositUrl only if entered amount is >= minimum_investable
+				const shouldPass = amount >= (categoryData?.minimum_investable ?? 0);
+				setShouldPassDepositUrl(shouldPass);
 				setIsModalOpen(true);
 			} else {
 				toast.error(validationError);
@@ -292,6 +318,12 @@ export default function SingleCategoryContent() {
 	if (error || !categoryData) {
 		return <ErrorMessage message={error || 'Failed to load category data.'} onRetry={() => slug && fetchUserCategory(slug)} />;
 	}
+
+	// Deposit URL for the club (independent of balance for modal use)
+	const depositUrl = `/account/wallet/deposit?amount=${categoryData.minimum_investable}&returnTo=/account/club/${slug}`;
+
+	// Show proactive deposit button only when balance is below minimum
+	const showProactiveDepositButton = categoryData.is_launched && !categoryData.is_locked && currentUserBalance !== undefined && currentUserBalance < categoryData.minimum_investable;
 
 	return (
 		<div className="space-y-6">
@@ -428,6 +460,14 @@ export default function SingleCategoryContent() {
 									)}
 								</Button>
 							</div>
+						)}
+						{showProactiveDepositButton && (
+							<>
+								<p className="text-muted-foreground text-sm text-center my-2">— or —</p>
+								<Button variant="outline" className="w-full" onClick={() => router.push(depositUrl)}>
+									Deposit & Join
+								</Button>
+							</>
 						)}
 						{amountError && <p className="text-sm text-red-400 mt-1 px-1">{amountError}</p>}
 					</div>
@@ -576,7 +616,16 @@ export default function SingleCategoryContent() {
 			)}
 
 			{/* Use validated amount for modal */}
-			<InsufficientBalanceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentBalance={currentUserBalance} requiredAmount={parseFloat(amountInput) || 0} />
+			<InsufficientBalanceModal
+				isOpen={isModalOpen}
+				onClose={() => {
+					setIsModalOpen(false);
+					setShouldPassDepositUrl(false);
+				}}
+				currentBalance={currentUserBalance}
+				requiredAmount={parseFloat(amountInput) || 0}
+				depositUrl={shouldPassDepositUrl ? depositUrl : undefined}
+			/>
 		</div>
 	);
 }

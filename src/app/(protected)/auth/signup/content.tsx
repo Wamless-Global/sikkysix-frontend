@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
-import { User, Mail, Lock, Trash2, RefreshCw } from 'lucide-react';
+import { User, Mail, Lock, Trash2, RefreshCw, Phone, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,8 @@ import type { Country } from '@/types/modules/countries';
 import AppFooter from '@/components/layout/AppFooter';
 import { useTelegram } from '@/context/TelegramContext';
 
+const YOUTUBE_URL = 'https://www.youtube.com/';
+
 export default function SignupPageContent({ referralData, countries }: SignupPageContentProps & { countries: { status: string; countries: Country[] } }) {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
@@ -26,6 +28,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [country, setCountry] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [referralActive, setReferralActive] = useState(!!(referralData && referralData.status === 'success' && referralData.data?.name));
@@ -90,7 +93,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 			setIsLoading(false);
 			return;
 		}
-		if (!name || !email || !confirmEmail || !password || !country) {
+		if (!name || !email || !confirmEmail || !password || !confirmPassword || !country || !phoneNumber) {
 			setError('All fields are required.');
 			setIsLoading(false);
 			return;
@@ -109,7 +112,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 
 		const toastId = toast.loading('Creating your account...');
 		try {
-			await signup(name, email, confirmEmail, password, confirmPassword, country, referralActive && referralId ? referralId : undefined);
+			await signup(name, email, confirmEmail, password, confirmPassword, country, phoneNumber, referralActive && referralId ? referralId : undefined);
 
 			nprogress.start();
 			toast.success('Signup successful! Please check your email for confirmation.', { id: toastId });
@@ -191,6 +194,13 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 								</Select>
 							</div>
 							<div className="space-y-2">
+								<Label htmlFor="phone-number">Phone Number</Label>
+								<div className="relative flex items-center">
+									<Phone className="absolute left-3 h-5 w-5 text-gray-400" />
+									<Input id="phone-number" type="tel" placeholder="e.g. +2348012345678" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
+								</div>
+							</div>
+							<div className="space-y-2">
 								<Label htmlFor="password">Password</Label>
 								<div className="relative flex items-center">
 									<Lock className="absolute left-3 h-5 w-5 text-gray-400" />
@@ -228,6 +238,17 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 								&nbsp;
 							</div>
 						</div>
+					</CardContent>
+				</Card>
+
+				<Card className="bg-background border-border/50">
+					<CardContent className="flex items-center justify-between p-4 md:p-6">
+						<div className="flex-1">
+							<p className="text-sm md:text-base font-medium text-foreground">New to SikkySix? Watch how it works</p>
+						</div>
+						<CustomLink href={YOUTUBE_URL} target="_blank" className="flex items-center gap-2 text-[var(--dashboard-accent)] hover:text-[var(--dashboard-accent)]/80 transition-colors">
+							<ExternalLink className="h-5 w-5" />
+						</CustomLink>
 					</CardContent>
 				</Card>
 			</div>

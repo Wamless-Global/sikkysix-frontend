@@ -12,15 +12,24 @@ interface InsufficientBalanceModalProps {
 	onClose: () => void;
 	currentBalance?: number;
 	requiredAmount?: number;
+	depositUrl?: string;
 }
 
-const InsufficientBalanceModal: React.FC<InsufficientBalanceModalProps> = ({ isOpen, onClose, currentBalance, requiredAmount }) => {
+const InsufficientBalanceModal: React.FC<InsufficientBalanceModalProps> = ({ isOpen, onClose, currentBalance, requiredAmount, depositUrl }) => {
 	const router = useRouter();
 
 	const handleFundAccount = () => {
 		nProgress.start();
 		router.push('/account/wallet/deposit');
 		onClose();
+	};
+
+	const handleDepositAndJoin = () => {
+		if (depositUrl) {
+			nProgress.start();
+			router.push(depositUrl);
+			onClose();
+		}
 	};
 
 	if (!isOpen) {
@@ -52,10 +61,15 @@ const InsufficientBalanceModal: React.FC<InsufficientBalanceModalProps> = ({ isO
 						</div>
 					)}
 				</DialogDescription>
-				<DialogFooter className="sm:justify-center">
+				<DialogFooter className="sm:justify-center gap-2 flex-col sm:flex-row">
 					<Button onClick={handleFundAccount} size="lg" variant={'fixed-cta'}>
 						Fund Account
 					</Button>
+					{depositUrl && (
+						<Button onClick={handleDepositAndJoin} size="lg" variant={'outline'}>
+							Deposit & Join
+						</Button>
+					)}
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

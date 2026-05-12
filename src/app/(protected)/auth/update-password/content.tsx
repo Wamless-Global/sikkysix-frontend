@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,6 +19,7 @@ import { VerifyResetTokenResult } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import Logo from '@/components/ui/logo';
 import AppFooter from '@/components/layout/AppFooter';
+import { logger } from '@/lib/logger';
 
 const formSchema = z
 	.object({
@@ -52,6 +53,7 @@ export default function UpdatePasswordPageContent() {
 		const tokenFromUrl = params.get('access_token');
 
 		async function verifyToken(token: string) {
+			logger.info('Verifying reset token...', { token });
 			try {
 				const res = await fetchWithAuth(`/api/auth/verify-reset-token`, {
 					method: 'POST',
@@ -61,6 +63,8 @@ export default function UpdatePasswordPageContent() {
 				});
 
 				const result: VerifyResetTokenResult = await res.json();
+
+				logger.info('Token verification result:', result);
 				if (result.valid) {
 					setToken(token);
 					setPageStatus('success');
@@ -73,7 +77,8 @@ export default function UpdatePasswordPageContent() {
 					setPageStatus(result.error?.name === 'TokenExpiredError' ? 'expired' : 'error');
 					setTitle(result.error?.name === 'TokenExpiredError' ? 'Link Expired' : 'Invalid Link');
 				}
-			} catch {
+			} catch (err) {
+				logger.error('Error verifying reset token:', err);
 				setStatusMessage('Failed to verify reset link.');
 				setPageStatus('error');
 				setTitle('Error');

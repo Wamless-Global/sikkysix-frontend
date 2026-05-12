@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Content from '../content';
+import ClubsContent from './content';
 
 export const metadata: Metadata = {
 	title: 'Account Clubs',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function Page() {
 	return (
 		<>
-			<Content />
+			<ClubsContent />
 		</>
 	);
 }

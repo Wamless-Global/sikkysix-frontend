@@ -2,77 +2,161 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardCard from '@/components/dashboard/DashboardCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuthContext } from '@/context/AuthContext';
-import { adminLoginRequest, generateSlug, getCategoryButtonText, getCategoryDisplayStatus, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
-import { ApiCategoriesResponse, Category, UserDisplayCategory } from '@/types';
+import { adminLoginRequest, formatBaseurrency, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
+import { Investment } from '@/types';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
+import Image from 'next/image';
+
+const YOUTUBE_URL = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+
+interface Goal {
+	id: string;
+	item_description: string;
+	target_amount: number;
+	target_date: string;
+}
+
+interface Winner {
+	id: string;
+	name: string;
+	photo_url: string;
+	prize_description: string;
+}
+
+interface Task {
+	id: string;
+	title: string;
+	reward: string;
+	instruction: string;
+}
+
+interface InvestmentResponse {
+	status: string;
+	data: {
+		investments: Investment[];
+		hasMore: boolean;
+		currentPage: number;
+		pageSize: number;
+		totalCount: number;
+		totalPages: number;
+	};
+}
 
 const hash = typeof window !== 'undefined' ? window.location.hash.substring(1) : '';
 const hashParams = Object.fromEntries(new URLSearchParams(hash).entries());
 
 export default function AccountPage() {
-	const [categories, setCategories] = useState<UserDisplayCategory[]>([]);
+	const [goal, setGoal] = useState<Goal | null>(null);
+	const [winner, setWinner] = useState<Winner | null>(null);
+	const [task, setTask] = useState<Task | null>(null);
+	const [investments, setInvestments] = useState<Investment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [goalError, setGoalError] = useState<string | null>(null);
+	const [winnerError, setWinnerError] = useState<string | null>(null);
+	const [taskError, setTaskError] = useState<string | null>(null);
+	const [investmentError, setInvestmentError] = useState<string | null>(null);
+	const [isDismissedYoutube, setIsDismissedYoutube] = useState(false);
+	const [isEditingGoal, setIsEditingGoal] = useState(false);
+	const [goalFormData, setGoalFormData] = useState({ description: '', amount: '', date: '' });
+	const [isSubmittingGoal, setIsSubmittingGoal] = useState(false);
 	const { currentUser } = useAuthContext();
 	const router = useRouter();
 
-	const fetchUserCategories = useCallback(async () => {
+	const currentSavingsTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + item.current_value, 0);
+
+	const fetchAllData = useCallback(async () => {
 		nProgress.start();
 		setIsLoading(true);
-		setError(null);
+		setGoalError(null);
+		setWinnerError(null);
+		setTaskError(null);
+		setInvestmentError(null);
 
 		try {
-			const response = await fetchWithAuth('/api/categories');
+			const results = await Promise.allSettled([fetchWithAuth('/api/goals'), fetchWithAuth('/api/winners?is_active=true'), fetchWithAuth('/api/tasks?is_active=true'), fetchWithAuth('/api/investments?with_metrics=true&pageSize=50')]);
 
-			if (!response.ok) {
-				let errorMessage = `API Error: ${response.status} ${response.statusText}`;
-				try {
-					const errorData = await response.json();
-					errorMessage = handleFetchMessage(errorData, 'An unexpected error occurred while fetching clubs.');
-				} catch (_jsonError) {}
-				throw new Error(errorMessage);
+			// Handle goals
+			if (results[0].status === 'fulfilled') {
+				const goalRes = results[0].value;
+				if (goalRes.ok) {
+					const goalData = await goalRes.json();
+					if (goalData.status === 'success' && goalData.data) {
+						const goal = goalData.data.goal;
+						setGoal(goal);
+						if (goal) {
+							setGoalFormData({
+								description: goal.item_description,
+								amount: goal.target_amount.toString(),
+								date: goal.target_date,
+							});
+						}
+					}
+				} else {
+					const data = await goalRes.json().catch(() => ({}));
+					setGoalError(handleFetchMessage(data, 'Failed to load goal'));
+				}
+			} else if (results[0].status === 'rejected') {
+				setGoalError('Failed to fetch goal');
 			}
 
-			const result: ApiCategoriesResponse = await response.json();
-
-			if (result.status === 'success' && result.data && Array.isArray(result.data.categories)) {
-				const transformedCategories: UserDisplayCategory[] = result.data.categories.map((apiCat: Category) => {
-					const status = getCategoryDisplayStatus(apiCat);
-					return {
-						id: apiCat.id,
-						slug: apiCat.ticker,
-						title: apiCat.name,
-						image: apiCat.image,
-						minimum: `${apiCat.minimum_investable}`,
-						buttonText: getCategoryButtonText(status),
-						buttonEnabled: true,
-						description: apiCat.description,
-						status,
-						is_locked: apiCat.is_locked,
-						is_launched: apiCat.is_launched,
-					};
-				});
-				setCategories(transformedCategories);
-			} else {
-				console.warn('Unexpected API response structure or error status:', result);
-				const errorMessage = typeof result.data === 'string' ? result.data : 'Failed to parse categories from API response.';
-				if (result.status !== 'success') {
-					throw new Error(result.data?.toString() || `API returned status: ${result.status}`);
+			// Handle winners
+			if (results[1].status === 'fulfilled') {
+				const winnerRes = results[1].value;
+				if (winnerRes.ok) {
+					const winnerData = await winnerRes.json();
+					if (winnerData.status === 'success' && Array.isArray(winnerData.winners) && winnerData.winners.length > 0) {
+						setWinner(winnerData.winners[0]);
+					}
 				} else {
-					throw new Error(errorMessage);
+					const data = await winnerRes.json().catch(() => ({}));
+					setWinnerError(handleFetchMessage(data, 'Failed to load winner'));
 				}
+			} else if (results[1].status === 'rejected') {
+				setWinnerError('Failed to fetch winner');
+			}
+
+			// Handle tasks
+			if (results[2].status === 'fulfilled') {
+				const taskRes = results[2].value;
+				if (taskRes.ok) {
+					const taskData = await taskRes.json();
+					if (taskData.status === 'success' && Array.isArray(taskData.tasks) && taskData.tasks.length > 0) {
+						setTask(taskData.tasks[0]);
+					}
+				} else {
+					const data = await taskRes.json().catch(() => ({}));
+					setTaskError(handleFetchMessage(data, 'Failed to load task'));
+				}
+			} else if (results[2].status === 'rejected') {
+				setTaskError('Failed to fetch task');
+			}
+
+			// Handle investments
+			if (results[3].status === 'fulfilled') {
+				const investRes = results[3].value;
+				if (investRes.ok) {
+					const investData: InvestmentResponse = await investRes.json();
+					if (investData.status === 'success' && investData.data) {
+						setInvestments(investData.data.investments);
+					}
+				} else {
+					const data = await investRes.json().catch(() => ({}));
+					setInvestmentError(handleFetchMessage(data, 'Failed to load investments'));
+				}
+			} else if (results[3].status === 'rejected') {
+				setInvestmentError('Failed to fetch investments');
 			}
 		} catch (err) {
-			const errorMessage = handleFetchMessage(err);
-			setError(errorMessage);
-			setCategories([]);
+			console.error('Unexpected error in fetchAllData:', err);
 		} finally {
 			setIsLoading(false);
 			nProgress.done();
@@ -80,8 +164,8 @@ export default function AccountPage() {
 	}, []);
 
 	useEffect(() => {
-		fetchUserCategories();
-	}, [fetchUserCategories]);
+		fetchAllData();
+	}, [fetchAllData]);
 
 	useEffect(() => {
 		if (!getSetCookie() && adminLoginRequest()) {
@@ -113,8 +197,51 @@ export default function AccountPage() {
 		}
 	}, []);
 
+	const handleGoalSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!goalFormData.description || !goalFormData.amount || !goalFormData.date) {
+			toast.error('Please fill all fields');
+			return;
+		}
+
+		setIsSubmittingGoal(true);
+		try {
+			const method = goal ? 'PUT' : 'POST';
+			const response = await fetchWithAuth('/api/goals', {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					item_description: goalFormData.description,
+					target_amount: parseFloat(goalFormData.amount),
+					target_date: goalFormData.date,
+				}),
+			});
+
+			if (!response.ok) {
+				const data = await response.json().catch(() => ({}));
+				throw new Error(data.message || 'Failed to save goal');
+			}
+
+			const result = await response.json();
+			if (result.status === 'success' && result.data && result.data.goal) {
+				setGoal(result.data.goal);
+				setGoalFormData({
+					description: result.data.goal.item_description,
+					amount: result.data.goal.target_amount.toString(),
+					date: result.data.goal.target_date,
+				});
+				setIsEditingGoal(false);
+				toast.success(goal ? 'Goal updated!' : 'Goal created!');
+			}
+		} catch (err) {
+			toast.error(handleFetchMessage(err, 'Failed to save goal'));
+		} finally {
+			setIsSubmittingGoal(false);
+		}
+	};
+
 	const handleRetry = () => {
-		fetchUserCategories();
+		fetchAllData();
 	};
 
 	return (
@@ -124,7 +251,7 @@ export default function AccountPage() {
 			{currentUser ? (
 				<div>
 					<h2 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
-					<p className="text-text-secondary text-sm">Pick any club of choice and start saving towards your goal.</p>
+					<p className="text-text-secondary text-sm">Welcome to your savings dashboard.</p>
 				</div>
 			) : (
 				<div className="mt-2 space-y-3">
@@ -133,48 +260,170 @@ export default function AccountPage() {
 				</div>
 			)}
 
-			{isLoading && (
-				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
-					{Array.from({ length: 3 }).map((_, index) => (
-						<div key={`skeleton-${index}`} className="rounded-lg text-card-foreground shadow-sm">
-							<div className="p-6 flex flex-col items-start space-y-4">
-								<Skeleton className="h-40 w-full rounded-md" />
-								<Skeleton className="h-6 w-3/4" />
-								<Skeleton className="h-4 w-1/2" />
-								<Skeleton className="h-10 w-full rounded-md" />
+			{/* YouTube Card Section */}
+			{!isDismissedYoutube && (
+				<Card className="border-none shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 overflow-hidden">
+					<CardContent className="p-0 relative">
+						<button onClick={() => setIsDismissedYoutube(true)} className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-900 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-slate-800 transition" aria-label="Dismiss">
+							<span className="text-lg">×</span>
+						</button>
+						<div className="aspect-video">
+							<iframe width="100%" height="100%" src={YOUTUBE_URL} title="Learn about savings" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+						</div>
+					</CardContent>
+				</Card>
+			)}
+
+			{/* Goal Tracker Section */}
+			<Card className="border-none shadow-sm">
+				<CardHeader>
+					<CardTitle>Goal Tracker</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading && !goal ? (
+						<div className="space-y-4">
+							<Skeleton className="h-6 w-1/3" />
+							<Skeleton className="h-10 w-full" />
+							<Skeleton className="h-4 w-1/2" />
+						</div>
+					) : isEditingGoal ? (
+						<form onSubmit={handleGoalSubmit} className="space-y-4">
+							<div>
+								<label className="block text-sm font-medium mb-2">What are you saving for?</label>
+								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
+							</div>
+							<div>
+								<label className="block text-sm font-medium mb-2">Target Amount</label>
+								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required step="0.01" />
+							</div>
+							<div>
+								<label className="block text-sm font-medium mb-2">Target Date</label>
+								<input type="date" value={goalFormData.date} onChange={(e) => setGoalFormData({ ...goalFormData, date: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
+							</div>
+							<div className="flex gap-2">
+								<Button type="submit" disabled={isSubmittingGoal}>
+									{isSubmittingGoal ? 'Saving...' : 'Save Goal'}
+								</Button>
+								<Button type="button" variant="outline" onClick={() => setIsEditingGoal(false)}>
+									Cancel
+								</Button>
+							</div>
+						</form>
+					) : !goal ? (
+						<form onSubmit={handleGoalSubmit} className="space-y-4">
+							<div>
+								<label className="block text-sm font-medium mb-2">What are you saving for?</label>
+								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="e.g., Vacation, Emergency Fund" required />
+							</div>
+							<div>
+								<label className="block text-sm font-medium mb-2">Target Amount</label>
+								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="0.00" required step="0.01" />
+							</div>
+							<div>
+								<label className="block text-sm font-medium mb-2">Target Date</label>
+								<input type="date" value={goalFormData.date} onChange={(e) => setGoalFormData({ ...goalFormData, date: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
+							</div>
+							<Button type="submit" disabled={isSubmittingGoal}>
+								{isSubmittingGoal ? 'Creating...' : 'Create Goal'}
+							</Button>
+						</form>
+					) : (
+						<div className="space-y-4">
+							<div>
+								<p className="text-sm text-muted-foreground mb-1">Goal</p>
+								<p className="font-semibold text-lg">{goal.item_description}</p>
+							</div>
+							<div>
+								<p className="text-sm text-muted-foreground mb-2">Progress</p>
+								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+									<div
+										className="bg-green-500 h-full rounded-full transition-all"
+										style={{
+											width: `${Math.min((currentSavingsTotal / goal.target_amount) * 100, 100)}%`,
+										}}
+									/>
+								</div>
+								<p className="text-sm text-muted-foreground mt-2">
+									{formatBaseurrency(currentSavingsTotal)} saved · {Math.min(Math.round((currentSavingsTotal / goal.target_amount) * 100), 100)}% of goal
+								</p>
+							</div>
+							<div className="flex gap-2">
+								<CustomLink href="/account/wallet/deposit">
+									<Button variant="default">Deposit Now</Button>
+								</CustomLink>
+								<Button variant="outline" onClick={() => setIsEditingGoal(true)}>
+									Edit
+								</Button>
 							</div>
 						</div>
-					))}
-				</div>
-			)}
+					)}
+				</CardContent>
+			</Card>
 
-			{error && !isLoading && <ErrorMessage message={error} onRetry={handleRetry} />}
+			{/* Sikky Winner Section */}
+			<Card className="border-none shadow-sm">
+				<CardHeader>
+					<CardTitle>Sikky Winner</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading && !winner ? (
+						<div className="space-y-4">
+							<Skeleton className="h-20 w-20 rounded-full" />
+							<Skeleton className="h-4 w-1/3" />
+							<Skeleton className="h-4 w-1/2" />
+						</div>
+					) : winner ? (
+						<div className="space-y-4">
+							<div className="flex items-center gap-4">
+								<div className="relative w-20 h-20 rounded-full overflow-hidden">
+									<Image src={winner.photo_url} alt={winner.name} fill className="object-cover" />
+								</div>
+								<div>
+									<p className="font-semibold text-lg">{winner.name}</p>
+									<p className="text-sm text-muted-foreground">{winner.prize_description}</p>
+								</div>
+							</div>
+						</div>
+					) : (
+						<p className="text-muted-foreground">No winner announced yet</p>
+					)}
+				</CardContent>
+			</Card>
 
-			{!isLoading && !error && categories.length === 0 && (
-				<div className="h-[50svh] flex-col flex justify-center items-center">
-					<p className="text-xl text-muted-foreground">No categories available at the moment.</p>
-					<p className="text-sm text-muted-foreground mt-2">Please check back later or contact support if you believe this is an error.</p>
-				</div>
-			)}
+			{/* Weekly Task Section */}
+			<Card className="border-none shadow-sm">
+				<CardHeader>
+					<CardTitle>Weekly Task</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{isLoading && !task ? (
+						<div className="space-y-4">
+							<Skeleton className="h-6 w-1/3" />
+							<Skeleton className="h-4 w-1/2" />
+							<Skeleton className="h-10 w-full" />
+						</div>
+					) : task ? (
+						<div className="space-y-4">
+							<div>
+								<p className="font-semibold text-lg">{task.title}</p>
+								<p className="text-yellow-600 dark:text-yellow-400 font-medium mt-2">Reward: {task.reward}</p>
+								<p className="text-sm text-muted-foreground mt-2">{task.instruction}</p>
+							</div>
+							<CustomLink href="/account/tasks/submit">
+								<Button variant="default">Submit Your Entry →</Button>
+							</CustomLink>
+						</div>
+					) : (
+						<p className="text-muted-foreground">No task this week</p>
+					)}
+				</CardContent>
+			</Card>
 
-			{!isLoading && !error && categories.length > 0 && (
-				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-10">
-					{categories.map((category) => (
-						<CustomLink key={category.id} href={`/account/club/${generateSlug(category.slug)}`} className="block hover:opacity-90 transition-opacity">
-							<DashboardCard
-								title={category.title}
-								image={category.image || '/images/Variety-fruits-vegetables.png'}
-								minimum={category.minimum}
-								buttonText={category.buttonText}
-								buttonEnabled={category.buttonEnabled}
-								status={category.status}
-								is_locked={category.is_locked}
-								is_launched={category.is_launched}
-							/>
-						</CustomLink>
-					))}
-				</div>
-			)}
+			{/* Error Messages */}
+			{goalError && <ErrorMessage message={goalError} onRetry={handleRetry} />}
+			{winnerError && <ErrorMessage message={winnerError} onRetry={handleRetry} />}
+			{taskError && <ErrorMessage message={taskError} onRetry={handleRetry} />}
+			{investmentError && <ErrorMessage message={investmentError} onRetry={handleRetry} />}
 		</div>
 	);
 }
