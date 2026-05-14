@@ -23,6 +23,14 @@ import { useAuthContext } from '@/context/AuthContext';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { logger } from '@/lib/logger';
 
+interface UserGoal {
+	id: string;
+	item_description: string;
+	target_amount: number;
+	target_date: string;
+	is_completed?: boolean;
+}
+
 export default function SingleCategoryContent() {
 	const paramsFromHook = useParams<{ slug: string }>();
 	const slug = paramsFromHook.slug;
@@ -47,6 +55,9 @@ export default function SingleCategoryContent() {
 	const { setCurrentUser, currentUser } = useAuthContext();
 	const [isRequestingLaunch, setIsRequestingLaunch] = useState(false);
 	const [shouldPassDepositUrl, setShouldPassDepositUrl] = useState(false);
+	const [userGoal, setUserGoal] = useState<UserGoal | null>(null);
+	const [isLoadingGoal, setIsLoadingGoal] = useState(true);
+	const [requireNewGoal, setRequireNewGoal] = useState(true);
 
 	const fetchUserCategory = useCallback(async (identifier: string) => {
 		nProgress.start();
@@ -168,6 +179,28 @@ export default function SingleCategoryContent() {
 		}
 	}, [categoryData?.id]);
 
+	const fetchUserGoal = useCallback(async () => {
+		setIsLoadingGoal(true);
+		try {
+			const response = await fetchWithAuth('/api/goals');
+			if (response.ok) {
+				const data = await response.json();
+				if (data.status === 'success' && data.data) {
+					setUserGoal(data.data.goal);
+					setRequireNewGoal(data.data.require_new_goal_after_completion ?? true);
+				}
+			}
+		} catch (_err) {
+			// Silently fail — the account page will show the error
+		} finally {
+			setIsLoadingGoal(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		fetchUserGoal();
+	}, [fetchUserGoal]);
+
 	const validateAmount = (amount: number, balance: number | undefined): string | null => {
 		if (isNaN(amount) || amount <= 0) {
 			return 'Please enter a valid positive amount.';
@@ -209,6 +242,30 @@ export default function SingleCategoryContent() {
 	const handleBuyNow = async () => {
 		setAmountError(null);
 		setIsLoadingPurchase(true);
+
+		// ── Goal enforcement gate (proactive UX) ──
+		if (!userGoal) {
+			toast.error('Please set a savings goal before you can invest.', {
+				description: 'Visit your dashboard to create a goal.',
+				action: {
+					label: 'Set Goal',
+					onClick: () => router.push('/account'),
+				},
+			});
+			setIsLoadingPurchase(false);
+			return;
+		}
+
+		if (userGoal.is_completed && requireNewGoal) {
+			toast.error('You have completed your goal. Please set a new goal to continue investing.', {
+				action: {
+					label: 'Set New Goal',
+					onClick: () => router.push('/account'),
+				},
+			});
+			setIsLoadingPurchase(false);
+			return;
+		}
 
 		const amount = parseFloat(amountInput);
 
@@ -256,12 +313,14 @@ export default function SingleCategoryContent() {
 				toast.success(`New shares bought successfully!`);
 				router.push('/account/my-savings');
 			} else {
-				let errorMessage = `Failed to create category. Status: ${response.status}`;
-				try {
-					const errorData = await response.json();
-					errorMessage = handleFetchMessage(errorData);
-				} catch (_e) {}
-				toast.error(errorMessage);
+				const errorData = await response.json().catch(() => ({}));
+				let errorMessage = handleFetchMessage(errorData);
+				if (errorData.code === 'NO_ACTIVE_GOAL') {
+					errorMessage = 'Please set a savings goal before you can invest.';
+				} else if (errorData.code === 'GOAL_COMPLETED_REQUIRES_NEW') {
+					errorMessage = 'You have completed your goal. Please set a new goal to continue investing.';
+				}
+				toast.error(errorMessage || `Failed to invest. Status: ${response.status}`);
 			}
 		} catch (error: unknown) {
 			// console.error('Error creating category:', error);
@@ -386,6 +445,21 @@ export default function SingleCategoryContent() {
 			<Card className="bg-[var(--dashboard-secondary)] border-none shadow-lg rounded-2xl text-[var(--dashboard-secondary-foreground)] p-4 py-6">
 				<CardContent className="px-2 flex flex-col sm:flex-row justify-between items-start gap-4">
 					<div className="flex-grow w-full sm:w-auto space-y-2">
+						{!isLoadingGoal && (!userGoal || (userGoal.is_completed && requireNewGoal)) && categoryData.is_launched && (
+							<div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-2">
+								<p className="text-sm text-yellow-700 dark:text-yellow-300 font-medium">
+									{!userGoal ? 'Set a savings goal to start investing.' : 'Goal completed! Set a new goal to continue investing.'}
+								</p>
+								<Button
+									variant="outline"
+									size="sm"
+									className="mt-2"
+									onClick={() => router.push('/account')}
+								>
+									{!userGoal ? 'Set Goal' : 'Set New Goal'}
+								</Button>
+							</div>
+						)}
 						{categoryData.is_launched && (
 							<div className="flex items-center justify-between">
 								<Label htmlFor="amount" className="text-sm">
@@ -445,7 +519,7 @@ export default function SingleCategoryContent() {
 									onClick={handleBuyNow}
 									size={'lg'}
 									variant={'fixed-cta'}
-									disabled={isLoadingPurchase || categoryData.is_locked || !categoryData.is_launched || !amountInput}
+									disabled={isLoadingPurchase || categoryData.is_locked || !categoryData.is_launched || !amountInput || !userGoal || (userGoal?.is_completed && requireNewGoal)}
 									className={`w-full mt-4 sm:w-auto sm:mt-0 sm:self-end h-12 !self-center shadow-md ${categoryData.is_locked ? 'bg-gray-400 text-gray-700 cursor-not-allowed hover:bg-gray-400' : ''}`}
 								>
 									{categoryData.is_locked ? (

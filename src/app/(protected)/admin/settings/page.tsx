@@ -64,6 +64,7 @@ export default function PlatformSettingsPage() {
 	const [capSavings, setCapSavings] = useState(false);
 	const [capSavingsFrequency, setCapSavingsFrequency] = useState('');
 	const [weekMode, setWeekMode] = useState(false);
+	const [requireNewGoalAfterCompletion, setRequireNewGoalAfterCompletion] = useState(true);
 	const [currencies, setCurrencies] = useState<{ code: string; name: string; symbol: string }[]>([]);
 	const [currencyRates, setCurrencyRates] = useState<Record<string, string>>({});
 
@@ -126,6 +127,7 @@ export default function PlatformSettingsPage() {
 				if (settings.cap_savings !== undefined) setCapSavings(settings.cap_savings === 'true');
 				if (settings.cap_savings_frequency !== undefined) setCapSavingsFrequency(settings.cap_savings_frequency);
 				if (settings.week_mode !== undefined) setWeekMode(settings.week_mode === 'true');
+				if (settings.require_new_goal_after_completion !== undefined) setRequireNewGoalAfterCompletion(settings.require_new_goal_after_completion === 'true');
 			} catch (e) {
 				const errorMessage = handleFetchMessage(e, 'Failed to load platform settings.');
 				toast.error(errorMessage);
@@ -247,6 +249,7 @@ export default function PlatformSettingsPage() {
 			{ key: 'enable_buying_fees_wallet_balance', setting_value: enableBuyingFeesWalletBalance ? 'true' : 'false' },
 			{ key: 'categories_term', setting_value: categoriesTerm },
 			{ key: 'cap_savings', setting_value: capSavings ? 'true' : 'false' },
+			{ key: 'require_new_goal_after_completion', setting_value: requireNewGoalAfterCompletion ? 'true' : 'false' },
 		];
 		if (capSavings) {
 			updates.push({ key: 'cap_savings_frequency', setting_value: capSavingsFrequency });
@@ -394,6 +397,13 @@ export default function PlatformSettingsPage() {
 									Clubs Term
 								</Label>
 								<Input disabled={isSubmitting} id="categoriesTerm" value={categoriesTerm} onChange={(e) => setCategoriesTerm(e.target.value)} className="focus:ring-blue-500/60" placeholder="e.g., units, shares, tokens" />
+							</div>
+							<div className="flex items-center gap-3">
+								<Switch disabled={isSubmitting} id="requireNewGoal" checked={requireNewGoalAfterCompletion} onCheckedChange={setRequireNewGoalAfterCompletion} />
+								<Label htmlFor="requireNewGoal" className="font-medium cursor-pointer flex items-center gap-1">
+									Require New Goal After Completion
+									<InfoTooltip content="If enabled, users must set a new savings goal after completing their current one before they can invest again." />
+								</Label>
 							</div>
 						</CardContent>
 						<CardFooter className="border-t px-6 py-4 flex justify-end">

@@ -23,6 +23,7 @@ interface Goal {
 	item_description: string;
 	target_amount: number;
 	target_date: string;
+	is_completed?: boolean;
 }
 
 interface Winner {
@@ -68,6 +69,7 @@ export default function AccountPage() {
 	const [isEditingGoal, setIsEditingGoal] = useState(false);
 	const [goalFormData, setGoalFormData] = useState({ description: '', amount: '', date: '' });
 	const [isSubmittingGoal, setIsSubmittingGoal] = useState(false);
+	const [requireNewGoal, setRequireNewGoal] = useState(false);
 	const { currentUser } = useAuthContext();
 	const router = useRouter();
 
@@ -92,6 +94,7 @@ export default function AccountPage() {
 					if (goalData.status === 'success' && goalData.data) {
 						const goal = goalData.data.goal;
 						setGoal(goal);
+						setRequireNewGoal(goalData.data.require_new_goal_after_completion ?? true);
 						if (goal) {
 							setGoalFormData({
 								description: goal.item_description,
@@ -327,6 +330,23 @@ export default function AccountPage() {
 								{isSubmittingGoal ? 'Creating...' : 'Create Goal'}
 							</Button>
 						</form>
+					) : goal.is_completed ? (
+						<div className="space-y-4">
+							<div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
+								<p className="text-green-700 dark:text-green-300 font-semibold text-lg mb-1">Goal Achieved!</p>
+								<p className="text-sm text-green-600 dark:text-green-400">
+									You reached your goal for <strong>{goal.item_description}</strong>. Congratulations!
+								</p>
+							</div>
+							<div className="flex gap-2">
+								<Button variant="default" onClick={() => setIsEditingGoal(true)}>
+									Set New Goal
+								</Button>
+								<CustomLink href="/account/wallet/deposit">
+									<Button variant="outline">Deposit Now</Button>
+								</CustomLink>
+							</div>
+						</div>
 					) : (
 						<div className="space-y-4">
 							<div>
