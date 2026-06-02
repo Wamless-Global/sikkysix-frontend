@@ -3,7 +3,7 @@
 import { CustomLink } from '@/components/ui/CustomLink';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart, UserCheck, FileText, WalletIcon, Trophy, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, FolderKanban, ArrowLeftRight, Settings, MessageSquare, BarChart, UserCheck, FileText, WalletIcon, Trophy, ClipboardList, ListChecks } from 'lucide-react';
 
 const navItems = [
 	{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -33,6 +33,7 @@ const navItems = [
 	},
 	{ href: '/admin/winners', label: 'Weekly Winners', icon: Trophy },
 	{ href: '/admin/task-submissions', label: 'Task Submissions', icon: ClipboardList },
+	{ href: '/admin/tasks', label: 'Tasks', icon: ListChecks },
 	// { href: '/admin/reports', label: 'Reporting', icon: BarChart },
 ];
 

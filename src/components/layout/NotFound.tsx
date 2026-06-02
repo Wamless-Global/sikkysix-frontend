@@ -13,7 +13,7 @@ const DUMMY_RESULTS = [
 	{ title: 'Profile', href: '/account/profile' },
 	{ title: 'Wallet', href: '/account/wallet' },
 	{ title: 'My Savings', href: '/account/my-savings' },
-	{ title: 'Games', href: '/account/games' },
+	{ title: 'Tasks', href: '/account/tasks' },
 	{ title: 'Login', href: '/auth/login' },
 	{ title: 'Sign Up', href: '/auth/signup' },
 	{ title: 'Referrals', href: '/account/referrals' },

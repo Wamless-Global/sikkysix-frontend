@@ -82,6 +82,10 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 				if (typeof window !== 'undefined') {
 					localStorage.setItem('has-active-goal', JSON.stringify(true));
 				}
+				// Reload the page so the dashboard re-fetches and shows the new goal
+				if (method === 'POST') {
+					window.location.reload();
+				}
 			}
 		} catch (err) {
 			toast.error(handleFetchMessage(err, 'Failed to save goal'));

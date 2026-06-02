@@ -6,7 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import UserHeader from '@/components/layout/UserHeader';
 import UserFooter from '@/components/layout/UserFooter';
 import UserMobileSidebar from '@/components/layout/UserMobileSidebar';
-import { Home, Briefcase, Wallet, Gamepad2, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon, PieChart } from 'lucide-react';
+import { Home, Briefcase, Wallet, ClipboardList, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon, PieChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -32,7 +32,7 @@ const desktopNavItems: desktopNavItemsType = [
 	{ href: '/account', label: 'Home', icon: Home, for: 'user' },
 	{ href: '/account/my-savings', label: 'My Savings', icon: Briefcase, for: 'user' },
 	{ href: '/account/wallet', label: 'Wallet', icon: Wallet, for: 'user' },
-	{ href: '/account/games', label: 'Games', icon: Gamepad2, for: 'user' },
+	{ href: '/account/tasks', label: 'Tasks', icon: ClipboardList, for: 'user' },
 	{ href: '/account/profile', label: 'Profile', icon: UserIcon, for: 'user' },
 	{ href: '/account/agents-apply', label: 'Become an Agent', icon: BookUp, for: 'user', hideFor: 'agent' },
 	{

@@ -25,13 +25,6 @@ interface Winner {
 	prize_description: string;
 }
 
-interface Task {
-	id: string;
-	title: string;
-	reward: string;
-	instruction: string;
-}
-
 interface Goal {
 	id: string;
 	item_description: string;
@@ -61,10 +54,8 @@ export default function AccountPage() {
 	const [goalError, setGoalError] = useState<string | null>(null);
 	const [investmentError, setInvestmentError] = useState<string | null>(null);
 	const [winner, setWinner] = useState<Winner | null>(null);
-	const [task, setTask] = useState<Task | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [winnerError, setWinnerError] = useState<string | null>(null);
-	const [taskError, setTaskError] = useState<string | null>(null);
 	const [isDismissedYoutube, setIsDismissedYoutube] = useState(false);
 
 	const currentSavingsTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + item.current_value, 0);
@@ -77,13 +68,11 @@ export default function AccountPage() {
 		setGoalError(null);
 		setInvestmentError(null);
 		setWinnerError(null);
-		setTaskError(null);
 
 		try {
 			const results = await Promise.allSettled([
 				fetchWithAuth('/api/goals'),
 				fetchWithAuth('/api/winners?is_active=true'),
-				fetchWithAuth('/api/tasks?is_active=true'),
 				fetchWithAuth('/api/investments?with_metrics=true&pageSize=50'),
 			]);
 
@@ -119,25 +108,9 @@ export default function AccountPage() {
 				setWinnerError('Failed to fetch winner');
 			}
 
-			// Handle tasks
-			if (results[2].status === 'fulfilled') {
-				const taskRes = results[2].value;
-				if (taskRes.ok) {
-					const taskData = await taskRes.json();
-					if (taskData.status === 'success' && Array.isArray(taskData.tasks) && taskData.tasks.length > 0) {
-						setTask(taskData.tasks[0]);
-					}
-				} else {
-					const data = await taskRes.json().catch(() => ({}));
-					setTaskError(handleFetchMessage(data, 'Failed to load task'));
-				}
-			} else if (results[2].status === 'rejected') {
-				setTaskError('Failed to fetch task');
-			}
-
 			// Handle investments
-			if (results[3].status === 'fulfilled') {
-				const investRes = results[3].value;
+			if (results[2].status === 'fulfilled') {
+				const investRes = results[2].value;
 				if (investRes.ok) {
 					const investData: InvestmentResponse = await investRes.json();
 					if (investData.status === 'success' && investData.data) {
@@ -147,7 +120,7 @@ export default function AccountPage() {
 					const data = await investRes.json().catch(() => ({}));
 					setInvestmentError(handleFetchMessage(data, 'Failed to load investments'));
 				}
-			} else if (results[3].status === 'rejected') {
+			} else if (results[2].status === 'rejected') {
 				setInvestmentError('Failed to fetch investments');
 			}
 		} catch (err) {
@@ -287,40 +260,10 @@ export default function AccountPage() {
 				</CardContent>
 			</Card>
 
-			{/* Weekly Task Section */}
-			<Card className="border-none shadow-sm">
-				<CardHeader>
-					<CardTitle>Weekly Task</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{isLoading && !task ? (
-						<div className="space-y-4">
-							<Skeleton className="h-6 w-1/3" />
-							<Skeleton className="h-4 w-1/2" />
-							<Skeleton className="h-10 w-full" />
-						</div>
-					) : task ? (
-						<div className="space-y-4">
-							<div>
-								<p className="font-semibold text-lg">{task.title}</p>
-								<p className="text-yellow-600 dark:text-yellow-400 font-medium mt-2">Reward: {task.reward}</p>
-								<p className="text-sm text-muted-foreground mt-2">{task.instruction}</p>
-							</div>
-							<CustomLink href="/account/tasks/submit">
-								<Button variant="default">Submit Your Entry →</Button>
-							</CustomLink>
-						</div>
-					) : (
-						<p className="text-muted-foreground">No task this week</p>
-					)}
-				</CardContent>
-			</Card>
-
 			{/* Error Messages */}
 			{goalError && <ErrorMessage message={goalError} onRetry={handleRetry} />}
 			{investmentError && <ErrorMessage message={investmentError} onRetry={handleRetry} />}
 			{winnerError && <ErrorMessage message={winnerError} onRetry={handleRetry} />}
-			{taskError && <ErrorMessage message={taskError} onRetry={handleRetry} />}
 		</div>
 	);
 }

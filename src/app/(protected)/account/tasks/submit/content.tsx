@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { getISOWeek, getISOWeekYear } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomLink } from '@/components/ui/CustomLink';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +18,8 @@ interface Task {
 	title: string;
 	reward: string;
 	instruction: string;
+	week_number: number;
+	year: number;
 }
 
 export default function SubmitTaskContent() {
@@ -27,11 +30,30 @@ export default function SubmitTaskContent() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isDuplicate, setIsDuplicate] = useState(false);
+	const [isWrongWeek, setIsWrongWeek] = useState(false);
+
+	const checkExistingSubmission = useCallback(async (activeTaskId: string) => {
+		try {
+			const response = await fetchWithAuth('/api/task-submissions/user/me');
+			if (response.ok) {
+				const data = await response.json();
+				if (data.status === 'success' && Array.isArray(data.submissions)) {
+					const alreadySubmitted = data.submissions.some((s: any) => s.task_id === activeTaskId);
+					if (alreadySubmitted) {
+						setIsDuplicate(true);
+					}
+				}
+			}
+		} catch {
+			// Silently fail — backend will guard duplicates on submit anyway
+		}
+	}, []);
 
 	const fetchActiveTask = useCallback(async () => {
 		nProgress.start();
 		setIsLoading(true);
 		setError(null);
+		setIsWrongWeek(false);
 
 		try {
 			const response = await fetchWithAuth('/api/tasks?is_active=true');
@@ -43,7 +65,17 @@ export default function SubmitTaskContent() {
 
 			const taskData = await response.json();
 			if (taskData.status === 'success' && Array.isArray(taskData.tasks) && taskData.tasks.length > 0) {
-				setTask(taskData.tasks[0]);
+				const loadedTask = taskData.tasks[0];
+				const currentWeek = getISOWeek(new Date());
+				const currentYear = getISOWeekYear(new Date());
+
+				setTask(loadedTask);
+
+				if (loadedTask.week_number !== currentWeek || loadedTask.year !== currentYear) {
+					setIsWrongWeek(true);
+				} else {
+					await checkExistingSubmission(loadedTask.id);
+				}
 			}
 		} catch (err) {
 			const errorMessage = handleFetchMessage(err, 'Failed to fetch task');
@@ -52,7 +84,7 @@ export default function SubmitTaskContent() {
 			setIsLoading(false);
 			nProgress.done();
 		}
-	}, []);
+	}, [checkExistingSubmission]);
 
 	useEffect(() => {
 		fetchActiveTask();
@@ -111,10 +143,6 @@ export default function SubmitTaskContent() {
 
 	return (
 		<div className="space-y-6">
-			<CustomLink href="/account" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-				← Back to Home
-			</CustomLink>
-
 			<div>
 				<h1 className="text-2xl font-semibold text-text-primary mb-1">Submit Task Entry</h1>
 				<p className="text-text-secondary text-sm">Complete the weekly task and submit your entry below.</p>
@@ -145,8 +173,20 @@ export default function SubmitTaskContent() {
 						<div className="text-center">
 							<p className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">Success!</p>
 							<p className="text-green-600 dark:text-green-400 mb-4">Your entry has been submitted successfully.</p>
-							<CustomLink href="/account">
+							<CustomLink href="/account/tasks">
 								<Button variant="default">Back to Home</Button>
+							</CustomLink>
+						</div>
+					</CardContent>
+				</Card>
+			) : isWrongWeek ? (
+				<Card className="border-none shadow-sm">
+					<CardContent className="p-6">
+						<div className="text-center">
+							<p className="text-lg font-semibold text-text-primary mb-2">Submissions Closed</p>
+							<p className="text-muted-foreground mb-4">This task is not for the current week. Please check the tasks page for this week&apos;s active task.</p>
+							<CustomLink href="/account/tasks">
+								<Button variant="default">Back to Tasks</Button>
 							</CustomLink>
 						</div>
 					</CardContent>
@@ -156,8 +196,8 @@ export default function SubmitTaskContent() {
 					<CardContent className="p-6">
 						<div className="text-center">
 							<p className="text-lg font-semibold text-yellow-700 dark:text-yellow-300 mb-2">Already Submitted</p>
-							<p className="text-yellow-600 dark:text-yellow-400 mb-4">You've already submitted an entry for this task.</p>
-							<CustomLink href="/account">
+							<p className="text-yellow-600 dark:text-yellow-400 mb-4">You&apos;ve already submitted an entry for this task.</p>
+							<CustomLink href="/account/tasks">
 								<Button variant="default">Back to Home</Button>
 							</CustomLink>
 						</div>
