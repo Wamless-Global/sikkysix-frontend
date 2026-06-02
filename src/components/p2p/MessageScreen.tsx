@@ -138,7 +138,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ sellerName, initialMessag
 						return true;
 					});
 					setMessages([...filtered, newMsg]);
-				}
+				},
 			)
 			.subscribe();
 

@@ -95,6 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			if (typeof window !== 'undefined') {
 				localStorage.removeItem('currency');
 				localStorage.removeItem('settings');
+				localStorage.removeItem('has-active-goal');
 				clearLoggedInAsUser();
 			}
 		} catch (err) {
@@ -102,6 +103,26 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 			setCurrentUser(null);
 			throw err;
 		} finally {
+		}
+	};
+
+	const fetchAndCacheGoalStatus = async () => {
+		try {
+			const response = await fetchWithAuth('/api/goals');
+			const result = await response.json();
+			if (result.status === 'success' && result.data) {
+				const goal = result.data.goal;
+				const requireNewGoal = result.data.require_new_goal_after_completion ?? true;
+				// Has an active goal if there is a goal that is NOT completed,
+				// OR if it is completed but a new goal is NOT required.
+				const hasActiveGoal = !!goal && (!goal.is_completed || !requireNewGoal);
+				if (typeof window !== 'undefined') {
+					localStorage.setItem('has-active-goal', JSON.stringify(hasActiveGoal));
+				}
+			}
+		} catch (err) {
+			// Silently fail — goal status is not critical for auth
+			console.error('AuthContext: Failed to fetch goal status', err);
 		}
 	};
 
@@ -138,6 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 				}
 
 				clearLoggedInAsUser();
+				await fetchAndCacheGoalStatus();
 
 				return authenticatedUser;
 			} else {
@@ -289,6 +311,7 @@ export const AuthProvider: React.FC<AuthProviderProps & { is404?: boolean }> = (
 
 				if (sessionData.status === 'success' && sessionData.data?.user) {
 					setCurrentUser(sessionData.data.user as AuthenticatedUser);
+					await fetchAndCacheGoalStatus();
 				} else {
 					setCurrentUser(null);
 				}

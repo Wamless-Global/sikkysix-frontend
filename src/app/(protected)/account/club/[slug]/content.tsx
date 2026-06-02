@@ -199,7 +199,7 @@ export default function SingleCategoryContent() {
 
 	useEffect(() => {
 		fetchUserGoal();
-	}, [fetchUserGoal]);
+	}, [fetchUserGoal, currentUser?.id]);
 
 	const validateAmount = (amount: number, balance: number | undefined): string | null => {
 		if (isNaN(amount) || amount <= 0) {

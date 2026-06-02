@@ -8,23 +8,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuthContext } from '@/context/AuthContext';
-import { adminLoginRequest, formatBaseurrency, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
-import { Investment } from '@/types';
+import { adminLoginRequest, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { formatBaseurrency } from '@/lib/helpers';
+import { Investment } from '@/types';
 
 const YOUTUBE_URL = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
-
-interface Goal {
-	id: string;
-	item_description: string;
-	target_amount: number;
-	target_date: string;
-	is_completed?: boolean;
-}
 
 interface Winner {
 	id: string;
@@ -38,6 +30,14 @@ interface Task {
 	title: string;
 	reward: string;
 	instruction: string;
+}
+
+interface Goal {
+	id: string;
+	item_description: string;
+	target_amount: number;
+	target_date: string;
+	is_completed?: boolean;
 }
 
 interface InvestmentResponse {
@@ -57,34 +57,35 @@ const hashParams = Object.fromEntries(new URLSearchParams(hash).entries());
 
 export default function AccountPage() {
 	const [goal, setGoal] = useState<Goal | null>(null);
+	const [investments, setInvestments] = useState<Investment[]>([]);
+	const [goalError, setGoalError] = useState<string | null>(null);
+	const [investmentError, setInvestmentError] = useState<string | null>(null);
 	const [winner, setWinner] = useState<Winner | null>(null);
 	const [task, setTask] = useState<Task | null>(null);
-	const [investments, setInvestments] = useState<Investment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [goalError, setGoalError] = useState<string | null>(null);
 	const [winnerError, setWinnerError] = useState<string | null>(null);
 	const [taskError, setTaskError] = useState<string | null>(null);
-	const [investmentError, setInvestmentError] = useState<string | null>(null);
 	const [isDismissedYoutube, setIsDismissedYoutube] = useState(false);
-	const [isEditingGoal, setIsEditingGoal] = useState(false);
-	const [goalFormData, setGoalFormData] = useState({ description: '', amount: '', date: '' });
-	const [isSubmittingGoal, setIsSubmittingGoal] = useState(false);
-	const [requireNewGoal, setRequireNewGoal] = useState(false);
-	const { currentUser } = useAuthContext();
-	const router = useRouter();
 
 	const currentSavingsTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + item.current_value, 0);
+	const { currentUser } = useAuthContext();
+	const router = useRouter();
 
 	const fetchAllData = useCallback(async () => {
 		nProgress.start();
 		setIsLoading(true);
 		setGoalError(null);
+		setInvestmentError(null);
 		setWinnerError(null);
 		setTaskError(null);
-		setInvestmentError(null);
 
 		try {
-			const results = await Promise.allSettled([fetchWithAuth('/api/goals'), fetchWithAuth('/api/winners?is_active=true'), fetchWithAuth('/api/tasks?is_active=true'), fetchWithAuth('/api/investments?with_metrics=true&pageSize=50')]);
+			const results = await Promise.allSettled([
+				fetchWithAuth('/api/goals'),
+				fetchWithAuth('/api/winners?is_active=true'),
+				fetchWithAuth('/api/tasks?is_active=true'),
+				fetchWithAuth('/api/investments?with_metrics=true&pageSize=50'),
+			]);
 
 			// Handle goals
 			if (results[0].status === 'fulfilled') {
@@ -92,16 +93,7 @@ export default function AccountPage() {
 				if (goalRes.ok) {
 					const goalData = await goalRes.json();
 					if (goalData.status === 'success' && goalData.data) {
-						const goal = goalData.data.goal;
-						setGoal(goal);
-						setRequireNewGoal(goalData.data.require_new_goal_after_completion ?? true);
-						if (goal) {
-							setGoalFormData({
-								description: goal.item_description,
-								amount: goal.target_amount.toString(),
-								date: goal.target_date,
-							});
-						}
+						setGoal(goalData.data.goal);
 					}
 				} else {
 					const data = await goalRes.json().catch(() => ({}));
@@ -200,49 +192,6 @@ export default function AccountPage() {
 		}
 	}, []);
 
-	const handleGoalSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!goalFormData.description || !goalFormData.amount || !goalFormData.date) {
-			toast.error('Please fill all fields');
-			return;
-		}
-
-		setIsSubmittingGoal(true);
-		try {
-			const method = goal ? 'PUT' : 'POST';
-			const response = await fetchWithAuth('/api/goals', {
-				method,
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					item_description: goalFormData.description,
-					target_amount: parseFloat(goalFormData.amount),
-					target_date: goalFormData.date,
-				}),
-			});
-
-			if (!response.ok) {
-				const data = await response.json().catch(() => ({}));
-				throw new Error(data.message || 'Failed to save goal');
-			}
-
-			const result = await response.json();
-			if (result.status === 'success' && result.data && result.data.goal) {
-				setGoal(result.data.goal);
-				setGoalFormData({
-					description: result.data.goal.item_description,
-					amount: result.data.goal.target_amount.toString(),
-					date: result.data.goal.target_date,
-				});
-				setIsEditingGoal(false);
-				toast.success(goal ? 'Goal updated!' : 'Goal created!');
-			}
-		} catch (err) {
-			toast.error(handleFetchMessage(err, 'Failed to save goal'));
-		} finally {
-			setIsSubmittingGoal(false);
-		}
-	};
-
 	const handleRetry = () => {
 		fetchAllData();
 	};
@@ -278,76 +227,12 @@ export default function AccountPage() {
 			)}
 
 			{/* Goal Tracker Section */}
-			<Card className="border-none shadow-sm">
-				<CardHeader>
-					<CardTitle>Goal Tracker</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{isLoading && !goal ? (
-						<div className="space-y-4">
-							<Skeleton className="h-6 w-1/3" />
-							<Skeleton className="h-10 w-full" />
-							<Skeleton className="h-4 w-1/2" />
-						</div>
-					) : isEditingGoal ? (
-						<form onSubmit={handleGoalSubmit} className="space-y-4">
-							<div>
-								<label className="block text-sm font-medium mb-2">What are you saving for?</label>
-								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-2">Target Amount</label>
-								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required step="0.01" />
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-2">Target Date</label>
-								<input type="date" value={goalFormData.date} onChange={(e) => setGoalFormData({ ...goalFormData, date: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
-							</div>
-							<div className="flex gap-2">
-								<Button type="submit" disabled={isSubmittingGoal}>
-									{isSubmittingGoal ? 'Saving...' : 'Save Goal'}
-								</Button>
-								<Button type="button" variant="outline" onClick={() => setIsEditingGoal(false)}>
-									Cancel
-								</Button>
-							</div>
-						</form>
-					) : !goal ? (
-						<form onSubmit={handleGoalSubmit} className="space-y-4">
-							<div>
-								<label className="block text-sm font-medium mb-2">What are you saving for?</label>
-								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="e.g., Vacation, Emergency Fund" required />
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-2">Target Amount</label>
-								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="0.00" required step="0.01" />
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-2">Target Date</label>
-								<input type="date" value={goalFormData.date} onChange={(e) => setGoalFormData({ ...goalFormData, date: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
-							</div>
-							<Button type="submit" disabled={isSubmittingGoal}>
-								{isSubmittingGoal ? 'Creating...' : 'Create Goal'}
-							</Button>
-						</form>
-					) : goal.is_completed ? (
-						<div className="space-y-4">
-							<div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
-								<p className="text-green-700 dark:text-green-300 font-semibold text-lg mb-1">Goal Achieved!</p>
-								<p className="text-sm text-green-600 dark:text-green-400">
-									You reached your goal for <strong>{goal.item_description}</strong>. Congratulations!
-								</p>
-							</div>
-							<div className="flex gap-2">
-								<Button variant="default" onClick={() => setIsEditingGoal(true)}>
-									Set New Goal
-								</Button>
-								<CustomLink href="/account/wallet/deposit">
-									<Button variant="outline">Deposit Now</Button>
-								</CustomLink>
-							</div>
-						</div>
-					) : (
+			{goal && !goal.is_completed && (
+				<Card className="border-none shadow-sm">
+					<CardHeader>
+						<CardTitle>Goal Tracker</CardTitle>
+					</CardHeader>
+					<CardContent>
 						<div className="space-y-4">
 							<div>
 								<p className="text-sm text-muted-foreground mb-1">Goal</p>
@@ -367,18 +252,10 @@ export default function AccountPage() {
 									{formatBaseurrency(currentSavingsTotal)} saved · {Math.min(Math.round((currentSavingsTotal / goal.target_amount) * 100), 100)}% of goal
 								</p>
 							</div>
-							<div className="flex gap-2">
-								<CustomLink href="/account/wallet/deposit">
-									<Button variant="default">Deposit Now</Button>
-								</CustomLink>
-								<Button variant="outline" onClick={() => setIsEditingGoal(true)}>
-									Edit
-								</Button>
-							</div>
 						</div>
-					)}
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			)}
 
 			{/* Sikky Winner Section */}
 			<Card className="border-none shadow-sm">
@@ -441,9 +318,9 @@ export default function AccountPage() {
 
 			{/* Error Messages */}
 			{goalError && <ErrorMessage message={goalError} onRetry={handleRetry} />}
+			{investmentError && <ErrorMessage message={investmentError} onRetry={handleRetry} />}
 			{winnerError && <ErrorMessage message={winnerError} onRetry={handleRetry} />}
 			{taskError && <ErrorMessage message={taskError} onRetry={handleRetry} />}
-			{investmentError && <ErrorMessage message={investmentError} onRetry={handleRetry} />}
 		</div>
 	);
 }
