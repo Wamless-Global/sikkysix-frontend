@@ -33,8 +33,18 @@ interface Task {
 
 const ITEMS_PER_PAGE = 10;
 
-const CURRENT_ISO_WEEK = getISOWeek(new Date());
 const CURRENT_ISO_YEAR = getISOWeekYear(new Date());
+const CURRENT_ISO_WEEK = getISOWeek(new Date());
+
+const ALL_YEAR_OPTIONS = Array.from({ length: 4 }, (_, i) => (CURRENT_ISO_YEAR - 1 + i).toString());
+const CREATE_YEAR_OPTIONS = Array.from({ length: 3 }, (_, i) => (CURRENT_ISO_YEAR + i).toString());
+const ALL_WEEK_OPTIONS = Array.from({ length: 53 }, (_, i) => (i + 1).toString());
+
+const getCreateWeekOptions = (selectedYear: string) => {
+	const yearNum = parseInt(selectedYear, 10) || CURRENT_ISO_YEAR;
+	const start = yearNum === CURRENT_ISO_YEAR ? CURRENT_ISO_WEEK : 1;
+	return Array.from({ length: 53 - start + 1 }, (_, i) => (start + i).toString());
+};
 
 const fetchTasks = async (page: number): Promise<{ tasks: Task[]; totalCount: number }> => {
 	const queryParams = new URLSearchParams();
@@ -79,7 +89,7 @@ export default function TasksPage() {
 	// Create form state
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
-	const [weekNumber, setWeekNumber] = useState(CURRENT_ISO_WEEK.toString());
+	const [weekNumber, setWeekNumber] = useState('');
 	const [year, setYear] = useState(CURRENT_ISO_YEAR.toString());
 	const [reward, setReward] = useState('');
 	const [instruction, setInstruction] = useState('');
@@ -138,7 +148,7 @@ export default function TasksPage() {
 		setTitle('');
 		setDescription('');
 		setWeekNumber('');
-		setYear(new Date().getFullYear().toString());
+		setYear(CURRENT_ISO_YEAR.toString());
 		setReward('');
 		setInstruction('');
 		setIsActive(true);
@@ -284,7 +294,7 @@ export default function TasksPage() {
 									<SelectValue placeholder="Select week" />
 								</SelectTrigger>
 								<SelectContent>
-									{WEEK_OPTIONS.map((opt) => (
+									{getCreateWeekOptions(year).map((opt) => (
 										<SelectItem key={opt} value={opt}>
 											{opt}
 										</SelectItem>
@@ -299,7 +309,7 @@ export default function TasksPage() {
 									<SelectValue placeholder="Select year" />
 								</SelectTrigger>
 								<SelectContent>
-									{YEAR_OPTIONS.map((opt) => (
+									{CREATE_YEAR_OPTIONS.map((opt) => (
 										<SelectItem key={opt} value={opt}>
 											{opt}
 										</SelectItem>
@@ -405,7 +415,7 @@ export default function TasksPage() {
 																	<SelectValue placeholder="Select week" />
 																</SelectTrigger>
 																<SelectContent>
-																	{WEEK_OPTIONS.map((opt) => (
+																	{ALL_WEEK_OPTIONS.map((opt) => (
 																		<SelectItem key={opt} value={opt}>
 																			{opt}
 																		</SelectItem>
@@ -428,7 +438,7 @@ export default function TasksPage() {
 																	<SelectValue placeholder="Select year" />
 																</SelectTrigger>
 																<SelectContent>
-																	{YEAR_OPTIONS.map((opt) => (
+																	{ALL_YEAR_OPTIONS.map((opt) => (
 																		<SelectItem key={opt} value={opt}>
 																			{opt}
 																		</SelectItem>
