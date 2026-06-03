@@ -18,6 +18,7 @@ import { getLoggedInAsUser, getPlatformName, handleFetchMessage } from '@/lib/he
 import NotificationCenter from '@/components/ui/NotificationCenter';
 import Logo from '@/components/ui/logo';
 import { useTelegram } from '@/context/TelegramContext';
+import { ThemeToggle } from './ThemeToggle';
 
 type desktopNavItemsType = {
 	href: string;
@@ -117,7 +118,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 																<div
 																	className={cn(
 																		'group flex gap-x-3 rounded-l-full p-3 text-sm leading-6 font-semibold transition-colors duration-150 !pl-6 cursor-pointer',
-																		isParentActive ? 'bg-background text-background-foreground dark:bg-background dark:text-foreground !py-5' : 'text-[var(--dashboard-secondary-foreground)] hover:bg-black/5 dark:hover:bg-white/5'
+																		isParentActive ? 'bg-background text-background-foreground dark:bg-background dark:text-foreground !py-5' : 'text-[var(--dashboard-secondary-foreground)] hover:bg-black/5 dark:hover:bg-white/5',
 																	)}
 																	onClick={() => setOpenSubMenu(isParentActive ? null : item.label)}
 																>
@@ -131,7 +132,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 																				href={sub.href}
 																				className={cn(
 																					pathname === sub.href ? 'text-[var(--dashboard-secondary-foreground)] font-bold ' : 'text-[var(--dashboard-secondary-foreground)] hover:font-bold transition',
-																					'block py-2 px-4 rounded text-sm transition-colors duration-150'
+																					'block py-2 px-4 rounded text-sm transition-colors duration-150',
 																				)}
 																			>
 																				{sub.label}
@@ -148,7 +149,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 																href={item.href}
 																className={cn(
 																	isActive ? 'bg-background text-background-foreground dark:bg-background dark:text-foreground !py-5' : 'text-[var(--dashboard-secondary-foreground)] hover:bg-black/5 dark:hover:bg-white/5',
-																	'group flex gap-x-3 rounded-l-full p-3 text-sm leading-6 font-semibold transition-colors duration-150 !pl-6'
+																	'group flex gap-x-3 rounded-l-full p-3 text-sm leading-6 font-semibold transition-colors duration-150 !pl-6',
 																)}
 															>
 																<item.icon className={cn(isActive ? 'text-background-foreground ' : 'text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100', 'h-6 w-6 shrink-0 transition-opacity duration-150')} aria-hidden="true" />
@@ -164,7 +165,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 									<li className="mt-auto pl-6">
 										<CustomLink
 											href="/account/profile/preferences"
-											className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700/50 w-full mt-1 text-left"
+											className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-200 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700/50 w-full mt-1 text-left"
 										>
 											<Settings className="h-6 w-6 shrink-0" aria-hidden="true" />
 											Settings
@@ -172,7 +173,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 										<button
 											onClick={handleLogout}
 											disabled={isLogoutLoading}
-											className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700/50 w-full mt-1 text-left items-center disabled:opacity-50 cursor-pointer"
+											className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-200 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700/50 w-full mt-1 text-left items-center disabled:opacity-50 cursor-pointer"
 										>
 											{isLogoutLoading ? <Loader2 className="h-6 w-6 shrink-0 animate-spin" aria-hidden="true" /> : <LogOut className="h-6 w-6 shrink-0" aria-hidden="true" />}
 											Log out
@@ -220,6 +221,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 							<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" className="absolute -top-4" />
 						</CustomLink>
 						<div className="relative">
+							{/* <ThemeToggle /> */}
 							<button type="button" className="p-2 rounded-full hover:bg-white/60 cursor-pointer" onClick={() => setNotificationCenterOpen(true)} aria-label="Open notifications">
 								<Bell className="h-6 w-6 text-[var(--dashboard-secondary-foreground)] opacity-70 group-hover:opacity-100" />
 							</button>

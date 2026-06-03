@@ -44,7 +44,7 @@ export default function RootLayout({
 				<script defer src="https://telegram.org/js/telegram-web-app.js"></script>
 			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`}>
-				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange enableColorScheme={false}>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange enableColorScheme={false}>
 					<Suspense>
 						<ProgressBar />
 						<DynamicAppNameTitle fallback={appSettings.appName} />

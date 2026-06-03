@@ -46,9 +46,9 @@
 
 :root {
 	--radius: 0.625rem;
-	--background: oklch(1 0 0);
+	--background: #f9f5f2;
 	--foreground: oklch(0.12 0.021 283.11);
-	--card: oklch(1 0 0);
+	--card: #e2f2e5;
 	--card-foreground: oklch(0.12 0.021 283.11);
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.12 0.021 283.11);
@@ -114,11 +114,11 @@
 	--dashboard-accent-hover: #64b971;
 	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
 
-	--dashboard-secondary: #d8fcec;
+	--dashboard-secondary: #005100;
 	--dashboard-muted-secondary: oklch(96.108% 0.04284 166.96 / 0.705);
-	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
+	--dashboard-secondary-foreground: #fff;
 
-	--dashboard-subtext: #6a6a6a;
+	--dashboard-subtext: #e7e7e7;
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
 	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 
@@ -267,13 +267,17 @@
 	width: 100vw;
 	max-width: 420px;
 	height: 100vh;
-	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.18), 0 2px 16px 0 rgba(80, 80, 120, 0.08);
+	box-shadow:
+		0 8px 32px 0 rgba(0, 0, 0, 0.18),
+		0 2px 16px 0 rgba(80, 80, 120, 0.08);
 	display: flex;
 	flex-direction: column;
 	border-left: 1.5px solid var(--border);
 	border-radius: 1.25rem 0 0 1.25rem;
 	transform: translateX(100%);
-	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+	transition:
+		transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+		box-shadow 0.2s;
 	pointer-events: auto;
 	backdrop-filter: blur(8px);
 	animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -369,7 +373,10 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.3rem;
-	transition: background 0.18s, box-shadow 0.18s, border 0.18s;
+	transition:
+		background 0.18s,
+		box-shadow 0.18s,
+		border 0.18s;
 	position: relative;
 }
 .notification-center-item.enhanced:hover {
@@ -573,7 +580,9 @@
 }
 
 #nprogress .peg {
-	box-shadow: 0 0 10px #29d, 0 0 5px #29d !important; /* Matching glow */
+	box-shadow:
+		0 0 10px #29d,
+		0 0 5px #29d !important; /* Matching glow */
 }
 
 /* Landing Page Animations */

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import Logo from '@/components/ui/logo';
 import { getLoggedInAsUser, getPlatformName } from '@/lib/helpers';
 import { CustomLink } from '@/components/ui/CustomLink';
+import { useTheme } from 'next-themes';
 
 interface UserHeaderProps {
 	notifications: string[];
@@ -12,10 +13,11 @@ interface UserHeaderProps {
 
 const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, unreadNotifications }) => {
 	const isAdmin = getLoggedInAsUser();
+	const { theme } = useTheme();
 
 	return (
 		<header className={`z-40 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 bg-[var(--dashboard-secondary)] px-4 text-gray-900 md:px-6 lg:hidden w-full`}>
-			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" onClick={onMenuToggle} aria-label="Toggle Menu" />
+			<Menu className="h-7 w-7 lg:hidden hover:bg-white/20 cursor-pointer" color={theme === 'light' ? '#f9f5f2' : '#000'} onClick={onMenuToggle} aria-label="Toggle Menu" />
 
 			<CustomLink href="/" className="flex items-center">
 				<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" />
@@ -31,7 +33,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ onMenuToggle, notifications, un
 						window.dispatchEvent(event);
 					}}
 				>
-					<Bell className="h-7 w-7 hover:bg-white/20" />
+					<Bell className="h-7 w-7 hover:bg-white/20" color={theme === 'light' ? '#f9f5f2' : '#000'} />
 					{unreadNotifications > 0 && (
 						<Badge variant="destructive" className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs z-50 opacity-100">
 							{unreadNotifications}
