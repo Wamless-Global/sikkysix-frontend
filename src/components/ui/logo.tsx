@@ -1,3 +1,4 @@
+import { useTheme } from 'next-themes';
 import Image from 'next/image';
 
 const sizeMap = {
@@ -32,7 +33,12 @@ export default function Logo({
 	className?: string;
 } & Omit<React.ComponentProps<typeof Image>, 'src'>) {
 	const dimension = sizeMap[size] || sizeMap.lg;
-	const logoImg = logoVariants[variant] || logoVariants.default;
+	let logoImg = logoVariants[variant] || logoVariants.default;
+	const { theme } = useTheme();
+
+	if (variant === 'text' && theme === 'light') {
+		logoImg = logoVariants['dark-with-text'];
+	}
 
 	return <Image src={logoImg} width={dimension} height={dimension / 2} alt={alt} style={{ minWidth: dimension, minHeight: dimension, objectFit: 'contain', ...style }} className={className} priority {...props} />;
 }

@@ -141,8 +141,8 @@ export default function WalletPageContent() {
 												transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
 													? 'bg-muted-foreground'
 													: positiveTransactionTypes.some((type) => transaction.type.toLowerCase().includes(type))
-													? 'bg-[var(--success)]'
-													: 'bg-[var(--danger)]'
+														? 'bg-[var(--success)]'
+														: 'bg-[var(--danger)]'
 											}`}
 										>
 											{transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled' ? (
@@ -165,9 +165,9 @@ export default function WalletPageContent() {
 											transaction.status.toLowerCase() === 'failed' || transaction.status.toLowerCase() === 'cancelled'
 												? 'text-muted-foreground'
 												: positiveTransactionTypes.some((type) => transaction.type.toLowerCase().includes(type))
-												? 'text-[var(--success)]'
-												: 'text-[var(--danger)]'
-										}`
+													? 'text-[var(--success)]'
+													: 'text-[var(--danger)]'
+										}`,
 									)}
 								>
 									{formatBaseurrency(transaction.amount)}

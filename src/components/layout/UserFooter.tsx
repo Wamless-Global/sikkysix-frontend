@@ -21,8 +21,8 @@ const UserFooter: React.FC = () => {
 					const isActive = pathname === item.href;
 					return (
 						<CustomLink key={item.href} href={item.href} className={cn('flex flex-col items-center justify-center gap-1 p-2 rounded-md transition-colors')}>
-							<item.icon className={cn('h-5 w-5', isActive ? 'text-[var(--dashboard-accent)]' : 'text-muted-foreground hover:text-foreground')} />
-							<span className={cn('text-xs font-medium', isActive ? 'text-white' : 'text-muted-foreground hover:text-foreground')}>{item.label}</span>
+							<item.icon className={cn('h-5 w-5', isActive ? 'text-[var(--dashboard-secondary)]' : 'text-muted-foreground hover:text-foreground')} />
+							<span className={cn('text-xs font-medium', isActive ? 'text-[var(--dashboard-secondary)]' : 'text-muted-foreground hover:text-foreground')}>{item.label}</span>
 						</CustomLink>
 					);
 				})}

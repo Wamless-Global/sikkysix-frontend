@@ -37,7 +37,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 							{ href: '/account/agent-portal/settings', label: 'settings' },
 						],
 					},
-			  ]
+				]
 			: []),
 		{ href: '/account/profile/preferences', label: 'Settings', for: 'user', hideFor: 'figure-head' },
 		{ href: '/account/stats', label: 'Figure head', for: 'figure-head' },
@@ -50,8 +50,8 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 
 			<div className="relative flex h-full w-72 flex-col bg-[oklch(0.11_0.018_270)] text-text-primary shadow-xl">
 				<div className="flex items-center justify-between p-4 border-b border-border/40">
-					<span className="text-base font-semibold">Menu</span>
-					<Button variant="ghost" size="icon" onClick={onClose} className="text-text-primary hover:bg-white/10">
+					<span className="text-base font-semibold text-white">Menu</span>
+					<Button variant="ghost" size="icon" onClick={onClose} className="text-red-300 hover:bg-white/10">
 						<X className="h-4 w-4" />
 						<span className="sr-only">Close menu</span>
 					</Button>

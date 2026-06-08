@@ -419,10 +419,10 @@ export default function SingleCategoryContent() {
 
 			{/* --- Key Metrics --- */}
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm border border-border/60">
-				<CardHeader className="px-0">
+				<CardHeader className="">
 					<CardTitle className="text-lg text-foreground"> CLUB INFORMATION </CardTitle>
 				</CardHeader>
-				<CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-0">
+				<CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 					{[
 						{ label: 'Market Cap', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
 						{ label: 'Club Members', value: formatNumber(categoryData.holders) },
@@ -447,15 +447,8 @@ export default function SingleCategoryContent() {
 					<div className="flex-grow w-full sm:w-auto space-y-2">
 						{!isLoadingGoal && (!userGoal || (userGoal.is_completed && requireNewGoal)) && categoryData.is_launched && (
 							<div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-2">
-								<p className="text-sm text-yellow-700 dark:text-yellow-300 font-medium">
-									{!userGoal ? 'Set a savings goal to start investing.' : 'Goal completed! Set a new goal to continue investing.'}
-								</p>
-								<Button
-									variant="outline"
-									size="sm"
-									className="mt-2"
-									onClick={() => router.push('/account')}
-								>
+								<p className="text-sm text-yellow-700 dark:text-yellow-300 font-medium">{!userGoal ? 'Set a savings goal to start investing.' : 'Goal completed! Set a new goal to continue investing.'}</p>
+								<Button variant="outline" size="sm" className="mt-2" onClick={() => router.push('/account')}>
 									{!userGoal ? 'Set Goal' : 'Set New Goal'}
 								</Button>
 							</div>

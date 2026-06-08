@@ -66,7 +66,7 @@ export default function PortfolioPageContent() {
 
 	const investmentsToShow = investments.filter((item) => (selectedTab === 'active' ? item.status === 'active' && !item.cancelled : item.completed || item.cancelled));
 
-	const portfolioValue = investmentsToShow.reduce((sum, item) => sum + (item.status === 'active' ? item.current_value : item.details?.realized_value ?? 0), 0);
+	const portfolioValue = investmentsToShow.reduce((sum, item) => sum + (item.status === 'active' ? item.current_value : (item.details?.realized_value ?? 0)), 0);
 	const hasInvestments = investmentsToShow.length > 0;
 
 	return (
@@ -121,13 +121,13 @@ export default function PortfolioPageContent() {
 				<TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto gap-3 md:gap-4">
 					<TabsTrigger
 						value="active"
-						className="data-[state=active]:bg-gray-800 dark:data-[state=active]:bg-gray-700 data-[state=active]:text-white dark:data-[state=active]:text-gray-50 data-[state=inactive]:bg-gray-200 dark:data-[state=inactive]:bg-gray-800/30 text-gray-600 dark:text-gray-400 rounded-lg py-3 md:py-4 text-sm md:text-base font-medium transition-all duration-200"
+						className="data-[state=active]:bg-[#384b38] dark:data-[state=active]:bg-gray-700 data-[state=active]:text-white dark:data-[state=active]:text-gray-50 data-[state=inactive]:bg-gray-200 dark:data-[state=inactive]:bg-gray-800/30 text-gray-600 dark:text-gray-400 rounded-lg py-3 md:py-4 text-sm md:text-base font-medium transition-all duration-200"
 					>
 						Active
 					</TabsTrigger>
 					<TabsTrigger
 						value="completed"
-						className="data-[state=active]:bg-gray-800 dark:data-[state=active]:bg-gray-700 data-[state=active]:text-white dark:data-[state=active]:text-gray-50 data-[state=inactive]:bg-gray-200 dark:data-[state=inactive]:bg-gray-800/30 text-gray-600 dark:text-gray-400 rounded-lg py-3 md:py-4 text-sm md:text-base font-medium transition-all duration-200"
+						className="data-[state=active]:bg-[#384b38] dark:data-[state=active]:bg-gray-700 data-[state=active]:text-white dark:data-[state=active]:text-gray-50 data-[state=inactive]:bg-gray-200 dark:data-[state=inactive]:bg-gray-800/30 text-gray-600 dark:text-gray-400 rounded-lg py-3 md:py-4 text-sm md:text-base font-medium transition-all duration-200"
 					>
 						Completed
 					</TabsTrigger>

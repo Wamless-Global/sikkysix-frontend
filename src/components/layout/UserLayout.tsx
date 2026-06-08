@@ -6,7 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import UserHeader from '@/components/layout/UserHeader';
 import UserFooter from '@/components/layout/UserFooter';
 import UserMobileSidebar from '@/components/layout/UserMobileSidebar';
-import { Home, Briefcase, Wallet, ClipboardList, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon, PieChart } from 'lucide-react';
+import { Home, Briefcase, Wallet, ClipboardList, User as UserIcon, Users, Settings, LogOut, Bell, Loader2, LucideProps, BookUp, ComputerIcon, PieChart, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -32,6 +32,7 @@ type desktopNavItemsType = {
 const desktopNavItems: desktopNavItemsType = [
 	{ href: '/account', label: 'Home', icon: Home, for: 'user' },
 	{ href: '/account/my-savings', label: 'My Savings', icon: Briefcase, for: 'user' },
+	{ href: '/account/club', label: 'Clubs', icon: Store, for: 'user' },
 	{ href: '/account/wallet', label: 'Wallet', icon: Wallet, for: 'user' },
 	{ href: '/account/tasks', label: 'Tasks', icon: ClipboardList, for: 'user' },
 	{ href: '/account/profile', label: 'Profile', icon: UserIcon, for: 'user' },
@@ -218,7 +219,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
 					<div className="hidden lg:flex lg:items-center lg:justify-between px-10 py-3 bg-[var(--dashboard-secondary)]/90 rounded-full shadow mx-8 mt-6 relative">
 						<CustomLink href="/">
-							<Logo alt={`${getPlatformName()} Logo`} size="md" variant="text" className="absolute -top-4" />
+							<Logo alt={`${getPlatformName()} Logo`} size="md" variant="dark-with-text" className="absolute -top-4" />
 						</CustomLink>
 						<div className="relative">
 							{/* <ThemeToggle /> */}

@@ -57,7 +57,7 @@
 	--secondary: oklch(0.968 0.006 283.11);
 	--secondary-foreground: oklch(0.12 0.021 283.11);
 	--muted: oklch(0.968 0.006 283.11);
-	--muted-foreground: oklch(0.54 0.028 283.11);
+	--muted-foreground: oklch(68.959% 0.00466 16.344);
 	--accent: oklch(0.968 0.006 283.11);
 	--accent-foreground: oklch(0.12 0.021 283.11);
 	--destructive: oklch(0.577 0.245 27.325);
@@ -77,6 +77,7 @@
 	--sidebar-accent-foreground: oklch(0.12 0.021 283.11);
 	--sidebar-border: oklch(0.929 0.011 283.11);
 	--sidebar-ring: oklch(0.769 0.188 303.9);
+	--green-muted: #27942b2e;
 
 	/* Landing Page Specific Colors (Light Mode Fallback) */
 	--lp-green-primary: oklch(0.69 0.21 145); /* ~ #22C55E */
@@ -110,15 +111,16 @@
 	--dashboard-accent-red-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-accent: #75da84;
-	--dashboard-accent-muted: rgba(224, 254, 241, 0.12);
+	--dashboard-accent-muted: oklch(0.19 0.028 258.6);
 	--dashboard-accent-hover: #64b971;
 	--dashboard-accent-foreground: oklch(0.19 0.028 258.6);
 
 	--dashboard-secondary: #005100;
 	--dashboard-muted-secondary: oklch(96.108% 0.04284 166.96 / 0.705);
 	--dashboard-secondary-foreground: #fff;
+	--dashboard-dark-text: var(--dashboard-accent);
 
-	--dashboard-subtext: #e7e7e7;
+	--dashboard-subtext: #b1b1b1;
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
 	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 
@@ -166,6 +168,7 @@
 	--input: oklch(0.35 0.022 280); /* Made even lighter for more contrast */
 	/* --ring: oklch(0.627 0.265 303.9 / 0.8); */
 	--ring: var(--dashboard-accent);
+	--green-muted: #27942b2e;
 
 	/* Chart colors (already set) */
 	--chart-1: oklch(0.627 0.265 303.9);
@@ -223,6 +226,7 @@
 	--dashboard-secondary: #d8fcec;
 	--dashboard-muted-secondary: oklch(96.108% 0.04284 166.96 / 0.705);
 	--dashboard-secondary-foreground: oklch(0.19 0.028 258.6);
+	--dashboard-dark-text: oklch(0.19 0.028 258.6);
 
 	--dashboard-subtext: #6a6a6a;
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
@@ -474,7 +478,7 @@
 	.category-card-account {
 		@apply flex flex-col items-center p-5 gap-[15px] rounded-[20px]; /* p-5 is approx 20px */
 		/* Light mode background */
-		@apply bg-[oklch(var(--dashboard-muted-bg))] lg:bg-[oklch(var(--dashboard-secondary))]; /* Very light gray */
+		@apply bg-[var(--green-muted)]; /* Very light gray */
 	}
 	.dark .category-card-account {
 		/* Dark mode gradient background */

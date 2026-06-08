@@ -54,13 +54,10 @@ export default function TasksContent() {
 		setError(null);
 
 		try {
-			const [tasksResponse, submissionsResponse] = await Promise.all([
-				fetchWithAuth('/api/tasks?pageSize=100'),
-				fetchWithAuth('/api/task-submissions/user/me?pageSize=100'),
-			]);
+			const [tasksResponse, submissionsResponse] = await Promise.all([fetchWithAuth('/api/tasks?pageSize=100'), fetchWithAuth('/api/task-submissions/user/me?pageSize=100')]);
 
-			const tasksData: TasksApiResponse = await tasksResponse.json().catch(() => ({} as TasksApiResponse));
-			const submissionsData: SubmissionsApiResponse = await submissionsResponse.json().catch(() => ({} as SubmissionsApiResponse));
+			const tasksData: TasksApiResponse = await tasksResponse.json().catch(() => ({}) as TasksApiResponse);
+			const submissionsData: SubmissionsApiResponse = await submissionsResponse.json().catch(() => ({}) as SubmissionsApiResponse);
 
 			if (!tasksResponse.ok) {
 				setError(handleFetchMessage(tasksData, 'Failed to load tasks'));
@@ -136,9 +133,7 @@ export default function TasksContent() {
 			) : (
 				<div className="space-y-4">
 					{tasks.map((task) => {
-						const hasSubmitted = submissions.some(
-							(s) => String(s.task_id) === String(task.id)
-						);
+						const hasSubmitted = submissions.some((s) => String(s.task_id) === String(task.id));
 						const isCurrentWeek = task.week_number === currentWeek && task.year === currentYear;
 
 						return (
@@ -148,16 +143,12 @@ export default function TasksContent() {
 								</CardHeader>
 								<CardContent className="space-y-4">
 									<p className="text-sm text-muted-foreground">{task.description}</p>
-									{task.reward && (
-										<p className="text-yellow-600 dark:text-yellow-400 font-medium">Reward: {task.reward}</p>
-									)}
+									{task.reward && <p className="text-yellow-600 dark:text-yellow-400 font-medium">Reward: {task.reward}</p>}
 									<p className="text-sm text-muted-foreground">
 										Week {task.week_number}, {task.year}
 									</p>
 									<div className="flex items-center gap-2">
-										<Badge variant={hasSubmitted ? 'success' : 'secondary'}>
-											{hasSubmitted ? 'Submitted' : 'Not Submitted'}
-										</Badge>
+										<Badge variant={hasSubmitted ? 'success' : 'secondary'}>{hasSubmitted ? 'Submitted' : 'Not Submitted'}</Badge>
 									</div>
 									{isCurrentWeek ? (
 										<CustomLink href="/account/tasks/submit">

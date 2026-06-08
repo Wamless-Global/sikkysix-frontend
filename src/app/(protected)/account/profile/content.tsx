@@ -49,7 +49,7 @@ export default function ProfilePageContent() {
 			<div className="space-y-4">
 				{profileActions.map((action) => (
 					<CustomLink key={action.label} href={action.href} className="block group">
-						<Card className="bg-muted/30 dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors rounded-lg shadow-sm py-1 md:py-3">
+						<Card className="dark:bg-muted/10 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors rounded-lg shadow-sm py-1 md:py-3">
 							<div className="p-4 flex justify-between items-center">
 								<span className="font-medium text-foreground">{action.label}</span>
 								<ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />

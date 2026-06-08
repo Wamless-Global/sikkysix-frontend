@@ -24,12 +24,12 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, image, minimum, bu
 				<div className="flex justify-between items-center mb-4">
 					<div>
 						<span className="subtext">Club</span>
-						<h3 className="text-base font-semibold text-foreground lg:text-[var(--dashboard-secondary-foreground)]">{title}</h3>
-						{status && <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-semibold ${status === 'Active' ? 'bg-green-100 text-green-700' : status === 'Locked' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{status}</span>}
+						<h3 className="text-base font-semibold text-foreground lg:text-[var(--dashboard-dark-text]">{title}</h3>
+						{status && <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-semibold ${status === 'Active' ? 'bg-green-300 text-green-700' : status === 'Locked' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{status}</span>}
 					</div>
 					<div className="flex flex-col items-end">
 						<span className="subtext">Amount</span>
-						<p className="text-base font-bold text-foreground lg:text-[var(--dashboard-secondary-foreground)]">
+						<p className="text-base font-bold text-foreground lg:text-[var(--dashboard-dark-text]">
 							<span className="text-xs text-muted-foreground">Min </span>
 							{formatBaseurrency(minimum)}
 						</p>
