@@ -173,7 +173,7 @@ export default function SubmitTaskContent() {
 						<div className="text-center">
 							<p className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">Success!</p>
 							<p className="text-green-600 dark:text-green-400 mb-4">Your entry has been submitted successfully.</p>
-							<CustomLink href="/account/tasks">
+							<CustomLink href="/account">
 								<Button variant="default">Back to Home</Button>
 							</CustomLink>
 						</div>
@@ -184,9 +184,9 @@ export default function SubmitTaskContent() {
 					<CardContent className="p-6">
 						<div className="text-center">
 							<p className="text-lg font-semibold text-text-primary mb-2">Submissions Closed</p>
-							<p className="text-muted-foreground mb-4">This task is not for the current week. Please check the tasks page for this week&apos;s active task.</p>
-							<CustomLink href="/account/tasks">
-								<Button variant="default">Back to Tasks</Button>
+							<p className="text-muted-foreground mb-4">This task is not for the current week. Please check the dashboard for this week&apos;s active task.</p>
+							<CustomLink href="/account">
+								<Button variant="default">Back to Dashboard</Button>
 							</CustomLink>
 						</div>
 					</CardContent>
@@ -197,7 +197,7 @@ export default function SubmitTaskContent() {
 						<div className="text-center">
 							<p className="text-lg font-semibold text-yellow-700 dark:text-yellow-300 mb-2">Already Submitted</p>
 							<p className="text-yellow-600 dark:text-yellow-400 mb-4">You&apos;ve already submitted an entry for this task.</p>
-							<CustomLink href="/account/tasks">
+							<CustomLink href="/account">
 								<Button variant="default">Back to Home</Button>
 							</CustomLink>
 						</div>

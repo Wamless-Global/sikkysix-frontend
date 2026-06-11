@@ -523,7 +523,7 @@ export default function SingleCategoryContent() {
 											Processing...
 										</>
 									) : (
-										'Save Now'
+										'Get Shares'
 									)}
 								</Button>
 							</div>

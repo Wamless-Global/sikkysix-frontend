@@ -216,7 +216,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 							</div>
 							{error && <p className="text-sm text-red-500 text-center">{error}</p>}
 							<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
-								{isLoading ? 'Joining Community...' : 'Join Community'}
+								{isLoading ? 'Joining Club...' : 'Join Club'}
 							</Button>
 						</form>
 						<div className="mt-6 text-center text-sm w-full space-y-2">
@@ -241,7 +241,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 					</CardContent>
 				</Card>
 
-				<Card className="bg-background border-border/50">
+				{/* <Card className="bg-background border-border/50">
 					<CardContent className="flex items-center justify-between p-4 md:p-6">
 						<div className="flex-1">
 							<p className="text-sm md:text-base font-medium text-foreground">New to SikkySix? Watch how it works</p>
@@ -250,7 +250,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 							<ExternalLink className="h-5 w-5" />
 						</CustomLink>
 					</CardContent>
-				</Card>
+				</Card> */}
 			</div>
 
 			<AppFooter />

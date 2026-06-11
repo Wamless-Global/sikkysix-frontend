@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getISOWeek, getISOWeekYear } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import Image from 'next/image';
@@ -21,10 +23,32 @@ interface Winner {
 	name: string;
 	prize_description: string;
 	photo_url?: string;
+	week_number: number;
+	year: number;
 	created_at: string;
 }
 
+interface WinnerEditForm {
+	name: string;
+	prize_description: string;
+	week_number: number;
+	year: number;
+}
+
 const ITEMS_PER_PAGE = 10;
+
+const CURRENT_ISO_YEAR = getISOWeekYear(new Date());
+const CURRENT_ISO_WEEK = getISOWeek(new Date());
+
+const ALL_YEAR_OPTIONS = Array.from({ length: 4 }, (_, i) => (CURRENT_ISO_YEAR - 1 + i).toString());
+const CREATE_YEAR_OPTIONS = Array.from({ length: 3 }, (_, i) => (CURRENT_ISO_YEAR + i).toString());
+const ALL_WEEK_OPTIONS = Array.from({ length: 53 }, (_, i) => (i + 1).toString());
+
+const getCreateWeekOptions = (selectedYear: string) => {
+	const yearNum = parseInt(selectedYear, 10) || CURRENT_ISO_YEAR;
+	const start = yearNum === CURRENT_ISO_YEAR ? CURRENT_ISO_WEEK : 1;
+	return Array.from({ length: 53 - start + 1 }, (_, i) => (start + i).toString());
+};
 
 const fetchWinners = async (page: number): Promise<{ winners: Winner[]; totalCount: number }> => {
 	const queryParams = new URLSearchParams();
@@ -48,6 +72,8 @@ const fetchWinners = async (page: number): Promise<{ winners: Winner[]; totalCou
 			name: winner.name,
 			prize_description: winner.prize_description,
 			photo_url: winner.photo_url,
+			week_number: winner.week_number,
+			year: winner.year,
 			created_at: winner.created_at,
 		}));
 
@@ -70,8 +96,17 @@ export default function WeeklyWinnersPage() {
 	const [prizeDescription, setPrizeDescription] = useState('');
 	const [photoFile, setPhotoFile] = useState<File | null>(null);
 	const [weekNumber, setWeekNumber] = useState('');
-	const [year, setYear] = useState('');
+	const [year, setYear] = useState(CURRENT_ISO_YEAR.toString());
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Edit state
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const [editForm, setEditForm] = useState<WinnerEditForm | null>(null);
+	const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+	const [isSaving, setIsSaving] = useState(false);
+
+	// Delete state
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -116,6 +151,88 @@ export default function WeeklyWinnersPage() {
 		setRetryCount((c) => c + 1);
 	};
 
+	const handleEditClick = (winner: Winner) => {
+		setEditingId(winner.id);
+		setEditForm({
+			name: winner.name,
+			prize_description: winner.prize_description,
+			week_number: winner.week_number,
+			year: winner.year,
+		});
+		setEditPhotoFile(null);
+	};
+
+	const handleCancelEdit = () => {
+		setEditingId(null);
+		setEditForm(null);
+		setEditPhotoFile(null);
+	};
+
+	const handleSaveEdit = async (winner: Winner) => {
+		if (!editForm) return;
+		setIsSaving(true);
+		try {
+			const formData = new FormData();
+			formData.append('name', editForm.name);
+			formData.append('prize_description', editForm.prize_description);
+			formData.append('week_number', editForm.week_number.toString());
+			formData.append('year', editForm.year.toString());
+			if (editPhotoFile) {
+				formData.append('image', editPhotoFile);
+			}
+
+			const response = await fetchWithAuth(`/api/winners/${winner.id}`, {
+				method: 'PUT',
+				body: formData,
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || 'Failed to update winner');
+			}
+
+			toast.success('Winner updated successfully!');
+			setEditingId(null);
+			setEditForm(null);
+			setEditPhotoFile(null);
+			setRetryCount((c) => c + 1);
+		} catch (err: any) {
+			const errorMessage = handleFetchMessage(err, 'Failed to update winner');
+			toast.error(errorMessage);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const handleDelete = async (winner: Winner) => {
+		if (!window.confirm(`Are you sure you want to delete ${winner.name}?`)) return;
+
+		setDeletingId(winner.id);
+		try {
+			const response = await fetchWithAuth(`/api/winners/${winner.id}`, {
+				method: 'DELETE',
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || 'Failed to delete winner');
+			}
+
+			toast.success('Winner deleted successfully!');
+
+			// If the deleted winner was on the last page, step back to avoid an empty page
+			if (winners.length === 1 && currentPage > 1) {
+				setCurrentPage((p) => p - 1);
+			}
+			setRetryCount((c) => c + 1);
+		} catch (err: any) {
+			const errorMessage = handleFetchMessage(err, 'Failed to delete winner');
+			toast.error(errorMessage);
+		} finally {
+			setDeletingId(null);
+		}
+	};
+
 	const handleSubmitWinner = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsSubmitting(true);
@@ -136,7 +253,7 @@ export default function WeeklyWinnersPage() {
 			formData.append('week_number', weekNumber || getISOWeek(new Date()).toString());
 			formData.append('year', year || new Date().getFullYear().toString());
 			if (photoFile) {
-				formData.append('photo', photoFile);
+				formData.append('image', photoFile);
 			}
 
 			const response = await fetchWithAuth('/api/winners', {
@@ -194,11 +311,33 @@ export default function WeeklyWinnersPage() {
 					<div className="grid grid-cols-2 gap-4">
 						<div>
 							<Label htmlFor="week-number">Week Number (optional)</Label>
-							<Input id="week-number" type="number" min="1" max="53" placeholder="Current week" value={weekNumber} onChange={(e) => setWeekNumber(e.target.value)} disabled={isSubmitting} />
+							<Select value={weekNumber} onValueChange={(value) => setWeekNumber(value)} disabled={isSubmitting}>
+								<SelectTrigger id="week-number">
+									<SelectValue placeholder="Current week" />
+								</SelectTrigger>
+								<SelectContent>
+									{getCreateWeekOptions(year).map((opt) => (
+										<SelectItem key={opt} value={opt}>
+											{opt}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 						<div>
 							<Label htmlFor="year">Year (optional)</Label>
-							<Input id="year" type="number" min="2020" max={new Date().getFullYear()} placeholder="Current year" value={year} onChange={(e) => setYear(e.target.value)} disabled={isSubmitting} />
+							<Select value={year} onValueChange={(value) => setYear(value)} disabled={isSubmitting}>
+								<SelectTrigger id="year">
+									<SelectValue placeholder="Current year" />
+								</SelectTrigger>
+								<SelectContent>
+									{CREATE_YEAR_OPTIONS.map((opt) => (
+										<SelectItem key={opt} value={opt}>
+											{opt}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 
@@ -223,7 +362,10 @@ export default function WeeklyWinnersPage() {
 										<TableHead>Name</TableHead>
 										<TableHead>Prize</TableHead>
 										<TableHead>Photo</TableHead>
+										<TableHead>Week</TableHead>
+										<TableHead>Year</TableHead>
 										<TableHead>Date</TableHead>
+										<TableHead>Actions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -240,22 +382,112 @@ export default function WeeklyWinnersPage() {
 													<Skeleton className="h-10 w-10 rounded" />
 												</TableCell>
 												<TableCell>
+													<Skeleton className="h-4 w-[60px]" />
+												</TableCell>
+												<TableCell>
+													<Skeleton className="h-4 w-[60px]" />
+												</TableCell>
+												<TableCell>
 													<Skeleton className="h-4 w-[150px]" />
+												</TableCell>
+												<TableCell>
+													<Skeleton className="h-4 w-[100px]" />
 												</TableCell>
 											</TableRow>
 										))
 									) : winners.length > 0 ? (
-										winners.map((winner: Winner) => (
-											<TableRow key={winner.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-												<TableCell className="font-medium">{winner.name}</TableCell>
-												<TableCell>{winner.prize_description}</TableCell>
-												<TableCell>{winner.photo_url ? <Image src={winner.photo_url} alt={`${winner.name}'s photo`} width={40} height={40} className="rounded" /> : <span className="text-muted-foreground">N/A</span>}</TableCell>
-												<TableCell>{formatDateNice(new Date(winner.created_at))}</TableCell>
-											</TableRow>
-										))
+										winners.map((winner: Winner) =>
+											editingId === winner.id && editForm ? (
+												<TableRow key={winner.id} className="bg-muted/30">
+													<TableCell>
+														<Input value={editForm.name} onChange={(e) => setEditForm((prev) => (prev ? { ...prev, name: e.target.value } : prev))} disabled={isSaving} />
+													</TableCell>
+													<TableCell>
+														<Textarea value={editForm.prize_description} onChange={(e) => setEditForm((prev) => (prev ? { ...prev, prize_description: e.target.value } : prev))} disabled={isSaving} className="min-h-[60px]" />
+													</TableCell>
+													<TableCell>
+														<div className="space-y-1">
+															{winner.photo_url && !editPhotoFile && (
+																<Image src={winner.photo_url} alt={`${winner.name}'s photo`} width={40} height={40} className="rounded" />
+															)}
+															{editPhotoFile && (
+																<p className="text-xs text-muted-foreground">New: {editPhotoFile.name}</p>
+															)}
+															<Input type="file" accept="image/*" onChange={(e) => setEditPhotoFile(e.target.files?.[0] || null)} disabled={isSaving} className="h-8 text-xs" />
+														</div>
+													</TableCell>
+													<TableCell>
+														<Select
+															value={editForm.week_number.toString()}
+															onValueChange={(value) => setEditForm((prev) => (prev ? { ...prev, week_number: parseInt(value, 10) } : prev))}
+															disabled={isSaving}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder="Select week" />
+															</SelectTrigger>
+															<SelectContent>
+																{ALL_WEEK_OPTIONS.map((opt) => (
+																	<SelectItem key={opt} value={opt}>
+																		{opt}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													</TableCell>
+													<TableCell>
+														<Select
+															value={editForm.year.toString()}
+															onValueChange={(value) => setEditForm((prev) => (prev ? { ...prev, year: parseInt(value, 10) } : prev))}
+															disabled={isSaving}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder="Select year" />
+															</SelectTrigger>
+															<SelectContent>
+																{ALL_YEAR_OPTIONS.map((opt) => (
+																	<SelectItem key={opt} value={opt}>
+																		{opt}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													</TableCell>
+													<TableCell>{formatDateNice(new Date(winner.created_at))}</TableCell>
+													<TableCell>
+														<div className="flex items-center gap-2">
+															<Button size="sm" variant="outline" onClick={() => handleSaveEdit(winner)} disabled={isSaving || !editForm.name || !editForm.prize_description}>
+																{isSaving ? 'Saving...' : 'Save'}
+															</Button>
+															<Button size="sm" variant="ghost" onClick={handleCancelEdit} disabled={isSaving}>
+																Cancel
+															</Button>
+														</div>
+													</TableCell>
+												</TableRow>
+											) : (
+												<TableRow key={winner.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+													<TableCell className="font-medium">{winner.name}</TableCell>
+													<TableCell>{winner.prize_description}</TableCell>
+													<TableCell>{winner.photo_url ? <Image src={winner.photo_url} alt={`${winner.name}'s photo`} width={40} height={40} className="rounded" /> : <span className="text-muted-foreground">N/A</span>}</TableCell>
+													<TableCell>{winner.week_number}</TableCell>
+													<TableCell>{winner.year}</TableCell>
+													<TableCell>{formatDateNice(new Date(winner.created_at))}</TableCell>
+													<TableCell>
+														<div className="flex items-center gap-2">
+															<Button size="sm" variant="outline" onClick={() => handleEditClick(winner)} disabled={isLoading || deletingId === winner.id || editingId !== null}>
+																Edit
+															</Button>
+															<Button size="sm" variant="destructive" onClick={() => handleDelete(winner)} disabled={isLoading || deletingId === winner.id || editingId !== null}>
+																{deletingId === winner.id ? 'Deleting...' : 'Delete'}
+															</Button>
+														</div>
+													</TableCell>
+												</TableRow>
+											)
+										)
 									) : (
 										<TableRow>
-											<TableCell colSpan={4} className="h-24 text-center">
+											<TableCell colSpan={7} className="h-24 text-center">
 												No winners found.
 											</TableCell>
 										</TableRow>
