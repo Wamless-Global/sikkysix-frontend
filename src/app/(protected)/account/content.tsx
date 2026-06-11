@@ -98,7 +98,7 @@ export default function AccountPage() {
 	const [tasksError, setTasksError] = useState<string | null>(null);
 	const [isDismissedYoutube, setIsDismissedYoutube] = useState(false);
 
-	const currentSavingsTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + item.current_value, 0);
+	const currentProfitTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + (item.current_value - item.amount_invested), 0);
 	const { currentUser } = useAuthContext();
 	const router = useRouter();
 
@@ -257,8 +257,8 @@ export default function AccountPage() {
 
 			{currentUser ? (
 				<div>
-					<h2 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">Hi, {currentUser?.name || 'User'}</h2>
-					<p className="text-text-secondary text-sm">Welcome to your savings dashboard.</p>
+					<h2 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">Hello, {currentUser?.name || 'User'}</h2>
+					<p className="text-text-secondary text-sm">What is your goal today?</p>
 				</div>
 			) : (
 				<div className="mt-2 space-y-3">
@@ -285,7 +285,7 @@ export default function AccountPage() {
 			{goal && !goal.is_completed && (
 				<Card className="border-none shadow-sm">
 					<CardHeader>
-						<CardTitle>Goal Tracker</CardTitle>
+						<CardTitle>GOAL TRACKER</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-4">
@@ -299,12 +299,12 @@ export default function AccountPage() {
 									<div
 										className="bg-green-500 h-full rounded-full transition-all"
 										style={{
-											width: `${Math.min((currentSavingsTotal / goal.target_amount) * 100, 100)}%`,
+											width: `${Math.min((currentProfitTotal / goal.target_amount) * 100, 100)}%`,
 										}}
 									/>
 								</div>
 								<p className="text-sm text-muted-foreground mt-2">
-									{formatBaseurrency(currentSavingsTotal)} saved · {Math.min(Math.round((currentSavingsTotal / goal.target_amount) * 100), 100)}% of goal
+									{formatBaseurrency(currentProfitTotal)} profit earned · {Math.min(Math.round((currentProfitTotal / goal.target_amount) * 100), 100)}% of goal
 								</p>
 							</div>
 						</div>
@@ -315,7 +315,7 @@ export default function AccountPage() {
 			{/* Sikky Winner Section */}
 			<Card className="border-none shadow-sm">
 				<CardHeader>
-					<CardTitle>Sikky Winner</CardTitle>
+					<CardTitle>SIKKY WINNER</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{isLoading && !winner ? (
@@ -345,7 +345,7 @@ export default function AccountPage() {
 			{/* Weekly Tasks Section */}
 			<Card className="border-none shadow-sm">
 				<CardHeader>
-					<CardTitle>Weekly Tasks</CardTitle>
+					<CardTitle>WEEKLY TASKS</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{tasksError ? (

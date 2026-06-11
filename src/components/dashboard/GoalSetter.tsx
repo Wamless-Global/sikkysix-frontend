@@ -99,7 +99,7 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 
 	return (
 		<div className="fixed bottom-0 right-0 left-0 top-0 z-50 w-full h-full bg-gray-700/70 flex items-center justify-center p-4">
-			<Card className="border-none shadow-sm min-w-4xl">
+			<Card className="border-none shadow-sm w-full max-w-md sm:max-w-lg md:max-w-xl">
 				<CardHeader>
 					<CardTitle>Goal Tracker</CardTitle>
 				</CardHeader>

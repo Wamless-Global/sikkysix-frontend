@@ -171,8 +171,8 @@ export default function SubmitTaskContent() {
 				<Card className="border-none shadow-sm bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
 					<CardContent className="p-6">
 						<div className="text-center">
-							<p className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">Success!</p>
-							<p className="text-green-600 dark:text-green-400 mb-4">Your entry has been submitted successfully.</p>
+							<p className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">Entry Submitted!</p>
+							<p className="text-green-600 dark:text-green-400 mb-4">Your task entry has been submitted successfully. You will be notified if you won. Good luck!</p>
 							<CustomLink href="/account">
 								<Button variant="default">Back to Home</Button>
 							</CustomLink>

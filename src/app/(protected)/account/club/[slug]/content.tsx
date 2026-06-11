@@ -420,16 +420,14 @@ export default function SingleCategoryContent() {
 			{/* --- Key Metrics --- */}
 			<Card className="bg-muted/30 dark:bg-muted/10 shadow-sm border border-border/60">
 				<CardHeader className="">
-					<CardTitle className="text-lg text-foreground"> CLUB INFORMATION </CardTitle>
+					<CardTitle className="text-lg text-foreground">CLUB INFORMATION</CardTitle>
 				</CardHeader>
 				<CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 					{[
-						{ label: 'Market Cap', value: formatBaseurrency(categoryData.market_cap ?? categoryData.total_liquidity) },
-						{ label: 'Club Members', value: formatNumber(categoryData.holders) },
-						{ label: 'Circulating Supply', value: formatNumber(categoryData.circulating_supply ?? categoryData.quantity) + ` ${categoryData.ticker}` },
-						{ label: '24h Contribution', value: formatBaseurrency(categoryData.volume_24h ?? 0) },
-						{ label: 'Minimum Contribution', value: formatBaseurrency(categoryData.minimum_investable) },
-						{ label: 'Maximum Contribution', value: formatBaseurrency(categoryData.maximum_investable) },
+						{ label: 'CLUB MEMBERS', value: formatNumber(categoryData.holders) },
+						{ label: 'CURRENT SHARES AMOUNT', value: formatBaseurrency(categoryData.current_price_per_unit) },
+						{ label: 'MINIMUM AMOUNT', value: formatBaseurrency(categoryData.minimum_investable) },
+						{ label: 'MAXIMUM AMOUNT', value: formatBaseurrency(categoryData.maximum_investable) },
 					]
 						.filter((metric) => metric.value !== 'N/A' && metric.value !== undefined && metric.value !== null)
 						.map((metric) => (

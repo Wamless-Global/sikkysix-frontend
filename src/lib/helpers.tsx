@@ -363,29 +363,29 @@ export const getTradeDescription = (trade: TradeResponse, isBuyer: boolean, _isA
 			? `Send the exact amount to the agent's account to receive your ${getBaseCurrency()} tokens. \n
 			Before sending, confirm that the account name matches the agent's name. For your safety, only chat with the agent through the platform so we can help resolve any issues if needed.`
 			: trade?.status === 'fiat_payment_confirmed_by_buyer'
-			? "You've marked payment as sent. Please wait for the agent to confirm receipt. If there are issues, use the chat or raise a dispute after the timer expires."
-			: trade?.status === 'completed'
-			? 'Trade completed. Your assets have been delivered. If you have any issues, you may raise a dispute.'
-			: trade?.status === 'expired'
-			? 'This trade has expired. If you made payment, please contact support or raise a dispute.'
-			: trade?.status?.startsWith('cancelled')
-			? 'This trade was cancelled. If this was a mistake, please contact support.'
-			: trade?.status?.startsWith('dispute')
-			? 'A dispute is open for this trade. Our team will review and contact you.'
-			: 'Check the trade status and follow the instructions above.'
+				? "You've marked payment as sent. Please wait for the agent to confirm receipt. If there are issues, use the chat or raise a dispute after the timer expires."
+				: trade?.status === 'completed'
+					? 'Trade completed. Your assets have been delivered. If you have any issues, you may raise a dispute.'
+					: trade?.status === 'expired'
+						? 'This trade has expired. If you made payment, please contact support or raise a dispute.'
+						: trade?.status?.startsWith('cancelled')
+							? 'This trade was cancelled. If this was a mistake, please contact support.'
+							: trade?.status?.startsWith('dispute')
+								? 'A dispute is open for this trade. Our team will review and contact you.'
+								: 'Check the trade status and follow the instructions above.'
 		: trade?.status === 'awaiting_fiat_payment'
-		? 'Please monitor payment status and confirm receipt as needed. You may also raise a dispute if there is an issue.'
-		: trade?.status === 'fiat_payment_confirmed_by_buyer'
-		? 'The buyer has marked payment as sent. Please confirm receipt before releasing assets. If you have not received payment, use the chat or raise a dispute.'
-		: trade?.status === 'completed'
-		? 'Trade completed. Assets have been released. If there are any issues, you may raise a dispute.'
-		: trade?.status === 'expired'
-		? 'This trade has expired. If you have not received payment, no further action is needed. If you did, please contact support or raise a dispute.'
-		: trade?.status?.startsWith('cancelled')
-		? 'This trade was cancelled. No further action is required.'
-		: trade?.status?.startsWith('dispute')
-		? 'A dispute is open for this trade. Our team will review and contact you.'
-		: 'Check the trade status and follow the instructions above.';
+			? 'Please monitor payment status and confirm receipt as needed. You may also raise a dispute if there is an issue.'
+			: trade?.status === 'fiat_payment_confirmed_by_buyer'
+				? 'The buyer has marked payment as sent. Please confirm receipt before releasing assets. If you have not received payment, use the chat or raise a dispute.'
+				: trade?.status === 'completed'
+					? 'Trade completed. Assets have been released. If there are any issues, you may raise a dispute.'
+					: trade?.status === 'expired'
+						? 'This trade has expired. If you have not received payment, no further action is needed. If you did, please contact support or raise a dispute.'
+						: trade?.status?.startsWith('cancelled')
+							? 'This trade was cancelled. No further action is required.'
+							: trade?.status?.startsWith('dispute')
+								? 'A dispute is open for this trade. Our team will review and contact you.'
+								: 'Check the trade status and follow the instructions above.';
 
 export function getTradeStatusToast(updatedTrade: { status: string }) {
 	const status = updatedTrade.status;
@@ -535,7 +535,7 @@ export function getCategoryButtonText(status: string): string {
 			return 'Coming Soon';
 		case 'Active':
 		default:
-			return 'View Club';
+			return 'Get Shares';
 	}
 }
 

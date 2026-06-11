@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { CustomLink } from '@/components/ui/CustomLink';
@@ -31,6 +32,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [agreed, setAgreed] = useState(false);
 	const [referralActive, setReferralActive] = useState(!!(referralData && referralData.status === 'success' && referralData.data?.name));
 	const [referralId, setReferralId] = useState<string | null>(referralActive ? referralData?.data?.referral_id || null : null);
 	const [referralName, setReferralName] = useState(referralActive && referralData?.data?.name ? referralData.data.name : '');
@@ -106,6 +108,11 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 		}
 		if (password.length < 6) {
 			setError('Password must be at least 6 characters long.');
+			setIsLoading(false);
+			return;
+		}
+		if (!agreed) {
+			setError('You must agree to the terms to join.');
 			setIsLoading(false);
 			return;
 		}
@@ -214,8 +221,16 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 									<Input id="confirm-password" type="password" placeholder="Enter your password again" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={isLoading} className="auth-input pl-10" />
 								</div>
 							</div>
+							<div className="space-y-2">
+								<div className="flex items-start gap-2">
+									<Checkbox id="agreement" checked={agreed} onCheckedChange={(checked) => setAgreed(checked === true)} required />
+									<label htmlFor="agreement" className="text-sm text-muted-foreground leading-tight cursor-pointer">
+										I understand the financial risks if I withdraw when a club price is low. I commit to being a dedicated Goal Getter and supporting fellow members in this Club.
+									</label>
+								</div>
+							</div>
 							{error && <p className="text-sm text-red-500 text-center">{error}</p>}
-							<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading}>
+							<Button size="lg" variant="success" type="submit" className="w-full cursor-pointer disabled:opacity-50" disabled={isLoading || !agreed}>
 								{isLoading ? 'Joining Club...' : 'Join Club'}
 							</Button>
 						</form>
