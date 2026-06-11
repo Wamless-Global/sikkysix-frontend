@@ -17,7 +17,7 @@ export default function AppHeader() {
 		<ShowWhenNotInTelegram>
 			<header className="container mx-auto px-4 py-0 sm-py-2 flex justify-between items-center relative">
 				<div className="flex items-center space-x-2">
-					<Logo alt={`${getPlatformName()} Logo`} variant="dark" size="md" />
+					<Logo alt={`${getPlatformName()} Logo`} variant="full" size="md" />
 				</div>
 
 				<nav className="hidden md:flex items-center space-x-6">

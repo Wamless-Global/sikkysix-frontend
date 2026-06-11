@@ -125,7 +125,7 @@ export default function VerifyEmailStatusPageContent() {
 		<div className="auth-page ">
 			<div className="flex flex-col items-center justify-center py-20">
 				<CustomLink href={'/'}>
-					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="full" />
 				</CustomLink>
 				<div className="w-full max-w-md text-center mt-5">
 					<h2 className={`mb-2 text-2xl font-semibold ${(pageStatus === 'error' || pageStatus === 'expired') && 'text-[var(--danger)]'}`}>{title}</h2>

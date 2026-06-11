@@ -21,7 +21,7 @@ export default function LandingPage() {
 						<Image src="/images/dark-full-logo.png" alt="Community Group" fill className="w-full h-64 object-cover object-center hidden" />
 						<Image src="/images/Variety-fruits-vegetables.png" alt="Community Group" fill className="w-full h-64 object-cover object-center hidden" />
 						<Image
-							src="/images/group.png"
+							src="/images/group3.jpeg"
 							alt="Community Group"
 							fill
 							className="w-full object-cover object-center"
@@ -32,7 +32,7 @@ export default function LandingPage() {
 					</div>
 
 					<div className="px-6">
-						<p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">The social contribution clubs built around real life struggles where members help each other to reach personal goals with ease and transparency.</p>
+						<p className="text-sm sm:text-lg text-foreground max-w-2xl mx-auto mb-8">The social contribution clubs built around real life struggles where members help each other to reach personal goals with ease and transparency.</p>
 						<div className="flex justify-center space-x-4">
 							<CustomLink href="/auth/signup" passHref>
 								<Button variant={'success'} size={'lg'} className="rounded-full px-8 py-6 text-md shadow-lg">

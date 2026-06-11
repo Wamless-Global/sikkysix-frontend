@@ -137,7 +137,7 @@ export default function SignupPageContent({ referralData, countries }: SignupPag
 		<div className="auth-page">
 			<div className="flex flex-col items-center justify-center py-20">
 				<CustomLink href={'/'}>
-					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+					<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="full" />
 				</CustomLink>
 				<Card className="auth-card w-full max-w-md">
 					<CardHeader className="space-y-1 text-left">

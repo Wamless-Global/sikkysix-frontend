@@ -177,7 +177,7 @@ export default function UpdatePasswordPageContent() {
 			<div className=" flex flex-col items-center justify-center py-20">
 				<CustomLink href={'/'}>
 					<CustomLink href={'/'}>
-						<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="dark" />
+						<Logo alt={`${getPlatformName()} Logo`} size="lg" variant="full" />
 					</CustomLink>
 				</CustomLink>
 				<Card className="auth-card w-full max-w-md">

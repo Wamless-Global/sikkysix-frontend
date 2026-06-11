@@ -124,10 +124,10 @@
 	--dashboard-muted-bg: oklch(0.12 0.019 280); /* Match --lp-dark-card */
 	--dashboard-muted-foreground: oklch(0.988 0.008 303.9); /* Match --foreground */
 
-	--success: #75da84;
+	--success: #319e41;
 	--success-foreground: oklch(1 0 0);
 
-	--danger: #d07d7d;
+	--danger: #a64848;
 	--danger-foreground: oklch(1 0 0);
 
 	--warning: #facc15; /* Amber 400 */

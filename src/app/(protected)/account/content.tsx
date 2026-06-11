@@ -98,7 +98,13 @@ export default function AccountPage() {
 	const [tasksError, setTasksError] = useState<string | null>(null);
 	const [isDismissedYoutube, setIsDismissedYoutube] = useState(false);
 
-	const currentProfitTotal = investments.filter((item) => item.status === 'active' && !item.cancelled).reduce((sum, item) => sum + (item.current_value - item.amount_invested), 0);
+	const realizedProfitTotal = investments
+		.filter((item) => item.status === 'withdrawn')
+		.reduce((sum, item) => {
+			const realizedValue = item.details?.realized_value;
+			if (realizedValue == null) return sum;
+			return sum + (realizedValue - item.amount_invested);
+		}, 0);
 	const { currentUser } = useAuthContext();
 	const router = useRouter();
 
@@ -115,7 +121,7 @@ export default function AccountPage() {
 			const results = await Promise.allSettled([
 				fetchWithAuth('/api/goals'),
 				fetchWithAuth(`/api/winners?week_number=${CURRENT_ISO_WEEK}&year=${CURRENT_ISO_YEAR}`),
-				fetchWithAuth('/api/investments?with_metrics=true&pageSize=50'),
+				fetchWithAuth('/api/investments?status=withdrawn&pageSize=50'),
 				fetchWithAuth('/api/tasks?pageSize=100'),
 				fetchWithAuth('/api/task-submissions/user/me?pageSize=100'),
 			]);
@@ -299,12 +305,12 @@ export default function AccountPage() {
 									<div
 										className="bg-green-500 h-full rounded-full transition-all"
 										style={{
-											width: `${Math.min((currentProfitTotal / goal.target_amount) * 100, 100)}%`,
+											width: `${Math.min((realizedProfitTotal / goal.target_amount) * 100, 100)}%`,
 										}}
 									/>
 								</div>
 								<p className="text-sm text-muted-foreground mt-2">
-									{formatBaseurrency(currentProfitTotal)} profit earned · {Math.min(Math.round((currentProfitTotal / goal.target_amount) * 100), 100)}% of goal
+									{formatBaseurrency(realizedProfitTotal)} profit earned · {Math.min(Math.round((realizedProfitTotal / goal.target_amount) * 100), 100)}% of goal
 								</p>
 							</div>
 						</div>
