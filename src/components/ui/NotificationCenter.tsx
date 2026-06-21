@@ -81,7 +81,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 				},
 				(payload: { new: Notification }) => {
 					setNotifications((prev) => [payload.new as Notification, ...prev]);
-				}
+				},
 			);
 			channel.on('close', {}, () => {
 				reconnectTimeout = setTimeout(() => {
@@ -172,7 +172,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 	return open ? (
 		<>
 			<div className="fixed inset-0 z-90 bg-black/40 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" />
-			<div className="notification-center-panel enhanced fixed right-0 top-0 bottom-0 z-100 bg-[oklch(var(--dashboard-secondary))] border-l border-[oklch(var(--border))] shadow-2xl rounded-l-2xl max-w-md w-full lg:mr-4 animate-fade-in-up">
+			<div className="notification-center-panel enhanced fixed -right-2 top-0 bottom-0 z-100 bg-[oklch(var(--dashboard-secondary))] border-l border-[oklch(var(--border))] shadow-2xl rounded-l-2xl max-w-md w-full lg:mr-4 animate-fade-in-up">
 				<div className="notification-center-header enhanced flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[oklch(var(--border))] bg-[oklch(var(--sidebar))] rounded-tl-2xl">
 					<div className="flex items-center gap-3">
 						<Bell className="h-6 w-6 text-[oklch(var(--dashboard-secondary-foreground))]" />

@@ -33,7 +33,7 @@ export default function DepositPageContent() {
 			<Card className="bg-background border-0 shadow-none -mt-5">
 				<CardHeader className="px-0">
 					<CardTitle className="sub-page-heading">Deposit Details</CardTitle>
-					<p className="sub-page-heading-sub-text">Easily fund your account using our P2P agents or directly on chain.</p>
+					<p className="sub-page-heading-sub-text">Easily fund your account using our P2P agents.</p>
 				</CardHeader>
 				<CardContent className="space-y-6 pt-6 px-0">
 					<div className="space-y-2">
@@ -52,12 +52,12 @@ export default function DepositPageContent() {
 						<RadioGroup defaultValue="p2p" value={depositMethod} onValueChange={setDepositMethod} className="space-y-2">
 							<Label htmlFor="p2p" className="flex items-center space-x-2 p-3 bg-background rounded-md border border-border has-[[data-state=checked]]:border-[var(--dashboard-accent)] has-[[data-state=checked]]:bg-muted/50 transition-all cursor-pointer">
 								<RadioGroupItem value="p2p" id="p2p" className="border-border data-[state=checked]:border-[var(--dashboard-accent)] data-[state=checked]:bg-[var(--dashboard-accent)] data-[state=checked]:text-accent-foreground" />
-								<span className="font-medium flex-1">P2P (Buy from Agent)</span>
+								<span className="font-medium flex-1">Pay Through an Agent</span>
 							</Label>
-							<Label htmlFor="onchain" className="flex items-center space-x-2 p-3 bg-background rounded-md border border-border has-[[data-state=checked]]:border-[var(--dashboard-accent)] has-[[data-state=checked]]:bg-muted/50 transition-all cursor-pointer">
+							{/* <Label htmlFor="onchain" className="flex items-center space-x-2 p-3 bg-background rounded-md border border-border has-[[data-state=checked]]:border-[var(--dashboard-accent)] has-[[data-state=checked]]:bg-muted/50 transition-all cursor-pointer">
 								<RadioGroupItem value="onchain" id="onchain" className="border-border data-[state=checked]:border-[var(--dashboard-accent)] data-[state=checked]:bg-[var(--dashboard-accent)] data-[state=checked]:text-accent-foreground" disabled />
 								<span className="font-medium flex-1">On Chain (Crypto Address)</span>
-							</Label>
+							</Label> */}
 						</RadioGroup>
 					</div>
 

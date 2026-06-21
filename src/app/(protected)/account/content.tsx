@@ -18,7 +18,7 @@ import Image from 'next/image';
 import { formatBaseurrency } from '@/lib/helpers';
 import { Investment } from '@/types';
 
-const YOUTUBE_URL = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+const YOUTUBE_URL = 'https://www.youtube.com/embed/U0sN8RD2aY4?si=pm-_xN5MNoEiLgrk';
 
 const CURRENT_ISO_YEAR = getISOWeekYear(new Date());
 const CURRENT_ISO_WEEK = getISOWeek(new Date());
@@ -275,10 +275,10 @@ export default function AccountPage() {
 
 			{/* YouTube Card Section */}
 			{!isDismissedYoutube && (
-				<Card className="border-none shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 overflow-hidden">
+				<Card className="border-none shadow-sm bg-gradient-to-r from-[var(--dashboard-secondary)] to-[var(--dashboard-secondary)]/80 dark:from-blue-950 dark:to-indigo-950 overflow-hidden">
 					<CardContent className="p-0 relative">
-						<button onClick={() => setIsDismissedYoutube(true)} className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-900 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-slate-800 transition" aria-label="Dismiss">
-							<span className="text-lg">×</span>
+						<button onClick={() => setIsDismissedYoutube(true)} className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-900 rounded-full px-3 py-1 hover:bg-gray-100 dark:hover:bg-slate-800 transition" aria-label="Dismiss">
+							<span className="text-xl">×</span>
 						</button>
 						<div className="aspect-video">
 							<iframe width="100%" height="100%" src={YOUTUBE_URL} title="Learn about savings" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
@@ -371,9 +371,7 @@ export default function AccountPage() {
 					) : (
 						(() => {
 							const currentWeekTask = tasks.find((t) => t.week_number === CURRENT_ISO_WEEK && t.year === CURRENT_ISO_YEAR);
-							const pastTasks = tasks
-								.filter((t) => !(t.week_number === CURRENT_ISO_WEEK && t.year === CURRENT_ISO_YEAR))
-								.slice(0, MAX_PAST_TASKS);
+							const pastTasks = tasks.filter((t) => !(t.week_number === CURRENT_ISO_WEEK && t.year === CURRENT_ISO_YEAR)).slice(0, MAX_PAST_TASKS);
 							const ordered = currentWeekTask ? [currentWeekTask, ...pastTasks] : pastTasks;
 
 							return (
@@ -397,7 +395,9 @@ export default function AccountPage() {
 												{task.reward && <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Reward: {task.reward}</p>}
 												{isCurrentWeek ? (
 													<CustomLink href="/account/tasks/submit">
-														<Button variant="default" size="sm">Submit Entry</Button>
+														<Button variant="default" size="sm">
+															Submit Entry
+														</Button>
 													</CustomLink>
 												) : (
 													<p className="text-xs text-muted-foreground">Submissions closed</p>

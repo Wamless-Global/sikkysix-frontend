@@ -7,7 +7,7 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 	return (
 		<div className={`relative flex flex-col items-center justify-center`} style={{ width: size, height: size }}>
 			<svg width={size} height={size} className="transform -rotate-90">
-				<circle cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} stroke="currentColor" className="text-gray-700" fill="transparent" />
+				<circle cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} stroke="currentColor" className="text-gray-500" fill="transparent" />
 				{percentage !== undefined && (
 					<circle
 						cx={size / 2}
@@ -23,10 +23,10 @@ const CircularProgressDisplay = ({ value, percentage, size = 200, active }: { va
 					/>
 				)}
 			</svg>
-			<div className="absolute flex flex-col items-center justify-center text-white">
+			<div className="absolute flex flex-col items-center justify-center text-foreground">
 				<span className="text-lg md:text-xl font-bold">{value}</span>
 				{percentage !== undefined && (
-					<span className={`text-sm ${percentage > 0 ? 'text-[var(--dashboard-accent)]/90' : 'text-red-400'}`}>
+					<span className={`text-sm ${percentage > 0 ? 'text-[var(--success)]' : 'text-red-400'}`}>
 						{percentage > 0 ? '+' : ''}
 						{percentage.toFixed(2)}%
 					</span>

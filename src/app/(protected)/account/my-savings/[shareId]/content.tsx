@@ -125,8 +125,8 @@ export default function PortfolioItemDetailPageContent() {
 							...prev,
 							status: data.transaction.status,
 							completed: true,
-					  }
-					: null
+						}
+					: null,
 			);
 
 			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.base_currency_amount });
@@ -205,51 +205,51 @@ export default function PortfolioItemDetailPageContent() {
 				</div>
 			</div>
 
-			<div className="w-full space-y-5 mt-6 bg-muted p-6">
+			<div className="w-full space-y-5 mt-6 bg-[var(--dashboard-accent)]/10 p-6">
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Initial Savings</span>
+					<span className="text-[var(--dashboard-muted)]">My Initial Deposit</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.amount_invested)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Current Value</span>
+					<span className="text-[var(--dashboard-muted)]">Current Income</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.current_value)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Price During Savings</span>
+					<span className="text-[var(--dashboard-muted)]">Entry Shares Price</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.price_per_unit_at_investment, 2)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Current Price Per Unit</span>
+					<span className="text-[var(--dashboard-muted)]">Current Shares Price</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.current_price ?? 0, 4)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground"> Units Contributed</span>
+					<span className="text-[var(--dashboard-muted)]">Shares Purchased</span>
 					<span className="font-medium text-foreground">{`${investment.units_purchased.toFixed(5)} ${investment.ticker.toLocaleUpperCase()}`}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Savings Goal</span>
+					<span className="text-[var(--dashboard-muted)]">My Goal Target</span>
 					<span className="font-medium text-foreground">{formatBaseurrency(investment.target_total_value)}</span>
 				</div>
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Progress</span>
+					<span className="text-[var(--dashboard-muted)]">Progress to Goal</span>
 					<span className="font-medium text-foreground">{investment.progress_percentage.toFixed(2)}%</span>
 				</div>
 
 				{investment.profit !== 0 && (
 					<div className="flex justify-between items-center">
-						<span className="text-muted-foreground">Current Profit</span>
+						<span className="text-[var(--dashboard-muted)]">Current Gain / Loss</span>
 						<span className={`font-medium ${investment.profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>{formatBaseurrency(investment.profit)}</span>
 					</div>
 				)}
 
 				<div className="flex justify-between items-center">
-					<span className="text-muted-foreground">Status</span>
+					<span className="text-[var(--dashboard-muted)]">Status (Active)</span>
 					<Badge variant={investment.completed ? 'completed' : 'active'} className="px-3 py-1 text-xs font-medium">
 						{investment.status.toUpperCase()}
 					</Badge>
@@ -266,28 +266,28 @@ export default function PortfolioItemDetailPageContent() {
 					{previewData && (
 						<div className="space-y-4">
 							<div className="grid grid-cols-2 gap-4 text-sm">
-								<div className="text-muted-foreground">Units to Withdraw:</div>
+								<div className="text-[var(--dashboard-muted)]">Units to Withdraw:</div>
 								<div className="text-right font-medium">
 									{formatNumber(previewData.units_to_withdraw)} {investment.ticker}
 								</div>
 
-								<div className="text-muted-foreground">Selling Price:</div>
+								<div className="text-[var(--dashboard-muted)]">Selling Price:</div>
 								<div className="text-right font-medium">{formatBaseurrency(previewData.current_market_price_per_unit, 4)}</div>
 
-								<div className="text-muted-foreground">Initial Amount:</div>
+								<div className="text-[var(--dashboard-muted)]">Initial Amount:</div>
 								<div className="text-right font-medium">{formatBaseurrency(previewData.value_after_profit_cap)}</div>
 
-								<div className="text-muted-foreground">Fees:</div>
+								<div className="text-[var(--dashboard-muted)]">Fees:</div>
 								<div className={`text-right font-medium ${previewData.fee > 0 ? 'text-destructive' : ''}`}>-{formatBaseurrency(previewData.fee)}</div>
 
 								{previewData.penalty && previewData.penalty?.type_applied && (
 									<>
-										<div className="text-muted-foreground">Penalty:</div>
+										<div className="text-[var(--dashboard-muted)]">Penalty:</div>
 										<div className="text-right font-medium text-destructive">-{formatBaseurrency(previewData.penalty.amount_deducted)}</div>
 									</>
 								)}
 
-								<div className="text-muted-foreground font-medium">Final Amount:</div>
+								<div className="text-[var(--dashboard-muted)] font-medium">Final Amount:</div>
 								<div className="text-right font-bold">{formatBaseurrency(previewData.estimated_net_amount_to_user)}</div>
 							</div>
 

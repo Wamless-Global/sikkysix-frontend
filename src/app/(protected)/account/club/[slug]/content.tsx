@@ -503,7 +503,7 @@ export default function SingleCategoryContent() {
 									placeholder="Enter a	mount"
 									value={amountInput}
 									onChange={handleAmountChange}
-									className={`bg-background/80 dark:bg-black/30 border-border focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-12 account-input text-lg ${amountError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+									className={`bg-background/80 dark:bg-black/30 border-border text-foreground focus:border-[var(--dashboard-accent)] focus:ring-[var(--dashboard-accent)] rounded-lg h-12 account-input text-lg ${amountError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
 									disabled={categoryData.is_locked || !categoryData.is_launched}
 								/>
 								<Button

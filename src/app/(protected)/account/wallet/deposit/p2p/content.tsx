@@ -202,7 +202,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 			) : (
 				<>
 					<div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-						<h1 className="sub-page-heading">P2P Agents (Amount - {formatBaseurrency(amount || 0)})</h1>
+						<h1 className="sub-page-heading">Agents (Amount - {formatBaseurrency(amount || 0)})</h1>
 
 						<div className="flex gap-2 items-center">
 							<Button variant="ghost" size="sm" onClick={() => setShowSortOptions(!showSortOptions)} className={`text-muted-foreground hover:text-foreground ${showSortOptions ? 'text-foreground font-bold' : ''}`}>
@@ -349,7 +349,7 @@ export default function P2PAgentListPageContent({ page = 'deposit' }: { page?: '
 								<CardTitle className="text-lg text-foreground">No Agents Available</CardTitle>
 							</CardHeader>
 							<CardContent className="px-0">
-								<p className="text-muted-foreground">There are currently no P2P agents matching your criteria. Please try adjusting your filters or sort options, or check back later.</p>
+								<p className="text-muted-foreground">There are currently no agents matching your criteria. Please try adjusting your filters or sort options, or check back later.</p>
 							</CardContent>
 						</Card>
 					)}
