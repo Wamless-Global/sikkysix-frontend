@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { useAuthContext } from '@/context/AuthContext';
 import UserHeader from '@/components/layout/UserHeader';
 import UserFooter from '@/components/layout/UserFooter';
@@ -94,6 +95,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 		window.addEventListener('open-notification-center', handler);
 		return () => window.removeEventListener('open-notification-center', handler);
 	}, []);
+
+	const { setTheme } = useTheme();
+
+	useEffect(() => {
+		setTheme('light');
+	}, [pathname, setTheme]);
 
 	const isAdmin = getLoggedInAsUser();
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { useAuthContext } from '@/context/AuthContext';
 import Sidebar from './Sidebar';
-import { ThemeToggle } from './ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Menu, X, LogOut, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 	const [, setError] = useState<string | null>(null);
 	const router = useRouter();
 	const { logout, currentUser } = useAuthContext();
+	const { setTheme } = useTheme();
+
+	useEffect(() => {
+		setTheme('dark');
+	}, [setTheme]);
 
 	const handleLogout = async () => {
 		setIsLogoutLoading(true);
@@ -78,8 +83,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 						</div>
 
 						<div className="flex-1 mr-2.5"></div>
-
-						<ThemeToggle />
 
 						<Button variant="outline" size="icon" onClick={handleLogout} className="ml-2 cursor-pointer" disabled={isLogoutLoading}>
 							{isLogoutLoading ? <Loader2 /> : <LogOut />}

@@ -171,8 +171,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 	// Only render overlay and panel if open is true
 	return open ? (
 		<>
-			<div className="fixed inset-0 z-90 bg-black/40 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" />
-			<div className="notification-center-panel enhanced fixed -right-2 top-0 bottom-0 z-100 bg-[oklch(var(--dashboard-secondary))] border-l border-[oklch(var(--border))] shadow-2xl rounded-l-2xl max-w-md w-full lg:mr-4 animate-fade-in-up">
+			<div className="fixed inset-0 z-90 bg-black/70 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" />
+			<div className="notification-center-panel enhanced fixed right-0 top-0 bottom-0 z-100 lg:mr-4">
 				<div className="notification-center-header enhanced flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[oklch(var(--border))] bg-[oklch(var(--sidebar))] rounded-tl-2xl">
 					<div className="flex items-center gap-3">
 						<Bell className="h-6 w-6 text-[oklch(var(--dashboard-secondary-foreground))]" />
@@ -183,7 +183,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 						<X className="h-6 w-6" />
 					</Button>
 				</div>
-				<div className="notification-center-list enhanced px-6 py-6 bg-[oklch(var(--dashboard-secondary))] rounded-b-2xl max-h-[80vh] overflow-y-auto">
+				<div className="notification-center-list enhanced px-6 py-6 bg-white rounded-b-2xl max-h-[80vh] overflow-y-auto">
 					{loading ? (
 						<div className="notification-center-empty text-center text-muted-foreground py-10">Loading...</div>
 					) : notifications.length === 0 ? (
@@ -193,7 +193,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 							{notifications.map((n) => (
 								<div
 									key={n.id}
-									className={`notification-center-item flex flex-col bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-md px-6 py-4 relative group transition-all duration-150 ${n.is_read ? 'opacity-70' : 'opacity-100'} text-sm sm:text-base`}
+									className={`notification-center-item flex flex-col bg-[var(--dashboard-accent)] border border-[var(--border)] rounded-2xl shadow-md px-6 py-4 relative group transition-all duration-150 ${n.is_read ? 'opacity-70' : 'opacity-100'} text-sm sm:text-base`}
 									style={{ minHeight: 'unset' }}
 								>
 									<div className="flex items-center justify-between mb-1">
@@ -205,7 +205,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 											<Trash2Icon className="h-4 w-4" />
 										</Button>
 									</div>
-									<div className="notification-center-item-body text-[var(--foreground)] text-sm mb-1 break-words whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: n.message }}></div>
+									<div className="notification-center-item-body text-[var(--dashboard-foreground)] text-sm mb-1 break-words whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: n.message }}></div>
 									<div className="notification-center-item-date text-xs text-[var(--muted-foreground)] text-right">{formatRelativeTime(n.created_at)}</div>
 								</div>
 							))}

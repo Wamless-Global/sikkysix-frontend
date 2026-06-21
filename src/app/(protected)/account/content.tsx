@@ -10,6 +10,7 @@ import ErrorMessage from '@/components/ui/ErrorMessage';
 import nProgress from 'nprogress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { useAuthContext } from '@/context/AuthContext';
 import { adminLoginRequest, getLoggedInAsUser, getSetCookie, handleFetchMessage } from '@/lib/helpers';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
@@ -105,6 +106,9 @@ export default function AccountPage() {
 			if (realizedValue == null) return sum;
 			return sum + (realizedValue - item.amount_invested);
 		}, 0);
+	const goalProgress = goal?.target_amount
+		? Math.max(0, Math.min((realizedProfitTotal / goal.target_amount) * 100, 100))
+		: 0;
 	const { currentUser } = useAuthContext();
 	const router = useRouter();
 
@@ -298,19 +302,15 @@ export default function AccountPage() {
 							<div>
 								<p className="text-sm text-muted-foreground mb-1">Goal</p>
 								<p className="font-semibold text-lg">{goal.item_description}</p>
+								<p className="text-sm text-muted-foreground mt-1">
+									Target: {formatBaseurrency(goal.target_amount)}
+								</p>
 							</div>
 							<div>
 								<p className="text-sm text-muted-foreground mb-2">Progress</p>
-								<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-									<div
-										className="bg-green-500 h-full rounded-full transition-all"
-										style={{
-											width: `${Math.min((realizedProfitTotal / goal.target_amount) * 100, 100)}%`,
-										}}
-									/>
-								</div>
+								<Progress value={goalProgress} className="h-3 [&>*]:bg-green-500" />
 								<p className="text-sm text-muted-foreground mt-2">
-									{formatBaseurrency(realizedProfitTotal)} profit earned · {Math.min(Math.round((realizedProfitTotal / goal.target_amount) * 100), 100)}% of goal
+									{formatBaseurrency(realizedProfitTotal)} profit earned · {Math.round(goalProgress)}% of goal
 								</p>
 							</div>
 						</div>

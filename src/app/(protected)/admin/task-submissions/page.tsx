@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -59,6 +60,7 @@ export default function TaskSubmissionsPage() {
 	const [totalCount, setTotalCount] = useState(0);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [retryCount, setRetryCount] = useState(0);
+	const [selectedSubmission, setSelectedSubmission] = useState<TaskSubmission | null>(null);
 
 	const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -144,7 +146,11 @@ export default function TaskSubmissionsPage() {
 									))
 								) : submissions.length > 0 ? (
 									submissions.map((submission: TaskSubmission) => (
-										<TableRow key={submission.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+										<TableRow
+											key={submission.id}
+											className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+											onClick={() => setSelectedSubmission(submission)}
+										>
 											<TableCell className="font-medium">{submission.user_name}</TableCell>
 											<TableCell>{submission.task_title}</TableCell>
 											<TableCell className="max-w-xs truncate">{submission.submission_content}</TableCell>
@@ -161,6 +167,30 @@ export default function TaskSubmissionsPage() {
 							</TableBody>
 						</Table>
 					</div>
+
+					<Dialog open={!!selectedSubmission} onOpenChange={(open) => !open && setSelectedSubmission(null)}>
+						<DialogContent className="max-h-[90vh] overflow-y-auto">
+							<DialogHeader>
+								<DialogTitle>{selectedSubmission?.task_title || 'Submission Details'}</DialogTitle>
+								<DialogDescription className="space-y-2">
+									<span className="block">
+										<strong>User:</strong> {selectedSubmission?.user_name}
+									</span>
+									<span className="block">
+										<strong>Task:</strong> {selectedSubmission?.task_title}
+									</span>
+									<span className="block">
+										<strong>Submitted Date:</strong>{' '}
+										{selectedSubmission ? formatDateNice(new Date(selectedSubmission.created_at)) : null}
+									</span>
+									<span className="block pt-2">
+										<strong>Submission:</strong>
+									</span>
+									<span className="block whitespace-pre-wrap break-words">{selectedSubmission?.submission_content}</span>
+								</DialogDescription>
+							</DialogHeader>
+						</DialogContent>
+					</Dialog>
 
 					{totalPages > 1 && (
 						<div className="flex items-center justify-between space-x-2 py-4 px-2">

@@ -266,7 +266,7 @@
 
 /* Notification Panel */
 .notification-center-panel {
-	background: var(--card);
+	background: white;
 	color: var(--card-foreground);
 	width: 100vw;
 	max-width: 420px;
@@ -284,7 +284,7 @@
 		box-shadow 0.2s;
 	pointer-events: auto;
 	backdrop-filter: blur(8px);
-	animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .notification-center-overlay.open .notification-center-panel {
 	transform: translateX(0);
@@ -334,10 +334,10 @@
 	flex: 1 1 0%;
 	overflow-y: auto;
 	padding: 1rem 0.5rem 1.5rem 0.5rem;
-	background: var(--card);
+	background: white;
 }
 .notification-center-list.enhanced {
-	background: var(--card);
+	background: white;
 	padding: 1.2rem 0.5rem 2rem 0.5rem;
 	overflow-y: auto;
 	scrollbar-width: thin;
@@ -353,8 +353,8 @@
 
 /* Notification Item */
 .notification-center-item {
-	background: var(--dashboard-muted-bg);
-	color: var(--dashboard-muted-foreground);
+	background: var(--dashboard-accent);
+	color: var(--dashboard-foreground);
 	border-radius: 1rem;
 	margin-bottom: 1rem;
 	padding: 1rem 1.25rem 0.75rem 1.25rem;
