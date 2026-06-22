@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { X, Bell, Trash2Icon } from 'lucide-react';
+import { X, Bell, Trash2Icon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/lib/logger';
 import { formatRelativeTime } from '@/lib/helpers';
@@ -31,6 +31,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, userId, handleUnread }) => {
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const unreadCount = notifications.filter((n) => !n.is_read).length;
 
@@ -147,11 +148,16 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 
 	// 1. Define the function for deleting a notification
 	const handleDeleteNotification = async (id: string) => {
+		setDeletingId(id);
 		try {
-			await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
-			setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+			const res = await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
+			if (res.ok) {
+				setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+			}
 		} catch (e) {
 			logger.error('Failed to delete notification', e);
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
@@ -188,8 +194,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 											{!n.is_read && <span className="inline-block w-2 h-2 rounded-full bg-[var(--dashboard-accent)] animate-pulse flex-shrink-0" title="New" />}
 											<span className="font-semibold text-[var(--dashboard-accent-muted)] text-base truncate lg:max-w-[240px]">{n.title}</span>
 										</CustomLink>
-										<Button variant="ghost" size="icon" onClick={() => handleDeleteNotification(n.id)} className="opacity-60 hover:opacity-100 text-destructive ml-2 focus:outline-none" title="Delete notification">
-											<Trash2Icon className="h-4 w-4" />
+										<Button variant="ghost" size="icon" onClick={() => handleDeleteNotification(n.id)} disabled={deletingId === n.id} className="opacity-60 hover:opacity-100 text-destructive ml-2 focus:outline-none" title="Delete notification">
+											{deletingId === n.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2Icon className="h-4 w-4" />}
 										</Button>
 									</div>
 									<div className="notification-center-item-body text-[var(--dashboard-foreground)] text-sm mb-1 break-words whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: n.message }}></div>

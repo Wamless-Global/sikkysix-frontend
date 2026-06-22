@@ -311,6 +311,9 @@ export default function SingleCategoryContent() {
 				setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) - amount });
 
 				toast.success(`New shares bought successfully!`);
+				if (typeof window !== 'undefined') {
+					window.dispatchEvent(new CustomEvent('goal:refresh'));
+				}
 				router.push('/account/my-savings');
 			} else {
 				const errorData = await response.json().catch(() => ({}));

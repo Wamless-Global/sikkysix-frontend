@@ -132,6 +132,9 @@ export default function PortfolioItemDetailPageContent() {
 			setCurrentUser({ ...(currentUser as AuthenticatedUser), wallet_balance: (currentUser?.wallet_balance ?? 0) + data.base_currency_amount });
 
 			toast.success(`Withdrawal successful! ${formatBaseurrency(data.base_currency_amount)} credited to your wallet.`, { id: toastId });
+			if (typeof window !== 'undefined') {
+				window.dispatchEvent(new CustomEvent('goal:refresh'));
+			}
 			router.push('/account/my-savings');
 		} catch (err) {
 			// console.error('Error processing withdrawal:', err);

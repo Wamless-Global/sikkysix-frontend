@@ -6,7 +6,7 @@ import { Goal } from '@/types/modules/taskGoal';
 import { Skeleton } from '../ui/skeleton';
 import { fetchWithAuth } from '@/lib/fetchWithAuth';
 import { toast } from '../ui/sonner';
-import { handleFetchMessage } from '@/lib/helpers';
+import { handleFetchMessage, getLoggedInAsUser, getBaseCurrency, convertCurrency } from '@/lib/helpers';
 import { Button } from '../ui/button';
 import { CustomLink } from '../ui/CustomLink';
 
@@ -25,23 +25,36 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 	const [requireNewGoal, setRequireNewGoal] = useState(initialRequireNewGoal ?? true);
 	const [goalFormData, setGoalFormData] = useState({ description: '', amount: '', date: '' });
 
+	const isAdminImpersonating = typeof window !== 'undefined' ? !!getLoggedInAsUser() : false;
+
+	const loadGoal = async () => {
+		try {
+			const response = await fetchWithAuth('/api/goals');
+			const result = await response.json();
+			if (result.status === 'success' && result.data) {
+				setGoal(result.data.goal ?? null);
+				setRequireNewGoal(result.data.require_new_goal_after_completion ?? true);
+			}
+		} catch (err) {
+			toast.error(handleFetchMessage(err, 'Failed to load goal'));
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		if (hasInitialData) return; // server already gave us data
-		const loadGoal = async () => {
-			try {
-				const response = await fetchWithAuth('/api/goals');
-				const result = await response.json();
-				if (result.status === 'success' && result.data) {
-					setGoal(result.data.goal ?? null);
-					setRequireNewGoal(result.data.require_new_goal_after_completion ?? true);
-				}
-			} catch (err) {
-				toast.error(handleFetchMessage(err, 'Failed to load goal'));
-			} finally {
-				setIsLoading(false);
-			}
-		};
 		loadGoal();
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		const handleRefresh = () => {
+			setIsLoading(true);
+			loadGoal();
+		};
+		window.addEventListener('goal:refresh', handleRefresh);
+		return () => window.removeEventListener('goal:refresh', handleRefresh);
 	}, []);
 
 	const handleGoalSubmit = async (e: React.FormEvent) => {
@@ -96,6 +109,7 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 
 	if (!isLoading && goal && !goal.is_completed) return null;
 	if (!isLoading && goal?.is_completed && !requireNewGoal) return null;
+	if (isAdminImpersonating) return null;
 
 	return (
 		<div className="fixed bottom-0 right-0 left-0 top-0 z-50 w-full h-full bg-gray-700/70 flex items-center justify-center p-4">
@@ -117,8 +131,14 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required />
 							</div>
 							<div>
-								<label className="block text-sm font-medium mb-2">Target Amount</label>
-								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" required step="0.01" />
+								<div className="flex items-center justify-between mb-2">
+									<label className="block text-sm font-medium">Target Amount</label>
+									<span className="text-sm font-bold">~ {convertCurrency(+goalFormData.amount || 0)}</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="flex-1 px-3 py-2 border rounded-md bg-background border-input" required step="0.01" />
+									<span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{getBaseCurrency()}</span>
+								</div>
 							</div>
 							<div>
 								<label className="block text-sm font-medium mb-2">Target Date</label>
@@ -140,8 +160,14 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 								<input type="text" value={goalFormData.description} onChange={(e) => setGoalFormData({ ...goalFormData, description: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="e.g., Vacation, Emergency Fund" required />
 							</div>
 							<div>
-								<label className="block text-sm font-medium mb-2">Target Amount</label>
-								<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="w-full px-3 py-2 border rounded-md bg-background border-input" placeholder="0.00" required step="0.01" />
+								<div className="flex items-center justify-between mb-2">
+									<label className="block text-sm font-medium">Target Amount</label>
+									<span className="text-sm font-bold">~ {convertCurrency(+goalFormData.amount || 0)}</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<input type="number" value={goalFormData.amount} onChange={(e) => setGoalFormData({ ...goalFormData, amount: e.target.value })} className="flex-1 px-3 py-2 border rounded-md bg-background border-input" placeholder="0.00" required step="0.01" />
+									<span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{getBaseCurrency()}</span>
+								</div>
 							</div>
 							<div>
 								<label className="block text-sm font-medium mb-2">Target Date</label>
@@ -163,9 +189,6 @@ const GoalSetter = ({ initialGoal, initialRequireNewGoal }: GoalSetterProps) => 
 								<Button variant="default" onClick={() => setIsEditingGoal(true)}>
 									Set New Goal
 								</Button>
-								<CustomLink href="/account/wallet/deposit">
-									<Button variant="outline">Deposit Now</Button>
-								</CustomLink>
 							</div>
 						</div>
 					) : null}

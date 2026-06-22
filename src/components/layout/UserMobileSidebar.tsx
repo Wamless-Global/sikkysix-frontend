@@ -63,7 +63,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 						if ('subMenu' in item && item.subMenu) {
 							return (
 								<div key={item.href}>
-									<button type="button" className="flex w-full items-center justify-between rounded-md px-3 py-2 font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground text-sm" onClick={() => setOpenSubMenu(openSubMenu === item.label ? null : item.label)}>
+									<button type="button" className="flex w-full items-center justify-between rounded-md px-3 py-2 font-medium text-muted hover:bg-accent hover:text-accent-foreground text-sm" onClick={() => setOpenSubMenu(openSubMenu === item.label ? null : item.label)}>
 										{isActive ? <span className="text-white">{item.label}</span> : item.label}
 										<span className={cn('ml-2 transition-transform', openSubMenu === item.label ? 'rotate-90' : '')}>▶</span>
 									</button>
@@ -71,7 +71,7 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 									<ul className={cn('pl-4 space-y-1', openSubMenu === item.label ? 'block' : 'hidden')}>
 										{item.subMenu.map((sub) => (
 											<li key={sub.href}>
-												<CustomLink href={sub.href} className={cn(pathname === sub.href ? 'font-bold text-white !py-4' : 'block rounded text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground', 'px-3 py-2')} onClick={onClose}>
+												<CustomLink href={sub.href} className={cn(pathname === sub.href ? 'font-bold text-white !py-4' : 'block rounded text-sm text-muted hover:bg-accent hover:text-accent-foreground', 'px-3 py-2')} onClick={onClose}>
 													{sub.label}
 												</CustomLink>
 											</li>
@@ -83,14 +83,14 @@ const UserMobileSidebar: React.FC<UserMobileSidebarProps> = ({ isOpen, isLogoutL
 
 						if (currentUser?.roles.includes(item.for as Role) && !currentUser?.roles.includes(item.hideFor as Role))
 							return (
-								<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
-									{isActive ? <span className="text-white">{item.label}</span> : item.label}
+								<CustomLink key={item.href} href={item.href} className="block rounded-md px-3 py-2 text-sm font-light text-muted hover:bg-accent hover:text-accent-foreground" onClick={onClose}>
+									{isActive ? <span className="text-white font-medium">{item.label}</span> : item.label}
 								</CustomLink>
 							);
 					})}
 				</nav>
 				<div className="mt-auto border-t border-border/40 p-4">
-					<Button variant="outline" className="w-full border-muted-foreground/50 text-gray-700 hover:bg-accent hover:text-accent-foreground text-sm" disabled={isLogoutLoading} onClick={handleLogout} size={'sm'}>
+					<Button variant="outline" className="w-full border-muted/50 text-gray-700 hover:bg-accent hover:text-accent-foreground text-sm" disabled={isLogoutLoading} onClick={handleLogout} size={'sm'}>
 						{isLogoutLoading && <Loader2 className="h-6 w-6 shrink-0 animate-spin" aria-hidden="true" />}
 						Log Out
 					</Button>

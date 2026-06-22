@@ -6,7 +6,7 @@ import { ShowWhenNotInTelegram } from '@/components/providers/ShowWhenNotInTeleg
 export default function AppFooter() {
 	return (
 		<ShowWhenNotInTelegram>
-			<footer className="text-muted-foreground pt-16 pb-6 bg-gradient-to-r from-[var(--lp-green-secondary)] to-[var(--lp-green-secondary)]/90">
+			<footer className="text-muted pt-16 pb-6 bg-gradient-to-r from-[var(--lp-green-secondary)] to-[var(--lp-green-secondary)]/90">
 				<div className="container mx-auto px-4">
 					<div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
 						<div className="md:col-span-2">
