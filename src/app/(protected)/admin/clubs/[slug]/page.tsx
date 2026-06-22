@@ -309,6 +309,8 @@ export default function AdminSingleCategoriesPage() {
 							{ label: 'Maximum Investable', value: formatBaseurrency(categoryData.maximum_investable) },
 							{ label: 'Holders', value: formatNumber(categoryData.holders) },
 							{ label: 'Fee (%)', value: categoryData.fee !== null && categoryData.fee !== undefined ? `${categoryData.fee}%` : 'N/A' },
+							{ label: 'Deposit Fee (%)', value: categoryData.deposit_fee !== null && categoryData.deposit_fee !== undefined ? `${categoryData.deposit_fee}%` : 'N/A' },
+							{ label: 'Withdrawal Fee (%)', value: categoryData.withdrawal_fee !== null && categoryData.withdrawal_fee !== undefined ? `${categoryData.withdrawal_fee}%` : 'N/A' },
 							{ label: 'Volatility Factor', value: categoryData.volatility_factor !== null && categoryData.volatility_factor !== undefined ? categoryData.volatility_factor.toString() : 'N/A' },
 							{ label: 'Admin Target Multiplier', value: categoryData.admin_target_multiplier !== null && categoryData.admin_target_multiplier !== undefined ? categoryData.admin_target_multiplier.toString() : 'N/A' },
 							{ label: '24h Change', value: <PriceChangeIndicator value={categoryData.price_change_24h} /> },

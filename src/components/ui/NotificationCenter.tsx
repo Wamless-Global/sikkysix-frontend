@@ -99,19 +99,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 		};
 	}, [userId]);
 
-	// Click-away to close on large screens
-	useEffect(() => {
-		if (!open) return;
-		function handleClick(e: MouseEvent) {
-			const panel = document.querySelector('.notification-center-panel');
-			if (panel && !panel.contains(e.target as Node)) {
-				if (window.innerWidth >= 1024) onClose();
-			}
-		}
-		document.addEventListener('mousedown', handleClick);
-		return () => document.removeEventListener('mousedown', handleClick);
-	}, [open, onClose]);
-
 	useEffect(() => {
 		if (!open || notifications.length === 0) return;
 		const unread = notifications.filter((n) => !n.is_read);
@@ -171,8 +158,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose, 
 	// Only render overlay and panel if open is true
 	return open ? (
 		<>
-			<div className="fixed inset-0 z-90 bg-black/70 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" />
-			<div className="notification-center-panel enhanced fixed right-0 top-0 bottom-0 z-100 lg:mr-4">
+			<div className="fixed inset-0 z-90 bg-black/70 transition-opacity duration-200 opacity-100 pointer-events-auto" aria-hidden="true" onClick={onClose} />
+			<div className="notification-center-panel enhanced open fixed right-0 top-0 bottom-0 z-100 lg:mr-4">
 				<div className="notification-center-header enhanced flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[oklch(var(--border))] bg-[oklch(var(--sidebar))] rounded-tl-2xl">
 					<div className="flex items-center gap-3">
 						<Bell className="h-6 w-6 text-[oklch(var(--dashboard-secondary-foreground))]" />

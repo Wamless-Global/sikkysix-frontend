@@ -46,6 +46,8 @@ const categoryEditFormSchema = z
 		total_liquidity: z.coerce.number({ invalid_type_error: 'Total liquidity must be a number.' }).nonnegative({ message: 'Total liquidity must be non-negative.' }),
 		admin_target_multiplier: z.coerce.number({ invalid_type_error: 'Multiplier must be a number.' }).nonnegative({ message: 'Multiplier must be non-negative.' }).optional().nullable(),
 		fee: z.coerce.number({ invalid_type_error: 'Fee must be a number.' }).nonnegative({ message: 'Fee must be non-negative.' }).optional().nullable(),
+		deposit_fee: z.coerce.number({ invalid_type_error: 'Deposit fee must be a number.' }).nonnegative({ message: 'Deposit fee must be non-negative.' }).optional().nullable(),
+		withdrawal_fee: z.coerce.number({ invalid_type_error: 'Withdrawal fee must be a number.' }).nonnegative({ message: 'Withdrawal fee must be non-negative.' }).optional().nullable(),
 		volatility_factor: z.coerce.number({ invalid_type_error: 'Volatility factor must be a number.' }).nonnegative({ message: 'Volatility factor must be non-negative.' }).optional().nullable(),
 		minimum_investable: z.coerce.number({ required_error: 'Minimum investable amount is required.', invalid_type_error: 'Minimum investable amount must be a number.' }).nonnegative({ message: 'Minimum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it&apos;s required.
 		maximum_investable: z.coerce.number({ required_error: 'Maximum investable amount is required.', invalid_type_error: 'Maximum investable amount must be a number.' }).nonnegative({ message: 'Maximum investable amount must be non-negative.' }).default(0), // Default to 0 if not provided, but it&apos;s required.
@@ -117,6 +119,8 @@ export default function EditCategoryPage() {
 						total_liquidity: result.data.total_liquidity,
 						admin_target_multiplier: result.data.admin_target_multiplier || null,
 						fee: result.data.fee || null,
+						deposit_fee: result.data.deposit_fee ?? null,
+						withdrawal_fee: result.data.withdrawal_fee ?? null,
 						volatility_factor: result.data.volatility_factor || null,
 						minimum_investable: result.data.minimum_investable ?? 0,
 						maximum_investable: result.data.maximum_investable ?? 0,
@@ -394,6 +398,36 @@ export default function EditCategoryPage() {
 												<Input type="number" min="0" step="any" placeholder="e.g., 0.5" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
 											</FormControl>
 											<FormDescription>Optional: Transaction fee percentage.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="deposit_fee"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Deposit/Buy Fee (%)</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.5" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Fee charged on deposits/buys.</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="withdrawal_fee"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Withdrawal/Sell Fee (%)</FormLabel>
+											<FormControl>
+												<Input type="number" min="0" step="any" placeholder="e.g., 0.5" {...field} onChange={(e) => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))} value={field.value ?? ''} disabled={isSubmitting} />
+											</FormControl>
+											<FormDescription>Optional: Fee charged on withdrawals/sells.</FormDescription>
 											<FormMessage />
 										</FormItem>
 									)}

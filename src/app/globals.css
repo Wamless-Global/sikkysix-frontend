@@ -259,11 +259,6 @@
 	pointer-events: none;
 	transition: background 0.2s;
 }
-.notification-center-overlay.open {
-	pointer-events: auto;
-	background: rgba(0, 0, 0, 0.32);
-}
-
 /* Notification Panel */
 .notification-center-panel {
 	background: white;
@@ -286,7 +281,7 @@
 	backdrop-filter: blur(8px);
 	animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-.notification-center-overlay.open .notification-center-panel {
+.notification-center-panel.open {
 	transform: translateX(0);
 }
 @media (max-width: 640px) {

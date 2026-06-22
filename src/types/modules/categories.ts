@@ -42,6 +42,8 @@ export interface Category {
 	created_at: string;
 	image?: string | null;
 	fee?: number | null;
+	deposit_fee?: number | null;
+	withdrawal_fee?: number | null;
 	volatility_factor?: number | null;
 	circulating_supply?: number;
 	market_cap?: number;

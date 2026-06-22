@@ -428,8 +428,10 @@ export default function SingleCategoryContent() {
 						{ label: 'CURRENT SHARES AMOUNT', value: formatBaseurrency(categoryData.current_price_per_unit) },
 						{ label: 'MINIMUM AMOUNT', value: formatBaseurrency(categoryData.minimum_investable) },
 						{ label: 'MAXIMUM AMOUNT', value: formatBaseurrency(categoryData.maximum_investable) },
+						{ label: 'DEPOSIT FEE', value: categoryData.deposit_fee != null ? `${categoryData.deposit_fee}%` : 'N/A' },
+						{ label: 'WITHDRAWAL FEE', value: categoryData.withdrawal_fee != null ? `${categoryData.withdrawal_fee}%` : 'N/A' },
 					]
-						.filter((metric) => metric.value !== 'N/A' && metric.value !== undefined && metric.value !== null)
+						.filter((metric) => metric.value !== undefined && metric.value !== null)
 						.map((metric) => (
 							<div key={metric.label}>
 								<p className="text-sm text-muted-foreground">{metric.label}</p>
@@ -535,6 +537,9 @@ export default function SingleCategoryContent() {
 							</>
 						)}
 						{amountError && <p className="text-sm text-red-400 mt-1 px-1">{amountError}</p>}
+						{categoryData.deposit_fee != null && categoryData.deposit_fee > 0 && (
+							<p className="text-xs text-muted-foreground mt-1 px-1">Deposit fee: {categoryData.deposit_fee}%</p>
+						)}
 					</div>
 				</CardContent>
 			</Card>
